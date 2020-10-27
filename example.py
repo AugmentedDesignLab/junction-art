@@ -1,6 +1,8 @@
 import pyodrx 
 import numpy as np
 import os
+import extensions
+from extensions.renamedClasses import LaneSections
 
 line1 = pyodrx.Line(100)
 
@@ -36,11 +38,11 @@ lanesec.add_left_lane(lane3)
 lanesec.add_right_lane(lane4)
 lanesec.add_right_lane(lane5)
 
-lanes = pyodrx.Lanes()
-lanes.add_lanesection(lanesec)
+laneSections = LaneSections()
+laneSections.add_lanesection(lanesec)
 
 
-road = pyodrx.Road(1,planview,lanes)
+road = pyodrx.Road(1,planview,laneSections)
 
 odr = pyodrx.OpenDrive('myroad')
 
@@ -48,4 +50,4 @@ odr.add_road(road)
 
 odr.adjust_roads_and_lanes()
 
-pyodrx.run_road(odr,os.path.join('..','esmini'))
+extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
