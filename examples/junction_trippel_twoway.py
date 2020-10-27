@@ -1,7 +1,13 @@
+
+import os, sys
+print( f"current working dir: {os.getcwd()}")
+# exec(open("./fixCWD.py").read())
+
+sys.path.append(os.path.abspath('../pyodrx'))
+
 import pyodrx 
 import numpy as np
-import os
-
+import extensions
 
 
 rm = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,rule=pyodrx.MarkRule.no_passing)
@@ -116,4 +122,4 @@ junction.add_connection(con6)
 odr.add_junction(junction)
 odr.adjust_roads_and_lanes()
 # pyodrx.prettyprint(odr.get_element())
-pyodrx.run_road(odr,os.path.join('..','pyoscx','esmini'))
+extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))

@@ -2,7 +2,7 @@ import numpy as np
 import os
 
 import pyodrx
-
+exec(open("init_notebook.py").read())
 
 
     
