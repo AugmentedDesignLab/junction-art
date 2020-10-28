@@ -2,6 +2,9 @@ import numpy as np
 import os
 import pyodrx 
 import math
+from junctions.RoadBuilder import RoadBuilder
+from junctions.StandardCurvatures import StandardCurvature
+from junctions.StandardCurveTypes import StandardCurveTypes
 
 
 class JunctionHarvester:
@@ -22,6 +25,8 @@ class JunctionHarvester:
         self.maxAngle = maxAngle
         self.lastId = lastId
 
+        self.roadBuilder = RoadBuilder()
+
         pass
 
 
@@ -32,13 +37,15 @@ class JunctionHarvester:
 
     
 
-    def harvest2ways2Lanes(self, stepAngle=np.pi/20, maxTries = 100):
+    def harvest2ways2Lanes(self, stepAngle=np.pi/20, maxTries = 100, seed=39):
         """We create junctions of two roads. Will create at least one road per angle.
 
         Args:
             stepAngle ([type], optional): used to generate angles between roads in conjunction with min and max angles. Defaults to np.pi/20.
             maxTries (int, optional): maximum number of junctions will be maxTries. Defaults to 1000.
+            seed (int, optional): defaults to 39
         """
+        np.random.seed(seed)
         # for each angle
         tries = 0
         roadsPerAngle = round((maxTries * stepAngle)/(self.maxAngle - self.minAngle))
@@ -73,7 +80,7 @@ class JunctionHarvester:
         # print( f"random2ways2Lanes: creating a road network for angle: {math.degrees(angleBetweenRoads)}")
         roads = []
         roads.append(pyodrx.create_straight_road(0)) # cannot reuse roads due to some references to links cannot be reinitialized with pyodrx lib.
-        roads.append(self.createRandomConnectionConnectionRoad(angleBetweenRoads, 1))
+        roads.append(self.createRandomConnectionConnectionRoad(1, angleBetweenRoads))
         roads.append(pyodrx.create_straight_road(2))
 
         self.link3RoadsWithMidAsJunction(roads)
@@ -93,20 +100,21 @@ class JunctionHarvester:
         return odr
 
 
-    def createRandomConnectionConnectionRoad(self, angleBetweenRoads, connectionRoadId):
+    def createRandomConnectionConnectionRoad(self, connectionRoadId, angleBetweenRoads):
         """The magic connectionRoad
 
         Args:
             angleBetweenRoads ([type]): The angle between the roads which this connectionRoad is suppose to connect together
             connectionRoadId ([type]): id to be assigned to the new connection road.
         """
-        connectionRoad = pyodrx.create_cloth_arc_cloth(.05, arc_angle=np.pi/10000000, cloth_angle=(np.pi - angleBetweenRoads)/2, r_id=connectionRoadId, junction = 1)
+        # connectionRoad = pyodrx.create_cloth_arc_cloth(.05, arc_angle=np.pi/10000000, cloth_angle=(np.pi - angleBetweenRoads)/2, r_id=connectionRoadId, junction = 1)
         # connectionRoad = pyodrx.create_cloth_arc_cloth(.05, arc_angle=np.pi/10000000, cloth_angle=np.pi/2, r_id=connectionRoadId, junction = 1)
 
+        # connectionRoad = self.roadBuilder.createSimpleCurve(connectionRoadId, angleBetweenRoads, isJunction=True, curvature=curvature)
+        # connectionRoad = self.roadBuilder.createS(connectionRoadId, angleBetweenRoads, isJunction=True, curvature=curvature)
+
+        connectionRoad = self.roadBuilder.createRandomCurve(connectionRoadId, angleBetweenRoads, isJunction=True)
         return connectionRoad
-
-
-
 
 
     def link3RoadsWithMidAsJunction(self, roads):
