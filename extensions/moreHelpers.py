@@ -24,9 +24,14 @@ def view_road(opendrive,esminipath = 'esmini'):
     opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
 
     xodrPath =  os.path.join(esminipath,'resources','xodr','pythonroad.xodr')
-    visualiserPath =  os.path.join(esminipath,'EnvironmentSimulator', 'Applications', 'OdrPlot', 'xodr.py')
+    viewRoadFromFile(xodrPath, esminipath)
 
-    
+    pass
+
+
+
+def viewRoadFromFile(xodrPath, esminipath = 'esmini'):
+
     if os.name == 'posix':
         ordPlotPath = os.path.join(esminipath,'bin','odrplot')
     elif os.name == 'nt':
@@ -37,6 +42,8 @@ def view_road(opendrive,esminipath = 'esmini'):
     print("opening matplot lib")
     plotRoadFromCSV('track.csv')
     os.remove('track.csv')
+
+    pass
 
 
 def plotRoadFromCSV(csvFile):
@@ -83,7 +90,7 @@ def plotRoadFromCSV(csvFile):
                 lane_z[-1].append(float(pos[2]))
                 lane_h[-1].append(float(pos[3]) + math.pi / 2.0)
 
-    p1 = plt.figure(1)
+    p1 = plt.figure(1, figsize=(16,8))
     for i in range(len(ref_x)):
         plt.plot(ref_x[i], ref_y[i], linewidth=2.0, color='#BB5555')
     for i in range(len(lane_x)):
