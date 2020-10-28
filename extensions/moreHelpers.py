@@ -32,13 +32,16 @@ def view_road(opendrive,esminipath = 'esmini'):
 
 def viewRoadFromFile(xodrPath, esminipath = 'esmini'):
 
+
+    print(f"plotting xord: {xodrPath}")
+
     if os.name == 'posix':
         ordPlotPath = os.path.join(esminipath,'bin','odrplot')
     elif os.name == 'nt':
         ordPlotPath = os.path.join(esminipath,'bin','odrplot.exe')
 
     os.system(f"{ordPlotPath} {xodrPath}")
-    # os.system(f"python {visualiserPath} track.csv")
+    
     print("opening matplot lib")
     plotRoadFromCSV('track.csv')
     os.remove('track.csv')

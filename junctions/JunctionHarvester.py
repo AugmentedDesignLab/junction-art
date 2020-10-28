@@ -6,7 +6,7 @@ import math
 
 class JunctionHarvester:
 
-    def __init__(self, outputDir, outputPrefix, lastId=0, minAngle = np.pi / 10, maxAngle = np.pi):
+    def __init__(self, outputDir, outputPrefix, lastId=0, minAngle = np.pi / 10, maxAngle = np.pi - .0001):
         """The angle between two connected roads are >= self.minAngle <= self.maxAngle
 
         Args:
@@ -28,11 +28,11 @@ class JunctionHarvester:
     
 
     def getOutputPath(self, fname):
-        return os.path.join(self.destinationPrefix, fname)
+        return os.path.join(self.destinationPrefix, fname) + '.xodr'
 
     
 
-    def harvest2ways2Lanes(self, stepAngle=np.pi/20, maxTries = 10):
+    def harvest2ways2Lanes(self, stepAngle=np.pi/20, maxTries = 100):
         """We create junctions of two roads. Will create at least one road per angle.
 
         Args:
@@ -41,19 +41,17 @@ class JunctionHarvester:
         """
         # for each angle
         tries = 0
-        roadsPerAngle = round(maxTries/stepAngle)
+        roadsPerAngle = round((maxTries * stepAngle)/(self.maxAngle - self.minAngle))
         if roadsPerAngle == 0:
             roadsPerAngle = 1
 
-        while (tries < maxTries):
-            angleBetweenRoads = self.minAngle + tries * stepAngle
-
-            if angleBetweenRoads > self.maxAngle:
-                break
+        angleBetweenRoads = self.minAngle 
+        while (tries < maxTries and angleBetweenRoads < self.maxAngle ):
 
             self.randomSome2ways2Lanes(angleBetweenRoads, roadsPerAngle)
 
             tries += roadsPerAngle
+            angleBetweenRoads += stepAngle
         
         print(f"created {tries} roads")
 
@@ -72,7 +70,7 @@ class JunctionHarvester:
 
 
     def random2ways2Lanes(self, angleBetweenRoads):
-        print( f"random2ways2Lanes: creating a road network for angle: {math.degrees(angleBetweenRoads)}")
+        # print( f"random2ways2Lanes: creating a road network for angle: {math.degrees(angleBetweenRoads)}")
         roads = []
         roads.append(pyodrx.create_straight_road(0)) # cannot reuse roads due to some references to links cannot be reinitialized with pyodrx lib.
         roads.append(self.createRandomConnectionConnectionRoad(angleBetweenRoads, 1))
@@ -82,7 +80,7 @@ class JunctionHarvester:
         junction = self.create2RoadJunction(roads)
 
         
-        odr = pyodrx.OpenDrive('A two way junction')
+        odr = pyodrx.OpenDrive('myroad')
         for r in roads:
             odr.add_road(r)
         
@@ -102,7 +100,8 @@ class JunctionHarvester:
             angleBetweenRoads ([type]): The angle between the roads which this connectionRoad is suppose to connect together
             connectionRoadId ([type]): id to be assigned to the new connection road.
         """
-        connectionRoad = pyodrx.create_cloth_arc_cloth(.05, arc_angle=np.pi/10000000, cloth_angle=angleBetweenRoads/2, r_id=connectionRoadId, junction = 1)
+        connectionRoad = pyodrx.create_cloth_arc_cloth(.05, arc_angle=np.pi/10000000, cloth_angle=(np.pi - angleBetweenRoads)/2, r_id=connectionRoadId, junction = 1)
+        # connectionRoad = pyodrx.create_cloth_arc_cloth(.05, arc_angle=np.pi/10000000, cloth_angle=np.pi/2, r_id=connectionRoadId, junction = 1)
 
         return connectionRoad
 
@@ -130,7 +129,7 @@ class JunctionHarvester:
         """
 
         connection = self.connect2LaneRoads(0, 1)
-        junction = pyodrx.Junction('junction',1)
+        junction = pyodrx.Junction('test',1)
         junction.add_connection(connection)
 
         return junction
