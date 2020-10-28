@@ -2,6 +2,7 @@ import numpy as np
 import os
 import pyodrx 
 import math
+import dill
 from junctions.RoadBuilder import RoadBuilder
 from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
@@ -53,14 +54,18 @@ class JunctionHarvester:
             roadsPerAngle = 1
 
         angleBetweenRoads = self.minAngle 
+        odrObjectsPerAngle = {}
         while (tries < maxTries and angleBetweenRoads < self.maxAngle ):
 
-            self.randomSome2ways2Lanes(angleBetweenRoads, roadsPerAngle)
-
+            odrObjects = self.randomSome2ways2Lanes(angleBetweenRoads, roadsPerAngle)
+            odrObjectsPerAngle[angleBetweenRoads] = odrObjects
             tries += roadsPerAngle
             angleBetweenRoads += stepAngle
         
         print(f"created {tries} roads")
+
+        with(open(self.destinationPrefix + "_harvestedOrds.dill", "wb")) as f:
+            dill.dump(odrObjectsPerAngle, f)
 
         pass
 
@@ -68,12 +73,14 @@ class JunctionHarvester:
     def randomSome2ways2Lanes(self, angleBetweenRoads, roadsPerAngle):
 
         print( f"randomSome2ways2Lanes: creating {roadsPerAngle} for angle: {math.degrees(angleBetweenRoads)}")
+        odrObjects = []
         for i in range( roadsPerAngle):
             odr = self.random2ways2Lanes(angleBetweenRoads)
             fname = "road2lane2angle" + str(round(math.degrees(angleBetweenRoads))) + "no" + str(i)
             odr.write_xml(self.getOutputPath(fname))
+            odrObjects.append(odr)
 
-        pass
+        return odrObjects
 
 
     def random2ways2Lanes(self, angleBetweenRoads):
@@ -95,7 +102,7 @@ class JunctionHarvester:
         odr.add_junction(junction)
         print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
         odr.adjust_roads_and_lanes()
-        print("adjustment done, didn't freeze!!!!!!!!!")
+        # print("adjustment done, didn't freeze!!!!!!!!!")
 
         return odr
 
