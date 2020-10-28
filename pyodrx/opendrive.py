@@ -120,7 +120,7 @@ class Road():
 
                 lanes (Lanes): the lanes of the road
 
-                road_type (int): type of road (junction)
+                road_type (int): type of road (junction) This is a violation of open drive spec. Road type is a different concept.
                     Default: -1
 
                 name (str): name of the road (optional)
