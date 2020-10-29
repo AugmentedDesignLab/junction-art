@@ -58,7 +58,7 @@ class JunctionHarvester:
         while (tries < maxTries and angleBetweenRoads < self.maxAngle ):
 
             odrObjects = self.randomSome2ways2Lanes(angleBetweenRoads, roadsPerAngle)
-            odrObjectsPerAngle[angleBetweenRoads] = odrObjects
+            odrObjectsPerAngle[str(angleBetweenRoads)] = odrObjects
             tries += roadsPerAngle
             angleBetweenRoads += stepAngle
         
@@ -93,8 +93,8 @@ class JunctionHarvester:
         self.link3RoadsWithMidAsJunction(roads)
         junction = self.create2RoadJunction(roads)
 
-        
-        odr = pyodrx.OpenDrive('myroad')
+        self.lastId += 1
+        odr = pyodrx.OpenDrive('R2_L2_' + str(self.lastId))
         for r in roads:
             odr.add_road(r)
         

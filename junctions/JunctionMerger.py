@@ -7,7 +7,7 @@ from junctions.RoadBuilder import RoadBuilder
 from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
 import extensions
-
+from copy import copy
 
 class JunctionMerger:
 
@@ -34,26 +34,26 @@ class JunctionMerger:
         pass
 
 
-    def merge2R2L(self, odrs):
+    def getOutputPath(self, fname):
+        return self.destinationPrefix + fname + '.xodr'
+    
+
+    def merge2R2L(self, odrs, save=True):
 
         # how do we merge 2 road junctions?
         
         # 1 find connectionRoad in the first, it's predecessor is first road, successor is the second road.
 
-        connectionRoadsFirst = extensions.getConnectionRoads(odrs[0].roads, odrs[0].junction)
-        connectionRoadFirst = connectionRoadsFirst[0]
-        connectionRoadsSecond = extensions.getConnectionRoads(odrs[1].roads, odrs[1].junction)
-        connectionRoadSecond = connectionRoadsFirst[0]
+        connectionRoadsFirst = extensions.getConnectionRoads(odrs[0].roads, odrs[0].junctions[0])
+        connectionRoadFirst = copy(connectionRoadsFirst[0])
+        connectionRoadsSecond = extensions.getConnectionRoads(odrs[1].roads, odrs[1].junctions[0])
+        connectionRoadSecond = copy(connectionRoadsSecond[0])
 
-        roadFirstPred = odrs[0].roads[connectionRoadFirst.predecessor.element_id]
-        roadFirstSuc = odrs[0].roads[connectionRoadFirst.successor.element_id]
-        roadSecondPred = odrs[1].roads[connectionRoadSecond.predecessor.element_id]
-        roadSecondSuc = odrs[1].roads[connectionRoadSecond.successor.element_id]
+        roadFirstPred = copy(extensions.getRoadFromRoadDic(odrs[0].roads, connectionRoadFirst.predecessor.element_id))
+        roadFirstSuc = copy(extensions.getRoadFromRoadDic(odrs[0].roads, connectionRoadFirst.successor.element_id))
+        roadSecondPred = copy(extensions.getRoadFromRoadDic(odrs[1].roads, connectionRoadSecond.predecessor.element_id))
+        roadSecondSuc = copy(extensions.getRoadFromRoadDic(odrs[1].roads, connectionRoadSecond.successor.element_id))
 
-        print(roadFirstPred)
-        print(roadFirstSuc)
-        print(roadSecondPred)
-        print(roadSecondSuc)
 
         roads = []
         roads.append(roadFirstPred)
@@ -61,8 +61,50 @@ class JunctionMerger:
         roads.append(roadFirstSuc)
         roads.append(connectionRoadSecond)
         roads.append(roadSecondSuc)
+        
+        # regenerate ids for connectionRoadSecond and roadSecondSuc
+        connectionRoadSecond.id = roadFirstSuc.id + 100
+        roadSecondSuc.id = connectionRoadSecond.id + 1
 
-        # fix links for roadFirstSuc, connectionRoadSecond
+        # fix links for roadFirstSuc, connectionRoadSecond, roadSecondSuc
+
+        self.regenAndMerge(roadFirstSuc, connectionRoadSecond, roadSecondSuc)
+
+        # create new junction
+
+        junction = self.createJunction(roadFirstPred, connectionRoadFirst, roadFirstSuc, connectionRoadSecond)
+
+        # newOdr = self.mergeByRoad(self, commonRoads, ords)
+
+        self.lastId += 1
+
+
+        # create the opendrive
+        odr = pyodrx.OpenDrive("3R_2L_" + str(self.lastId))
+        for r in roads:
+            odr.add_road(r)
+            
+        odr.add_junction(junction)
+        print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
+        # odr.adjust_roads_and_lanes()
+
+        print(f"total number of roads added {len(roads)}")
+
+        print(f"total number of roads in odr {len(odr.roads)}")
+
+        if save:
+            odr.write_xml(self.getOutputPath(odr.name))
+
+        return odr
+
+
+    def regenAndMerge(self, roadFirstSuc, connectionRoadSecond, roadSecondSuc):
+        
+        # regenerate ids for connectionRoadSecond and roadSecondSuc
+        connectionRoadSecond.id = roadFirstSuc.id + 100
+        roadSecondSuc.id = connectionRoadSecond.id + 1
+
+        # fix links for roadFirstSuc, connectionRoadSecond, roadSecondSuc
 
         roadFirstSuc.successor = None
         roadFirstSuc.add_successor(pyodrx.ElementType.junction, connectionRoadSecond.id)
@@ -70,10 +112,20 @@ class JunctionMerger:
         connectionRoadSecond.predecessor = None
         connectionRoadSecond.add_predecessor(pyodrx.ElementType.road, roadFirstSuc.id, pyodrx.ContactPoint.start) # interestingly, this becomes the start point after merging.
 
+        connectionRoadSecond.successor = None
+        connectionRoadSecond.add_successor(pyodrx.ElementType.road, roadSecondSuc.id, pyodrx.ContactPoint.start) # interestingly, this becomes the start point after merging.
 
-        # create new junction
+        roadSecondSuc.predecessor = None
+        roadSecondSuc.add_predecessor(pyodrx.ElementType.junction, connectionRoadSecond.id)
 
-        # experiment with connecting more lanes for a single connection road.
+        pass
+
+
+    def createJunction(self, roadFirstPred, connectionRoadFirst, roadFirstSuc, connectionRoadSecond):
+
+        
+        # TODO experiment with connecting more lanes for a single connection road.
+
         con1 = pyodrx.Connection(roadFirstPred.id, connectionRoadFirst.id, pyodrx.ContactPoint.start)
         con1.add_lanelink(-1,-1)
         
@@ -85,24 +137,5 @@ class JunctionMerger:
         junction.add_connection(con1)
         junction.add_connection(con1)
 
-        # newOdr = self.mergeByRoad(self, commonRoads, ords)
-
-        newOrd = pyodrx.OpenDrive("new road")
-
-        # create the opendrive
-        odr = pyodrx.OpenDrive('myroad')
-        for r in roads:
-            odr.add_road(r)
-            
-        # odr.create_junction()
-
-        odr.add_junction(junction)
-        odr.adjust_roads_and_lanes()
-
-        pyodrx.prettyprint(odr.get_element())
-
-        extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
-
-        return odr
-    
+        return junction
     

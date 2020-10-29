@@ -280,8 +280,10 @@ class OpenDrive():
                 road (Road): the road to add 
 
         """
+
+        print(f"adding road with id {road.id}")
         if (len(self.roads) == 0) and road.predecessor:
-            ValueError('No road was added and the added road has a predecessor, please add the predecessor first')
+            raise ValueError(f'No road was added and the added road has a predecessor, please add the predecessor first {road.id} {road.predecessor.element_id}')
 
         self.roads[str(road.id)] = road        
 
@@ -293,12 +295,17 @@ class OpenDrive():
 
         """
         #adjust roads and their geometries 
+        print("start points starting")
         self.adjust_startpoints()
+
+        print("start points adjusted")
 
         results = list(combinations(self.roads, 2))
 
         for r in range(len(results)):
             print('analizing roads', results[r][0], results[r][1] )
+            
+            print(f"create_lane_links for roads {results[r][0]} and {results[r][1]} ")
             create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 

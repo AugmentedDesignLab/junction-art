@@ -13,6 +13,23 @@ class RoadBuilder:
     def __init__(self):
         self.STD_ROADMARK = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,rule=pyodrx.MarkRule.no_passing)
         self.STD_START_CLOTH = 1/1000000000
+        pass
+
+
+    def cloneRoadWithGeoLanesAndType(self, road, newId):
+        """These items are referenced from the original road
+        planview, lanes
+        These items are not referenced (needs to be rebuilt)
+        name, rule, links, successors, predecessors, adjusted
+
+        Args:
+            road ([type]): [description]
+            newId ([type]): [description]
+        """
+        newRoad = pyodrx.Road(newId, road.planview, road.lanes, road.road_type)
+        return newRoad
+
+    
 
     def getJunctionSelection(self, isJunction):
         if isJunction:
@@ -32,6 +49,9 @@ class RoadBuilder:
         curvature = StandardCurvature.getRandomValue()
         if curvature > StandardCurvature.MediumWide.value:
             curvature = StandardCurvature.MediumWide.value # clipping to medium wide
+
+        if np.random.choice(2) > 0 :
+            curvature = -curvature
 
         # 2 random curve type
         randomCurveType = StandardCurveTypes.getRandomItem()
