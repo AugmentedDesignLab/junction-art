@@ -34,7 +34,7 @@ class JunctionHarvester:
     
 
     def getOutputPath(self, fname):
-        return os.path.join(self.destinationPrefix, fname) + '.xodr'
+        return self.destinationPrefix + fname + '.xodr'
 
     
 

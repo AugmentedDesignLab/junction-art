@@ -110,3 +110,73 @@ def plotRoadFromCSV(csvFile):
     p1.gca().set_aspect('equal', adjustable='box')
 
     plt.show()
+
+
+# def createConnection16(connectionRoads, id, roads):
+    """ create_junction creates the junction struct for a set of roads
+
+        This function violates the open drive 1.6 rule: Each connecting road shall be represented by exactly one <connection> element. A connecting road may contain as many lanes as required.
+
+
+        Parameters
+        ----------
+            junction_roads (list of Road): all connecting roads in the junction
+
+            id (int): the id of the junction
+            
+            roads (list of Road): all incomming roads to the junction
+
+        Returns
+        -------
+            junction (Junction): the junction struct ready to use
+
+    """
+    # junc = Junction('my junction',id)
+    
+    # for connectionRoad in connectionRoads:
+
+    #     conne1 = Connection(connectionRoad.successor.element_id, connectionRoad.id, ContactPoint.end) 
+    #     _, sign, _ =  _get_related_lanesection(roads[connectionRoad.successor.element_id], connectionRoad ) 
+    #     n_lanes = len(connectionRoad.lanes.lanesections[-1].leftlanes) 
+    #     for i in range(1, n_lanes+1, 1):
+    #         conne1.add_lanelink( 1*i, 1*sign*i)
+    #         conne1.add_lanelink(-1*i,-1*sign*i)
+    #         junc.add_connection(conne1)
+
+    #     conne2 = Connection(connectionRoad.predecessor.element_id, connectionRoad.id, ContactPoint.start)
+    #     _, sign, _ =  _get_related_lanesection(roads[connectionRoad.predecessor.element_id], connectionRoad) 
+    #     n_lanes = len(connectionRoad.lanes.lanesections[0].leftlanes) 
+    #     for i in range(1, n_lanes+1, 1):
+    #         conne2.add_lanelink( 1*i, 1*sign*i)
+    #         conne2.add_lanelink(-1*i,-1*sign*i)
+    #         junc.add_connection(conne2)
+
+ 
+
+    # return junc
+
+
+def getConnectionRoads(roads, junction):
+    """ Finds connection roads which exists in the junction only
+
+    Args:
+        roads (dictionary): key - id, value - road object
+        junction ([type]): [description]
+    """
+
+    # print(roads)
+    connectionRoads = []
+    for connection in junction.connections:
+        connectionRoadId = connection.connecting_road
+        # print(f"getConnectionRoads connectionRoadId: {connectionRoadId}")
+        connectionRoads.append(getRoadFromRoadDic(roads, connectionRoadId))
+    
+    return connectionRoads
+
+
+def getRoadFromRoadDic(roads, roadId):
+    return roads[str(roadId)]
+
+
+
+

@@ -258,8 +258,10 @@ def create_junction_roads(roads,angles,r,junction=1,spiral_part = 1/3, arc_part 
     return junction_roads
 
 
-def create_junction(junction_roads, id, roads):
+def create_junction(connectionRoads, id, roads):
     """ create_junction creates the junction struct for a set of roads
+
+        This function violates the open drive 1.6 rule: Each connecting road shall be represented by exactly one <connection> element. A connecting road may contain as many lanes as required.
 
 
         Parameters
@@ -277,19 +279,19 @@ def create_junction(junction_roads, id, roads):
     """
     junc = Junction('my junction',id)
     
-    for jr in junction_roads:
+    for connectionRoad in connectionRoads:
 
-        conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end) 
-        _, sign, _ =  _get_related_lanesection(roads[jr.successor.element_id], jr ) 
-        n_lanes = len(jr.lanes.lanesections[-1].leftlanes) 
+        conne1 = Connection(connectionRoad.successor.element_id, connectionRoad.id, ContactPoint.end) 
+        _, sign, _ =  _get_related_lanesection(roads[connectionRoad.successor.element_id], connectionRoad ) 
+        n_lanes = len(connectionRoad.lanes.lanesections[-1].leftlanes) 
         for i in range(1, n_lanes+1, 1):
             conne1.add_lanelink( 1*i, 1*sign*i)
             conne1.add_lanelink(-1*i,-1*sign*i)
             junc.add_connection(conne1)
 
-        conne2 = Connection(jr.predecessor.element_id,jr.id,ContactPoint.start)
-        _, sign, _ =  _get_related_lanesection(roads[jr.predecessor.element_id], jr) 
-        n_lanes = len(jr.lanes.lanesections[0].leftlanes) 
+        conne2 = Connection(connectionRoad.predecessor.element_id, connectionRoad.id, ContactPoint.start)
+        _, sign, _ =  _get_related_lanesection(roads[connectionRoad.predecessor.element_id], connectionRoad) 
+        n_lanes = len(connectionRoad.lanes.lanesections[0].leftlanes) 
         for i in range(1, n_lanes+1, 1):
             conne2.add_lanelink( 1*i, 1*sign*i)
             conne2.add_lanelink(-1*i,-1*sign*i)
