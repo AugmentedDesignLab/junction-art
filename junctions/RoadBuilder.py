@@ -36,7 +36,7 @@ class RoadBuilder:
             return 1
         return -1
 
-    def createRandomCurve(self, connectionRoadId, angleBetweenRoads, isJunction = False, minCurvature = StandardCurvature.Medium.value):
+    def createRandomCurve(self, connectionRoadId, angleBetweenRoads, isJunction = False, minCurvature = StandardCurvature.UltraWide.value):
         
         """The magic curveRoad
 
@@ -148,10 +148,10 @@ class RoadBuilder:
         arc_curv2 = -(arc_curv + arc_curv * multiplier) # the angle needs to be opposite for the second half.
         
         # create geometries
-        spiral1 = pyodrx.Spiral(cloth_start, arc_curv, angle=cloth_angle)
+        spiral1 = extensions.ExtendedSpiral(cloth_start, arc_curv, angle=cloth_angle)
         arc = pyodrx.Arc(arc_curv, angle=arc_angle )
         arc2 = pyodrx.Arc(arc_curv2, angle = -arc_angle2)
-        spiral2 = pyodrx.Spiral(-arc_curv, cloth_start, angle= -cloth_angle)
+        spiral2 = extensions.ExtendedSpiral(-arc_curv, cloth_start, angle= -cloth_angle)
 
         pv.add_geometry(spiral1)
         pv.add_geometry(arc)
@@ -160,7 +160,7 @@ class RoadBuilder:
 
         # create lanes
         lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
-        for i in range(1, n_lanes+1, 1):
+        for _ in range(1, n_lanes+1, 1):
             lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
             lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
         laneSections = extensions.LaneSections()

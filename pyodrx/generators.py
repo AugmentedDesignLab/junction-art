@@ -14,8 +14,10 @@ from .geometry import Line, Arc, Spiral, EulerSpiral, PlanView
 from .opendrive import Road, OpenDrive
 from .links import Junction, Connection, _get_related_lanesection
 
-from extensions.ExtendedRoad import ExtendedRoad
 from junctions.StandardCurveTypes import StandardCurveTypes
+import extensions
+
+from .exceptions import *
 
 
 STD_ROADMARK = RoadMark(RoadMarkType.solid,0.2,rule=MarkRule.no_passing)
@@ -74,7 +76,7 @@ def create_straight_road(road_id,length=100,junction = -1, n_lanes=1, lane_offse
     lanes1.add_lanesection(lanesec1)
 
     # finally create the roads 
-    return ExtendedRoad(road_id,planview1,lanes1,road_type=junction)
+    return extensions.ExtendedRoad(road_id,planview1,lanes1,road_type=junction)
 
 
 def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,cloth_start = STD_START_CLOTH, n_lanes=1, lane_offset=3):
@@ -110,9 +112,9 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,
         arc_angle = -arc_angle 
     
     # create geometries
-    spiral1 = Spiral(cloth_start, arc_curv, angle=cloth_angle)
+    spiral1 = extensions.ExtendedSpiral(cloth_start, arc_curv, angle=cloth_angle)
     arc = Arc(arc_curv, angle=arc_angle )
-    spiral2 = Spiral(arc_curv, cloth_start, angle=cloth_angle)
+    spiral2 = extensions.ExtendedSpiral(arc_curv, cloth_start, angle=cloth_angle)
 
     pv.add_geometry(spiral1)
     pv.add_geometry(arc)
@@ -127,7 +129,7 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,
     lanes.add_lanesection(lsec)
 
     # create road
-    road = ExtendedRoad(r_id,pv,lanes,road_type=junction)
+    road = extensions.ExtendedRoad(r_id,pv,lanes,road_type=junction)
 
     if arc_angle > cloth_angle:
         road.curveType = StandardCurveTypes.LongArc

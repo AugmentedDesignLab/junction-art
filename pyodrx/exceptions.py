@@ -1,6 +1,3 @@
-
-
-
 class NotSameAmountOfLanesError(Exception):
     """ Raised when the amount of Lanes are not the same (used for the automation of linking)
     """

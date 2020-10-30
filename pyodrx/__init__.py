@@ -1,5 +1,6 @@
 # __init__.py
 
+from .exceptions import *
 from .geometry import *
 from .helpers import *
 from .opendrive import *

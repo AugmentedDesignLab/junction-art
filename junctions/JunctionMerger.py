@@ -32,11 +32,14 @@ class JunctionMerger:
 
     def getOutputPath(self, fname):
         return self.destinationPrefix + fname + '.xodr'
-    
+
+
+    def canMerge(self, connectionRoadFirst, connectionRoadSecond):
+        return True
+
+
 
     def merge2R2L(self, odrs, save=True):
-
-        # how do we merge 2 road junctions?
         
         # 1 find connectionRoad in the first, it's predecessor is first road, successor is the second road.
 
@@ -44,6 +47,9 @@ class JunctionMerger:
         connectionRoadFirst = connectionRoadsFirst[0].shallowCopy()
         connectionRoadsSecond = extensions.getConnectionRoads(odrs[1].roads, odrs[1].junctions[0])
         connectionRoadSecond = connectionRoadsSecond[0].shallowCopy()
+
+        if self.canMerge(connectionRoadFirst, connectionRoadSecond) is False:
+            raise Exception("incompatible junctions to merge.")
 
         roadFirstPred = extensions.getRoadFromRoadDic(odrs[0].roads, connectionRoadFirst.predecessor.element_id).shallowCopy()
         roadFirstSuc = extensions.getRoadFromRoadDic(odrs[0].roads, connectionRoadFirst.successor.element_id).shallowCopy()
