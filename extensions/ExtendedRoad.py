@@ -1,6 +1,7 @@
 import pyodrx
 from copy import copy
 import numpy as np
+import math
 
 class ExtendedRoad(pyodrx.Road):
 
@@ -56,6 +57,9 @@ class ExtendedRoad(pyodrx.Road):
             returns the angle between our endpoints in clockwise manner.
         """
 
+        if self.curveType is None:
+            raise Exception("curveType is None")
+
         geoms = self.planview._raw_geometries
         spiral1 = geoms[0]
 
@@ -64,6 +68,20 @@ class ExtendedRoad(pyodrx.Road):
 
         totalAngle = 0
         for g in geoms:
+            # print(math.degrees(g.angle))
             totalAngle += g.angle
 
         return np.pi - totalAngle
+
+
+    def getFirstGeomCurvature(self):
+
+        if self.curveType is None:
+            raise Exception("curveType is None")
+
+        geoms = self.planview._raw_geometries
+        spiral1 = geoms[0]
+        if isinstance(spiral1, pyodrx.Spiral) is False:
+            raise Exception("Not an arc")
+
+        return spiral1.curvend

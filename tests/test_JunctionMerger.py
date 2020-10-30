@@ -38,7 +38,8 @@ class test_JunctionMerger(unittest.TestCase):
 
         numberOfOds = len(odrList)
 
-        for _ in range(10):
+        for _ in range(20):
             selectedOdrs = [odrList[np.random.choice(numberOfOds)], odrList[np.random.choice(numberOfOds)]]
             newOdr = self.merger.merge2R2L(selectedOdrs)
-            extensions.save_road_image(newOdr,os.path.join('..','F:\\myProjects\\av\\esmini'))
+            extensions.view_road(newOdr,os.path.join('..','F:\\myProjects\\av\\esmini'))
+            # extensions.save_road_image(newOdr,os.path.join('..','F:\\myProjects\\av\\esmini'))

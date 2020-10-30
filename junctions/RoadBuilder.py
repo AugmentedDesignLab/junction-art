@@ -122,7 +122,7 @@ class RoadBuilder:
         totalRotation = np.pi - angleBetweenEndpoints
 
         # most of the angleBetweenEndpoints should be assigned to the Arc
-        arcAngle = totalRotation
+        arcAngle = totalRotation * 0.9
         clothAngle = (totalRotation * 0.1) / 2 # curve more.
 
         arc_curv = curvature 

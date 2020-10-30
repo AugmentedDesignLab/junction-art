@@ -8,11 +8,12 @@ from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.JunctionMerger import JunctionMerger
 import extensions
+from junctions.moreExceptions import *
 
 
 class JunctionHarvester:
 
-    def __init__(self, outputDir, outputPrefix, lastId=0, minAngle = np.pi / 10, maxAngle = np.pi):
+    def __init__(self, outputDir, outputPrefix, lastId=0, minAngle = np.pi / 10, maxAngle = np.pi, straightRoadLen = 10):
         """The angle between two connected roads are >= self.minAngle <= self.maxAngle
 
         Args:
@@ -21,12 +22,14 @@ class JunctionHarvester:
             lastId (int, optional): [description]. Defaults to 0.
             minAngle ([type], optional): [description]. Defaults to np.pi/10.
             maxAngle ([type], optional): [description]. Defaults to np.pi.
+            straightRoadLen : used both for normal and connection roads
         """
 
         self.destinationPrefix = os.path.join(outputDir, outputPrefix)
         self.minAngle = minAngle
         self.maxAngle = maxAngle
         self.lastId = lastId
+        self.straightRoadLen = straightRoadLen
 
         self.roadBuilder = RoadBuilder()
 
@@ -91,9 +94,9 @@ class JunctionHarvester:
     def random2ways2Lanes(self, angleBetweenRoads):
         # print( f"random2ways2Lanes: creating a road network for angle: {math.degrees(angleBetweenRoads)}")
         roads = []
-        roads.append(pyodrx.create_straight_road(0)) # cannot reuse roads due to some references to links cannot be reinitialized with pyodrx lib.
+        roads.append(pyodrx.create_straight_road(0, length=self.straightRoadLen)) # cannot reuse roads due to some references to links cannot be reinitialized with pyodrx lib.
         roads.append(self.createRandomConnectionConnectionRoad(1, angleBetweenRoads))
-        roads.append(pyodrx.create_straight_road(2))
+        roads.append(pyodrx.create_straight_road(2, length=self.straightRoadLen))
 
         self.link3RoadsWithMidAsJunction(roads)
         junction = self.create2RoadJunction(roads)
@@ -121,7 +124,7 @@ class JunctionHarvester:
         """
 
         if round(angleBetweenRoads) == round(np.pi): # when it's greater than 171.89 degrees, create a straight road
-            return pyodrx.create_straight_road(connectionRoadId, length=10, junction=1)
+            return pyodrx.create_straight_road(connectionRoadId, length=self.straightRoadLen, junction=1)
 
         connectionRoad = self.roadBuilder.createRandomCurve(connectionRoadId, angleBetweenRoads, isJunction=True)
         return connectionRoad
@@ -179,9 +182,12 @@ class JunctionHarvester:
             numberOfOds = len(odrList)
 
             for _ in range(maxTries):
-                selectedOdrs = [odrList[np.random.choice(numberOfOds)], odrList[np.random.choice(numberOfOds)]]
-                newOdr = self.junctionMerger.merge2R2L(selectedOdrs)
-                generatedOdrs.append(newOdr)
+                try:
+                    selectedOdrs = [odrList[np.random.choice(numberOfOds)], odrList[np.random.choice(numberOfOds)]]
+                    newOdr = self.junctionMerger.merge2R2L(selectedOdrs)
+                    generatedOdrs.append(newOdr)
+                except IncompatibleRoadsException:
+                    continue
                 
         else: 
             # TODO angle permutation for merging 2ways

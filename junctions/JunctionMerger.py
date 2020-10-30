@@ -3,6 +3,7 @@ import os
 import pyodrx 
 import math
 import dill
+from junctions.moreExceptions import *
 from junctions.RoadBuilder import RoadBuilder
 from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
@@ -35,8 +36,22 @@ class JunctionMerger:
 
 
     def canMerge(self, connectionRoadFirst, connectionRoadSecond):
-        return True
 
+        if connectionRoadFirst.curveType is None and connectionRoadSecond.curveType is None:
+            return False
+
+        if connectionRoadFirst.curveType is None or connectionRoadSecond.curveType is None:
+            return True
+
+        firstAngle = connectionRoadFirst.getArcAngle()
+        # difference = abs(firstAngle - connectionRoadSecond.getArcAngle()) * 100 / firstAngle
+        difference = abs(firstAngle - connectionRoadSecond.getArcAngle())
+
+        dotSign = connectionRoadFirst.getFirstGeomCurvature() * connectionRoadSecond.getFirstGeomCurvature()
+
+        if difference < (np.pi / 10) and dotSign < 0:
+            return False
+        return True
 
 
     def merge2R2L(self, odrs, save=True):
@@ -49,7 +64,7 @@ class JunctionMerger:
         connectionRoadSecond = connectionRoadsSecond[0].shallowCopy()
 
         if self.canMerge(connectionRoadFirst, connectionRoadSecond) is False:
-            raise Exception("incompatible junctions to merge.")
+            raise IncompatibleRoadsException("incompatible junctions to merge.")
 
         roadFirstPred = extensions.getRoadFromRoadDic(odrs[0].roads, connectionRoadFirst.predecessor.element_id).shallowCopy()
         roadFirstSuc = extensions.getRoadFromRoadDic(odrs[0].roads, connectionRoadFirst.successor.element_id).shallowCopy()
