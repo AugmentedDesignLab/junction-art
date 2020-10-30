@@ -4,12 +4,14 @@ import numpy as np
 
 class StandardCurvature(Enum):
     
-    Sharp = 0.5
-    MediumSharp = 0.1
-    Medium = 0.05
-    MediumWide = 0.02
-    Wide = 0.01
-    VeryWide = 0.005
+    UltraSharp = 0.8
+    Sharp = 0.6
+    MediumSharp = 0.4
+    Medium = 0.2
+    MediumWide = 0.1
+    Wide = 0.06
+    VeryWide = 0.03
+    UltraWide = 0.01
 
     @staticmethod
     def values():

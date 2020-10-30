@@ -36,19 +36,24 @@ class RoadBuilder:
             return 1
         return -1
 
-    def createRandomCurve(self, connectionRoadId, angleBetweenRoads, isJunction = False):
+    def createRandomCurve(self, connectionRoadId, angleBetweenRoads, isJunction = False, minCurvature = StandardCurvature.Medium.value):
         
         """The magic curveRoad
 
         Args:
             angleBetweenRoads ([type]): The angle between the roads which this connectionRoad is suppose to connect together
             connectionRoadId ([type]): id to be assigned to the new connection road.
+            isJunction (bool): 
+            minCurvature (float): should not be less than .5 for junctions. the random curvature will be >= minCurvature.
         """
 
         # 1. get random curvature
         curvature = StandardCurvature.getRandomValue()
-        if curvature > StandardCurvature.MediumWide.value:
-            curvature = StandardCurvature.MediumWide.value # clipping to medium wide
+        if curvature < minCurvature:
+            curvature = minCurvature # clipping to medium wide
+        
+        if isJunction and curvature < StandardCurvature.MediumSharp.value:
+            curvature = StandardCurvature.MediumSharp.value
 
         if np.random.choice(2) > 0 :
             curvature = -curvature

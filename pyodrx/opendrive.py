@@ -281,9 +281,8 @@ class OpenDrive():
 
         """
 
-        print(f"adding road with id {road.id}")
         if (len(self.roads) == 0) and road.predecessor:
-            raise ValueError(f'No road was added and the added road has a predecessor, please add the predecessor first {road.id} {road.predecessor.element_id}')
+            raise ValueError(f"No road was added and the added road has a predecessor, please add the predecessor first {road.id} {road.predecessor.element_id}")
 
         self.roads[str(road.id)] = road        
 

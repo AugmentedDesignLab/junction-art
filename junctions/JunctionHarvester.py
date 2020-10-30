@@ -6,11 +6,13 @@ import dill
 from junctions.RoadBuilder import RoadBuilder
 from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
+from junctions.JunctionMerger import JunctionMerger
+import extensions
 
 
 class JunctionHarvester:
 
-    def __init__(self, outputDir, outputPrefix, lastId=0, minAngle = np.pi / 10, maxAngle = np.pi - .0001):
+    def __init__(self, outputDir, outputPrefix, lastId=0, minAngle = np.pi / 10, maxAngle = np.pi):
         """The angle between two connected roads are >= self.minAngle <= self.maxAngle
 
         Args:
@@ -27,6 +29,8 @@ class JunctionHarvester:
         self.lastId = lastId
 
         self.roadBuilder = RoadBuilder()
+
+        self.junctionMerger = JunctionMerger(outputDir, outputPrefix, lastId)
 
         pass
 
@@ -64,8 +68,9 @@ class JunctionHarvester:
         
         print(f"created {tries} roads")
 
-        with(open(self.destinationPrefix + "_harvestedOrds.dill", "wb")) as f:
+        with(open(self.destinationPrefix + "harvested2R2LOrds.dill", "wb")) as f:
             dill.dump(odrObjectsPerAngle, f)
+            print("Odr objects saved to " + self.destinationPrefix + "harvested2R2LOrds.dill" )
 
         pass
 
@@ -114,20 +119,18 @@ class JunctionHarvester:
             angleBetweenRoads ([type]): The angle between the roads which this connectionRoad is suppose to connect together
             connectionRoadId ([type]): id to be assigned to the new connection road.
         """
-        # connectionRoad = pyodrx.create_cloth_arc_cloth(.05, arc_angle=np.pi/10000000, cloth_angle=(np.pi - angleBetweenRoads)/2, r_id=connectionRoadId, junction = 1)
-        # connectionRoad = pyodrx.create_cloth_arc_cloth(.05, arc_angle=np.pi/10000000, cloth_angle=np.pi/2, r_id=connectionRoadId, junction = 1)
 
-        # connectionRoad = self.roadBuilder.createSimpleCurve(connectionRoadId, angleBetweenRoads, isJunction=True, curvature=curvature)
-        # connectionRoad = self.roadBuilder.createS(connectionRoadId, angleBetweenRoads, isJunction=True, curvature=curvature)
-
+        if round(angleBetweenRoads) == round(np.pi): # when it's greater than 171.89 degrees, create a straight road
+            return pyodrx.create_straight_road(connectionRoadId, length=10, junction=1)
+            
         connectionRoad = self.roadBuilder.createRandomCurve(connectionRoadId, angleBetweenRoads, isJunction=True)
         return connectionRoad
 
 
     def link3RoadsWithMidAsJunction(self, roads):
-        roads[0].add_successor(pyodrx.ElementType.junction,1)
+        roads[0].add_successor(pyodrx.ElementType.junction,1, pyodrx.ContactPoint.start)
         self.linkInsideRoad(roads[1], 0, 2)
-        roads[2].add_predecessor(pyodrx.ElementType.junction,1)
+        roads[2].add_predecessor(pyodrx.ElementType.junction,1, pyodrx.ContactPoint.end)
 
 
     def linkInsideRoad(self, connectionRoad, predecessorId, successorId):
@@ -162,4 +165,33 @@ class JunctionHarvester:
         return connection
 
         
+    def harvest3WayJunctionsFrom2Ways(self, ingredientsFile, maxTries = 100, randomizeAngleSelection = True):
+        with(open(ingredientsFile, 'rb')) as f:
+            odrDic = dill.load(f)
+
+        selectedOdrs = None
+        generatedOdrs = []
+        if randomizeAngleSelection:
+            odrList = []
+            for angleOdrList in odrDic.values():
+                odrList += angleOdrList
+
+            numberOfOds = len(odrList)
+            selectedOdrs = [odrList[np.random.choice(numberOfOds)], odrList[np.random.choice(numberOfOds)]]
+            print (selectedOdrs)
+            newOdr = self.junctionMerger.merge2R2L(selectedOdrs)
+            generatedOdrs.append(newOdr)
+        else: 
+            # TODO angle permutation for merging 2ways
+            raise NotImplementedError("Angle permutation is not implemented yet")
+
+    
+        
+        with(open(self.destinationPrefix + "harvested3R2LOrds.dill", "wb")) as f:
+            dill.dump(generatedOdrs, f)
+            print("Odr objects saved to " + self.destinationPrefix + "_harvested3R2LOrds.dill" )
+
+        pass 
+
+
 
