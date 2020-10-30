@@ -49,7 +49,28 @@ def viewRoadFromFile(xodrPath, esminipath = 'esmini'):
     pass
 
 
-def plotRoadFromCSV(csvFile):
+
+def saveRoadImageFromFile(xodrPath, esminipath = 'esmini'):
+
+
+    print(f"plotting xord: {xodrPath}")
+
+    if os.name == 'posix':
+        ordPlotPath = os.path.join(esminipath,'bin','odrplot')
+    elif os.name == 'nt':
+        ordPlotPath = os.path.join(esminipath,'bin','odrplot.exe')
+
+    os.system(f"{ordPlotPath} {xodrPath}")
+    
+    print("opening matplot lib")
+    plt = plotRoadFromCSV('track.csv', False)
+    os.remove('track.csv')
+
+    plt.savefig(xodrPath + 'image.png')
+    pass
+
+
+def plotRoadFromCSV(csvFile, show=True):
     
 
     with open(csvFile, 'r') as f:
@@ -109,7 +130,9 @@ def plotRoadFromCSV(csvFile):
 
     p1.gca().set_aspect('equal', adjustable='box')
 
-    plt.show()
+    if show:
+        plt.show()
+    return plt
 
 
 # def createConnection16(connectionRoads, id, roads):

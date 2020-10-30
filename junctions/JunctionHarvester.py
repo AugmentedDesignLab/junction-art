@@ -122,7 +122,7 @@ class JunctionHarvester:
 
         if round(angleBetweenRoads) == round(np.pi): # when it's greater than 171.89 degrees, create a straight road
             return pyodrx.create_straight_road(connectionRoadId, length=10, junction=1)
-            
+
         connectionRoad = self.roadBuilder.createRandomCurve(connectionRoadId, angleBetweenRoads, isJunction=True)
         return connectionRoad
 
@@ -177,10 +177,12 @@ class JunctionHarvester:
                 odrList += angleOdrList
 
             numberOfOds = len(odrList)
-            selectedOdrs = [odrList[np.random.choice(numberOfOds)], odrList[np.random.choice(numberOfOds)]]
-            print (selectedOdrs)
-            newOdr = self.junctionMerger.merge2R2L(selectedOdrs)
-            generatedOdrs.append(newOdr)
+
+            for _ in range(maxTries):
+                selectedOdrs = [odrList[np.random.choice(numberOfOds)], odrList[np.random.choice(numberOfOds)]]
+                newOdr = self.junctionMerger.merge2R2L(selectedOdrs)
+                generatedOdrs.append(newOdr)
+                
         else: 
             # TODO angle permutation for merging 2ways
             raise NotImplementedError("Angle permutation is not implemented yet")
