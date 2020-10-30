@@ -37,11 +37,15 @@ class JunctionMerger:
 
     def canMerge(self, connectionRoadFirst, connectionRoadSecond):
 
+        #1. if both straight, cannot merge
         if connectionRoadFirst.curveType is None and connectionRoadSecond.curveType is None:
             return False
 
+        #1. if one straight, can merge
         if connectionRoadFirst.curveType is None or connectionRoadSecond.curveType is None:
             return True
+
+        #1. if angles are same but curvatures are opposite. cannot merge because they overlap
 
         firstAngle = connectionRoadFirst.getArcAngle()
         # difference = abs(firstAngle - connectionRoadSecond.getArcAngle()) * 100 / firstAngle
