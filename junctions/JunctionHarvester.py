@@ -1,5 +1,5 @@
 import numpy as np
-import os
+import os, math
 import pyodrx 
 import math
 import dill
@@ -209,66 +209,71 @@ class JunctionHarvester:
 
         pass 
 
+    
 
     def drawLikeAPainter2L(self, maxNumberOfRoads, save=True):
         if maxNumberOfRoads < 4:
             raise Exception("drawLikeAPainter is not for the weak. Please add more than 3 roads")
 
-        currentRoads = []
+        roads = []
+        roads.append(pyodrx.create_straight_road(0)) # first road
 
-        availableAngle = 2 * np.pi # 360 degrees
-        action = self.actionAfterDrawingOne(currentRoads, availableAngle, maxNumberOfRoads)
-        roadId = 0
+        availableAngle = 1.8 * np.pi # 360 degrees
+        maxAnglePerConnection = availableAngle / (maxNumberOfRoads - 1)
+        action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoads)
+        nextRoadId = 1
         while (action != "end"):
 
-            print(f"availableAngle {availableAngle}, number of roads: {len(currentRoads) / 2}")
-            newRoadId = roadId
-            roadId += 1
-            newConnectionId = roadId
-            roadId += 1
-
-            # 3. create a new connection road
-            newConnection, availableAngle = self.createNewConnectionForDrawing(action, newConnectionId, availableAngle)
+            print(f"availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
+            previousRoadId = nextRoadId - 1
+            newConnectionId = nextRoadId
+            nextRoadId += 1
+            newRoadId = nextRoadId
+            nextRoadId += 1
 
             # 1. create a road
             newRoad = pyodrx.create_straight_road(newRoadId, self.straightRoadLen)
 
-            # 2. add the road as the successor of previous connection road
-            if len(currentRoads) > 0:
-                currentRoads[-1].add_successor(pyodrx.ElementType.road, newRoad.id, pyodrx.ContactPoint.start) # successor of last connection road
-
-            # 4 connections, ad new road as the pred
-
-            newRoad.add_successor(pyodrx.ElementType.junction, newConnection.id, pyodrx.ContactPoint.start)
-            newConnection.add_predecessor(pyodrx.ElementType.road, newRoad.id, pyodrx.ContactPoint.start)
+            # 2. create a new connection road
+            newConnection, availableAngle = self.createNewConnectionForDrawing(action, newConnectionId, availableAngle, maxAnglePerConnection)
             
             # 5 add new roads and increase road id
-            currentRoads.append(newRoad)
-            currentRoads.append(newConnection)
+            roads.append(newConnection)
+            roads.append(newRoad)
+
+            roads[previousRoadId].add_successor(pyodrx.ElementType.junction, newConnection.id)
+
+            if newConnection.id == 1:
+                newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.end)
+            else:
+                newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
+            
+            newConnection.add_successor(pyodrx.ElementType.road, newRoad.id, pyodrx.ContactPoint.start) 
+            newRoad.add_predecessor(pyodrx.ElementType.junction, newConnection.id)
+
 
             # 6 get next action
-            action = self.actionAfterDrawingOne(currentRoads, availableAngle, maxNumberOfRoads)
+            action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoads)
             pass
-    
-        # 1. connection last connection to first road
-        currentRoads[-1].add_successor(pyodrx.ElementType.road, 0, pyodrx.ContactPoint.end) # successor of last connection road
         
         # 3. create connections and junction
         # trying with their function
 
-        junction = self.createJunctionForASeriesOfRoads(currentRoads)
+        junction = self.createJunctionForASeriesOfRoads(roads)
+
+        print(f"number of roads created {len(roads)}")
         odrName = 'Rmax' + str(maxNumberOfRoads) + '_L2_' + str(self.lastId)
-        odr = self.createOdr(odrName, currentRoads, [junction])
+        odr = self.createOdr(odrName, roads, [junction])
         
         if save:
             odr.write_xml(self.getOutputPath(odr.name))
 
         return odr
 
-    def createNewConnectionForDrawing(self, action, newConnectionId, availableAngle):
+    def createNewConnectionForDrawing(self, action, newConnectionId, availableAngle, maxAnglePerConnection):
 
         newConnection = None
-        newConnection, availableAngle = self.createCurveForDrawing(availableAngle, newConnectionId, curveType= StandardCurveTypes.LongArc)
+        newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.LongArc)
         return newConnection, availableAngle
         # if action is 'straightLine':
         #     newConnection = pyodrx.create_straight_road(newConnectionId, self.straightRoadLen, junction=1)
@@ -283,8 +288,8 @@ class JunctionHarvester:
         # return newConnection, availableAngle
 
 
-    def createCurveForDrawing(self, availableAngle, newConnectionId, curveType):
-        angleBetweenEndpoints = self.getSomeAngle(availableAngle)
+    def createCurveForDrawing(self, availableAngle, maxAnglePerConnection, newConnectionId, curveType):
+        angleBetweenEndpoints = self.getSomeAngle(availableAngle, maxAnglePerConnection)
         availableAngle -= angleBetweenEndpoints
         curvature = StandardCurvature.getRandomValue()
         if curvature < StandardCurvature.Medium.value:
@@ -295,6 +300,14 @@ class JunctionHarvester:
 
 
     def createJunctionForASeriesOfRoads(self, roads):
+        """[summary]
+
+        Args:
+            roads ([type]): even indices are roads, odd indices are connection roads  of the junction
+
+        Returns:
+            [type]: [description]
+        """
 
         junction = pyodrx.Junction("spiderJunction", 0)
 
@@ -302,6 +315,7 @@ class JunctionHarvester:
 
         while (connectionId < len(roads)):
 
+            print(f"connecting roads {connectionId-1} {connectionId}")
             connectionL = pyodrx.Connection(connectionId-1, connectionId, pyodrx.ContactPoint.start)
             connectionL.add_lanelink(-1,-1)
 
@@ -320,11 +334,16 @@ class JunctionHarvester:
         return junction
 
 
-    def getSomeAngle(self, availableAngle):
+    def getSomeAngle(self, availableAngle, maxAnglePerConnection):
 
         angle = (availableAngle * np.random.choice(10)) / 9
+
+        
         if angle < self.minAngle:
             angle = self.minAngle
+
+        if angle > maxAnglePerConnection:
+            angle = maxAnglePerConnection
         return angle
 
     

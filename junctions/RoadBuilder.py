@@ -197,3 +197,32 @@ class RoadBuilder:
         return road
 
     # def createCurveWithEndpoints(self, start, end):
+
+    def createParamPoly3(self, roadId, isJunction=False, 
+        au=0,bu=20,cu=20,du= 10,
+        av=0,bv=2,cv=20,dv= 10,
+        prange='normalized',length=None):
+
+        junction = self.getJunctionSelection(isJunction)
+
+        n_lanes = 1
+        lane_offset = 3
+
+        pv = pyodrx.PlanView()
+        
+        poly = pyodrx.ParamPoly3(au,bu,cu,du,av,bv,cv,dv,prange,length)
+
+        pv.add_geometry(poly)
+
+        # create lanes
+        lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
+        for _ in range(1, n_lanes+1, 1):
+            lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
+            lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
+        laneSections = extensions.LaneSections()
+        laneSections.add_lanesection(lsec)
+
+        # create road
+        road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
+        road.curveType = StandardCurveTypes.S
+        return road

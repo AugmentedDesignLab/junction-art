@@ -153,6 +153,8 @@ class Road():
         """
         if self.successor:
             raise ValueError('only one successor is allowed')
+
+        # print(f"road id {self.id} add_successor element_id {element_id}, element_type {element_type}, contact_point {contact_point}")
         self.successor = _Link('successor',element_id,element_type,contact_point)
         self.links.add_link(self.successor)
 
@@ -171,6 +173,7 @@ class Road():
         """
         if self.predecessor:
             raise ValueError('only one predecessor is allowed')
+        # print(f"road id {self.id} add_predecessor element_id {element_id}, element_type {element_type}, contact_point {contact_point}")
         self.predecessor = _Link('predecessor',element_id,element_type,contact_point)
         self.links.add_link(self.predecessor)
         
@@ -297,14 +300,14 @@ class OpenDrive():
         print("start points starting")
         self.adjust_startpoints()
 
-        print("start points adjusted")
+        # print("start points adjusted")
 
         results = list(combinations(self.roads, 2))
 
         for r in range(len(results)):
-            print('analizing roads', results[r][0], results[r][1] )
+            # print('analizing roads', results[r][0], results[r][1] )
             
-            print(f"create_lane_links for roads {results[r][0]} and {results[r][1]} ")
+            # print(f"create_lane_links for roads {results[r][0]} and {results[r][1]} ")
             create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 
