@@ -85,3 +85,98 @@ class ExtendedRoad(pyodrx.Road):
             raise Exception("Not an arc")
 
         return spiral1.curvend
+
+
+
+    def getEndPosition(self, startX, startY, startH):
+        """[summary]
+
+        Args:
+            startX ([type]): [description]
+            startY ([type]): [description]
+            startH ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+
+        raise Exception("Why this method gives wrong measurements? They adjust curves in different ways")
+        geoms = self.planview._raw_geometries
+        for g in geoms:
+            startX, startY, startH, _ = g.get_end_data(startX, startY, startH)
+        
+        return startX, startY, startH
+
+
+    def getAdjustedStartPosition(self):
+        """[summary]
+
+        Args:
+            startX ([type]): [description]
+            startY ([type]): [description]
+            startH ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        # raise Exception("Never call this method because it changes the position.")
+        geoms = self.planview._adjusted_geometries
+        for g in geoms:
+            # startX, startY, startH, _ = g.get_start_data() # this function changes the start position. Never call it
+            startX, startY, startH = g.x, g.y, g.heading
+        
+        return startX, startY, startH
+
+    def getAdjustedEndPosition(self):
+        """[summary]
+
+        Args:
+            startX ([type]): [description]
+            startY ([type]): [description]
+            startH ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        geoms = self.planview._adjusted_geometries
+        for g in geoms:
+            startX, startY, startH, _ = g.get_end_data()
+        
+        return startX, startY, startH
+
+
+    
+    def getHeading(self, contactPoint = pyodrx.ContactPoint.start):
+
+        heading = None
+        if contactPoint == pyodrx.ContactPoint.end:
+            _, _, heading = self.getAdjustedEndPosition() 
+        else:
+            _, _, heading = self.getAdjustedStartPosition() 
+
+        return heading
+
+
+    def getClockWiseAngleWith(self, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start):
+        """contact points must be the same as the connectionRoad contact points on the roads of the related junction.
+
+        Args:
+            road1 ([type]): [description]
+            road2 ([type]): [description]
+            cp1 ([type], optional): Contact point of the first road. Defaults to pyodrx.ContactPoint.end.
+            cp2 ([type], optional): Contact point of the second road. Defaults to pyodrx.ContactPoint.start.
+
+        Raises:
+            Exception: [description]
+        """
+        if self.planview.adjusted is False or road2.planview.adjusted is False:
+            raise Exception("road planviews are not adjusted yet. Cannot measure angles between them")
+        
+        # get the end headings because 
+        heading1 = self.getHeading(cp1)
+        heading2 = road2.getHeading(cp2)
+
+        print(f"heading1 {heading1} heading2 {heading2}")
+
+        return (heading2 - heading1) % np.pi
+

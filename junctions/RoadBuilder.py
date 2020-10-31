@@ -170,4 +170,30 @@ class RoadBuilder:
         road = ExtendedRoad(r_id, pv, laneSections, road_type=junction)
         road.curveType = StandardCurveTypes.S
         return road
+    
 
+    def createCurveByLength(self, roadId, length, isJunction = False, curvature = StandardCurvature.Medium.value):
+
+        junction = self.getJunctionSelection(isJunction)
+
+        n_lanes = 1
+        lane_offset = 3
+
+        pv = pyodrx.PlanView()
+        arc = pyodrx.Arc(curvature, length=length )
+        pv.add_geometry(arc)
+
+        # create lanes
+        lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
+        for _ in range(1, n_lanes+1, 1):
+            lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
+            lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
+        laneSections = extensions.LaneSections()
+        laneSections.add_lanesection(lsec)
+
+        # create road
+        road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
+        road.curveType = StandardCurveTypes.S
+        return road
+
+    # def createCurveWithEndpoints(self, start, end):
