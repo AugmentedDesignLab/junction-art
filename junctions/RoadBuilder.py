@@ -226,3 +226,26 @@ class RoadBuilder:
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
         road.curveType = StandardCurveTypes.S
         return road
+
+
+    def getConnectionRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True):
+        """ Works only after roads has been adjusted.
+        For now we will create a straight road which connects the reference lines of the roads, starts at second road and ends that the first.
+
+        Args:
+            road1 ([type]): first road
+            road2 ([type]): second road
+            cp1 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.end. end for the roads which have end points in a junction
+            cp2 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.start. start for the roads which have start points in a junction
+        """
+        junction = self.getJunctionSelection(isJunction)
+
+        x1, y1, h1 = road1.getPosition(cp1)
+        x2, y2, h2 = road2.getPosition(cp2)
+        
+        newRoadLength = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+        # fix heading.
+        newConnection = pyodrx.create_straight_road(newRoadId, newRoadLength, junction=junction)
+
+        return newConnection

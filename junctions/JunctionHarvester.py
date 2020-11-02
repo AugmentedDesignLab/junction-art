@@ -265,6 +265,32 @@ class JunctionHarvester:
         print(f"number of roads created {len(roads)}")
         odrName = 'Rmax' + str(maxNumberOfRoads) + '_L2_' + str(self.lastId)
         odr = self.createOdr(odrName, roads, [junction])
+
+        # The last connection and resetting odr
+
+        lastConnectionId = nextRoadId + 100
+        lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, roads[0], roads[-1], pyodrx.ContactPoint.end, pyodrx.ContactPoint.start)
+        lastConnection.add_predecessor(pyodrx.ElementType.road, roads[-1].id, pyodrx.ContactPoint.start)
+        lastConnection.add_successor(pyodrx.ElementType.road, roads[0].id, pyodrx.ContactPoint.end)
+        roads[-1].add_successor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.start) 
+        roads.append(lastConnection)
+
+        connectionL = pyodrx.Connection(roads[-1].id, lastConnectionId, pyodrx.ContactPoint.start)
+        connectionL.add_lanelink(-1,-1)
+
+        junction.add_connection(connectionL)
+
+        print(f"refreshing odr road adjustments")
+        # TODO create a method to readjust in Extended Open Drive.
+        for road in odr.roads.values():
+            road.reset()
+
+        odr.add_road(lastConnection)
+        
+        odr.adjust_roads_and_lanes()
+
+
+
         
         if save:
             odr.write_xml(self.getOutputPath(odr.name))

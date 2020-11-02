@@ -9,6 +9,30 @@ class ExtendedRoad(pyodrx.Road):
 
     pass
 
+
+    def reset(self):
+
+        
+        self.planview.present_x = 0
+        self.planview.present_y = 0
+        self.planview.present_h = 0
+        self.planview.present_s = 0
+
+        self.planview.x_start = None
+        self.planview.y_start = None
+        self.planview.h_start = None 
+
+        self.planview.x_end = None
+        self.planview.y_end = None
+        self.planview.h_end = None
+
+        self.clearLaneLinks()
+        # self.clearAllLinks()
+        self.setAdjustmentsToFalse()
+        self._adjusted_geometries = []
+        # add more derived data created in the process of adjustment and link building.
+        pass
+
     def clearAllLinks(self):
         self.clearRoadLinks()
         self.clearLaneLinks()
@@ -144,6 +168,13 @@ class ExtendedRoad(pyodrx.Road):
         
         return startX, startY, startH
 
+
+    def getPosition(self, contactPoint = pyodrx.ContactPoint.start ):
+
+        if contactPoint == pyodrx.ContactPoint.end:
+            return self.getAdjustedEndPosition() 
+        else:
+            return self.getAdjustedStartPosition() 
 
     
     def getHeading(self, contactPoint = pyodrx.ContactPoint.start):
