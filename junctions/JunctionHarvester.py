@@ -9,6 +9,7 @@ from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.JunctionMerger import JunctionMerger
 import extensions
 from junctions.moreExceptions import *
+from junctions.AngleCurvatureMap import AngleCurvatureMap
 
 
 class JunctionHarvester:
@@ -212,11 +213,11 @@ class JunctionHarvester:
     
 
     def drawLikeAPainter2L(self, maxNumberOfRoads, save=True):
-        if maxNumberOfRoads < 4:
+        if maxNumberOfRoads < 3:
             raise Exception("drawLikeAPainter is not for the weak. Please add more than 3 roads")
 
         roads = []
-        roads.append(pyodrx.create_straight_road(0)) # first road
+        roads.append(pyodrx.create_straight_road(0, length=self.straightRoadLen * 4)) # first road
 
         availableAngle = 1.8 * np.pi # 360 degrees
         maxAnglePerConnection = availableAngle / (maxNumberOfRoads - 1)
@@ -291,9 +292,12 @@ class JunctionHarvester:
     def createCurveForDrawing(self, availableAngle, maxAnglePerConnection, newConnectionId, curveType):
         angleBetweenEndpoints = self.getSomeAngle(availableAngle, maxAnglePerConnection)
         availableAngle -= angleBetweenEndpoints
-        curvature = StandardCurvature.getRandomValue()
-        if curvature < StandardCurvature.Medium.value:
-            curvature = StandardCurvature.Medium.value
+        # curvature = StandardCurvature.getRandomValue()
+        curvature = AngleCurvatureMap.getCurvatureForJunction(angleBetweenEndpoints)
+
+        print(f"Curvature for angle {math.degrees(angleBetweenEndpoints)} is {curvature}")
+        # if curvature < StandardCurvature.Medium.value:
+        #     curvature = StandardCurvature.Medium.value
 
         newConnection = self.roadBuilder.createCurve(newConnectionId, angleBetweenEndpoints, isJunction=True, curvature=curvature, curveType=curveType)
         return newConnection, availableAngle

@@ -203,3 +203,11 @@ def getRoadFromRoadDic(roads, roadId):
 
 
 
+def printRoadPositions(odr):
+    """This method only works after roads has been adjusted.
+
+    Args:
+        odr ([type]): [description]
+    """
+    for road in odr.roads.values():
+        print(f"roadId: {road.id}, \n  start_adj: {road.getAdjustedStartPosition()}\tend_adj: {road.getAdjustedEndPosition()}")
