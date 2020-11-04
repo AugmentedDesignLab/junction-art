@@ -8,3 +8,5 @@ from .moreHelpers import *
 from .renamedClasses import *
 from .ExtendedRoad import ExtendedRoad
 from .ExtendedSpiral import ExtendedSpiral
+from .ExtendedPlanview import ExtendedPlanview
+from .ExtendedOpenDrive import ExtendedOpenDrive

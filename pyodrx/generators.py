@@ -20,6 +20,7 @@ import extensions
 from .exceptions import *
 
 
+
 STD_ROADMARK = RoadMark(RoadMarkType.solid,0.2,rule=MarkRule.no_passing)
 STD_START_CLOTH = 1/1000000000
 def standard_lane(offset=3,rm = STD_ROADMARK):
@@ -62,7 +63,7 @@ def create_straight_road(road_id,length=100,junction = -1, n_lanes=1, lane_offse
     line1 = Line(length)
 
     # create planviews
-    planview1 = PlanView()
+    planview1 = extensions.ExtendedPlanview()
     planview1.add_geometry(line1)
 
     # create lanesections
@@ -102,7 +103,7 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,
             road (Road): a road built up of a Spiral-Arc-Spiral
     """
     
-    pv = PlanView()
+    pv = extensions.ExtendedPlanview()
     # adjust sign if angle is negative
     if cloth_angle < 0 and  arc_curv > 0:
 

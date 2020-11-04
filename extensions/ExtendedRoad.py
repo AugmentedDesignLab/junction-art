@@ -10,28 +10,20 @@ class ExtendedRoad(pyodrx.Road):
     pass
 
 
-    def reset(self):
+    def reset(self, clearRoadLinks = False):
 
         
-        self.planview.present_x = 0
-        self.planview.present_y = 0
-        self.planview.present_h = 0
-        self.planview.present_s = 0
+        self.planview.reset()
 
-        self.planview.x_start = None
-        self.planview.y_start = None
-        self.planview.h_start = None 
+        if clearRoadLinks:
+            self.clearAllLinks()
+        else:
+            self.clearLaneLinks()
 
-        self.planview.x_end = None
-        self.planview.y_end = None
-        self.planview.h_end = None
-
-        self.clearLaneLinks()
-        # self.clearAllLinks()
         self.setAdjustmentsToFalse()
-        self._adjusted_geometries = []
-        # add more derived data created in the process of adjustment and link building.
+
         pass
+
 
     def clearAllLinks(self):
         self.clearRoadLinks()
@@ -66,13 +58,12 @@ class ExtendedRoad(pyodrx.Road):
 
     def shallowCopy(self):
         copiedRoad = copy(self)
-        copiedRoad.setAdjustmentsToFalse()
+        copiedRoad.reset()
         return copiedRoad
     
 
     def setAdjustmentsToFalse(self):
         self.adjusted = False
-        self.planview.adjusted = False
         pass
 
 

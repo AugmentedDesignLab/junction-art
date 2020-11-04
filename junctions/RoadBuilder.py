@@ -6,6 +6,7 @@ import math
 from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
 from extensions.ExtendedRoad import ExtendedRoad
+from extensions.ExtendedPlanview import ExtendedPlanview
 
 
 class RoadBuilder:
@@ -133,7 +134,7 @@ class RoadBuilder:
         n_lanes = 1
         lane_offset = 3
 
-        pv = pyodrx.PlanView()
+        pv = ExtendedPlanview()
         # adjust sign if angle is negative
         if cloth_angle < 0 and  arc_curv > 0:
 
@@ -179,7 +180,7 @@ class RoadBuilder:
         n_lanes = 1
         lane_offset = 3
 
-        pv = pyodrx.PlanView()
+        pv = ExtendedPlanview()
         arc = pyodrx.Arc(curvature, length=length )
         pv.add_geometry(arc)
 
@@ -208,7 +209,7 @@ class RoadBuilder:
         n_lanes = 1
         lane_offset = 3
 
-        pv = pyodrx.PlanView()
+        pv = ExtendedPlanview()
         
         poly = pyodrx.ParamPoly3(au,bu,cu,du,av,bv,cv,dv,prange,length)
 
@@ -249,3 +250,4 @@ class RoadBuilder:
         newConnection = pyodrx.create_straight_road(newRoadId, newRoadLength, junction=junction)
 
         return newConnection
+
