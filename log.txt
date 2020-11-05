@@ -2,11 +2,6 @@ esmini GIT REV: 13ec678
 esmini GIT TAG: v2.0.0
 esmini GIT BRANCH: tags/v2.0.0^0
 esmini BUILD VERSION: 2.0.0.build.931
-RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 1) junction attribute (1) is not referring back to junction 0 which is making use of it
-RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 3) junction attribute (1) is not referring back to junction 0 which is making use of it
-RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 5) junction attribute (1) is not referring back to junction 0 which is making use of it
-RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 107) junction attribute (1) is not referring back to junction 0 which is making use of it
 RoadManager.cpp / 4208 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
-RoadManager.cpp / 4210 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
-RoadManager.cpp / 4212 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries
-RoadManager.cpp / 4214 / roadmanager::OpenDrive::SetRoadOSI(): OSI road features done
+RoadManager.cpp / 774 / roadmanager::Road::GetGeometry(): Road::GetGeometry index 0 out of range [0:0]
+

@@ -178,6 +178,16 @@ class JunctionHarvester:
 
         
     def harvest3WayJunctionsFrom2Ways(self, ingredientsFile, maxTries = 100, randomizeAngleSelection = True):
+        """Merges 2 way junctions into 3 ways.
+
+        Args:
+            ingredientsFile ([type]): [description]
+            maxTries (int, optional): [description]. Defaults to 100.
+            randomizeAngleSelection (bool, optional): [description]. Defaults to True.
+
+        Raises:
+            NotImplementedError: [description]
+        """
         with(open(ingredientsFile, 'rb')) as f:
             odrDic = dill.load(f)
 
@@ -270,9 +280,12 @@ class JunctionHarvester:
 
         lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction)
 
-        odr.reset()
+        # odr.reset()
         odr.add_road(lastConnection)
-        odr.adjust_roads_and_lanes()
+        # odr.adjust_roads_and_lanes()
+
+        odr.resetAndReadjust()
+        
         
         if save:
             odr.write_xml(self.getOutputPath(odr.name))

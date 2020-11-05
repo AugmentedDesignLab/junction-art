@@ -9,7 +9,7 @@ import extensions
 class test_JunctionMerger(unittest.TestCase):
 
     def setUp(self):
-        with(open('F:\\myProjects\\av\\junction-art\\output\\harvested2R2LOrds.dill', 'rb')) as f:
+        with(open('F:\\myProjects\\av\\junction-art\\junctions-2r\\harvested2R2LOrds.dill', 'rb')) as f:
             self.odrDic = dill.load(f)
 
         outputDir = os.path.join(os.getcwd(), 'output')

@@ -14,3 +14,5 @@ This is the class that harvests junctions.
 # Common use-cases:
 
 ## 2 roads 2 lanes: harvest2ways2Lanes
+
+## 3 roads from 2 roads: harvest3WayJunctionsFrom2Ways

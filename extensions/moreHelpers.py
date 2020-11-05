@@ -24,25 +24,22 @@ def view_road(opendrive,esminipath = 'esmini'):
     opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
 
     xodrPath =  os.path.join(esminipath,'resources','xodr','pythonroad.xodr')
-    viewRoadFromFile(xodrPath, esminipath)
+    viewRoadFromXODRFile(xodrPath, esminipath)
 
     pass
 
 
 
-def viewRoadFromFile(xodrPath, esminipath = 'esmini'):
+def viewRoadFromXODRFile(xodrPath, esminipath = 'esmini'):
 
 
-    print(f"plotting xord: {xodrPath}")
+    ordPlotPath = getODRPlotPath(esminipath)
+    # print(f"plotting xord: {xodrPath}")
+    print(f"{ordPlotPath} {xodrPath}")
 
-    if os.name == 'posix':
-        ordPlotPath = os.path.join(esminipath,'bin','odrplot')
-    elif os.name == 'nt':
-        ordPlotPath = os.path.join(esminipath,'bin','odrplot.exe')
 
     os.system(f"{ordPlotPath} {xodrPath}")
     
-    print("opening matplot lib")
     plotRoadFromCSV('track.csv')
     os.remove('track.csv')
 
@@ -50,24 +47,36 @@ def viewRoadFromFile(xodrPath, esminipath = 'esmini'):
 
 
 
-def saveRoadImageFromFile(xodrPath, esminipath = 'esmini'):
+def saveRoadImageFromFile(xodrPath, esminipath = 'esmini', outputDir = ''):
+
+    raise Exception("not tested yet")
 
 
     print(f"plotting xord: {xodrPath}")
 
+    ordPlotPath = getODRPlotPath(esminipath)
+
+    os.system(f"{ordPlotPath} {xodrPath}")
+    
+    plt = plotRoadFromCSV('track.csv', False)
+    os.remove('track.csv')
+
+    outputFile = xodrPath + '-image.png'
+
+    if outputDir != "":
+        outputFile = os.path.join(outputDir, os.path.basename(xodrPath) + '-image.png' )
+
+    plt.savefig(outputFile)
+    return outputFile
+
+    
+
+def getODRPlotPath(esminipath):
     if os.name == 'posix':
         ordPlotPath = os.path.join(esminipath,'bin','odrplot')
     elif os.name == 'nt':
         ordPlotPath = os.path.join(esminipath,'bin','odrplot.exe')
-
-    os.system(f"{ordPlotPath} {xodrPath}")
-    
-    print("opening matplot lib")
-    plt = plotRoadFromCSV('track.csv', False)
-    os.remove('track.csv')
-
-    plt.savefig(xodrPath + 'image.png')
-    pass
+    return ordPlotPath
 
 
 def plotRoadFromCSV(csvFile, show=True):
