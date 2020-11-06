@@ -278,13 +278,14 @@ class JunctionHarvester:
 
         # The last connection and resetting odr
 
-        lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction)
+        # lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction)
+        # odr.add_road(lastConnection)
 
         # odr.reset()
-        odr.add_road(lastConnection)
+        # odr.add_road(lastConnection)
         # odr.adjust_roads_and_lanes()
 
-        odr.resetAndReadjust()
+        # odr.resetAndReadjust()
         
         
         if save:

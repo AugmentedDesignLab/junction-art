@@ -78,14 +78,13 @@ class JunctionMerger:
 
         # case 1: remove roadSecondPred & rebuild links for roads in the first odr
 
-        roadFirstPred.clearAllLinks()
         roadFirstPred.updateSuccessor(pyodrx.ElementType.junction, connectionRoadFirst.id)
 
-        connectionRoadFirst.clearAllLinks()
         connectionRoadFirst.updatePredecessor(pyodrx.ElementType.road, roadFirstPred.id, pyodrx.ContactPoint.end) # interestingly, this becomes the start point after merging.
         connectionRoadFirst.updateSuccessor(pyodrx.ElementType.road, roadFirstSuc.id, pyodrx.ContactPoint.start) 
 
-        roadFirstSuc.clearAllLinks()
+        roadFirstSuc.updatePredecessor(pyodrx.ElementType.junction, connectionRoadFirst.id)
+
         roadSecondSuc.updatePredecessor(pyodrx.ElementType.junction, connectionRoadFirst.id)
 
 
@@ -96,10 +95,6 @@ class JunctionMerger:
         roads.append(connectionRoadSecond)
         roads.append(roadSecondSuc)
         
-        # regenerate ids for connectionRoadSecond and roadSecondSuc
-        connectionRoadSecond.id = 10000 + roadFirstSuc.id # good number for debugging puporses.
-        roadSecondSuc.id = connectionRoadSecond.id + 1
-
         # fix links for roadFirstSuc, connectionRoadSecond, roadSecondSuc
 
         self.regenAndMergeWithConnectionRoad(roadFirstSuc, connectionRoadSecond, roadSecondSuc)
@@ -120,11 +115,8 @@ class JunctionMerger:
             
         odr.add_junction(junction)
         print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
-        # odr.adjust_roads_and_lanes()
+        odr.adjust_roads_and_lanes()
 
-        # print(f"total number of roads added {len(roads)}")
-
-        # print(f"total number of roads in odr {len(odr.roads)}")
 
         if save:
             odr.write_xml(self.getOutputPath(odr.name))
@@ -147,19 +139,13 @@ class JunctionMerger:
         lastRoad_odr_2.id = connectionRoad_odr_2.id + 1
 
         # fix links for roadFirstSuc, connectionRoadSecond, roadSecondSuc
-        lastRoad_odr_1.successor = None
-        lastRoad_odr_1.add_successor(pyodrx.ElementType.junction, connectionRoad_odr_2.id)
+        lastRoad_odr_1.updateSuccessor(pyodrx.ElementType.junction, connectionRoad_odr_2.id)
 
-        connectionRoad_odr_2.clearAllLinks()
-        connectionRoad_odr_2.predecessor = None
-        connectionRoad_odr_2.add_predecessor(pyodrx.ElementType.road, lastRoad_odr_1.id, pyodrx.ContactPoint.start) # interestingly, this becomes the start point after merging.
+        connectionRoad_odr_2.updatePredecessor(pyodrx.ElementType.road, lastRoad_odr_1.id, pyodrx.ContactPoint.start) # interestingly, this becomes the start point after merging.
 
-        connectionRoad_odr_2.successor = None
-        connectionRoad_odr_2.add_successor(pyodrx.ElementType.road, lastRoad_odr_2.id, pyodrx.ContactPoint.start) # interestingly, this becomes the start point after merging.
+        connectionRoad_odr_2.updateSuccessor(pyodrx.ElementType.road, lastRoad_odr_2.id, pyodrx.ContactPoint.start) # interestingly, this becomes the start point after merging.
 
-        lastRoad_odr_2.clearAllLinks()
-        lastRoad_odr_2.predecessor = None
-        lastRoad_odr_2.add_predecessor(pyodrx.ElementType.junction, connectionRoad_odr_2.id)
+        lastRoad_odr_2.updatePredecessor(pyodrx.ElementType.junction, connectionRoad_odr_2.id)
 
         pass
 
@@ -178,7 +164,7 @@ class JunctionMerger:
         junction = pyodrx.Junction('junc',1)
 
         junction.add_connection(con1)
-        junction.add_connection(con1)
+        junction.add_connection(con2)
 
         return junction
     

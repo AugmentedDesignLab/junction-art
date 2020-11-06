@@ -11,7 +11,7 @@ class test_JunctionHarvester(unittest.TestCase):
         self.harvester = JunctionHarvester(outputDir=outputDir, 
                                         outputPrefix='test_', 
                                         lastId=lastId,
-                                        minAngle = np.pi / 10, 
+                                        minAngle = np.pi / 30, 
                                         maxAngle = np.pi)
         pass
 

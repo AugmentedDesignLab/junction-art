@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 
 
-import os
+import os, re
 import sys
 import csv
 import math
@@ -32,10 +32,12 @@ def view_road(opendrive,esminipath = 'esmini'):
 
 def viewRoadFromXODRFile(xodrPath, esminipath = 'esmini'):
 
+    xodrPath = xodrPath.replace("\\", "/")
 
     ordPlotPath = getODRPlotPath(esminipath)
-    # print(f"plotting xord: {xodrPath}")
     print(f"{ordPlotPath} {xodrPath}")
+
+    
 
 
     os.system(f"{ordPlotPath} {xodrPath}")
@@ -49,12 +51,14 @@ def viewRoadFromXODRFile(xodrPath, esminipath = 'esmini'):
 
 def saveRoadImageFromFile(xodrPath, esminipath = 'esmini', outputDir = ''):
 
-    raise Exception("not tested yet")
+    # raise Exception("not tested yet")
 
 
-    print(f"plotting xord: {xodrPath}")
+    # print(f"plotting xord: {xodrPath}")
 
     ordPlotPath = getODRPlotPath(esminipath)
+
+    print(f"{ordPlotPath} {xodrPath}")
 
     os.system(f"{ordPlotPath} {xodrPath}")
     
@@ -66,6 +70,7 @@ def saveRoadImageFromFile(xodrPath, esminipath = 'esmini', outputDir = ''):
     if outputDir != "":
         outputFile = os.path.join(outputDir, os.path.basename(xodrPath) + '-image.png' )
 
+    print(f"saving image to {outputFile}")
     plt.savefig(outputFile)
     return outputFile
 
@@ -143,49 +148,6 @@ def plotRoadFromCSV(csvFile, show=True):
         plt.show()
     return plt
 
-
-# def createConnection16(connectionRoads, id, roads):
-    """ create_junction creates the junction struct for a set of roads
-
-        This function violates the open drive 1.6 rule: Each connecting road shall be represented by exactly one <connection> element. A connecting road may contain as many lanes as required.
-
-
-        Parameters
-        ----------
-            junction_roads (list of Road): all connecting roads in the junction
-
-            id (int): the id of the junction
-            
-            roads (list of Road): all incomming roads to the junction
-
-        Returns
-        -------
-            junction (Junction): the junction struct ready to use
-
-    """
-    # junc = Junction('my junction',id)
-    
-    # for connectionRoad in connectionRoads:
-
-    #     conne1 = Connection(connectionRoad.successor.element_id, connectionRoad.id, ContactPoint.end) 
-    #     _, sign, _ =  _get_related_lanesection(roads[connectionRoad.successor.element_id], connectionRoad ) 
-    #     n_lanes = len(connectionRoad.lanes.lanesections[-1].leftlanes) 
-    #     for i in range(1, n_lanes+1, 1):
-    #         conne1.add_lanelink( 1*i, 1*sign*i)
-    #         conne1.add_lanelink(-1*i,-1*sign*i)
-    #         junc.add_connection(conne1)
-
-    #     conne2 = Connection(connectionRoad.predecessor.element_id, connectionRoad.id, ContactPoint.start)
-    #     _, sign, _ =  _get_related_lanesection(roads[connectionRoad.predecessor.element_id], connectionRoad) 
-    #     n_lanes = len(connectionRoad.lanes.lanesections[0].leftlanes) 
-    #     for i in range(1, n_lanes+1, 1):
-    #         conne2.add_lanelink( 1*i, 1*sign*i)
-    #         conne2.add_lanelink(-1*i,-1*sign*i)
-    #         junc.add_connection(conne2)
-
- 
-
-    # return junc
 
 
 def getConnectionRoads(roads, junction):
