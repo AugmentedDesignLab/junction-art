@@ -21,14 +21,14 @@ class test_JunctionMerger(unittest.TestCase):
         odrs2 = [odrs[0], odrs[5]]
         newOdr = self.merger.merge2R2L(odrs2)
         extensions.view_road(newOdr,os.path.join('..','F:\\myProjects\\av\\esmini'))
-        odrs = self.odrDic['0.3141592653589793']
-        odrs2 = [odrs[1], odrs[2]]
-        newOdr = self.merger.merge2R2L(odrs2)
-        extensions.view_road(newOdr,os.path.join('..','F:\\myProjects\\av\\esmini'))
-        odrs = self.odrDic['0.3141592653589793']
-        odrs2 = [odrs[3], odrs[4]]
-        newOdr = self.merger.merge2R2L(odrs2)
-        extensions.view_road(newOdr,os.path.join('..','F:\\myProjects\\av\\esmini'))
+        # odrs = self.odrDic['0.3141592653589793']
+        # odrs2 = [odrs[1], odrs[2]]
+        # newOdr = self.merger.merge2R2L(odrs2)
+        # extensions.view_road(newOdr,os.path.join('..','F:\\myProjects\\av\\esmini'))
+        # odrs = self.odrDic['0.3141592653589793']
+        # odrs2 = [odrs[3], odrs[4]]
+        # newOdr = self.merger.merge2R2L(odrs2)
+        # extensions.view_road(newOdr,os.path.join('..','F:\\myProjects\\av\\esmini'))
 
     def test_merge2R2L2(self):
         
@@ -38,7 +38,7 @@ class test_JunctionMerger(unittest.TestCase):
 
         numberOfOds = len(odrList)
 
-        for _ in range(20):
+        for _ in range(5):
 
             try:
                 selectedOdrs = [odrList[np.random.choice(numberOfOds)], odrList[np.random.choice(numberOfOds)]]
