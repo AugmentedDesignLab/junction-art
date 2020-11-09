@@ -53,11 +53,17 @@ class RoadBuilder:
         if curvature < minCurvature:
             curvature = minCurvature # clipping to medium wide
         
+        # 3. clip to a min value if it's a junction. Otherwise the length would be too long to have it contained in a junction area
         if isJunction and curvature < StandardCurvature.MediumSharp.value:
             curvature = StandardCurvature.MediumSharp.value
 
+        # 4. change the curvature sign randomly for clockwise or anti-clockwise rotation.
         if np.random.choice(2) > 0 :
             curvature = -curvature
+
+        # 5. add a random noise to the curvature.
+
+        curvature = curvature + (np.random.choice(10) / 10) * curvature
 
         # 2 random curve type
         randomCurveType = StandardCurveTypes.getRandomItem()

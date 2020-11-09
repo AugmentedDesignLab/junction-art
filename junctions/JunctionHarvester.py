@@ -10,11 +10,19 @@ from junctions.JunctionMerger import JunctionMerger
 import extensions
 from junctions.moreExceptions import *
 from junctions.AngleCurvatureMap import AngleCurvatureMap
+import logging
 
 
 class JunctionHarvester:
 
-    def __init__(self, outputDir, outputPrefix, lastId=0, minAngle = np.pi / 10, maxAngle = np.pi, straightRoadLen = 10):
+    def __init__(self, 
+                outputDir, 
+                outputPrefix, 
+                lastId=0, 
+                minAngle = np.pi / 10, 
+                maxAngle = np.pi, 
+                straightRoadLen = 10,
+                esminiPath = "F:\\myProjects\\av\\esmini"):
         """The angle between two connected roads are >= self.minAngle <= self.maxAngle
 
         Args:
@@ -24,6 +32,7 @@ class JunctionHarvester:
             minAngle ([type], optional): [description]. Defaults to np.pi/10.
             maxAngle ([type], optional): [description]. Defaults to np.pi.
             straightRoadLen : used both for normal and connection roads
+            esminiPath: Path to esmini to generate images for roads.
         """
 
         self.destinationPrefix = os.path.join(outputDir, outputPrefix)
@@ -35,6 +44,11 @@ class JunctionHarvester:
         self.roadBuilder = RoadBuilder()
 
         self.junctionMerger = JunctionMerger(outputDir, outputPrefix, lastId)
+
+        self.esminiPath = esminiPath
+
+        if os.path.isdir(self.esminiPath) is False:
+            logging.warn(f"Esmini path not found {self.esminiPath}. Will break if you try to save images using harvester.")
 
         pass
 
@@ -70,21 +84,22 @@ class JunctionHarvester:
         """
         np.random.seed(seed)
         # for each angle
-        tries = 0
-        roadsPerAngle = round((maxTries * stepAngle)/(self.maxAngle - self.minAngle))
-        if roadsPerAngle == 0:
-            roadsPerAngle = 1
+        countCreated = 0
+        roadsPerAngle = self.getRoadsPerAngle(maxTries, stepAngle)
 
         angleBetweenRoads = self.minAngle 
-        odrObjectsPerAngle = {}
-        while (tries < maxTries and angleBetweenRoads < self.maxAngle ):
+        odrObjectsPerAngle = {} # we will save the odrs keyed by angles
+
+        while (countCreated < maxTries and angleBetweenRoads < self.maxAngle ):
 
             odrObjects = self.randomSome2ways2Lanes(angleBetweenRoads, roadsPerAngle)
             odrObjectsPerAngle[str(angleBetweenRoads)] = odrObjects
-            tries += roadsPerAngle
+            countCreated += roadsPerAngle
             angleBetweenRoads += stepAngle
         
-        print(f"created {tries} roads")
+        print(f"created {countCreated} roads")
+
+        # Save the odrs
 
         with(open(self.destinationPrefix + "harvested2R2LOrds.dill", "wb")) as f:
             dill.dump(odrObjectsPerAngle, f)
@@ -92,16 +107,39 @@ class JunctionHarvester:
 
         pass
 
-    
-    def randomSome2ways2Lanes(self, angleBetweenRoads, roadsPerAngle):
 
-        print( f"randomSome2ways2Lanes: creating {roadsPerAngle} for angle: {math.degrees(angleBetweenRoads)}")
+    def getRoadsPerAngle(self, maxTries, stepAngle):
+        roadsPerAngle = round((maxTries * stepAngle)/(self.maxAngle - self.minAngle))
+        if roadsPerAngle == 0:
+            roadsPerAngle = 1
+        return roadsPerAngle
+
+    
+    def randomSome2ways2Lanes(self, angleBetweenRoads, numberOfRoads, saveImage=True):
+        """Creates 2way junctions where the connected roads have fixed angle
+
+        Args:
+            angleBetweenRoads ([type]): The angle between the roads. The connecting road is a curve that ensures the angle is preserved.
+            numberOfRoads ([type]): number of roads to be generated
+
+        Returns:
+            [type]: [description]
+        """
+
+        print( f"randomSome2ways2Lanes: creating {numberOfRoads} for angle: {math.degrees(angleBetweenRoads)}")
         odrObjects = []
-        for i in range( roadsPerAngle):
+        for i in range( numberOfRoads):
             odr = self.random2ways2Lanes(angleBetweenRoads)
-            fname = "road2lane2angle" + str(round(math.degrees(angleBetweenRoads))) + "no" + str(i)
-            odr.write_xml(self.getOutputPath(fname))
             odrObjects.append(odr)
+
+            # 1. save the xml file
+            fname = "2R2L_" + str(round(math.degrees(angleBetweenRoads))) + "_no" + str(i)
+            xmlPath = self.getOutputPath(fname)
+            odr.write_xml(xmlPath)
+
+            # 2. save image
+            if saveImage is True:
+                extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
 
         return odrObjects
 
@@ -132,7 +170,7 @@ class JunctionHarvester:
             connectionRoadId ([type]): id to be assigned to the new connection road.
         """
 
-        if round(angleBetweenRoads) == round(np.pi): # when it's greater than 171.89 degrees, create a straight road
+        if angleBetweenRoads > 3.05: # when it's greater than 174 degrees, create a straight road
             return pyodrx.create_straight_road(connectionRoadId, length=self.straightRoadLen, junction=1)
 
         connectionRoad = self.roadBuilder.createRandomCurve(connectionRoadId, angleBetweenRoads, isJunction=True)

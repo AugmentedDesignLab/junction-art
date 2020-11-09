@@ -72,6 +72,7 @@ def saveRoadImageFromFile(xodrPath, esminipath = 'esmini', outputDir = ''):
 
     print(f"saving image to {outputFile}")
     plt.savefig(outputFile)
+    plt.close()
     return outputFile
 
     
