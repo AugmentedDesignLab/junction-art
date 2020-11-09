@@ -9,12 +9,13 @@ from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
 import extensions
 from copy import copy
+import logging
 
 class JunctionMerger:
 
     
 
-    def __init__(self, outputDir, outputPrefix='R3_', lastId=0):
+    def __init__(self, outputDir, outputPrefix='R3_', lastId=0, esminiPath = "F:\\myProjects\\av\\esmini"):
         """
 
         Args:
@@ -27,6 +28,11 @@ class JunctionMerger:
         self.lastId = lastId
 
         self.roadBuilder = RoadBuilder()
+
+        self.esminiPath = esminiPath
+
+        if os.path.isdir(self.esminiPath) is False:
+            logging.warn(f"Esmini path not found {self.esminiPath}. Will break if you try to save images using merger.")
 
         pass
 
@@ -58,7 +64,7 @@ class JunctionMerger:
         return True
 
 
-    def merge2R2L(self, odrs, save=True):
+    def merge2R2L(self, odrs, save=True, saveImage=True):
         
         # 1 find connectionRoad in the first, it's predecessor is first road, successor is the second road.
 
@@ -117,9 +123,12 @@ class JunctionMerger:
         print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
         odr.adjust_roads_and_lanes()
 
-
+        xmlPath = self.getOutputPath(odr.name)
         if save:
-            odr.write_xml(self.getOutputPath(odr.name))
+            odr.write_xml(xmlPath)
+
+        if saveImage:
+            extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
 
         return odr
 

@@ -221,7 +221,7 @@ class JunctionHarvester:
         Args:
             ingredientsFile ([type]): [description]
             maxTries (int, optional): [description]. Defaults to 100.
-            randomizeAngleSelection (bool, optional): [description]. Defaults to True.
+            randomizeAngleSelection (bool, optional): If True it will pick 2R roads randomly without any angle filtering. If false, it will only connect 2R roads which have different angles. Defaults to True.
 
         Raises:
             NotImplementedError: [description]
@@ -243,6 +243,8 @@ class JunctionHarvester:
                     selectedOdrs = [odrList[np.random.choice(numberOfOds)], odrList[np.random.choice(numberOfOds)]]
                     newOdr = self.junctionMerger.merge2R2L(selectedOdrs)
                     generatedOdrs.append(newOdr)
+                    self.lastId += 1
+
                 except IncompatibleRoadsException:
                     continue
                 
@@ -258,18 +260,37 @@ class JunctionHarvester:
 
         pass 
 
+
+    def harvestByPainting2L(self, maxNumberOfRoadsPerJunction, triesPerRoadCount, save=True, saveImage=True):
+        """[summary]
+
+        Args:
+            maxNumberOfRoadsPerJunction ([type]): [description]
+            triesPerRoadCount ([type]): number of junctions to be created for each set of roads.
+            save (bool, optional): [description]. Defaults to True.
+            saveImage (bool, optional): [description]. Defaults to True.
+        """
+
+        
+        for numRoads in range(3, maxNumberOfRoadsPerJunction + 1):
+            for _ in range(triesPerRoadCount):
+               self.drawLikeAPainter2L(numRoads)
+               self.lastId += 1
+
+        pass
+
     
 
-    def drawLikeAPainter2L(self, maxNumberOfRoads, save=True):
-        if maxNumberOfRoads < 3:
+    def drawLikeAPainter2L(self, maxNumberOfRoadsPerJunction, save=True, saveImage=True):
+        if maxNumberOfRoadsPerJunction < 3:
             raise Exception("drawLikeAPainter is not for the weak. Please add more than 3 roads")
 
         roads = []
         roads.append(pyodrx.create_straight_road(0, length=self.straightRoadLen * 4)) # first road
 
         availableAngle = 1.8 * np.pi # 360 degrees
-        maxAnglePerConnection = availableAngle / (maxNumberOfRoads - 1)
-        action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoads)
+        maxAnglePerConnection = availableAngle / (maxNumberOfRoadsPerJunction - 1)
+        action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
         nextRoadId = 1
         while (action != "end"):
 
@@ -302,7 +323,7 @@ class JunctionHarvester:
 
 
             # 6 get next action
-            action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoads)
+            action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
             pass
         
         # 3. create connections and junction
@@ -311,7 +332,7 @@ class JunctionHarvester:
         junction = self.createJunctionForASeriesOfRoads(roads)
 
         print(f"number of roads created {len(roads)}")
-        odrName = 'Rmax' + str(maxNumberOfRoads) + '_L2_' + str(self.lastId)
+        odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(self.lastId)
         odr = self.createOdr(odrName, roads, [junction])
 
         # The last connection and resetting odr
@@ -325,9 +346,13 @@ class JunctionHarvester:
 
         # odr.resetAndReadjust()
         
-        
+
+        xmlPath = self.getOutputPath(odr.name)
         if save:
-            odr.write_xml(self.getOutputPath(odr.name))
+            odr.write_xml(xmlPath)
+
+        if saveImage:
+            extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
 
         return odr
 
@@ -359,11 +384,11 @@ class JunctionHarvester:
         #     newConnection = pyodrx.create_straight_road(newConnectionId, self.straightRoadLen, junction=1)
         #     availableAngle -= np.pi
         # elif action is 'curve':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, newConnectionId, curveType= StandardCurveTypes.LongArc)
+        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.LongArc)
         # elif action is 'spiral':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, newConnectionId, curveType= StandardCurveTypes.Simple)
+        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle,maxAnglePerConnection,  newConnectionId, curveType= StandardCurveTypes.Simple)
         # elif action is 's':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, newConnectionId, curveType= StandardCurveTypes.S)
+        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.S)
 
         # return newConnection, availableAngle
 
@@ -438,8 +463,9 @@ class JunctionHarvester:
         if availableAngle < self.minAngle:
             return "end"
         
-        if len(currentRoads) > maxNumberOfRoads * 2: # dont count connection roads
+        if len(currentRoads) >= (maxNumberOfRoads * 2 - 1): # dont count connection roads
             return "end"
         
         return actions[np.random.choice(len(actions))]
+
 
