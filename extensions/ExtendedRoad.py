@@ -11,7 +11,11 @@ class ExtendedRoad(pyodrx.Road):
 
 
     def reset(self, clearRoadLinks = False):
+        """[summary]
 
+        Args:
+            clearRoadLinks (bool, optional): IF false, keeps successor and predecessor. Defaults to False.
+        """
         
         self.planview.reset()
 
