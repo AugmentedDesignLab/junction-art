@@ -20,10 +20,10 @@ def view_road(opendrive,esminipath = 'esmini'):
         
 
     """
-    _scenariopath = os.path.join(esminipath,'resources','xodr')
+    _scenariopath = os.path.join(esminipath,'bin')
     opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
 
-    xodrPath =  os.path.join(esminipath,'resources','xodr','pythonroad.xodr')
+    xodrPath =  os.path.join(esminipath,'bin','pythonroad.xodr')
     viewRoadFromXODRFile(xodrPath, esminipath)
 
     pass

@@ -6,7 +6,7 @@ except ValueError: # Already removed
     pass
 
 projectFolder = '/home/exx/muktadir/earthquakePrediction/'
-projectFolder = 'F:/myProjects/av/junction-art/'
+projectFolder = 'C:/Users/abjaw/Documents/GitHub/junction-art'
 sys.path.append(str(projectFolder))
 os.chdir(projectFolder)
 print( f"current working dir{os.getcwd()}")
