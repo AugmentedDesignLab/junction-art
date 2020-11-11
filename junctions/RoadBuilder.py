@@ -7,6 +7,7 @@ from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
 from extensions.ExtendedRoad import ExtendedRoad
 from extensions.ExtendedPlanview import ExtendedPlanview
+from scipy.interpolate import CubicHermiteSpline
 
 
 class RoadBuilder:
@@ -245,15 +246,45 @@ class RoadBuilder:
             cp1 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.end. end for the roads which have end points in a junction
             cp2 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.start. start for the roads which have start points in a junction
         """
-        junction = self.getJunctionSelection(isJunction)
+        x1, y1, _ = road1.getPosition(cp1)
+        x2, y2, _ = road2.getPosition(cp2)
 
-        x1, y1, h1 = road1.getPosition(cp1)
-        x2, y2, h2 = road2.getPosition(cp2)
-        
-        newRoadLength = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        tangentFirstRoad = road1.getIncomingTangent(cp1)
+        tangentSecondRoad = road2.getOutgoingTangent(cp2)
 
-        # fix heading.
-        newConnection = pyodrx.create_straight_road(newRoadId, newRoadLength, junction=junction)
+        X = [x2, x1]
+        Y = [y2, y1]
+        tangentX = [tangentSecondRoad[0], tangentFirstRoad[0]]
+        tangentY = [tangentSecondRoad[1], tangentFirstRoad[1]]
+
+        print("connecting road X, Y, tangentX, tangentY")
+        print(X)
+        print(Y)
+        print(tangentX)
+        print(tangentY)
+
+        p = [0, 1]
+
+        hermiteX = CubicHermiteSpline(p, X, tangentX)
+        hermiteY = CubicHermiteSpline(p, Y, tangentY)
+
+        xCoeffs = hermiteX.c.flatten()
+        yCoeffs = hermiteY.c.flatten()
+
+        # scipy coefficient and open drive coefficents have opposite order.
+        newConnection = self.createParamPoly3(
+                                                newRoadId, 
+                                                isJunction=isJunction,
+                                                au=xCoeffs[3],
+                                                bu=xCoeffs[2],
+                                                cu=xCoeffs[1],
+                                                du=xCoeffs[0],
+                                                av=yCoeffs[3],
+                                                bv=yCoeffs[2],
+                                                cv=yCoeffs[1],
+                                                dv=yCoeffs[0]
+
+                                            )
 
         return newConnection
 

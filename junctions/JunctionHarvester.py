@@ -337,14 +337,14 @@ class JunctionHarvester:
 
         # The last connection and resetting odr
 
-        # lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction)
-        # odr.add_road(lastConnection)
+        lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction)
+        odr.add_road(lastConnection)
 
         # odr.reset()
         # odr.add_road(lastConnection)
         # odr.adjust_roads_and_lanes()
 
-        # odr.resetAndReadjust()
+        odr.resetAndReadjust()
         
 
         xmlPath = self.getOutputPath(odr.name)
@@ -360,19 +360,22 @@ class JunctionHarvester:
 
 
     def createLastConnectionForLastAndFirstRoad(self, nextRoadId, roads, junction):
+
         lastConnectionId = nextRoadId + 100
         lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, roads[0], roads[-1], pyodrx.ContactPoint.end, pyodrx.ContactPoint.start)
         lastConnection.add_predecessor(pyodrx.ElementType.road, roads[-1].id, pyodrx.ContactPoint.start)
         lastConnection.add_successor(pyodrx.ElementType.road, roads[0].id, pyodrx.ContactPoint.end)
-        roads[-1].add_successor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.start) 
-        roads.append(lastConnection)
 
+        roads[-1].add_successor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.start) 
         roads[0].add_predecessor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.end) 
+
 
         connectionL = pyodrx.Connection(roads[-1].id, lastConnectionId, pyodrx.ContactPoint.start)
         connectionL.add_lanelink(-1,-1)
-
         junction.add_connection(connectionL)
+        
+        roads.append(lastConnection)
+
         return lastConnection
 
     def createNewConnectionForDrawing(self, action, newConnectionId, availableAngle, maxAnglePerConnection):

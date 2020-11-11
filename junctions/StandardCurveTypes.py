@@ -5,7 +5,8 @@ import numpy as np
 class StandardCurveTypes(IntEnum):
     Simple  = 1,
     LongArc = 2,
-    S       = 3
+    S       = 3,
+    Line    = 4
 
 
     @staticmethod

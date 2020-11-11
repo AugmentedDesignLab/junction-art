@@ -3,9 +3,12 @@ from copy import copy
 import numpy as np
 import math
 
+from junctions.StandardCurveTypes import StandardCurveTypes
+
 class ExtendedRoad(pyodrx.Road):
 
-    curveType = None
+    curveType = StandardCurveTypes.Line
+    headingTangentMagnitude = 10 # 10 meters.
 
     pass
 
@@ -79,6 +82,9 @@ class ExtendedRoad(pyodrx.Road):
         if self.curveType is None:
             raise Exception("curveType is None")
 
+        if self.curveType == StandardCurveTypes.Line:
+            raise Exception("curveType is Line")
+
         geoms = self.planview._raw_geometries
         spiral1 = geoms[0]
 
@@ -120,11 +126,11 @@ class ExtendedRoad(pyodrx.Road):
         """
 
         raise Exception("Why this method gives wrong measurements? They adjust curves in different ways")
-        geoms = self.planview._raw_geometries
-        for g in geoms:
-            startX, startY, startH, _ = g.get_end_data(startX, startY, startH)
+        # geoms = self.planview._raw_geometries
+        # for g in geoms:
+        #     startX, startY, startH, _ = g.get_end_data(startX, startY, startH)
         
-        return startX, startY, startH
+        # return startX, startY, startH
 
 
     def getAdjustedStartPosition(self):
@@ -138,7 +144,9 @@ class ExtendedRoad(pyodrx.Road):
         Returns:
             [type]: [description]
         """
-        # raise Exception("Never call this method because it changes the position.")
+        if self.planview.adjusted is False:
+            raise Exception(f"getAdjustedStartPosition cannot work without road planview adjustments.")
+        
         geoms = self.planview._adjusted_geometries
         for g in geoms:
             # startX, startY, startH, _ = g.get_start_data() # this function changes the start position. Never call it
@@ -157,6 +165,9 @@ class ExtendedRoad(pyodrx.Road):
         Returns:
             [type]: [description]
         """
+        if self.planview.adjusted is False:
+            raise Exception(f"getAdjustedEndPosition cannot work without road planview adjustments.")
+
         geoms = self.planview._adjusted_geometries
         for g in geoms:
             startX, startY, startH, _ = g.get_end_data()
@@ -165,6 +176,9 @@ class ExtendedRoad(pyodrx.Road):
 
 
     def getPosition(self, contactPoint = pyodrx.ContactPoint.start ):
+
+        if self.planview.adjusted is False:
+            raise Exception(f"getPosition cannot work without road planview adjustments.")
 
         if contactPoint == pyodrx.ContactPoint.end:
             return self.getAdjustedEndPosition() 
@@ -205,4 +219,41 @@ class ExtendedRoad(pyodrx.Road):
         print(f"heading1 {heading1} heading2 {heading2}")
 
         return (heading2 - heading1) % np.pi
+
+
+    def headingToTangent(self, h):
+
+        # TODO tangent depends on maximum speed and heading. 
+        xComponent = math.cos(h) * self.headingTangentMagnitude
+        yComponent = math.sin(h) * self.headingTangentMagnitude
+
+        return (xComponent, yComponent)
+
+
+    def getIncomingTangent(self, contactPoint = pyodrx.ContactPoint.start):
+
+        _, _, h = self.getPosition(contactPoint)
+
+        # heading of start point goes into the road. no change in heading.
+        # head of end point goes out of the road, so, we need to reverse the heading.
+
+        if contactPoint == pyodrx.ContactPoint.end:
+            # need to change the heading
+            h = ( h + np.pi ) % (np.pi * 2)
+
+        return self.headingToTangent(h)
+
+
+    def getOutgoingTangent(self, contactPoint = pyodrx.ContactPoint.start):
+
+        _, _, h = self.getPosition(contactPoint)
+
+        # heading of start point goes into the road.  we need to reverse the heading
+        # head of end point goes out of the road, so,no change
+
+        if contactPoint == pyodrx.ContactPoint.start:
+            # need to change the heading
+            h = ( h + np.pi ) % (np.pi * 2)
+
+        return self.headingToTangent(h)
 
