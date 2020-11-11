@@ -11,6 +11,7 @@ import extensions
 from junctions.moreExceptions import *
 from junctions.AngleCurvatureMap import AngleCurvatureMap
 import logging
+from junctions.JunctionBuilder import JunctionBuilder
 
 
 class JunctionHarvester:
@@ -22,7 +23,8 @@ class JunctionHarvester:
                 minAngle = np.pi / 10, 
                 maxAngle = np.pi, 
                 straightRoadLen = 10,
-                esminiPath = "F:\\myProjects\\av\\esmini"):
+                esminiPath = "F:\\myProjects\\av\\esmini", 
+                saveImage = True):
         """The angle between two connected roads are >= self.minAngle <= self.maxAngle
 
         Args:
@@ -43,9 +45,13 @@ class JunctionHarvester:
 
         self.roadBuilder = RoadBuilder()
 
+        self.junctionBuilder = JunctionBuilder()
+
         self.junctionMerger = JunctionMerger(outputDir, outputPrefix, lastId)
 
         self.esminiPath = esminiPath
+
+        self.saveImage = saveImage
 
         if os.path.isdir(self.esminiPath) is False:
             logging.warn(f"Esmini path not found {self.esminiPath}. Will break if you try to save images using harvester.")
@@ -60,18 +66,20 @@ class JunctionHarvester:
 
     
     def createOdr(self, name, roads, junctions):
-        
-        odr = extensions.ExtendedOpenDrive(name)
-        for r in roads:
-            odr.add_road(r)
-        
-        for junction in junctions:
-            odr.add_junction(junction)
 
-        print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
-        odr.adjust_roads_and_lanes()
+        return extensions.createOdr(name, roads, junctions)
+        
+        # odr = extensions.ExtendedOpenDrive(name)
+        # for r in roads:
+        #     odr.add_road(r)
+        
+        # for junction in junctions:
+        #     odr.add_junction(junction)
 
-        return odr
+        # print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
+        # odr.adjust_roads_and_lanes()
+
+        # return odr
 
 
     def harvest2ways2Lanes(self, stepAngle=np.pi/20, maxTries = 100, seed=39):
@@ -115,7 +123,7 @@ class JunctionHarvester:
         return roadsPerAngle
 
     
-    def randomSome2ways2Lanes(self, angleBetweenRoads, numberOfRoads, saveImage=True):
+    def randomSome2ways2Lanes(self, angleBetweenRoads, numberOfRoads):
         """Creates 2way junctions where the connected roads have fixed angle
 
         Args:
@@ -138,7 +146,7 @@ class JunctionHarvester:
             odr.write_xml(xmlPath)
 
             # 2. save image
-            if saveImage is True:
+            if self.saveImage is True:
                 extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
 
         return odrObjects
@@ -261,14 +269,13 @@ class JunctionHarvester:
         pass 
 
 
-    def harvestByPainting2L(self, maxNumberOfRoadsPerJunction, triesPerRoadCount, save=True, saveImage=True):
+    def harvestByPainting2L(self, maxNumberOfRoadsPerJunction, triesPerRoadCount, save=True):
         """[summary]
 
         Args:
             maxNumberOfRoadsPerJunction ([type]): [description]
             triesPerRoadCount ([type]): number of junctions to be created for each set of roads.
             save (bool, optional): [description]. Defaults to True.
-            saveImage (bool, optional): [description]. Defaults to True.
         """
 
         
@@ -281,7 +288,7 @@ class JunctionHarvester:
 
     
 
-    def drawLikeAPainter2L(self, maxNumberOfRoadsPerJunction, save=True, saveImage=True):
+    def drawLikeAPainter2L(self, maxNumberOfRoadsPerJunction, save=True):
         if maxNumberOfRoadsPerJunction < 3:
             raise Exception("drawLikeAPainter is not for the weak. Please add more than 3 roads")
 
@@ -329,7 +336,7 @@ class JunctionHarvester:
         # 3. create connections and junction
         # trying with their function
 
-        junction = self.createJunctionForASeriesOfRoads(roads)
+        junction = self.junctionBuilder.createJunctionForASeriesOfRoads(roads)
 
         print(f"number of roads created {len(roads)}")
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(self.lastId)
@@ -351,7 +358,7 @@ class JunctionHarvester:
         if save:
             odr.write_xml(xmlPath)
 
-        if saveImage:
+        if self.saveImage:
             extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
 
         return odr
@@ -409,40 +416,6 @@ class JunctionHarvester:
         newConnection = self.roadBuilder.createCurve(newConnectionId, angleBetweenEndpoints, isJunction=True, curvature=curvature, curveType=curveType)
         return newConnection, availableAngle
 
-
-    def createJunctionForASeriesOfRoads(self, roads):
-        """[summary]
-
-        Args:
-            roads ([type]): even indices are roads, odd indices are connection roads  of the junction
-
-        Returns:
-            [type]: [description]
-        """
-
-        junction = pyodrx.Junction("spiderJunction", 0)
-
-        connectionId = 1
-
-        while (connectionId < len(roads)):
-
-            print(f"connecting roads {connectionId-1} {connectionId}")
-            connectionL = pyodrx.Connection(connectionId-1, connectionId, pyodrx.ContactPoint.start)
-            connectionL.add_lanelink(-1,-1)
-
-            # if (connectionId + 1) < len(roads):
-            #     connectionR = pyodrx.Connection(connectionId+1, connectionId, pyodrx.ContactPoint.end)
-            # else:
-            #     connectionR = pyodrx.Connection(0, connectionId, pyodrx.ContactPoint.end)
-
-            # connectionR.add_lanelink(1,1)
-
-            junction.add_connection(connectionL)
-            # junction.add_connection(connectionR)
-
-            connectionId += 2
-        
-        return junction
 
 
     def getSomeAngle(self, availableAngle, maxAnglePerConnection):

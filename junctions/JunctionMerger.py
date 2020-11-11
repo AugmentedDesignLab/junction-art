@@ -15,7 +15,7 @@ class JunctionMerger:
 
     
 
-    def __init__(self, outputDir, outputPrefix='R3_', lastId=0, esminiPath = "F:\\myProjects\\av\\esmini"):
+    def __init__(self, outputDir, outputPrefix='R3_', lastId=0, esminiPath = "F:\\myProjects\\av\\esmini", saveImage = True):
         """
 
         Args:
@@ -30,6 +30,7 @@ class JunctionMerger:
         self.roadBuilder = RoadBuilder()
 
         self.esminiPath = esminiPath
+        self.saveImage = saveImage
 
         if os.path.isdir(self.esminiPath) is False:
             logging.warn(f"Esmini path not found {self.esminiPath}. Will break if you try to save images using merger.")
@@ -64,7 +65,7 @@ class JunctionMerger:
         return True
 
 
-    def merge2R2L(self, odrs, save=True, saveImage=True):
+    def merge2R2L(self, odrs, save=True):
         
         # 1 find connectionRoad in the first, it's predecessor is first road, successor is the second road.
 
@@ -127,7 +128,7 @@ class JunctionMerger:
         if save:
             odr.write_xml(xmlPath)
 
-        if saveImage:
+        if self.saveImage:
             extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
 
         return odr

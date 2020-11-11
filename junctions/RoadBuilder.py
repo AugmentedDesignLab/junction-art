@@ -82,7 +82,8 @@ class RoadBuilder:
         elif curveType is StandardCurveTypes.S:
             return self.createS(connectionRoadId, angleBetweenEndpoints, isJunction, curvature)
         else:
-            raise Exception(f"Unkown curveType {curveType}")
+            error = f"Unkown curveType {curveType}"
+            raise Exception(error)
 
 
 

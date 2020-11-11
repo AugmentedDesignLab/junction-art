@@ -4,11 +4,13 @@ from scipy.interpolate import CubicHermiteSpline
 from junctions.JunctionHarvester import JunctionHarvester
 import numpy as np
 import pyodrx, extensions
+from junctions.JunctionBuilder import JunctionBuilder
 
 class test_RoadBuilder(unittest.TestCase):
 
     def setUp(self):
         self.roadBuilder = RoadBuilder()
+        self.junctionBuilder = JunctionBuilder()
         outputDir= os.path.join(os.getcwd(), 'output')
         lastId = 0
         self.harvester = JunctionHarvester(outputDir=outputDir, 
@@ -83,10 +85,10 @@ class test_RoadBuilder(unittest.TestCase):
 
         roads[4].add_predecessor(pyodrx.ElementType.junction,3)
 
-        junction = self.harvester.createJunctionForASeriesOfRoads(roads)
+        junction = self.junctionBuilder.createJunctionForASeriesOfRoads(roads)
         
         odrName = "test_connectionRoad"
-        odr = self.harvester.createOdr(odrName, roads, [junction])
+        odr = extensions.createOdr(odrName, roads, [junction])
 
         lastConnection = self.harvester.createLastConnectionForLastAndFirstRoad(5, roads, junction)
         odr.add_road(lastConnection)

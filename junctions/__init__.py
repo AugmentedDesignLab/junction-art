@@ -8,3 +8,4 @@ from .JunctionHarvester import JunctionHarvester
 from .RoadBuilder import RoadBuilder
 from .StandardCurvatures import StandardCurvature
 from .JunctionMerger import JunctionMerger
+from .JunctionBuilder import JunctionBuilder
