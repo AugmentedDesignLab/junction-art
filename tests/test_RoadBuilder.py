@@ -1,6 +1,7 @@
 import unittest, os
 from junctions.RoadBuilder import RoadBuilder
 from scipy.interpolate import CubicHermiteSpline
+from junctions.JunctionHarvester import JunctionHarvester
 import numpy as np
 import pyodrx, extensions
 
@@ -8,6 +9,13 @@ class test_RoadBuilder(unittest.TestCase):
 
     def setUp(self):
         self.roadBuilder = RoadBuilder()
+        outputDir= os.path.join(os.getcwd(), 'output')
+        lastId = 0
+        self.harvester = JunctionHarvester(outputDir=outputDir, 
+                                        outputPrefix='test_', 
+                                        lastId=lastId,
+                                        minAngle = np.pi / 30, 
+                                        maxAngle = np.pi)
 
 
 
@@ -54,4 +62,44 @@ class test_RoadBuilder(unittest.TestCase):
 
     def test_getConnectionRoadBetween(self):
         # test scenario for connection road
+        
+        roads = []
+        roads.append(pyodrx.create_straight_road(0, 10))
+        roads.append(self.roadBuilder.createSimpleCurve(1, np.pi/1.5, True, curvature = 0.9))
+        roads.append(pyodrx.create_straight_road(2, 10))
+        roads.append(self.roadBuilder.createSimpleCurve(3, np.pi/1.5, True, curvature = 0.9))
+        roads.append(pyodrx.create_straight_road(4, 10))
+
+        roads[0].add_successor(pyodrx.ElementType.junction,1)
+
+        roads[1].add_predecessor(pyodrx.ElementType.road,0,pyodrx.ContactPoint.end)
+        roads[1].add_successor(pyodrx.ElementType.road,2,pyodrx.ContactPoint.start)
+
+        roads[2].add_predecessor(pyodrx.ElementType.junction,1)
+        roads[2].add_successor(pyodrx.ElementType.junction,3)
+
+        roads[3].add_predecessor(pyodrx.ElementType.road,2,pyodrx.ContactPoint.start)
+        roads[3].add_successor(pyodrx.ElementType.road,4,pyodrx.ContactPoint.start)
+
+        roads[4].add_predecessor(pyodrx.ElementType.junction,3)
+
+        junction = self.harvester.createJunctionForASeriesOfRoads(roads)
+        
+        odrName = "test_connectionRoad"
+        odr = self.harvester.createOdr(odrName, roads, [junction])
+
+        lastConnection = self.harvester.createLastConnectionForLastAndFirstRoad(5, roads, junction)
+        odr.add_road(lastConnection)
+
+        # odr.reset()
+        # odr.add_road(lastConnection)
+        # odr.adjust_roads_and_lanes()
+
+        odr.resetAndReadjust()
+        
+        
+
+        # pyodrx.prettyprint(odr.get_element())
+
+        extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
         pass

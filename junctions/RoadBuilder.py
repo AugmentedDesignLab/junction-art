@@ -249,8 +249,10 @@ class RoadBuilder:
         x1, y1, _ = road1.getPosition(cp1)
         x2, y2, _ = road2.getPosition(cp2)
 
-        tangentFirstRoad = road1.getIncomingTangent(cp1)
-        tangentSecondRoad = road2.getOutgoingTangent(cp2)
+        tangentMagnitude = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+        tangentFirstRoad = road1.getIncomingTangent(cp1, tangentMagnitude)
+        tangentSecondRoad = road2.getOutgoingTangent(cp2, tangentMagnitude)
 
         X = [x2, x1]
         Y = [y2, y1]
