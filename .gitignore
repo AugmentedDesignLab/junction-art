@@ -143,3 +143,5 @@ cython_debug/
 output/
 
 *.xodr
+
+config.yaml
