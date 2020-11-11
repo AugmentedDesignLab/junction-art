@@ -145,3 +145,4 @@ output/
 *.xodr
 
 config.yaml
+./config.yaml
