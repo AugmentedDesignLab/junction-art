@@ -5,10 +5,14 @@ from junctions.JunctionHarvester import JunctionHarvester
 import numpy as np
 import pyodrx, extensions
 from junctions.JunctionBuilder import JunctionBuilder
+from library.Configuration import Configuration
 
 class test_RoadBuilder(unittest.TestCase):
 
     def setUp(self):
+        
+        self.configuration = Configuration()
+
         self.roadBuilder = RoadBuilder()
         self.junctionBuilder = JunctionBuilder()
         outputDir= os.path.join(os.getcwd(), 'output')
@@ -59,7 +63,7 @@ class test_RoadBuilder(unittest.TestCase):
 
         extensions.printRoadPositions(odr)
 
-        extensions.view_road(odr, os.path.join('..','F:\\myProjects\\av\\esmini'))
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
 
 
     def test_getConnectionRoadBetween(self):
@@ -105,5 +109,5 @@ class test_RoadBuilder(unittest.TestCase):
 
         extensions.printRoadPositions(odr)
 
-        extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
+        extensions.view_road(odr,os.path.join('..', self.configuration.get("esminipath")))
         pass

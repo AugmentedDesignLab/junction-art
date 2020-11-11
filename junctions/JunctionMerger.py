@@ -10,12 +10,15 @@ from junctions.StandardCurveTypes import StandardCurveTypes
 import extensions
 from copy import copy
 import logging
+from library.Configuration import Configuration
 
 class JunctionMerger:
 
     
 
-    def __init__(self, outputDir, outputPrefix='R3_', lastId=0, esminiPath = "F:\\myProjects\\av\\esmini", saveImage = True):
+    def __init__(self, outputDir, outputPrefix='R3_', lastId=0, 
+                esminiPath = None, 
+                saveImage = True):
         """
 
         Args:
@@ -29,7 +32,13 @@ class JunctionMerger:
 
         self.roadBuilder = RoadBuilder()
 
-        self.esminiPath = esminiPath
+        self.configuration = Configuration()
+
+        if esminiPath is None:
+            self.esminiPath = self.configuration.get("esminipath")
+        else:
+            self.esminiPath = esminiPath
+
         self.saveImage = saveImage
 
         if os.path.isdir(self.esminiPath) is False:

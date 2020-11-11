@@ -13,6 +13,8 @@ from junctions.AngleCurvatureMap import AngleCurvatureMap
 import logging
 from junctions.JunctionBuilder import JunctionBuilder
 
+from library.Configuration import Configuration
+
 
 class JunctionHarvester:
 
@@ -23,7 +25,7 @@ class JunctionHarvester:
                 minAngle = np.pi / 10, 
                 maxAngle = np.pi, 
                 straightRoadLen = 10,
-                esminiPath = "F:\\myProjects\\av\\esmini", 
+                esminiPath = None, 
                 saveImage = True):
         """The angle between two connected roads are >= self.minAngle <= self.maxAngle
 
@@ -49,7 +51,12 @@ class JunctionHarvester:
 
         self.junctionMerger = JunctionMerger(outputDir, outputPrefix, lastId)
 
-        self.esminiPath = esminiPath
+        self.configuration = Configuration()
+
+        if esminiPath is None:
+            self.esminiPath = self.configuration.get("esminipath")
+        else:
+            self.esminiPath = esminiPath
 
         self.saveImage = saveImage
 
