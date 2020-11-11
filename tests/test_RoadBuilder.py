@@ -103,5 +103,7 @@ class test_RoadBuilder(unittest.TestCase):
 
         # pyodrx.prettyprint(odr.get_element())
 
+        extensions.printRoadPositions(odr)
+
         extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
         pass
