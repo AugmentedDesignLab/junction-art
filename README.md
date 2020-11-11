@@ -6,7 +6,11 @@ A library to harvest different kinds of road junctions. It's built using [pyodrx
 1. pyodrx (included with the project. No need to install)
 2. dill
 
+# Configuration
 
+1. esminipath
+2. esmini resources folder
+3. notebook path
 
 # JunctionHarvester
 This is the class that harvests junctions. 

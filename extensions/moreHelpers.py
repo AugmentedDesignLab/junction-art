@@ -7,6 +7,24 @@ import sys
 import csv
 import math
 import matplotlib.pyplot as plt
+from .ExtendedOpenDrive import ExtendedOpenDrive
+
+    
+def createOdr(name, roads, junctions):
+    
+    odr = ExtendedOpenDrive(name)
+    for r in roads:
+        odr.add_road(r)
+    
+    for junction in junctions:
+        odr.add_junction(junction)
+
+    print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
+    odr.adjust_roads_and_lanes()
+
+    return odr
+
+
 
 def view_road(opendrive,esminipath = 'esmini'):
     """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
@@ -72,6 +90,7 @@ def saveRoadImageFromFile(xodrPath, esminipath = 'esmini', outputDir = ''):
 
     print(f"saving image to {outputFile}")
     plt.savefig(outputFile)
+    plt.close()
     return outputFile
 
     

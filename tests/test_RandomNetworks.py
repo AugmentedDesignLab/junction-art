@@ -2,10 +2,13 @@ import unittest
 import extensions, os, junctions
 import numpy as np
 import pyodrx
+from library.Configuration import Configuration
 
 class test_RandomNetworks(unittest.TestCase):
 
     def setUp(self):
+        
+        self.configuration = Configuration()
         self.roadBuilder = junctions.RoadBuilder()
 
     def test_curve(self):
@@ -33,7 +36,7 @@ class test_RandomNetworks(unittest.TestCase):
         odr.add_junction(junction)
         odr.adjust_roads_and_lanes()
 
-        extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
+        extensions.view_road(odr,os.path.join('..', self.configuration.get("esminipath")))
 
     
     
@@ -62,4 +65,4 @@ class test_RandomNetworks(unittest.TestCase):
         odr.add_junction(junction)
         odr.adjust_roads_and_lanes()
 
-        extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
+        extensions.view_road(odr,os.path.join('..', self.configuration.get("esminipath")))

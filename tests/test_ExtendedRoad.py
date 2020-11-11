@@ -26,4 +26,3 @@ class test_ExtendedRoad(unittest.TestCase):
 
                 print( f"curveType: {road.curveType} inputAngle: {math.degrees(inputAngle)} outputAngle: {math.degrees(outputAngle)} deviation: {deviation}")
                 assert deviation < 50.0
-
