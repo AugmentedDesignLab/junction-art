@@ -328,7 +328,8 @@ class JunctionHarvester:
             roads[previousRoadId].add_successor(pyodrx.ElementType.junction, newConnection.id)
 
             if newConnection.id == 1:
-                newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.end)
+                # newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.end)
+                newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
             else:
                 newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
             
@@ -351,7 +352,7 @@ class JunctionHarvester:
 
         # The last connection and resetting odr
 
-        lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction)
+        lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=pyodrx.ContactPoint.start)
         odr.add_road(lastConnection)
 
         # odr.reset()
@@ -373,12 +374,18 @@ class JunctionHarvester:
 
 
 
-    def createLastConnectionForLastAndFirstRoad(self, nextRoadId, roads, junction):
+    def createLastConnectionForLastAndFirstRoad(self, 
+                                                nextRoadId, 
+                                                roads, 
+                                                junction, 
+                                                cp1 = pyodrx.ContactPoint.end, 
+                                                cp2 = pyodrx.ContactPoint.start
+                                                ):
 
         lastConnectionId = nextRoadId + 100
-        lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, roads[0], roads[-1], pyodrx.ContactPoint.end, pyodrx.ContactPoint.start)
-        lastConnection.add_predecessor(pyodrx.ElementType.road, roads[-1].id, pyodrx.ContactPoint.start)
-        lastConnection.add_successor(pyodrx.ElementType.road, roads[0].id, pyodrx.ContactPoint.end)
+        lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, roads[0], roads[-1], cp1, cp2)
+        lastConnection.add_predecessor(pyodrx.ElementType.road, roads[-1].id, cp2)
+        lastConnection.add_successor(pyodrx.ElementType.road, roads[0].id, cp1)
 
         roads[-1].add_successor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.start) 
         roads[0].add_predecessor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.end) 

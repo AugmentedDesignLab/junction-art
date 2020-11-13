@@ -78,7 +78,8 @@ class test_RoadBuilder(unittest.TestCase):
 
         roads[0].add_successor(pyodrx.ElementType.junction,1)
 
-        roads[1].add_predecessor(pyodrx.ElementType.road,0,pyodrx.ContactPoint.end)
+        # roads[1].add_predecessor(pyodrx.ElementType.road,0,pyodrx.ContactPoint.end)
+        roads[1].add_predecessor(pyodrx.ElementType.road,0,pyodrx.ContactPoint.start)
         roads[1].add_successor(pyodrx.ElementType.road,2,pyodrx.ContactPoint.start)
 
         roads[2].add_predecessor(pyodrx.ElementType.junction,1)
@@ -94,7 +95,7 @@ class test_RoadBuilder(unittest.TestCase):
         odrName = "test_connectionRoad"
         odr = extensions.createOdr(odrName, roads, [junction])
 
-        lastConnection = self.harvester.createLastConnectionForLastAndFirstRoad(5, roads, junction)
+        lastConnection = self.harvester.createLastConnectionForLastAndFirstRoad(5, roads, junction, cp1=pyodrx.ContactPoint.start)
         odr.add_road(lastConnection)
 
         # odr.reset()
