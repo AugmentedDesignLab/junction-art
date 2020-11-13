@@ -220,6 +220,7 @@ class RoadBuilder:
         pv = ExtendedPlanview()
         
         poly = pyodrx.ParamPoly3(au,bu,cu,du,av,bv,cv,dv,prange,length)
+        # poly = extensions.IntertialParamPoly(au,bu,cu,du,av,bv,cv,dv,prange,length)
 
         pv.add_geometry(poly)
 
@@ -247,18 +248,31 @@ class RoadBuilder:
             cp1 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.end. end for the roads which have end points in a junction
             cp2 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.start. start for the roads which have start points in a junction
         """
-        x1, y1, _ = road1.getPosition(cp1)
-        x2, y2, _ = road2.getPosition(cp2)
+        x1, y1, h1 = road1.getPosition(cp1)
+        x2, y2, h2 = road2.getPosition(cp2)
 
         tangentMagnitude = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
-        tangentFirstRoad = road1.getIncomingTangent(cp1, tangentMagnitude)
-        tangentSecondRoad = road2.getOutgoingTangent(cp2, tangentMagnitude)
+        # some magic of converting intertial points to local points. local 0, 0 is the start point of the second road.
+        # here the local frame corresponds to the starting point of the new connection road. It's heading is on u axis
 
-        X = [x2, x1]
-        Y = [y2, y1]
-        tangentX = [tangentSecondRoad[0], tangentFirstRoad[0]]
-        tangentY = [tangentSecondRoad[1], tangentFirstRoad[1]]
+        localRotation = h2 + np.pi # rotation of local frame wrt inertial frame.
+
+        u1, v1 = self.inertialToLocal((x2, y2), localRotation, (x1, y1))
+        u2 = 0
+        v2 = 0
+
+        # Now we need tangents in local reference frame
+
+        localStartTangent = extensions.headingToTangent(0, tangentMagnitude)
+        localEndTangent = extensions.headingToTangent(h1 - localRotation, tangentMagnitude)
+
+        # will this magic survive?
+
+        X = [u2, u1]
+        Y = [v2, v1]
+        tangentX = [localStartTangent[0], localEndTangent[0]]
+        tangentY = [localStartTangent[1], localEndTangent[1]]
 
         print("connecting road X, Y, tangentX, tangentY")
         print(X)
@@ -291,3 +305,14 @@ class RoadBuilder:
 
         return newConnection
 
+
+
+    def inertialToLocal(self, localCenter, localRotation, intertialPoint):
+
+        uBeforeRotation = intertialPoint[0] - localCenter[0]
+        vBeforeRotation = intertialPoint[1] - localCenter[1]
+
+        u = uBeforeRotation * math.cos(localRotation) + vBeforeRotation * math.sin(localRotation)
+        v = -uBeforeRotation * math.sin(localRotation) + vBeforeRotation * math.cos(localRotation) 
+
+        return u, v
