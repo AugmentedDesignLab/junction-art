@@ -205,11 +205,9 @@ def printRoadPositions(odr):
 
 
 
-def headingToTangent(h, tangentMagnitude = None):
+def headingToTangent(h, tangentMagnitude):
 
     # TODO tangent depends on maximum speed and heading. 
-    if tangentMagnitude is None:
-        tangentMagnitude = self.headingTangentMagnitude
 
     xComponent = math.cos(h) * tangentMagnitude
     yComponent = math.sin(h) * tangentMagnitude

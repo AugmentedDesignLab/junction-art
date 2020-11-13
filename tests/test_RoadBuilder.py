@@ -71,10 +71,12 @@ class test_RoadBuilder(unittest.TestCase):
         
         roads = []
         roads.append(pyodrx.create_straight_road(0, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(1, np.pi/1.5, True, curvature = 0.2))
+        roads.append(self.roadBuilder.createSimpleCurve(1, np.pi/4, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(2, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(3, np.pi/1.5, True, curvature = 0.2))
+        roads.append(self.roadBuilder.createSimpleCurve(3, np.pi/3, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(4, 10))
+        roads.append(self.roadBuilder.createSimpleCurve(5, np.pi/2, True, curvature = 0.2))
+        roads.append(pyodrx.create_straight_road(6, 10))
 
         roads[0].add_successor(pyodrx.ElementType.junction,1)
 
@@ -89,14 +91,28 @@ class test_RoadBuilder(unittest.TestCase):
         roads[3].add_successor(pyodrx.ElementType.road,4,pyodrx.ContactPoint.start)
 
         roads[4].add_predecessor(pyodrx.ElementType.junction,3)
+        roads[4].add_successor(pyodrx.ElementType.junction,5)
+
+        roads[5].add_predecessor(pyodrx.ElementType.road,4,pyodrx.ContactPoint.start)
+        roads[5].add_successor(pyodrx.ElementType.road,6,pyodrx.ContactPoint.start)
+
+        roads[6].add_predecessor(pyodrx.ElementType.junction,5)
 
         junction = self.junctionBuilder.createJunctionForASeriesOfRoads(roads)
         
         odrName = "test_connectionRoad"
         odr = extensions.createOdr(odrName, roads, [junction])
 
-        lastConnection = self.harvester.createLastConnectionForLastAndFirstRoad(5, roads, junction, cp1=pyodrx.ContactPoint.start)
+        lastConnection = self.harvester.junctionBuilder.createLastConnectionForLastAndFirstRoad(7, roads, junction, cp1=pyodrx.ContactPoint.start)
         odr.add_road(lastConnection)
+
+        randConnection = self.harvester.junctionBuilder.createConnectionFor2Roads(8, roads[0], roads[4], junction, cp1=pyodrx.ContactPoint.start)
+        roads.append(randConnection)
+        odr.add_road(randConnection)
+
+        randConnection2 = self.harvester.junctionBuilder.createConnectionFor2Roads(9, roads[2], roads[6], junction, cp1=pyodrx.ContactPoint.start)
+        roads.append(randConnection2)
+        odr.add_road(randConnection2)
 
         # odr.reset()
         # odr.add_road(lastConnection)
