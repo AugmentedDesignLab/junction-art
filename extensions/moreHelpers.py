@@ -201,3 +201,17 @@ def printRoadPositions(odr):
     """
     for road in odr.roads.values():
         print(f"roadId: {road.id}, \n  start_adj: {road.getAdjustedStartPosition()}\tend_adj: {road.getAdjustedEndPosition()}")
+
+
+
+
+def headingToTangent(h, tangentMagnitude = None):
+
+    # TODO tangent depends on maximum speed and heading. 
+    if tangentMagnitude is None:
+        tangentMagnitude = self.headingTangentMagnitude
+
+    xComponent = math.cos(h) * tangentMagnitude
+    yComponent = math.sin(h) * tangentMagnitude
+
+    return (xComponent, yComponent)

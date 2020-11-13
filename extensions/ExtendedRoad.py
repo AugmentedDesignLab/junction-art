@@ -3,6 +3,8 @@ from copy import copy
 import numpy as np
 import math
 
+import extensions
+
 from junctions.StandardCurveTypes import StandardCurveTypes
 
 class ExtendedRoad(pyodrx.Road):
@@ -221,17 +223,6 @@ class ExtendedRoad(pyodrx.Road):
         return (heading2 - heading1) % np.pi
 
 
-    def headingToTangent(self, h, tangentMagnitude = None):
-
-        # TODO tangent depends on maximum speed and heading. 
-        if tangentMagnitude is None:
-            tangentMagnitude = self.headingTangentMagnitude
-
-        xComponent = math.cos(h) * tangentMagnitude
-        yComponent = math.sin(h) * tangentMagnitude
-
-        return (xComponent, yComponent)
-
 
     def getIncomingTangent(self, contactPoint = pyodrx.ContactPoint.start, tangentMagnitude = None):
 
@@ -244,7 +235,7 @@ class ExtendedRoad(pyodrx.Road):
             # need to change the heading
             h = ( h + np.pi ) % (np.pi * 2)
 
-        return self.headingToTangent(h, tangentMagnitude)
+        return extensions.headingToTangent(h, tangentMagnitude)
 
 
     def getOutgoingTangent(self, contactPoint = pyodrx.ContactPoint.start, tangentMagnitude = None):
@@ -259,5 +250,5 @@ class ExtendedRoad(pyodrx.Road):
         #     # h = ( h + np.pi ) % (np.pi * 2)
         #     h = h 
 
-        return self.headingToTangent(h, tangentMagnitude)
+        return extensions.headingToTangent(h, tangentMagnitude)
 
