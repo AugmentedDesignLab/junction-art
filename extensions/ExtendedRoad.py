@@ -254,9 +254,10 @@ class ExtendedRoad(pyodrx.Road):
         # heading of start point goes into the road.  we need to reverse the heading
         # head of end point goes out of the road, so,no change
 
-        if contactPoint == pyodrx.ContactPoint.start:
-            # need to change the heading
-            h = ( h + np.pi ) % (np.pi * 2)
+        # if contactPoint == pyodrx.ContactPoint.start:
+        #     # need to change the heading
+        #     # h = ( h + np.pi ) % (np.pi * 2)
+        #     h = h 
 
         return self.headingToTangent(h, tangentMagnitude)
 
