@@ -27,16 +27,16 @@ class test_RoadBuilder(unittest.TestCase):
 
     def test_ParamPoly(self):
         tangentX = np.array([
-            3.09016992482654, -10.0
+            -4.8598137403931405, -9.719616726833108
         ])
 
         t = np.array([0, 1])
-        x = np.array([44.30602949438151, 40.0])
-        y = np.array([-5.223206854241455, 0.0])
+        x = np.array([18.41743655268492, 10.0])
+        y = np.array([-4.8598056749275225, 0.0])
         hermiteX = CubicHermiteSpline(t, x, tangentX)
 
         tangentY = np.array([
-        9.51056516909997, 1.2246467991473533e-15
+            8.417431896084457, 1.190309751345524e-15
         ])
         hermiteY = CubicHermiteSpline(t, y, tangentY)
         xCoeffs = hermiteX.c.flatten()
@@ -71,9 +71,9 @@ class test_RoadBuilder(unittest.TestCase):
         
         roads = []
         roads.append(pyodrx.create_straight_road(0, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(1, np.pi/1.5, True, curvature = 0.9))
+        roads.append(self.roadBuilder.createSimpleCurve(1, np.pi/1.5, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(2, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(3, np.pi/1.5, True, curvature = 0.9))
+        roads.append(self.roadBuilder.createSimpleCurve(3, np.pi/1.5, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(4, 10))
 
         roads[0].add_successor(pyodrx.ElementType.junction,1)
