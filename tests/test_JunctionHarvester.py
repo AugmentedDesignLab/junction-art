@@ -20,6 +20,6 @@ class test_JunctionHarvester(unittest.TestCase):
 
 
     def test_drawLikeAPainter2L(self):
-        odr = self.harvester.drawLikeAPainter2L(3)
+        odr = self.harvester.drawLikeAPainter2L(5)
         extensions.printRoadPositions(odr)
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
