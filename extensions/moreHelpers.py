@@ -25,6 +25,21 @@ def createOdr(name, roads, junctions):
     return odr
 
 
+def createOdrLikeABoss(name, roads, junctions):
+    
+    odr = ExtendedOpenDrive(name)
+    for r in roads:
+        odr.add_road(r)
+    
+    for junction in junctions:
+        odr.add_junction(junction)
+
+    print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
+    odr.adjust_roads_and_lanesLikeABoss()
+
+    return odr
+
+
 
 def view_road(opendrive,esminipath = 'esmini'):
     """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic

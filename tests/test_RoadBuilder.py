@@ -128,3 +128,5 @@ class test_RoadBuilder(unittest.TestCase):
 
         extensions.view_road(odr,os.path.join('..', self.configuration.get("esminipath")))
         pass
+
+    
