@@ -259,11 +259,11 @@ class RoadBuilder:
         tangentX = [localStartTangent[0], localEndTangent[0]]
         tangentY = [localStartTangent[1], localEndTangent[1]]
 
-        print("connecting road X, Y, tangentX, tangentY")
-        print(X)
-        print(Y)
-        print(tangentX)
-        print(tangentY)
+        # print("connecting road X, Y, tangentX, tangentY")
+        # print(X)
+        # print(Y)
+        # print(tangentX)
+        # print(tangentY)
 
         p = [0, 1]
 

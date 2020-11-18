@@ -109,20 +109,51 @@ class JunctionBuilder:
         return lastConnection
 
 
-    def createInternalConnectionsForOddIndices(self, roads, cp1 = pyodrx.ContactPoint.start ):
+    def createInternalConnectionsForOddIndices(self, roads, junction, cp1 = pyodrx.ContactPoint.start ):
 
-        """Does not add connection to any junction.
+        """Does not add connection to any junction. When are junction has all the roads connected to at least one connection road in a sequential manner, you can use
+        this method to connect roads which are not already connected.
         """
 
+
         # for first road:
-        fromId = 0
-        toId = 2
-        nextRoadId = len(roads)
+        # fromId = 0
+        # toId = roads[2].id
+        # nextRoadId = roads[-1].id + 1
+        # countOldRoads = len(roads)
+        # while(toId < countOldRoads):
+        #     connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromId], roads[toId], junction, cp1=cp1)
+        #     roads.append(connectionRoad)
+        #     toId += 2
+        #     nextRoadId += 1
+
+        
+        
+
+        fromIndex = 0
         countOldRoads = len(roads)
-        while(toId < countOldRoads):
-            connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromId], roads[toId], 1, cp1=cp1)
-            roads.append(connectionRoad)
-            toId += 2
+        nextRoadId = roads[-1].id + 1
+
+        while fromIndex < countOldRoads:
+            toIndex = fromIndex + 4
+
+            while toIndex < countOldRoads:
+                if toIndex == fromIndex:
+                    toIndex += 2
+                    continue
+                
+                if fromIndex == 0:
+                    connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction, cp1=cp1)
+                else:
+                    connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction)
+
+                roads.append(connectionRoad)
+                toIndex += 2
+                nextRoadId += 1
+                pass
+
+            fromIndex += 2
+
         
         pass
 

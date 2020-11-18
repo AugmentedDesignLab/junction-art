@@ -22,6 +22,20 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         self.adjust_roads_and_lanes()
 
 
+    def hasRoad(self, roadId):
+
+        if str(roadId) in self.roads:
+            return True
+        return False
+
+    
+    def updateRoads(self, roads):
+        for road in roads:
+            if self.hasRoad(road.id) is False:
+                self.add_road(road)
+        pass
+
+
     def getSuccessorRoad(self, road):
         """[summary]
 

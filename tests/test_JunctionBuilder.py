@@ -8,7 +8,7 @@ import extensions
 from library.Configuration import Configuration
 from junctions.JunctionBuilder import JunctionBuilder
 
-class test_JunctionMerger(unittest.TestCase):
+class test_JunctionBuilder(unittest.TestCase):
 
     def setUp(self):
         
