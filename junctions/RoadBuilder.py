@@ -322,7 +322,7 @@ class RoadBuilder:
         """
         # angleBetweenRoads = np.pi - angleBetweenRoads
 
-        print(f"angleBetweenRoads {math.degrees(angleBetweenRoads)}")
+        # print(f"angleBetweenRoads {math.degrees(angleBetweenRoads)}")
         
         mainCurvature = -(1 / radius)
         miniCurvature = 1 / (radius / 4)
