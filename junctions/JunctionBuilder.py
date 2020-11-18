@@ -101,3 +101,11 @@ class JunctionBuilder:
         junction.add_connection(connectionL)
         
         return lastConnection
+
+
+    def buildSimpleRoundAbout(self, numRoads = 4):
+        """In a simple roundabout, there is a circle inside the junction, the connection roads reside in the circle.
+
+        Args:
+            numRoads (int, optional): [description]. Defaults to 4.
+        """
