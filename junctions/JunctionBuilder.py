@@ -1,5 +1,6 @@
 import pyodrx
 from junctions.RoadBuilder import RoadBuilder
+import numpy as np
 
 
 class JunctionBuilder:
@@ -103,9 +104,19 @@ class JunctionBuilder:
         return lastConnection
 
 
-    def buildSimpleRoundAbout(self, numRoads = 4):
+    def buildSimpleRoundAbout(self, numRoads = 4, radius = 10, cp1 = pyodrx.ContactPoint.start):
         """In a simple roundabout, there is a circle inside the junction, the connection roads reside in the circle.
 
         Args:
             numRoads (int, optional): [description]. Defaults to 4.
+            radius : in meters.
+            cp1: contact point on the first road.
         """
+
+        anglePerRoad = np.pi / numRoads
+
+        mainCurvature = 1 / radius
+        miniCurvature = 1 / (radius / 4)
+
+
+

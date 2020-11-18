@@ -168,17 +168,7 @@ class RoadBuilder:
         pv.add_geometry(spiral2)
 
         # create lanes
-        lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
-        for _ in range(1, n_lanes+1, 1):
-            lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
-            lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
-        laneSections = extensions.LaneSections()
-        laneSections.add_lanesection(lsec)
-
-        # create road
-        road = ExtendedRoad(r_id, pv, laneSections, road_type=junction)
-        road.curveType = StandardCurveTypes.S
-        return road
+        return self.createStandardLanes(n_lanes, lane_offset, r_id, pv, junction)
     
 
     def createCurveByLength(self, roadId, length, isJunction = False, curvature = StandardCurvature.Medium.value):
@@ -193,17 +183,7 @@ class RoadBuilder:
         pv.add_geometry(arc)
 
         # create lanes
-        lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
-        for _ in range(1, n_lanes+1, 1):
-            lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
-            lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
-        laneSections = extensions.LaneSections()
-        laneSections.add_lanesection(lsec)
-
-        # create road
-        road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
-        road.curveType = StandardCurveTypes.S
-        return road
+        return self.createStandardLanes(n_lanes, lane_offset, roadId, pv, junction)
 
     # def createCurveWithEndpoints(self, start, end):
 
@@ -225,6 +205,11 @@ class RoadBuilder:
         pv.add_geometry(poly)
 
         # create lanes
+        return self.createStandardLanes(n_lanes, lane_offset, roadId, pv, junction)
+
+
+
+    def createStandardLanes(self, n_lanes, lane_offset, roadId, pv, junction):
         lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
         for _ in range(1, n_lanes+1, 1):
             lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
@@ -317,3 +302,54 @@ class RoadBuilder:
 
         return u, v
 
+
+    def createRoundAboutConnection(self, connectionId, angleBetweenRoads, radius):
+        
+        return self.createMShape(connectionId, 1, angleBetweenRoads, radius)
+        
+
+    def createMShape(self, roadId, junction, angleBetweenRoads, radius):
+        """[summary]
+
+        Args:
+            roadId ([type]): [description]
+            junction ([type]): -1 for road, 1 for connection
+            angleBetweenRoads ([type]): [description]
+            radius ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        # angleBetweenRoads = np.pi - angleBetweenRoads
+
+        print(f"angleBetweenRoads {math.degrees(angleBetweenRoads)}")
+        
+        mainCurvature = -(1 / radius)
+        miniCurvature = 1 / (radius / 4)
+
+        spiralAngle = np.pi/20
+        miniCurveAngle = np.pi/2 - spiralAngle
+        
+
+
+        # create
+
+        spiral1 = pyodrx.Spiral(0.001, miniCurvature, angle=spiralAngle)
+        curve1 = pyodrx.Arc(miniCurvature, angle=miniCurveAngle)
+        curve2 = pyodrx.Arc(mainCurvature, angle=angleBetweenRoads)
+        curve3 = pyodrx.Arc(miniCurvature, angle=miniCurveAngle)
+        spiral2 = pyodrx.Spiral(0.001, miniCurvature, angle=spiralAngle)
+
+        pv = extensions.ExtendedPlanview()
+        pv.add_geometry(spiral1)
+        pv.add_geometry(curve1)
+        pv.add_geometry(curve2)
+        pv.add_geometry(curve3)
+        pv.add_geometry(spiral2)
+
+        
+        n_lanes = 1
+        lane_offset = 3
+
+        # create lanes
+        return self.createStandardLanes(n_lanes, lane_offset, roadId, pv, junction)

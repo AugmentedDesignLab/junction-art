@@ -130,3 +130,27 @@ class test_RoadBuilder(unittest.TestCase):
         pass
 
     
+
+    def test_createMShape(self):
+
+        
+        roads = []
+        roads.append(pyodrx.create_straight_road(0, 10))
+        roads.append(self.roadBuilder.createMShape(1, 1, np.pi / 1.5, 10))
+        roads.append(pyodrx.create_straight_road(2, 10))
+
+
+        roads[0].add_successor(pyodrx.ElementType.junction,1)
+
+        roads[1].add_predecessor(pyodrx.ElementType.road,0,pyodrx.ContactPoint.end)
+        # roads[1].add_predecessor(pyodrx.ElementType.road,0,pyodrx.ContactPoint.start)
+        roads[1].add_successor(pyodrx.ElementType.road,2,pyodrx.ContactPoint.start)
+
+        roads[2].add_predecessor(pyodrx.ElementType.junction,1)
+
+        junction = self.junctionBuilder.createJunctionForASeriesOfRoads(roads)
+
+        odrName = "test_connectionRoad"
+        odr = extensions.createOdr(odrName, roads, [junction])
+
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
