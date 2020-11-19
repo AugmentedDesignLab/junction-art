@@ -119,7 +119,7 @@ class test_ExtendedOpenDrive(unittest.TestCase):
         junction = self.junctionBuilder.createJunctionForASeriesOfRoads(roads)
         
         odrName = "test_connectionRoad"
-        odr = extensions.createOdrLikeABoss(odrName, roads, [junction])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [junction])
 
         lastConnection = self.harvester.junctionBuilder.createLastConnectionForLastAndFirstRoad(7, roads, junction, cp1=pyodrx.ContactPoint.start)
         odr.add_road(lastConnection)
@@ -134,7 +134,7 @@ class test_ExtendedOpenDrive(unittest.TestCase):
 
         odr.reset()
         odr.add_road(lastConnection)
-        odr.adjust_roads_and_lanesLikeABoss()
+        odr.adjust_roads_and_lanesByPredecessor()
 
         # odr.resetAndReadjust()
         

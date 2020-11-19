@@ -14,13 +14,17 @@ class test_JunctionBuilder(unittest.TestCase):
         
         self.configuration = Configuration()
         self.junctionBuilder = JunctionBuilder()
+        self.esminiPath = self.configuration.get("esminipath")
 
     
     def test_buildSimpleRoundAbout(self):
 
-        numRoads = 7
+        numRoads = 3
         odr = self.junctionBuilder.buildSimpleRoundAbout(odrId=0, numRoads=numRoads, radius=10)
-        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+        xmlPath = f"output/test_buildSimpleRoundAbout-{numRoads}.xodr"
+        odr.write_xml(xmlPath)
+        
+        extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
+        extensions.view_road(odr, os.path.join('..', self.esminiPath))
 
         
-        odr.write_xml(f"output/test_buildSimpleRoundAbout-{numRoads}.xodr")

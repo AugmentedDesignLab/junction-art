@@ -25,7 +25,7 @@ def createOdr(name, roads, junctions):
     return odr
 
 
-def createOdrLikeABoss(name, roads, junctions):
+def createOdrByPredecessor(name, roads, junctions):
     
     odr = ExtendedOpenDrive(name)
     for r in roads:
@@ -35,7 +35,7 @@ def createOdrLikeABoss(name, roads, junctions):
         odr.add_junction(junction)
 
     print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
-    odr.adjust_roads_and_lanesLikeABoss()
+    odr.adjust_roads_and_lanesByPredecessor()
 
     return odr
 

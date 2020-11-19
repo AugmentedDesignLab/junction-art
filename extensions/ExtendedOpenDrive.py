@@ -17,9 +17,12 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
             road.reset()
         pass
 
-    def resetAndReadjust(self):
+    def resetAndReadjust(self, byPredecessor = False):
         self.reset()
-        self.adjust_roads_and_lanes()
+        if byPredecessor:
+            self.adjust_roads_and_lanesByPredecessor()
+        else:
+            self.adjust_roads_and_lanes()
 
 
     def hasRoad(self, roadId):
@@ -30,6 +33,13 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
 
     
     def updateRoads(self, roads):
+        for road in roads:
+            if self.hasRoad(road.id) is False:
+                self.add_road(road)
+        pass
+    
+
+    def addRoads(self, roads):
         for road in roads:
             if self.hasRoad(road.id) is False:
                 self.add_road(road)
@@ -60,7 +70,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         return self.roads[str(road.predecessor.element_id)]
 
     
-    def adjust_roads_and_lanesLikeABoss(self): 
+    def adjust_roads_and_lanesByPredecessor(self): 
         """ Adjust starting position of all geoemtries of all roads and try to link lanes in neightbouring roads 
 
             Parameters
@@ -69,7 +79,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         """
         #adjust roads and their geometries 
         print("start points starting")
-        self.adjust_startpointsLikeABoss()
+        self.adjust_startpointsByPredecessor()
 
         # print("start points adjusted")
 
@@ -82,7 +92,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
             create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 
-    def adjust_startpointsLikeABoss(self): 
+    def adjust_startpointsByPredecessor(self): 
         """ Adjust starting position of all geoemtries of all roads
 
             Parameters
