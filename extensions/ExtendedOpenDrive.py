@@ -4,6 +4,7 @@ from pyodrx.links import _Link, _Links, create_lane_links
 import numpy as np
 from itertools import combinations
 
+
 class ExtendedOpenDrive(pyodrx.OpenDrive):
     
 
@@ -23,6 +24,22 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
             self.adjust_roads_and_lanesByPredecessor()
         else:
             self.adjust_roads_and_lanes()
+
+    def write_xml(self,filename=None,prettyprint = True):
+        """ writeXml writes the open scenario xml file
+
+        Parameters
+        ----------
+            filename (str): path and filename of the wanted xml file
+                Default: name of the opendrive
+
+            prettyprint (bool): pretty print or ugly print?
+                Default: True
+
+        """
+        if filename == None:
+            filename = self.name + '.xodr'
+        pyodrx.printToFile(self.get_element(),filename,prettyprint, standalone=True)
 
 
     def hasRoad(self, roadId):

@@ -193,7 +193,11 @@ class RoadBuilder:
     def createParamPoly3(self, roadId, isJunction=False, 
         au=0,bu=20,cu=20,du= 10,
         av=0,bv=2,cv=20,dv= 10,
-        prange='normalized',length=None):
+        prange='normalized',
+        length=None,
+        n_lanes=1,
+        lane_offset=3,
+        laneSides=LaneSides.BOTH):
 
         junction = self.getJunctionSelection(isJunction)
 
@@ -208,7 +212,7 @@ class RoadBuilder:
         pv.add_geometry(poly)
 
         # create lanes
-        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction)
+        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction, laneSides=laneSides)
 
 
 
@@ -247,7 +251,10 @@ class RoadBuilder:
     
 
 
-    def getConnectionRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True):
+    def getConnectionRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True,
+                                    n_lanes=1,
+                                    lane_offset=3,
+                                    laneSides=LaneSides.BOTH):
         """ Works only after roads has been adjusted.
         For now we will create a straight road which connects the reference lines of the roads, starts at second road and ends that the first.
 
@@ -308,7 +315,10 @@ class RoadBuilder:
                                                 av=yCoeffs[3],
                                                 bv=yCoeffs[2],
                                                 cv=yCoeffs[1],
-                                                dv=yCoeffs[0]
+                                                dv=yCoeffs[0],
+                                                n_lanes=n_lanes,
+                                                lane_offset=lane_offset,
+                                                laneSides=laneSides
 
                                             )
 

@@ -2,6 +2,7 @@ import pyodrx, math
 from junctions.RoadBuilder import RoadBuilder
 import numpy as np
 import extensions
+from junctions.LaneSides import LaneSides
 
 
 class JunctionBuilder:
@@ -84,22 +85,37 @@ class JunctionBuilder:
                                     road2, 
                                     junction, 
                                     cp1 = pyodrx.ContactPoint.end, 
-                                    cp2 = pyodrx.ContactPoint.start
+                                    cp2 = pyodrx.ContactPoint.start,
+                                    n_lanes=1,
+                                    lane_offset=3,
+                                    laneSides=LaneSides.BOTH
                                     ):
 
         """Does not modify predecessor or successor of the given roads.
+
+        Args:
+            junction: the junction object to add links.
 
         Returns:
             [type]: connection road with first road as the predecessor and second road as the successor
         """
 
-        lastConnectionId = nextRoadId + 100
-        lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, road1, road2, cp1, cp2)
-        lastConnection.add_predecessor(pyodrx.ElementType.road, road2.id, cp2)
-        lastConnection.add_successor(pyodrx.ElementType.road, road1.id, cp1)
 
-        # road2.add_successor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.start) 
-        # road1.add_predecessor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.end) 
+        lastConnectionId = nextRoadId
+        lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, road1, road2, cp1, cp2,
+                                    n_lanes=n_lanes,
+                                    lane_offset=lane_offset,
+                                    laneSides=laneSides)
+        if road1.isConnection:
+            lastConnection.updatePredecessor(pyodrx.ElementType.junction, road1.id, cp1)
+        else:
+            lastConnection.updatePredecessor(pyodrx.ElementType.road, road1.id, cp1)
+
+            
+        if road2.isConnection:
+            lastConnection.updateSuccessor(pyodrx.ElementType.junction, road2.id, cp2)
+        else:
+            lastConnection.updateSuccessor(pyodrx.ElementType.road, road2.id, cp2)
 
 
         connectionL = pyodrx.Connection(road2.id, lastConnectionId, pyodrx.ContactPoint.start)
@@ -175,13 +191,15 @@ class JunctionBuilder:
 
         roadsCreated = 1
 
+        connectionSeres = [] # holds all the connection road series so that we can create internal connections later.
+
         while roadsCreated < numRoads:
             previousRoadId = nextRoadId - 1
             newConnectionId = nextRoadId
 
             # 2. create a new connection road
             newConnectionSeries = self.roadBuilder.createRoundAboutConnection(newConnectionId, anglePerRoad, radius)
-
+            connectionSeres.append(newConnectionSeries)
 
             nextRoadId += newConnectionSeries.length()
             newRoadId = nextRoadId
@@ -223,6 +241,7 @@ class JunctionBuilder:
         # The last connection and resetting odr
 
         newConnectionSeries = self.roadBuilder.createRoundAboutConnection(nextRoadId, anglePerRoad, radius)
+        connectionSeres.append(newConnectionSeries)
 
         roads += newConnectionSeries.getAll()
         newConnectionSeries.getFirst().add_predecessor(pyodrx.ElementType.road, nextRoadId-1, pyodrx.ContactPoint.start)
@@ -235,8 +254,53 @@ class JunctionBuilder:
             newConnectionSeries.getLast().add_successor(pyodrx.ElementType.road, 0, pyodrx.ContactPoint.start)
             
         odr.updateRoads(roads)
+        odr.resetAndReadjust(byPredecessor=True)
 
+        # Last step, link connection series by curves
+
+        self.createInternalConnectionsForConnectionSeres(roads, connectionSeres, junction)
+
+        odr.updateRoads(roads)
         odr.resetAndReadjust(byPredecessor=True)
 
         return odr
         
+
+    def createInternalConnectionsForConnectionSeres(self, roads, connectionSeres, junction):
+        """Assumes last road has the largest id.
+
+        Args:
+            roads ([type]): [description]
+            connectionSeres ([type]): [description]
+        """
+
+
+        # for each last road in a series, connect with the next first road
+        length = len(connectionSeres)
+        nextRoadId = connectionSeres[-1].getLast().id + 1 # last id so far.
+
+        for i in range(length):
+            currentConnectionS = connectionSeres[i]
+
+            if (i + 1) < length:
+                nextConnectionS = connectionSeres[i + 1]
+            else:
+                nextConnectionS = connectionSeres[0]
+
+            # traffic will go from current to next
+
+            newConnection = self.createConnectionFor2Roads(
+                nextRoadId,
+                currentConnectionS.getLast(), 
+                nextConnectionS.getFirst(), 
+                junction=junction, 
+                laneSides=LaneSides.LEFT)
+            
+            roads.append(newConnection)
+
+            nextRoadId += 1
+        
+        return nextRoadId
+            
+
+            
