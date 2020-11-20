@@ -1,3 +1,5 @@
+import math
+
 class RoadSeries:
     """A series of roads connected along the reference line. Some uqitilty functions
     """
@@ -20,3 +22,11 @@ class RoadSeries:
 
     def length(self):
         return len(self.roads)
+
+
+    def getMiddle(self):
+        """Only works with roads with even number of parts
+        """
+        middleIndex = math.floor(len(self.roads) / 2)
+
+        return self.roads[middleIndex]

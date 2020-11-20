@@ -20,9 +20,11 @@ class test_JunctionBuilder(unittest.TestCase):
     def test_buildSimpleRoundAbout(self):
 
         numRoads = 3
-        odr = self.junctionBuilder.buildSimpleRoundAbout(odrId=0, numRoads=numRoads, radius=10)
+        odr = self.junctionBuilder.buildSimpleRoundAbout(odrId=0, numRoads=numRoads, radius=10, cp1=pyodrx.ContactPoint.end)
         xmlPath = f"output/test_buildSimpleRoundAbout-{numRoads}.xodr"
         odr.write_xml(xmlPath)
+
+        extensions.printRoadPositions(odr)
         
         extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
         extensions.view_road(odr, os.path.join('..', self.esminiPath))
