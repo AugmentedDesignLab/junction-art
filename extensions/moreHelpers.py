@@ -228,3 +228,48 @@ def headingToTangent(h, tangentMagnitude):
     yComponent = math.sin(h) * tangentMagnitude
 
     return (xComponent, yComponent)
+
+
+# change the XML tag with standalone attribute
+def set_standalone_attribute(filename):
+    if filename is None:
+        return False
+    else:
+       f = open(filename, "r")
+       content = f.readlines()
+       f.close()
+       f = open(filename, "w")
+       content[0] = "<?xml version=\"1.0\" standalone=\"yes\"?> \n"
+       for line in content:
+           f.write(line)
+       f.close()
+       pass
+
+"""
+    change revMinor attribute to 4
+"""
+
+def change_revMinor(filepath):
+    if filepath is None:
+        return False
+    else:
+       f = open(filepath, "r")
+       content = f.readlines()
+       f.close()
+       f = open(filepath, "w")
+       for line in content:
+           if "header" in line:
+               line = "<header name=\"test\"  version=\"1.00\" date=\"Tue Jun 30 14:55:47 2020\" \
+                        revMajor=\"1\" revMinor=\"4\" \
+                        east=\"0.0000000000000000e+00\" north=\"0.0000000000000000e+00\" south=\"0.0000000000000000e+00\" west=\"0.0000000000000000e+00\"/>"
+           f.write(line)
+       f.close()
+       pass
+
+
+# create compitable file for road runner
+
+def modify_xodr_for_roadrunner(filepath):
+    set_standalone_attribute(filepath)
+    change_revMinor(filepath)
+
