@@ -12,7 +12,7 @@ class test_moreHelper(unittest.TestCase):
 
     def test_saveRoadImageFromFile(self):
 
-        xodrPath = "F:\\myProjects\\av\\esmini\\resources\\xodr\\pythonroad.xodr"
+        xodrPath = "F:\\myProjects\\av\\junction-art\\output\\test_buildSimpleRoundAbout-3.xodr"
         outputFile = extensions.saveRoadImageFromFile(xodrPath, self.configuration.get("esminipath"))
 
         assert os.path.isfile(outputFile)

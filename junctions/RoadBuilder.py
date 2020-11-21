@@ -3,11 +3,14 @@ import os
 import pyodrx, extensions
 import math
 
+from junctions.LaneSides import LaneSides
 from junctions.StandardCurvatures import StandardCurvature
 from junctions.StandardCurveTypes import StandardCurveTypes
 from extensions.ExtendedRoad import ExtendedRoad
 from extensions.ExtendedPlanview import ExtendedPlanview
 from scipy.interpolate import CubicHermiteSpline
+
+from junctions.RoadSeries import RoadSeries
 
 
 class RoadBuilder:
@@ -168,17 +171,7 @@ class RoadBuilder:
         pv.add_geometry(spiral2)
 
         # create lanes
-        lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
-        for _ in range(1, n_lanes+1, 1):
-            lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
-            lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
-        laneSections = extensions.LaneSections()
-        laneSections.add_lanesection(lsec)
-
-        # create road
-        road = ExtendedRoad(r_id, pv, laneSections, road_type=junction)
-        road.curveType = StandardCurveTypes.S
-        return road
+        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, r_id, pv, junction)
     
 
     def createCurveByLength(self, roadId, length, isJunction = False, curvature = StandardCurvature.Medium.value):
@@ -193,24 +186,18 @@ class RoadBuilder:
         pv.add_geometry(arc)
 
         # create lanes
-        lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
-        for _ in range(1, n_lanes+1, 1):
-            lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
-            lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
-        laneSections = extensions.LaneSections()
-        laneSections.add_lanesection(lsec)
-
-        # create road
-        road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
-        road.curveType = StandardCurveTypes.S
-        return road
+        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction)
 
     # def createCurveWithEndpoints(self, start, end):
 
     def createParamPoly3(self, roadId, isJunction=False, 
         au=0,bu=20,cu=20,du= 10,
         av=0,bv=2,cv=20,dv= 10,
-        prange='normalized',length=None):
+        prange='normalized',
+        length=None,
+        n_lanes=1,
+        lane_offset=3,
+        laneSides=LaneSides.BOTH):
 
         junction = self.getJunctionSelection(isJunction)
 
@@ -225,10 +212,34 @@ class RoadBuilder:
         pv.add_geometry(poly)
 
         # create lanes
+        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction, laneSides=laneSides)
+
+
+
+    def composeRoadWithStandardLanes(self, n_lanes, lane_offset, roadId, pv, junction, laneSides=LaneSides.BOTH):
+        """[summary]
+
+        Args:
+            n_lanes ([type]): [description]
+            lane_offset ([type]): width
+            roadId ([type]): [description]
+            pv ([type]): [description]
+            junction ([type]): [description]
+            laneSides ([type], optional): where to put lanes wrt center lane. Defaults to LaneSides.BOTH.
+
+        Returns:
+            [type]: [description]
+        """
         lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
-        for _ in range(1, n_lanes+1, 1):
-            lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
-            lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
+        for _ in range(1, n_lanes + 1, 1):
+            if laneSides == LaneSides.BOTH:
+                lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
+                lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
+            elif laneSides == LaneSides.LEFT:
+                lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
+            else:
+                lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
+
         laneSections = extensions.LaneSections()
         laneSections.add_lanesection(lsec)
 
@@ -237,8 +248,13 @@ class RoadBuilder:
         road.curveType = StandardCurveTypes.S
         return road
 
+    
 
-    def getConnectionRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True):
+
+    def getConnectionRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True,
+                                    n_lanes=1,
+                                    lane_offset=3,
+                                    laneSides=LaneSides.BOTH):
         """ Works only after roads has been adjusted.
         For now we will create a straight road which connects the reference lines of the roads, starts at second road and ends that the first.
 
@@ -274,11 +290,11 @@ class RoadBuilder:
         tangentX = [localStartTangent[0], localEndTangent[0]]
         tangentY = [localStartTangent[1], localEndTangent[1]]
 
-        print("connecting road X, Y, tangentX, tangentY")
-        print(X)
-        print(Y)
-        print(tangentX)
-        print(tangentY)
+        # print("connecting road X, Y, tangentX, tangentY")
+        # print(X)
+        # print(Y)
+        # print(tangentX)
+        # print(tangentY)
 
         p = [0, 1]
 
@@ -299,7 +315,10 @@ class RoadBuilder:
                                                 av=yCoeffs[3],
                                                 bv=yCoeffs[2],
                                                 cv=yCoeffs[1],
-                                                dv=yCoeffs[0]
+                                                dv=yCoeffs[0],
+                                                n_lanes=n_lanes,
+                                                lane_offset=lane_offset,
+                                                laneSides=laneSides
 
                                             )
 
@@ -316,3 +335,111 @@ class RoadBuilder:
         v = -uBeforeRotation * math.sin(localRotation) + vBeforeRotation * math.cos(localRotation) 
 
         return u, v
+
+
+    def createRoundAboutConnection(self, connectionId, angleBetweenRoads, radius, n_lanes=1, laneSides=LaneSides.LEFT):
+        
+        roadStart, roadMain, roadEnd = self.createMShapeAndGetEachPartAsSeperateRoads(connectionId, 1, angleBetweenRoads, radius, n_lanes=n_lanes, laneSides=laneSides)
+
+        return RoadSeries([roadStart, roadMain, roadEnd])
+        
+
+    def createMShape(self, roadId, junction, angleBetweenRoads, radius, n_lanes=1, laneSides = LaneSides.BOTH):
+        """[summary]
+
+        Args:
+            roadId ([type]): [description]
+            junction ([type]): -1 for road, 1 for connection
+            angleBetweenRoads ([type]): [description]
+            radius ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        # angleBetweenRoads = np.pi - angleBetweenRoads
+
+        # print(f"angleBetweenRoads {math.degrees(angleBetweenRoads)}")
+        
+        spiral1, curve1, mainCurve, curve3, spiral2 = self.getMGeometries(radius, angleBetweenRoads)
+
+        pv = extensions.ExtendedPlanview()
+        pv.add_geometry(spiral1)
+        pv.add_geometry(curve1)
+        pv.add_geometry(mainCurve)
+        pv.add_geometry(curve3)
+        pv.add_geometry(spiral2)
+
+        
+        lane_offset = 3
+
+        # create lanes
+        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction, laneSides=laneSides)
+
+    
+    
+    def createMShapeAndGetEachPartAsSeperateRoads(self, startRoadId, junction, angleBetweenRoads, radius, 
+                                                n_lanes=1, lane_offset = 3, laneSides = LaneSides.BOTH):
+        """[summary]
+
+        Args:
+            startRoadId ([type]): RoadId of the first part. increments for each part.
+            junction ([type]): -1 for road, 1 for connection
+            angleBetweenRoads ([type]): [description]
+            radius ([type]): [description]
+
+        Returns:
+            [type]: parts with successor and predecessors linked.
+        """
+        # angleBetweenRoads = np.pi - angleBetweenRoads
+
+        # print(f"angleBetweenRoads {math.degrees(angleBetweenRoads)}")
+        
+        spiral1, curve1, mainCurve, curve3, spiral2 = self.getMGeometries(radius, angleBetweenRoads)
+
+        pvStart = extensions.ExtendedPlanview()
+        pvMain = extensions.ExtendedPlanview()
+        pvEnd = extensions.ExtendedPlanview()
+
+        pvStart.add_geometry(spiral1)
+        pvStart.add_geometry(curve1)
+        pvMain.add_geometry(mainCurve)
+        pvEnd.add_geometry(curve3)
+        pvEnd.add_geometry(spiral2)
+
+        
+        
+        mainRoadId = startRoadId + 1
+        endRoadId = mainRoadId + 1 
+        # create lanes
+        roadStart =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, startRoadId, pvStart, junction, laneSides=laneSides)
+        roadMain =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, mainRoadId, pvMain, junction, laneSides=laneSides)
+        roadEnd =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, endRoadId, pvEnd, junction, laneSides=laneSides)
+
+        roadStart.updateSuccessor(pyodrx.ElementType.junction, mainRoadId, pyodrx.ContactPoint.start)
+
+        roadMain.updatePredecessor(pyodrx.ElementType.junction, startRoadId, pyodrx.ContactPoint.end)
+        roadMain.updateSuccessor(pyodrx.ElementType.junction, endRoadId, pyodrx.ContactPoint.start)
+
+        roadEnd.updatePredecessor(pyodrx.ElementType.junction, mainRoadId, pyodrx.ContactPoint.end)
+
+        return roadStart, roadMain, roadEnd
+
+
+
+    def getMGeometries(self, radius, angleBetweenRoads):
+        mainCurvature = -(1 / radius)
+        miniCurvature = 1 / (radius / 4)
+
+        spiralAngle = np.pi/20
+        miniCurveAngle = np.pi/2 - spiralAngle
+
+
+
+        # create
+
+        spiral1 = pyodrx.Spiral(0.001, miniCurvature, angle=spiralAngle)
+        curve1 = pyodrx.Arc(miniCurvature, angle=miniCurveAngle)
+        mainCurve = pyodrx.Arc(mainCurvature, angle=angleBetweenRoads)
+        curve3 = pyodrx.Arc(miniCurvature, angle=miniCurveAngle)
+        spiral2 = pyodrx.Spiral(0.001, miniCurvature, angle=spiralAngle)
+        return spiral1, curve1, mainCurve, curve3, spiral2

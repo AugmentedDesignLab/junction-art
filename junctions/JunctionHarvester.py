@@ -295,7 +295,7 @@ class JunctionHarvester:
 
     
 
-    def drawLikeAPainter2L(self, maxNumberOfRoadsPerJunction, save=True):
+    def drawLikeAPainter2L(self, maxNumberOfRoadsPerJunction, save=True, internalConnections=True, cp1=pyodrx.ContactPoint.start):
         if maxNumberOfRoadsPerJunction < 3:
             raise Exception("drawLikeAPainter is not for the weak. Please add more than 3 roads")
 
@@ -330,7 +330,7 @@ class JunctionHarvester:
             if newConnection.id == 1:
                 # newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.end)
                 # TODO this is a hack. It will not eventually work because outgoing roads' ends will come to join other junctions.
-                newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
+                newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, cp1)
             else:
                 newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
             
@@ -352,9 +352,16 @@ class JunctionHarvester:
 
         # The last connection and resetting odr
 
-        lastConnection = self.junctionBuilder.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=pyodrx.ContactPoint.start)
+        lastConnection = self.junctionBuilder.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=cp1)
         odr.add_road(lastConnection)
 
+        print(f"roads before internal connections {len(roads)}")
+
+        if internalConnections:
+            self.junctionBuilder.createInternalConnectionsForOddIndices(roads, junction, cp1=cp1)
+            odr.updateRoads(roads)
+
+        print(f"roads after internal connections {len(roads)}")
 
         odr.resetAndReadjust()
         

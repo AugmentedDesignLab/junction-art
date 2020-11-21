@@ -11,8 +11,16 @@ class ExtendedRoad(pyodrx.Road):
 
     curveType = StandardCurveTypes.Line
     headingTangentMagnitude = 10 # 10 meters.
+    isConnection = False
 
-    pass
+
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
+        super().__init__(road_id, planview, lanes, road_type, name, rule)
+
+        if road_type == 1:
+            self.isConnection = True
+
+        pass
 
 
     def reset(self, clearRoadLinks = False):
@@ -32,6 +40,21 @@ class ExtendedRoad(pyodrx.Road):
         self.setAdjustmentsToFalse()
 
         pass
+
+
+    def setAdjustmentsToFalse(self):
+        self.adjusted = False
+        pass
+
+    
+    def planViewAdjusted(self):
+        return self.planview.adjusted
+
+    
+    def planViewNotAdjusted(self):
+        if self.planViewAdjusted():
+            return False
+        return True
 
 
     def clearAllLinks(self):
@@ -54,16 +77,52 @@ class ExtendedRoad(pyodrx.Road):
 
     
     def updatePredecessor(self, element_type,element_id,contact_point=None):
+        """ updatePredecessor adds a predecessor link to the road
+        
+        Parameters
+        ----------
+            element_type (ElementType): type of element the linked road
+
+            element_id (str/int): name of the linked road
+
+            contact_point (ContactPoint): the contact point of the predecessor on the predecessor
+
+        """
         self.predecessor = None
         self.add_predecessor(element_type, element_id, contact_point)
         pass
 
 
     def updateSuccessor(self, element_type,element_id,contact_point=None):
+        """ updateSuccessor adds a successor link to the road
+        
+        Parameters
+        ----------
+            element_type (ElementType): type of element the linked road
+
+            element_id (str/int): name of the linked road
+
+            contact_point (ContactPoint): the contact point of the Successor on the Successor
+
+        """
         self.successor = None
         self.add_successor(element_type, element_id, contact_point)
         pass
-    
+
+
+    def hasPredecessor(self):
+        if self.predecessor is not None:
+            return True
+        return False
+
+    def hasSuccessor(self):
+        if self.successor is not None:
+            return True
+        return False
+
+    def isJunction(self):
+        return self.isConnection
+        
 
     def shallowCopy(self):
         copiedRoad = copy(self)
@@ -71,9 +130,6 @@ class ExtendedRoad(pyodrx.Road):
         return copiedRoad
     
 
-    def setAdjustmentsToFalse(self):
-        self.adjusted = False
-        pass
 
 
     def getArcAngle(self):

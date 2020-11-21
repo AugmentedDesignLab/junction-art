@@ -52,7 +52,7 @@ def prettyprint(element):
     print(reparsed.toprettyxml(indent="\t"))
 
 
-def printToFile(element,filename,prettyprint=True):
+def printToFile(element,filename,prettyprint=True, standalone=True):
     """ prints the element to a xml file
 
         Parameters
