@@ -253,18 +253,16 @@ def change_revMinor(filepath):
     if filepath is None:
         return False
     else:
-       f = open(filepath, "r")
-       content = f.readlines()
-       f.close()
-       f = open(filepath, "w")
-       for line in content:
-           if "header" in line:
-               line = "<header name=\"test\"  version=\"1.00\" date=\"Tue Jun 30 14:55:47 2020\" \
-                        revMajor=\"1\" revMinor=\"4\" \
-                        east=\"0.0000000000000000e+00\" north=\"0.0000000000000000e+00\" south=\"0.0000000000000000e+00\" west=\"0.0000000000000000e+00\"/>"
-           f.write(line)
-       f.close()
-       pass
+        f = open(filepath, "r", encoding="utf-8")
+        content = f.readlines()
+        f.close()
+        f = open(filepath, "w")
+        for line in content:
+            if "header" in line:
+                line = line.replace('revMinor="5"', 'revMinor="4"')
+            f.write(line)
+        f.close()
+        pass
 
 
 # create compitable file for road runner
