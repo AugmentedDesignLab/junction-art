@@ -108,13 +108,13 @@ class test_RoadBuilder(unittest.TestCase):
         lastConnection = self.harvester.junctionBuilder.createLastConnectionForLastAndFirstRoad(7, roads, junction, cp1=pyodrx.ContactPoint.start)
         odr.add_road(lastConnection)
 
-        randConnection = self.harvester.junctionBuilder.createConnectionFor2Roads(8, roads[0], roads[4], junction, cp1=pyodrx.ContactPoint.start)
-        roads.append(randConnection)
-        odr.add_road(randConnection)
+        # randConnection = self.harvester.junctionBuilder.createConnectionFor2Roads(8, roads[0], roads[4], junction, cp1=pyodrx.ContactPoint.start)
+        # roads.append(randConnection)
+        # odr.add_road(randConnection)
 
-        randConnection2 = self.harvester.junctionBuilder.createConnectionFor2Roads(9, roads[2], roads[6], junction, cp1=pyodrx.ContactPoint.start)
-        roads.append(randConnection2)
-        odr.add_road(randConnection2)
+        # randConnection2 = self.harvester.junctionBuilder.createConnectionFor2Roads(9, roads[2], roads[6], junction, cp1=pyodrx.ContactPoint.start)
+        # roads.append(randConnection2)
+        # odr.add_road(randConnection2)
 
         # odr.reset()
         # odr.add_road(lastConnection)
