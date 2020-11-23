@@ -1,4 +1,4 @@
-import pyodrx
+import pyodrx, extensions
 from pyodrx.enumerations import ElementType, ContactPoint
 from pyodrx.links import _Link, _Links, create_lane_links
 import numpy as np
@@ -39,7 +39,9 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         """
         if filename == None:
             filename = self.name + '.xodr'
-        pyodrx.printToFile(self.get_element(),filename,prettyprint, standalone=True)
+        pyodrx.printToFile(self.get_element(), filename, prettyprint)
+
+        extensions.modify_xodr_for_roadrunner(filename)
 
 
     def hasRoad(self, roadId):
