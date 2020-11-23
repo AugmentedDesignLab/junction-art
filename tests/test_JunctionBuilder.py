@@ -25,7 +25,6 @@ class test_JunctionBuilder(unittest.TestCase):
         odr.write_xml(xmlPath)
 
         extensions.printRoadPositions(odr)
-        new_odr = extensions.read_odr_from_file(xmlPath)
         extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
         extensions.view_road(odr, os.path.join('..', self.esminiPath))
 
