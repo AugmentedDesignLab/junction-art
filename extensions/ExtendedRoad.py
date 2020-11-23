@@ -2,9 +2,9 @@ import pyodrx
 from copy import copy
 import numpy as np
 import math
-
 import extensions
-
+from extensions.opendriveSignals import Signals
+from extensions.opendriveSignals import Signal
 from junctions.StandardCurveTypes import StandardCurveTypes
 
 class ExtendedRoad(pyodrx.Road):
@@ -16,6 +16,7 @@ class ExtendedRoad(pyodrx.Road):
 
     def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
         super().__init__(road_id, planview, lanes, road_type, name, rule)
+        self.signals = Signals()
 
         if road_type == 1:
             self.isConnection = True
@@ -307,4 +308,30 @@ class ExtendedRoad(pyodrx.Road):
         #     h = h 
 
         return extensions.headingToTangent(h, tangentMagnitude)
+
+    ## Call these functions after the adjust functions have been called for the Opendrive object
+    def findRightMostlane(self):
+        rightlanesList = self.lanes.lanesections[len(self.lanes.lanesections)-1].rightlanes
+        rightMostLane = rightlanesList[len(rightlanesList)-1]
+        return rightMostLane
+
+    def addSignal(self):
+        #Instantiate a single signal element for this road
+        temp_dict = self.get_attributes()
+        rightMostLane = self.findRightMostlane()
+        temp_signal = Signal(temp_dict["length"], rightMostLane.a)
+        print("Signal length")
+        print(temp_dict["length"])
+        print("Signal t-coordinate for straight roads")
+        print(rightMostLane.a)
+        self.signals.signals.append(temp_signal)
+        #make sure that successor is junction type
+        #if (str(self.successor.element_type)=='junction'):
+            #final_lanesection = self.lanes.lanesections[len(self.lanes.lanesections) - 1]
+
+
+    def get_element(self):
+        element = super().get_element()
+        element.append(self.signals.get_element())
+        return element 
 

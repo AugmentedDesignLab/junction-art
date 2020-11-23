@@ -287,7 +287,7 @@ class OpenDrive():
         if (len(self.roads) == 0) and road.predecessor:
             raise ValueError(f"No road was added and the added road has a predecessor, please add the predecessor first {road.id} {road.predecessor.element_id}")
 
-        self.roads[str(road.id)] = road        
+        self.roads[str(road.id)] = road
 
     def adjust_roads_and_lanes(self): 
         """ Adjust starting position of all geoemtries of all roads and try to link lanes in neightbouring roads 

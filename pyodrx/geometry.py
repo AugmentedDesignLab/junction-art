@@ -1,5 +1,4 @@
 import xml.etree.ElementTree as ET
-
 import numpy as np
 from .exceptions import NotEnoughInputArguments, ToManyOptionalArguments
 from scipy.integrate import quad

@@ -50,5 +50,5 @@ odr.add_road(road)
 
 odr.adjust_roads_and_lanes()
 
-extensions.view_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
-extensions.simulate_road(odr,os.path.join('..','F:\\myProjects\\av\\esmini'))
+extensions.view_road(odr,os.path.join('..','C:\\Users\\ishaa\\Downloads\\roadGen\\esmini-master'))
+extensions.simulate_road(odr,os.path.join('..','C:\\Users\\ishaa\\Downloads\\roadGen\\esmini-master'))
