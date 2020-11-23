@@ -21,7 +21,7 @@ class test_JunctionBuilder(unittest.TestCase):
 
         numRoads = 3
         odr = self.junctionBuilder.buildSimpleRoundAbout(odrId=0, numRoads=numRoads, radius=10, cp1=pyodrx.ContactPoint.end)
-        xmlPath = f"output/test-{numRoads}.xodr"
+        xmlPath = f"output/test-SimpleRoundAbout-{numRoads}.xodr"
         odr.write_xml(xmlPath)
 
         extensions.printRoadPositions(odr)

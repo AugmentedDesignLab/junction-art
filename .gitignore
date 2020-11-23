@@ -146,3 +146,5 @@ output/
 
 config.yaml
 ./config.yaml
+
+pyodrx/pyodrx-master/**
