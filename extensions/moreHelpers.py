@@ -53,10 +53,10 @@ def view_road(opendrive,esminipath = 'esmini'):
         
 
     """
-    _scenariopath = os.path.join(esminipath,'resources','xodr')
+    _scenariopath = os.path.join(esminipath,'bin')
     opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
 
-    xodrPath =  os.path.join(esminipath,'resources','xodr','pythonroad.xodr')
+    xodrPath =  os.path.join(esminipath,'bin','pythonroad.xodr')
     viewRoadFromXODRFile(xodrPath, esminipath)
 
     pass
@@ -228,3 +228,46 @@ def headingToTangent(h, tangentMagnitude):
     yComponent = math.sin(h) * tangentMagnitude
 
     return (xComponent, yComponent)
+
+
+# change the XML tag with standalone attribute
+def set_standalone_attribute(filename):
+    if filename is None:
+        return False
+    else:
+       f = open(filename, "r")
+       content = f.readlines()
+       f.close()
+       f = open(filename, "w")
+       content[0] = "<?xml version=\"1.0\" standalone=\"yes\"?> \n"
+       for line in content:
+           f.write(line)
+       f.close()
+       pass
+
+"""
+    change revMinor attribute to 4
+"""
+
+def change_revMinor(filepath):
+    if filepath is None:
+        return False
+    else:
+        f = open(filepath, "r", encoding="utf-8")
+        content = f.readlines()
+        f.close()
+        f = open(filepath, "w")
+        for line in content:
+            if "header" in line:
+                line = line.replace('revMinor="5"', 'revMinor="4"')
+            f.write(line)
+        f.close()
+        pass
+
+
+# create compitable file for road runner
+
+def modify_xodr_for_roadrunner(filepath):
+    set_standalone_attribute(filepath)
+    change_revMinor(filepath)
+

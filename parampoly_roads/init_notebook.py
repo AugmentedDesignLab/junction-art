@@ -5,7 +5,6 @@ try:
 except ValueError: # Already removed
     pass
 
-projectFolder = '/home/exx/muktadir/earthquakePrediction/'
 projectFolder = 'C:/Users/abjaw/Documents/GitHub/junction-art'
 sys.path.append(str(projectFolder))
 os.chdir(projectFolder)
