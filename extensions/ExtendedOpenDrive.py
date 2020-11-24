@@ -7,6 +7,10 @@ from itertools import combinations
 
 class ExtendedOpenDrive(pyodrx.OpenDrive):
     
+    def __init__(self, name, laneLinker = None):
+
+        super().__init__(name)
+        self.laneLinker = laneLinker
 
     def reset(self):
         """Reset only keeps road linkes, removes lane links, adjustments, adjusted geometries. Useful for editing and ODR
@@ -108,7 +112,10 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
             # print('analizing roads', results[r][0], results[r][1] )
             
             # print(f"create_lane_links for roads {results[r][0]} and {results[r][1]} ")
-            create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
+            if self.laneLinker is not None:
+                self.laneLinker.createLaneLinks(self.roads[results[r][0]],self.roads[results[r][1]]) 
+            else:
+                create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 
     def adjust_startpointsByPredecessor(self): 
@@ -150,7 +157,16 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         
         count_adjusted_roads = 0
 
+        maxIteration = len(self.roads) * 3
+        iteration = 0
+
+
         while count_adjusted_roads < len(self.roads):
+
+            iteration += 1
+            if iteration > maxIteration:
+                raise Exception(f"maximum iteration exceeded, there might be problem with road links")
+
 
             for roadIdStr in self.roads: # fine one case when this for loop is executed more than once.
 
@@ -276,3 +292,27 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires(True)      
 
+
+    def adjust_roads_and_lanes(self): 
+        """ Adjust starting position of all geoemtries of all roads and try to link lanes in neightbouring roads 
+
+            Parameters
+            ----------
+
+        """
+        #adjust roads and their geometries 
+        print("start points starting")
+        self.adjust_startpoints()
+
+        # print("start points adjusted")
+
+        results = list(combinations(self.roads, 2))
+
+        for r in range(len(results)):
+            # print('analizing roads', results[r][0], results[r][1] )
+            
+            # print(f"create_lane_links for roads {results[r][0]} and {results[r][1]} ")
+            if self.laneLinker is not None:
+                self.laneLinker.createLaneLinks(self.roads[results[r][0]],self.roads[results[r][1]]) 
+            else:
+                create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  

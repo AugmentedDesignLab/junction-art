@@ -8,11 +8,14 @@ import csv
 import math
 import matplotlib.pyplot as plt
 from .ExtendedOpenDrive import ExtendedOpenDrive
+from junctions.LaneLinker import LaneLinker
 
     
 def createOdr(name, roads, junctions):
+
+    laneLinker = LaneLinker()
     
-    odr = ExtendedOpenDrive(name)
+    odr = ExtendedOpenDrive(name, laneLinker=laneLinker)
     for r in roads:
         odr.add_road(r)
     
@@ -26,8 +29,11 @@ def createOdr(name, roads, junctions):
 
 
 def createOdrByPredecessor(name, roads, junctions):
+
     
-    odr = ExtendedOpenDrive(name)
+    laneLinker = LaneLinker()
+    
+    odr = ExtendedOpenDrive(name, laneLinker=laneLinker)
     for r in roads:
         odr.add_road(r)
     

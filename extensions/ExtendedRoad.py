@@ -75,6 +75,13 @@ class ExtendedRoad(pyodrx.Road):
             for lane in laneSecion.rightlanes:
                 lane.links = pyodrx.links._Links()
 
+
+    def length(self):
+        if self.planViewNotAdjusted():
+            raise Exception(f"Planview for road {self.id} not adjusted. Cannot get length")
+
+        return self.planview.get_total_length()
+
     
     def updatePredecessor(self, element_type,element_id,contact_point=None):
         """ updatePredecessor adds a predecessor link to the road
@@ -308,3 +315,15 @@ class ExtendedRoad(pyodrx.Road):
 
         return extensions.headingToTangent(h, tangentMagnitude)
 
+
+
+    def getLaneSections(self):
+        return self.lanes.lanesections
+
+        
+    def getEndLaneSection(self):
+        return self.lanes.lanesections[-1]
+
+
+    def getFirstLaneSection(self):
+        return self.lanes.lanesections[0]

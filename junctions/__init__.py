@@ -12,3 +12,5 @@ from .JunctionBuilder import JunctionBuilder
 from .LaneSides import LaneSides
 
 from .RoadSeries import RoadSeries
+
+from .LaneLinker import LaneLinker
