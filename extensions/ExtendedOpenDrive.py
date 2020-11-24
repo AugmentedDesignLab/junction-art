@@ -121,6 +121,9 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
     def adjust_startpointsByPredecessor(self): 
         """ Adjust starting position of all geoemtries of all roads
 
+            roads must have predecessors and be in the order of predecessors in roads dictionary. 
+            It assumes the predecessor will always be adjusted beforehand.
+
             Parameters
             ----------
 
@@ -181,7 +184,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                     # count_adjusted_roads += 1 # don't run into an infinity loop.
                     continue                
                 
-                # the part may fail if there are 3 consecutive connection roads.
+                # the part may fail if there are 2 consecutive connection roads.
                 # adjust wrt normal predecessor 
                 if (self.canAdjust_wrt_nonConnectionPredecessor(currRoad)): 
 

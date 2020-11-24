@@ -171,3 +171,4 @@ class LaneLinker:
         else:
             raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
 
+

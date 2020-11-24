@@ -44,11 +44,11 @@ class test_LaneBuilder(unittest.TestCase):
 
 
         odrName = "test_connectionRoad"
-        odr = extensions.createOdr(odrName, roads, [])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
         
         self.laneBuilder.addRightTurnLaneUS(roads[0], 3)
         self.laneBuilder.addRightLaneUS(roads[1])
 
-        odr.resetAndReadjust()
+        odr.resetAndReadjust(byPredecessor=True)
 
         extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))

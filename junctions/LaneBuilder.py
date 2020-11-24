@@ -6,6 +6,8 @@ import extensions
 class LaneBuilder:
 
     def addLeftTurnLane(self, road, countryCode=extensions.CountryCodes.US):
+        """Assumes that the last lane section is longer than laneLength
+        """
 
         if countryCode == extensions.CountryCodes.US:
             return self.addLeftTurnLaneForUS(road)
@@ -14,11 +16,16 @@ class LaneBuilder:
 
     
     def addLeftTurnLaneForUS(self, road):
+        """Assumes that the last lane section is longer than laneLength
+        """
 
         raise NotImplementedError("addLeftTurnLaneForUS not implemented")
 
 
     def addRightTurnLaneUS(self, road, laneWidth, laneLength = 10):
+
+        """Assumes that the last lane section is longer than laneLength
+        """
 
         # 1. define lane equation params
 
@@ -38,6 +45,8 @@ class LaneBuilder:
 
 
     def addRightLaneUS(self, road, laneWidth = 3, soffset=0):
+        """Assumes that the last lane section is longer than laneLength
+        """
 
         laneSections = road.getLaneSections()
 
