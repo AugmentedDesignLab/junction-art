@@ -15,3 +15,5 @@ from .RoadSeries import RoadSeries
 
 from .LaneLinker import LaneLinker
 from .Direction import CircularDirection
+
+from .Geometry import Geometry

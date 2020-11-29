@@ -65,6 +65,8 @@ class ExtendedRoad(pyodrx.Road):
 
     def clearRoadLinks(self):
         self.links = pyodrx.links._Links()
+        self.predecessor = None
+        self.successor = None
         pass
 
 

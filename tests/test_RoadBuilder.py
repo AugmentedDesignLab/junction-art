@@ -192,7 +192,7 @@ class test_RoadBuilder(unittest.TestCase):
         
         roads = []
         roads.append(pyodrx.create_straight_road(0, 10))
-        roads.append(self.roadBuilder.createMShape(1, 1, -np.pi / 1.5, 10, laneSides=junctions.LaneSides.RIGHT, direction=CircularDirection.ANTICLOCK_WISE))
+        roads.append(self.roadBuilder.createMShape(1, 1, -np.pi / 1.5, 10, laneSides=junctions.LaneSides.RIGHT, direction=CircularDirection.COUNTERCLOCK_WISE))
         roads.append(pyodrx.create_straight_road(2, 10))
 
 

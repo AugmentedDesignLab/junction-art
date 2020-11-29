@@ -104,6 +104,7 @@ class JunctionBuilder:
 
         lastConnectionId = nextRoadId
         lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, road1, road2, cp1, cp2,
+                                    isJunction=True,
                                     n_lanes=n_lanes,
                                     lane_offset=lane_offset,
                                     laneSides=laneSides)
@@ -119,13 +120,13 @@ class JunctionBuilder:
             lastConnection.updateSuccessor(pyodrx.ElementType.road, road2.id, cp2)
 
         if junction is not None:
-            if laneSides == LaneSides.LEFT:
+            if laneSides == LaneSides.LEFT or laneSides == LaneSides.BOTH:
                 connectionL = pyodrx.Connection(road2.id, lastConnectionId, pyodrx.ContactPoint.end)
                 connectionL.add_lanelink(-1,-1)
                 junction.add_connection(connectionL)
             else:
                 connectionL = pyodrx.Connection(road1.id, lastConnectionId, pyodrx.ContactPoint.start)
-                connectionL.add_lanelink(-1,-1)
+                connectionL.add_lanelink(1, 1)
                 junction.add_connection(connectionL)
         
         return lastConnection
@@ -304,6 +305,8 @@ class JunctionBuilder:
                 nextRoadId,
                 fromRoad, 
                 toRoad, 
+                cp1=pyodrx.ContactPoint.end,
+                cp2=pyodrx.ContactPoint.start,
                 junction=junction, 
                 laneSides=LaneSides.RIGHT)
             

@@ -12,6 +12,7 @@ from scipy.interpolate import CubicHermiteSpline
 
 from junctions.RoadSeries import RoadSeries
 from junctions.Direction import CircularDirection
+from junctions.Geometry import Geometry
 
 
 class RoadBuilder:
@@ -218,6 +219,7 @@ class RoadBuilder:
 
 
     def composeRoadWithStandardLanes(self, n_lanes, lane_offset, roadId, pv, junction, laneSides=LaneSides.BOTH):
+        # TODO move it to lane builder
         """[summary]
 
         Args:
@@ -250,6 +252,30 @@ class RoadBuilder:
         return road
 
     
+    def createStraightRoad(self, roadId, length=100,junction = -1, n_lanes=1, lane_offset=3, 
+                                    laneSides=LaneSides.BOTH):
+
+        # create geometry
+        line1 = pyodrx.Line(length)
+
+        # create planviews
+        planview1 = extensions.ExtendedPlanview()
+        planview1.add_geometry(line1)
+
+        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, planview1, junction, laneSides=laneSides)
+
+
+    def getStraightRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True,
+                                    n_lanes=1,
+                                    lane_offset=3,
+                                    laneSides=LaneSides.BOTH):
+        
+        junction = self.getJunctionSelection(isJunction)
+        x1, y1, h1 = road1.getPosition(cp1)
+        x2, y2, h2 = road2.getPosition(cp2)
+        length = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        return self.createStraightRoad(newRoadId, length=length, junction=junction, n_lanes=n_lanes, lane_offset=lane_offset, laneSides = laneSides)
+    
 
 
     def getConnectionRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True,
@@ -267,6 +293,18 @@ class RoadBuilder:
         """
         x1, y1, h1 = road1.getPosition(cp1)
         x2, y2, h2 = road2.getPosition(cp2)
+
+        print(f"road 1 positions: {x1}, {y1}, {h1}")
+        print(f"road 2 positions: {x2}, {y2}, {h2}")
+
+        
+        if Geometry.headingsTooClose(h1, h2):
+            # return a straight road
+            return self.getStraightRoadBetween(newRoadId, road1, road2, cp1, cp2,
+                                    isJunction=isJunction,
+                                    n_lanes=n_lanes,
+                                    lane_offset=lane_offset,
+                                    laneSides=laneSides)
 
         tangentMagnitude = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
