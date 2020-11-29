@@ -3,6 +3,7 @@ from junctions.RoadBuilder import RoadBuilder
 import numpy as np
 import extensions
 from junctions.LaneSides import LaneSides
+from junctions.Direction import CircularDirection
 
 
 class JunctionBuilder:
@@ -179,7 +180,7 @@ class JunctionBuilder:
         pass
 
 
-    def buildSimpleRoundAbout(self, odrId=0, numRoads = 4, radius = 10, cp1 = pyodrx.ContactPoint.start):
+    def buildSimpleRoundAbout(self, odrId=0, numRoads = 4, radius = 10, cp1 = pyodrx.ContactPoint.start, direction=CircularDirection.COUNTERCLOCK_WISE):
         """In a simple roundabout, there is a circle inside the junction, the connection roads reside in the circle.
 
         Args:
@@ -304,7 +305,7 @@ class JunctionBuilder:
                 fromRoad, 
                 toRoad, 
                 junction=junction, 
-                laneSides=LaneSides.LEFT)
+                laneSides=LaneSides.RIGHT)
             
             roads.append(newConnection)
 

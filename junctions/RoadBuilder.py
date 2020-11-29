@@ -11,6 +11,7 @@ from extensions.ExtendedPlanview import ExtendedPlanview
 from scipy.interpolate import CubicHermiteSpline
 
 from junctions.RoadSeries import RoadSeries
+from junctions.Direction import CircularDirection
 
 
 class RoadBuilder:
@@ -337,14 +338,16 @@ class RoadBuilder:
         return u, v
 
 
-    def createRoundAboutConnection(self, connectionId, angleBetweenRoads, radius, n_lanes=1, laneSides=LaneSides.LEFT):
+    def createRoundAboutConnection(self, connectionId, angleBetweenRoads, radius, n_lanes=1, 
+                                laneSides=LaneSides.RIGHT, direction=CircularDirection.COUNTERCLOCK_WISE):
         
-        roadStart, roadMain, roadEnd = self.createMShapeAndGetEachPartAsSeperateRoads(connectionId, 1, angleBetweenRoads, radius, n_lanes=n_lanes, laneSides=laneSides)
+        roadStart, roadMain, roadEnd = self.createMShapeAndGetEachPartAsSeperateRoads(connectionId, 1, angleBetweenRoads, radius, n_lanes=n_lanes, 
+                                                                                    laneSides=laneSides, direction=direction)
 
         return RoadSeries([roadStart, roadMain, roadEnd])
         
 
-    def createMShape(self, roadId, junction, angleBetweenRoads, radius, n_lanes=1, laneSides = LaneSides.BOTH):
+    def createMShape(self, roadId, junction, angleBetweenRoads, radius, n_lanes=1, laneSides = LaneSides.BOTH, direction=CircularDirection.CLOCK_WISE):
         """[summary]
 
         Args:
@@ -360,7 +363,7 @@ class RoadBuilder:
 
         # print(f"angleBetweenRoads {math.degrees(angleBetweenRoads)}")
         
-        spiral1, curve1, mainCurve, curve3, spiral2 = self.getMGeometries(radius, angleBetweenRoads)
+        spiral1, curve1, mainCurve, curve3, spiral2 = self.getMGeometries(radius, angleBetweenRoads, direction)
 
         pv = extensions.ExtendedPlanview()
         pv.add_geometry(spiral1)
@@ -378,7 +381,7 @@ class RoadBuilder:
     
     
     def createMShapeAndGetEachPartAsSeperateRoads(self, startRoadId, junction, angleBetweenRoads, radius, 
-                                                n_lanes=1, lane_offset = 3, laneSides = LaneSides.BOTH):
+                                                n_lanes=1, lane_offset = 3, laneSides = LaneSides.BOTH, direction=CircularDirection.CLOCK_WISE):
         """[summary]
 
         Args:
@@ -394,7 +397,7 @@ class RoadBuilder:
 
         # print(f"angleBetweenRoads {math.degrees(angleBetweenRoads)}")
         
-        spiral1, curve1, mainCurve, curve3, spiral2 = self.getMGeometries(radius, angleBetweenRoads)
+        spiral1, curve1, mainCurve, curve3, spiral2 = self.getMGeometries(radius, angleBetweenRoads, direction=direction)
 
         pvStart = extensions.ExtendedPlanview()
         pvMain = extensions.ExtendedPlanview()
@@ -426,12 +429,17 @@ class RoadBuilder:
 
 
 
-    def getMGeometries(self, radius, angleBetweenRoads):
+    def getMGeometries(self, radius, angleBetweenRoads, direction=CircularDirection.CLOCK_WISE):
         mainCurvature = -(1 / radius)
         miniCurvature = 1 / (radius / 4)
 
         spiralAngle = np.pi/20
         miniCurveAngle = np.pi/2 - spiralAngle
+
+
+        if direction == CircularDirection.COUNTERCLOCK_WISE:
+            miniCurvature = -miniCurvature
+            mainCurvature = -mainCurvature
 
 
 
@@ -445,4 +453,4 @@ class RoadBuilder:
         return spiral1, curve1, mainCurve, curve3, spiral2
 
     
-    
+     

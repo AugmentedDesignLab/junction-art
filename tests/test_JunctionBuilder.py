@@ -19,7 +19,7 @@ class test_JunctionBuilder(unittest.TestCase):
     
     def test_buildSimpleRoundAbout(self):
 
-        numRoads = 10
+        numRoads = 3
         odr = self.junctionBuilder.buildSimpleRoundAbout(odrId=0, numRoads=numRoads, radius=10, cp1=pyodrx.ContactPoint.end)
         xmlPath = f"output/test-SimpleRoundAbout-{numRoads}.xodr"
         odr.write_xml(xmlPath)

@@ -5,7 +5,10 @@ esmini BUILD VERSION: 2.0.0.build.931
 RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 1) junction attribute (1) is not referring back to junction 0 which is making use of it
 RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 3) junction attribute (1) is not referring back to junction 0 which is making use of it
 RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 5) junction attribute (1) is not referring back to junction 0 which is making use of it
-RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 107) junction attribute (1) is not referring back to junction 0 which is making use of it
+RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 7) junction attribute (1) is not referring back to junction 0 which is making use of it
+RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 12) junction attribute (1) is not referring back to junction 0 which is making use of it
+RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 13) junction attribute (1) is not referring back to junction 0 which is making use of it
+RoadManager.cpp / 2524 / roadmanager::OpenDrive::LoadOpenDriveFile(): Warning: Connecting road (id 14) junction attribute (1) is not referring back to junction 0 which is making use of it
 RoadManager.cpp / 4208 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
 RoadManager.cpp / 4210 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
 RoadManager.cpp / 4212 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries

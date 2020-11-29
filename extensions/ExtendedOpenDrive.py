@@ -283,6 +283,8 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+            else:
+                raise Exception(f"predecessor contact point not defined for road {road_id}")
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires()
 
@@ -292,6 +294,8 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+            else:
+                raise Exception(f"successor contact point not defined for road {road_id}")
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires(True)      
 
