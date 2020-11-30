@@ -2,24 +2,6 @@ esmini GIT REV: ea28829
 esmini GIT TAG: v2.0.6
 esmini GIT BRANCH: tags/v2.0.6^0
 esmini BUILD VERSION: 2.0.6.build.991
-RoadManager.cpp / 2445 / roadmanager::OpenDrive::LoadOpenDriveFile(): Road signal type error
-RoadManager.cpp / 2497 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal type:  (road id=0)
-
-RoadManager.cpp / 2504 / roadmanager::OpenDrive::LoadOpenDriveFile(): Road signal sub-type error
-RoadManager.cpp / 2532 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal sub-type:  (road id=0)
-
-RoadManager.cpp / 2445 / roadmanager::OpenDrive::LoadOpenDriveFile(): Road signal type error
-RoadManager.cpp / 2497 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal type:  (road id=1)
-
-RoadManager.cpp / 2504 / roadmanager::OpenDrive::LoadOpenDriveFile(): Road signal sub-type error
-RoadManager.cpp / 2532 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal sub-type:  (road id=1)
-
-RoadManager.cpp / 2445 / roadmanager::OpenDrive::LoadOpenDriveFile(): Road signal type error
-RoadManager.cpp / 2497 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal type:  (road id=2)
-
-RoadManager.cpp / 2504 / roadmanager::OpenDrive::LoadOpenDriveFile(): Road signal sub-type error
-RoadManager.cpp / 2532 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal sub-type:  (road id=2)
-
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
 RoadManager.cpp / 4276 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
 RoadManager.cpp / 4278 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries
