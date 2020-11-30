@@ -20,9 +20,9 @@ class LaneLinker:
         """
         if self.bothNormalRoads(road1, road2):
             #both are roads
-            if self.are_roads_consecutive(road1, road2): 
+            if self.areConsecutive(road1, road2): 
                 self._create_links_roads(road1,road2)
-            elif self.are_roads_consecutive(road2, road1): 
+            elif self.areConsecutive(road2, road1): 
                 self._create_links_roads(road2,road1)
 
         elif road1.road_type != -1:
@@ -34,14 +34,17 @@ class LaneLinker:
         return road1.road_type == -1 and road2.road_type == -1
 
 
-    def are_roads_consecutive(self, road1, road2): 
+    def areConsecutive(self, road1, road2): 
+        """Disinformation. 
 
-        if road1.successor is not None and road2.predecessor is not None: 
-            if road1.successor.element_type == pyodrx.ElementType.road and road2.predecessor.element_type == pyodrx.ElementType.road:
-                if road1.successor.element_id == road2.id and road2.predecessor.element_id == road1.id: 
-                    return True 
+        Args:
+            road1 ([type]): [description]
+            road2 ([type]): [description]
 
-        return False
+        Returns:
+            [type]: [description]
+        """
+        return road1.isPredecessorOf(road2) and road2.isSuccessorOf(road1)
 
         
     def _create_links_connecting_road(self, connecting, road):
@@ -145,7 +148,7 @@ class LaneLinker:
         return sign, road_lanesection_id
 
     
-    def _create_links_roads(self, pre_road,suc_road):
+    def _create_links_roads(self, pre_road, suc_road, connectAllWithEndLane=False):
         """ _create_links_roads takes two roads and connect the lanes with links, if they have the same amount. 
 
             Parameters
@@ -156,20 +159,41 @@ class LaneLinker:
 
         """
         pre_linktype, pre_sign, pre_connecting_lanesec =  self._get_related_lanesection(pre_road,suc_road)
-        suc_linktype, _, suc_connecting_lanesec =  self._get_related_lanesection(suc_road,pre_road)
+        suc_linktype, suc_sign, suc_connecting_lanesec =  self._get_related_lanesection(suc_road,pre_road)
         preLaneSection = pre_road.lanes.lanesections[pre_connecting_lanesec]
         # TODO it may be wrong. shouldn't it be suc_connecting_lanesec
         # sucLaneSection = suc_road.lanes.lanesections[-1] 
         sucLaneSection = suc_road.lanes.lanesections[suc_connecting_lanesec] 
 
 
-        if len(preLaneSection.leftlanes) == len(sucLaneSection.leftlanes):
-            for i in range(len(preLaneSection.leftlanes)):
-                linkid = preLaneSection.leftlanes[i].lane_id*pre_sign
-                preLaneSection.leftlanes[i].add_link(pre_linktype,linkid)
+        preLeftLanes = preLaneSection.leftlanes
+        sucLeftLanes = sucLaneSection.leftlanes
+        if len(preLeftLanes) == len(sucLeftLanes):
+            for i in range(len(preLeftLanes)):
+                linkid = preLeftLanes[i].lane_id*pre_sign
+                preLeftLanes[i].add_link(pre_linktype,linkid)
                 
+                sucLaneSection.leftlanes[i].add_link(suc_linktype,linkid*pre_sign)
 
-                suc_road.lanes.lanesections[suc_connecting_lanesec].leftlanes[i].add_link(suc_linktype,linkid*pre_sign)
+        elif connectAllWithEndLane:
+            # who has less lanes
+            # minLeftLanes = preLeftLanes
+            # maxLeftLanes = sucLeftLanes
+
+            # if len(preLeftLanes) > len(sucLeftLanes):
+            #     minLeftLanes = sucLeftLanes
+            #     maxLeftLanes = preLeftLanes
+            
+            # for i in range(len(minLeftLanes)):
+            #     linkid = minLeftLanes[i].lane_id*pre_sign
+            #     minLeftLanes[i].add_link(pre_linktype,linkid)
+                
+            #     sucLaneSection.leftlanes[i].add_link(suc_linktype,linkid*pre_sign)
+
+            raise NotImplementedError("connectAllWithEndLane not implemented yet")
+
+
+
         else:
             raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
 

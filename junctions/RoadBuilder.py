@@ -13,6 +13,7 @@ from scipy.interpolate import CubicHermiteSpline
 from junctions.RoadSeries import RoadSeries
 from junctions.Direction import CircularDirection
 from junctions.Geometry import Geometry
+from junctions.LaneBuilder import LaneBuilder
 
 
 class RoadBuilder:
@@ -20,6 +21,7 @@ class RoadBuilder:
     def __init__(self):
         self.STD_ROADMARK = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,rule=pyodrx.MarkRule.no_passing)
         self.STD_START_CLOTH = 1/1000000000
+        self.laneBuilder = LaneBuilder()
         pass
 
 
@@ -173,7 +175,9 @@ class RoadBuilder:
         pv.add_geometry(spiral2)
 
         # create lanes
-        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, r_id, pv, junction)
+        road =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, r_id, pv, junction)
+        road.curveType = StandardCurveTypes.S
+        return road
     
 
     def createCurveByLength(self, roadId, length, isJunction = False, curvature = StandardCurvature.Medium.value):
@@ -188,7 +192,9 @@ class RoadBuilder:
         pv.add_geometry(arc)
 
         # create lanes
-        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction)
+        road = self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction)
+        road.curveType = StandardCurveTypes.LongArc
+        return road
 
     # def createCurveWithEndpoints(self, start, end):
 
@@ -214,12 +220,13 @@ class RoadBuilder:
         pv.add_geometry(poly)
 
         # create lanes
-        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction, laneSides=laneSides)
+        road = self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction, laneSides=laneSides)
+        road.curveType = StandardCurveTypes.Poly
+        return road
 
 
 
     def composeRoadWithStandardLanes(self, n_lanes, lane_offset, roadId, pv, junction, laneSides=LaneSides.BOTH):
-        # TODO move it to lane builder
         """[summary]
 
         Args:
@@ -233,22 +240,9 @@ class RoadBuilder:
         Returns:
             [type]: [description]
         """
-        lsec = pyodrx.LaneSection(0, pyodrx.standard_lane())
-        for _ in range(1, n_lanes + 1, 1):
-            if laneSides == LaneSides.BOTH:
-                lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
-                lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
-            elif laneSides == LaneSides.LEFT:
-                lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
-            else:
-                lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
 
-        laneSections = extensions.LaneSections()
-        laneSections.add_lanesection(lsec)
-
-        # create road
+        laneSections = self.laneBuilder.getStandardLanes(n_lanes, lane_offset, laneSides)
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
-        road.curveType = StandardCurveTypes.S
         return road
 
     
@@ -262,7 +256,9 @@ class RoadBuilder:
         planview1 = extensions.ExtendedPlanview()
         planview1.add_geometry(line1)
 
-        return self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, planview1, junction, laneSides=laneSides)
+        road = self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, planview1, junction, laneSides=laneSides)
+        road.curveType = StandardCurveTypes.Line
+        return road
 
 
     def getStraightRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True,
@@ -420,7 +416,7 @@ class RoadBuilder:
     
     def createMShapeAndGetEachPartAsSeperateRoads(self, startRoadId, junction, angleBetweenRoads, radius, 
                                                 n_lanes=1, lane_offset = 3, laneSides = LaneSides.BOTH, direction=CircularDirection.CLOCK_WISE):
-        """[summary]
+        """5 components of an M shape as seperate roads.
 
         Args:
             startRoadId ([type]): RoadId of the first part. increments for each part.

@@ -129,6 +129,13 @@ class ExtendedRoad(pyodrx.Road):
             return True
         return False
 
+    def isPredecessorOf(self, road):
+        return ( road.hasPredecessor() and road.predecessor.element_id == self.id )
+
+    def isSuccessorOf(self, road):
+        return ( road.hasSuccessor() and road.successor.element_id == self.id )
+
+
     def isJunction(self):
         return self.isConnection
         

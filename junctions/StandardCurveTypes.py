@@ -3,9 +3,10 @@ import numpy as np
 
 
 class StandardCurveTypes(IntEnum):
-    Simple  = 1,
-    LongArc = 2,
-    S       = 3,
+    Simple  = 1
+    LongArc = 2
+    S       = 3
+    Poly    = 4
     Line    = 100 # must be the last element 
 
 
