@@ -39,3 +39,19 @@ class AngleCurvatureMap:
                 return StandardCurvature.Medium.value
 
             return StandardCurvature.Medium.value
+    
+    @staticmethod
+    def getCurvatureForNonOverlappingRoads(angleBetweenRoads = 120, numberOfLanes = 2, laneOffset = 3):
+        """Angle in degree
+
+        Args:
+            angleBetweenRoads ([type]): clockwise angle from the road with lower id to higher id.
+            numberOfLanes: how many lanes 
+            laneOffset: offset of each lane
+        """
+        radius = laneOffset * (numberOfLanes - 0.5)
+        angle = math.radians(angleBetweenRoads)
+        curve = 1/radius
+        return curve, angle
+
+
