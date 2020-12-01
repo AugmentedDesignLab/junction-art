@@ -4,7 +4,7 @@ esmini GIT BRANCH: tags/v2.0.0^0
 esmini BUILD VERSION: 2.0.0.build.931
 RoadManager.cpp / 4208 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
 RoadManager.cpp / 4210 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
-RoadManager.cpp / 4198 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 0 is not defined
+RoadManager.cpp / 4198 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 0 is not defined
 RoadManager.cpp / 5507 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)
 RoadManager.cpp / 5507 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)
 RoadManager.cpp / 5507 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)

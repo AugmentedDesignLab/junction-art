@@ -289,11 +289,9 @@ class RoadBuilder:
         """
         x1, y1, h1 = road1.getPosition(cp1)
         x2, y2, h2 = road2.getPosition(cp2)
-
-        print(f"road 1 positions: {x1}, {y1}, {h1}")
-        print(f"road 2 positions: {x2}, {y2}, {h2}")
-
         
+        # TODO we need to solve the problem with param poly, not a straight road, as there can still be some angles near threshold for which it can fail.
+
         if Geometry.headingsTooClose(h1, h2):
             # return a straight road
             return self.getStraightRoadBetween(newRoadId, road1, road2, cp1, cp2,
