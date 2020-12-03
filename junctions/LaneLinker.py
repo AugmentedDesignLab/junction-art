@@ -2,6 +2,7 @@ import pyodrx
 import junctions
 import extensions
 from pyodrx.exceptions import NotSameAmountOfLanesError
+import logging
 
 
 class LaneLinker:
@@ -148,7 +149,7 @@ class LaneLinker:
         return sign, road_lanesection_id
 
     
-    def _create_links_roads(self, pre_road, suc_road, connectAllWithEndLane=False):
+    def _create_links_roads(self, pre_road, suc_road, ignoreMismatch=True):
         """ _create_links_roads takes two roads and connect the lanes with links, if they have the same amount. 
 
             Parameters
@@ -173,37 +174,45 @@ class LaneLinker:
                 linkid = preLeftLanes[i].lane_id*pre_sign
                 preLeftLanes[i].add_link(pre_linktype,linkid)
                 
-                sucLaneSection.leftlanes[i].add_link(suc_linktype,linkid*pre_sign)
+                sucLeftLanes[i].add_link(suc_linktype,linkid*pre_sign)
 
-        elif connectAllWithEndLane:
-            # who has less lanes
-            # minLeftLanes = preLeftLanes
-            # maxLeftLanes = sucLeftLanes
-
-            # if len(preLeftLanes) > len(sucLeftLanes):
-            #     minLeftLanes = sucLeftLanes
-            #     maxLeftLanes = preLeftLanes
+        elif ignoreMismatch:
             
-            # for i in range(len(minLeftLanes)):
-            #     linkid = minLeftLanes[i].lane_id*pre_sign
-            #     minLeftLanes[i].add_link(pre_linktype,linkid)
-                
-            #     sucLaneSection.leftlanes[i].add_link(suc_linktype,linkid*pre_sign)
-
-            raise NotImplementedError("connectAllWithEndLane not implemented yet")
-
-
+            logging.warn(f"number of left lanes are not the same for {pre_road.id} and {suc_road.id}")
+            self.connectMinLanesOnOneSide(preLeftLanes, sucLeftLanes, pre_sign, pre_linktype, suc_linktype)
+            
 
         else:
             raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
 
 
-        if len(preLaneSection.rightlanes) == len(sucLaneSection.rightlanes):
-            for i in range(len(preLaneSection.rightlanes)):
-                linkid = preLaneSection.rightlanes[i].lane_id
-                preLaneSection.rightlanes[i].add_link(pre_linktype,linkid)
-                suc_road.lanes.lanesections[suc_connecting_lanesec].rightlanes[i].add_link(suc_linktype,linkid)
+        preRightLanes = preLaneSection.rightlanes
+        sucRightLanes = sucLaneSection.rightlanes
+        if len(preRightLanes) == len(sucRightLanes):
+            for i in range(len(preRightLanes)):
+                linkid = preRightLanes[i].lane_id
+                preRightLanes[i].add_link(pre_linktype,linkid)
+                sucRightLanes[i].add_link(suc_linktype,linkid)
+
+        elif ignoreMismatch:
+
+            logging.warn(f"number of left lanes are not the same for {pre_road.id} and {suc_road.id}")
+            
+            self.connectMinLanesOnOneSide(preRightLanes, sucRightLanes, pre_sign, pre_linktype, suc_linktype)
+            
         else:
             raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
+
+
+    def connectMinLanesOnOneSide(self,preLanes, sucLanes, pre_sign, pre_linktype, suc_linktype):
+        
+        lensToConnect = len(preLanes)
+        if len(preLanes) > len(sucLanes):
+            lensToConnect = len(sucLanes)
+
+        for i in range(lensToConnect):
+            linkid = preLanes[i].lane_id*pre_sign
+            preLanes[i].add_link(pre_linktype,linkid)
+            sucLanes[i].add_link(suc_linktype,linkid*pre_sign)
 
 

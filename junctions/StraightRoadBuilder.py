@@ -31,7 +31,9 @@ class StraightRoadBuilder:
                             n_lanes=1, lane_offset=3, 
                             laneSides=LaneSides.BOTH,
                             leftTurnLane=False,
-                            rightTurnLane=False):
+                            rightTurnLane=False,
+                            leftMergeLane=False,
+                            rightMergeLane=False):
 
         # create geometry
         line1 = pyodrx.Line(length)
@@ -42,7 +44,9 @@ class StraightRoadBuilder:
 
         
         laneSections = self.laneBuilder.getStandardLanes(n_lanes, lane_offset, laneSides,
-                                                            roadLength=length, leftTurnLane=leftTurnLane, rightTurnLane=rightTurnLane)
+                                                            roadLength=length, 
+                                                            leftTurnLane=leftTurnLane, rightTurnLane=rightTurnLane,
+                                                            leftMergeLane=leftMergeLane, rightMergeLane=rightMergeLane)
 
 
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)

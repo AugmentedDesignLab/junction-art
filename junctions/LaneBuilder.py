@@ -11,8 +11,11 @@ class LaneBuilder:
     def getStandardLanes(self, n_lanes, lane_offset, laneSides=LaneSides.BOTH,
                             roadLength = None,
                             leftTurnLane=False,
-                            rightTurnLane=False):
-        """[summary]
+                            rightTurnLane=False,
+                            leftMergeLane=False,
+                            rightMergeLane=False):
+        """[summary] Don't allow both merge lanes and turn lanes in a road. Better split to two roads
+        TODO allow merge and turn in opposite sides of a road
 
         Args:
             n_lanes ([type]): [description]
@@ -20,11 +23,16 @@ class LaneBuilder:
             laneSides ([type], optional): where to put lanes wrt center lane. Defaults to LaneSides.BOTH.
 
         Returns:
-            [type]: [description]
+            [type]: Road with one lane section if there is no merge or turn lanes. 3 sections otherwise. In case of turns, the first section will have no turn lanes. In case of merges, the last section will have no merge lanes.
         """
-        lsec = self.getStandardLaneSection(0, n_lanes, laneSides, lane_offset)
+
+        if (leftTurnLane or rightTurnLane) and (leftMergeLane or rightMergeLane):
+            raise Exception("merge lane and turn lanes cannot appear in the same road. Please split the road into two for simpler calculations.")
+
+
+        firstSec = self.getStandardLaneSection(0, n_lanes, laneSides, lane_offset)
         laneSections = extensions.LaneSections()
-        laneSections.add_lanesection(lsec)
+        laneSections.add_lanesection(firstSec)
         
         # Add turn lanes section if necessary
         if leftTurnLane or rightTurnLane:
@@ -35,26 +43,54 @@ class LaneBuilder:
             finalOffset = roadLength - 1 # where the final lanesection resides.
             laneLength = finalOffset - turnOffSet 
 
-            # 1 add the turns
+            # 1 add the turn Section
+            # 2 final section should have no turns.
 
-            lsecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, laneSides, lane_offset)
-            lsecFinal = self.getStandardLaneSection(finalOffset, n_lanes, laneSides, lane_offset)
+            midSecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, laneSides, lane_offset)
+            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, laneSides, lane_offset)
             if leftTurnLane:
-                lane = self.getTurnLane(lane_offset, laneLength)
-                lsecWithTurns.add_left_lane(lane)
+                lane = self.createLinearTurnLane(lane_offset, laneLength)
+                midSecWithTurns.add_left_lane(lane)
 
-                lsecFinal.add_left_lane(pyodrx.standard_lane(lane_offset))
+                finalSection.add_left_lane(pyodrx.standard_lane(lane_offset))
 
             if rightTurnLane:
-                lane = self.getTurnLane(lane_offset, laneLength)
-                lsecWithTurns.add_right_lane(lane)
+                lane = self.createLinearTurnLane(lane_offset, laneLength)
+                midSecWithTurns.add_right_lane(lane)
 
-                lsecFinal.add_right_lane(pyodrx.standard_lane(lane_offset))
+                finalSection.add_right_lane(pyodrx.standard_lane(lane_offset))
 
-            laneSections.add_lanesection(lsecWithTurns)
-            laneSections.add_lanesection(lsecFinal)
+            laneSections.add_lanesection(midSecWithTurns)
+            laneSections.add_lanesection(finalSection)
 
+        if leftMergeLane or rightMergeLane:
+            if roadLength is None:
+                raise Exception("Road length cannot be None for turn lanes")
+            
+            turnOffSet = 1
+            finalOffset = roadLength - 1 # where the final lanesection resides.
+            laneLength = finalOffset - turnOffSet 
+
+            # 1 add the MERGE Section
             # 2 final section should have no turns.
+            # 3 first section will have merge lanes
+
+            midSecWithMerges = self.getStandardLaneSection(turnOffSet, n_lanes, laneSides, lane_offset)
+            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, laneSides, lane_offset)
+            if leftMergeLane:
+                lane = self.createLinearMergeLane(lane_offset, laneLength)
+                midSecWithMerges.add_left_lane(lane)
+
+                firstSec.add_left_lane(pyodrx.standard_lane(lane_offset))
+
+            if rightMergeLane:
+                lane = self.createLinearMergeLane(lane_offset, laneLength)
+                midSecWithMerges.add_right_lane(lane)
+
+                firstSec.add_right_lane(pyodrx.standard_lane(lane_offset))
+
+            laneSections.add_lanesection(midSecWithMerges)
+            laneSections.add_lanesection(finalSection)
 
 
         return laneSections
@@ -76,16 +112,15 @@ class LaneBuilder:
 
 
     
-    
-    def getTurnLane(self, maxWidth, laneLength):
+    ### Section : Turn Lanes
+
+    def createLinearTurnLane(self, maxWidth, laneLength, soffset=0):
 
         if laneLength is None:
             raise Exception("Lane length cannot be None for turn lanes")
 
         if maxWidth is None:
             raise Exception("maxWidth cannot be None for turn lanes")
-
-        soffset = 0
 
         a = 0
         b = (maxWidth / laneLength)
@@ -97,19 +132,45 @@ class LaneBuilder:
 
 
 
-    def addLeftTurnLane(self, road, countryCode=extensions.CountryCodes.US):
+    def addLeftTurnLane(self, road, maxWidth, laneLength = None, countryCode=extensions.CountryCodes.US):
         """Assumes that the last lane section is longer than laneLength
         """
 
         if countryCode == extensions.CountryCodes.US:
-            return self.addLeftTurnLaneForUS(road)
+            return self.addLeftTurnLaneUS(road, maxWidth, laneLength)
 
         raise NotImplementedError("Only us turns are implemented")
 
     
-    def addLeftTurnLaneForUS(self, road):
+
+    def addLefLaneUS(self, road, laneWidth = 3, soffset=0):
         """Assumes that the last lane section is longer than laneLength
         """
+
+        laneSections = road.getLaneSections()
+
+        for laneSection in laneSections:
+            lane = pyodrx.Lane(soffset=soffset, a=laneWidth)
+            laneSection.add_left_lane(lane)
+
+        pass
+
+
+    def addLeftTurnLaneUS(self, road, maxWidth, laneLength = None):
+        """Assumes that the last lane section is longer than laneLength
+        """
+
+        soffset = 0
+        if laneLength is not None:
+            soffset = road.length() - laneLength
+        else:
+            laneLength = road.length()
+
+        lane = self.createLinearTurnLane(maxWidth, laneLength, soffset)
+
+        # 2. add lane
+        laneSection = road.getEndLaneSection()
+        laneSection.add_left_lane(lane)
 
         raise NotImplementedError("addLeftTurnLaneForUS not implemented")
 
@@ -123,14 +184,10 @@ class LaneBuilder:
         soffset = 0
         if laneLength is not None:
             soffset = road.length() - laneLength
+        else:
+            laneLength = road.length()
 
-        a = 0
-        b = (maxWidth / laneLength)
-        # c = 0
-        # c = .1 * (maxWidth / laneLength)
-
-        lane = pyodrx.Lane(soffset=soffset, a=a, b=b)
-
+        lane = self.createLinearTurnLane(maxWidth, laneLength, soffset)
 
         # 2. add lane
         laneSection = road.getEndLaneSection()
@@ -151,3 +208,22 @@ class LaneBuilder:
 
         pass
 
+
+    ### Section: Merge Lanes
+
+    def createLinearMergeLane(self, maxWidth, laneLength, soffset=0):
+
+
+        if laneLength is None:
+            raise Exception("Lane length cannot be None for turn lanes")
+
+        if maxWidth is None:
+            raise Exception("maxWidth cannot be None for turn lanes")
+
+        a = maxWidth
+        b = -(maxWidth / laneLength)
+        # c = 0
+        # c = .1 * (maxWidth / laneLength)
+
+        lane = pyodrx.Lane(soffset=soffset, a=a, b=b)
+        return lane
