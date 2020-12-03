@@ -9,16 +9,19 @@ from junctions.StandardCurveTypes import StandardCurveTypes
 
 class ExtendedRoad(pyodrx.Road):
 
-    curveType = StandardCurveTypes.Line
-    headingTangentMagnitude = 10 # 10 meters.
-    isConnection = False
 
 
     def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
         super().__init__(road_id, planview, lanes, road_type, name, rule)
 
+        self.curveType = StandardCurveTypes.Line
+        self.headingTangentMagnitude = 10 # 10 meters.
+        self.isConnection = False
+        self.elementType = pyodrx.ElementType.road
+
         if road_type == 1:
             self.isConnection = True
+            self.elementType = pyodrx.ElementType.junction
 
         pass
 
@@ -98,6 +101,7 @@ class ExtendedRoad(pyodrx.Road):
 
         """
         self.predecessor = None
+        element_id = int(element_id)
         self.add_predecessor(element_type, element_id, contact_point)
         pass
 
@@ -115,6 +119,7 @@ class ExtendedRoad(pyodrx.Road):
 
         """
         self.successor = None
+        element_id = int(element_id)
         self.add_successor(element_type, element_id, contact_point)
         pass
 
@@ -128,6 +133,13 @@ class ExtendedRoad(pyodrx.Road):
         if self.successor is not None:
             return True
         return False
+
+    def isPredecessorOf(self, road):
+        return ( road.hasPredecessor() and road.predecessor.element_id == self.id )
+
+    def isSuccessorOf(self, road):
+        return ( road.hasSuccessor() and road.successor.element_id == self.id )
+
 
     def isJunction(self):
         return self.isConnection
