@@ -10,6 +10,7 @@ import junctions
 
 from junctions.Direction import CircularDirection
 from junctions.RoadLinker import RoadLinker
+from junctions.LaneSides import LaneSides
 
 
 class test_StraightRoadBuilder(unittest.TestCase):
@@ -127,3 +128,31 @@ class test_StraightRoadBuilder(unittest.TestCase):
         odr.write_xml(xmlPath)
 
 
+
+    def test_LeftTurnLaneOnRight(self):
+        roads = []
+        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, laneSides=LaneSides.RIGHT,
+                                                                     leftTurnLane=True))
+
+        odrName = "test_RightTurnLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_LeftTurnLaneOnRight.xodr"
+        odr.write_xml(xmlPath)
+
+
+
+    def test_RightTurnLaneOnLeft(self):
+        roads = []
+        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, laneSides=LaneSides.LEFT,
+                                                                     rightTurnLane=True))
+
+        odrName = "test_RightTurnLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_RightTurnLaneOnLeft.xodr"
+        odr.write_xml(xmlPath)
