@@ -27,7 +27,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_LeftTurnLanes(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, leftTurnLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isLeftTurnLane=True))
 
         odrName = "test_LeftTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -40,7 +40,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_RightTurnLanes(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, rightTurnLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isRightTurnLane=True))
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -54,7 +54,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_TurnLanes(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, rightTurnLane=True, leftTurnLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isRightTurnLane=True, isLeftTurnLane=True))
         roads.append(self.straightRoadBuilder.createStraightRoad(1, length = 10, n_lanes=2))
 
         roads[0].updateSuccessor(pyodrx.ElementType.road, roads[1].id, pyodrx.ContactPoint.start)
@@ -72,7 +72,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_MergeLanes(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, leftMergeLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isLeftMergeLane=True))
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -83,7 +83,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
         odr.write_xml(xmlPath)
 
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, rightMergeLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isRightMergeLane=True))
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -95,7 +95,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
         roads = []
         roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, n_lanes=2))
-        roads.append(self.straightRoadBuilder.createStraightRoad(1, length = 10, leftMergeLane=True, rightMergeLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoad(1, length = 10, isLeftMergeLane=True, isRightMergeLane=True))
 
         roads[0].updateSuccessor(pyodrx.ElementType.road, roads[1].id, pyodrx.ContactPoint.start)
         roads[1].updatePredecessor(pyodrx.ElementType.road, roads[0].id, pyodrx.ContactPoint.end)
@@ -113,9 +113,9 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
         roads = []
         roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, n_lanes=2))
-        roads.append(self.straightRoadBuilder.createStraightRoad(1, length = 10, leftMergeLane=True, rightMergeLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoad(1, length = 10, isLeftMergeLane=True, isRightMergeLane=True))
         roads.append(self.straightRoadBuilder.createStraightRoad(2, length = 10))
-        roads.append(self.straightRoadBuilder.createStraightRoad(3, length = 10, rightTurnLane=True, leftTurnLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoad(3, length = 10, isRightTurnLane=True, isLeftTurnLane=True))
         roads.append(self.straightRoadBuilder.createStraightRoad(4, length = 10, n_lanes=2))
 
         self.roadLinker.linkConsequtiveRoadsWithNoBranches(roads)
@@ -132,7 +132,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_LeftTurnLaneOnRight(self):
         roads = []
         roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, laneSides=LaneSides.RIGHT,
-                                                                     leftTurnLane=True))
+                                                                     isLeftTurnLane=True))
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -147,7 +147,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_RightTurnLaneOnLeft(self):
         roads = []
         roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, laneSides=LaneSides.LEFT,
-                                                                     rightTurnLane=True))
+                                                                     isRightTurnLane=True))
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -155,4 +155,20 @@ class test_StraightRoadBuilder(unittest.TestCase):
         extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
 
         xmlPath = f"output/test_RightTurnLaneOnLeft.xodr"
+        odr.write_xml(xmlPath)
+
+
+    def test_createStraightRoadWithLeftTurnLanesOnRight(self):
+        roads = []
+        roads.append(self.straightRoadBuilder.createStraightRoadWithLeftTurnLanesOnRight(0, length = 10, n_lanes=1, 
+                                                                                        isLeftTurnLane=True, 
+                                                                                        isRightTurnLane=True,
+                                                                                        numberOfLeftTurnLanesOnRight=2))
+
+        odrName = "test_RightTurnLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_createStraightRoadWithLeftTurnLanesOnRight.xodr"
         odr.write_xml(xmlPath)

@@ -30,10 +30,10 @@ class StraightRoadBuilder:
     def createStraightRoad(self, roadId, length=100,junction = -1, 
                             n_lanes=1, lane_offset=3, 
                             laneSides=LaneSides.BOTH,
-                            leftTurnLane=False,
-                            rightTurnLane=False,
-                            leftMergeLane=False,
-                            rightMergeLane=False):
+                            isLeftTurnLane=False,
+                            isRightTurnLane=False,
+                            isLeftMergeLane=False,
+                            isRightMergeLane=False):
 
         # create geometry
         line1 = pyodrx.Line(length)
@@ -45,11 +45,40 @@ class StraightRoadBuilder:
         
         laneSections = self.laneBuilder.getStandardLanes(n_lanes, lane_offset, laneSides,
                                                             roadLength=length, 
-                                                            leftTurnLane=leftTurnLane, rightTurnLane=rightTurnLane,
-                                                            leftMergeLane=leftMergeLane, rightMergeLane=rightMergeLane)
+                                                            isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
+                                                            isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane)
 
 
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
         return road
+    
+    
 
 
+    def createStraightRoadWithLeftTurnLanesOnRight(self, roadId, length=100,junction = -1, 
+                                                    n_lanes=1, lane_offset=3, 
+                                                    laneSides=LaneSides.BOTH,
+                                                    isLeftTurnLane=False,
+                                                    isRightTurnLane=False,
+                                                    isLeftMergeLane=False,
+                                                    isRightMergeLane=False,
+                                                    numberOfLeftTurnLanesOnRight=1
+                                                    ):
+
+        # create geometry
+        line1 = pyodrx.Line(length)
+
+        # create planviews
+        pv = extensions.ExtendedPlanview()
+        pv.add_geometry(line1)
+
+        
+        laneSections = self.laneBuilder.getStandardLanesWithLeftTurnLanesOnRight(n_lanes, lane_offset, laneSides,
+                                                            roadLength=length, 
+                                                            isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
+                                                            isLeftMergeLane=isRightMergeLane, isRightMergeLane=isRightMergeLane,
+                                                            numberOfLeftTurnLanesOnRight=numberOfLeftTurnLanesOnRight)
+
+
+        road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
+        return road

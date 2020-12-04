@@ -25,7 +25,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
         # left lanes have positive numberings and starts from 1
 
         rightLane._set_lane_id(1)
-        self._right_id += 1
+        self._left_id += 1
 
 
         # decrement all the existing lane ids
