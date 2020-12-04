@@ -37,7 +37,7 @@ class LaneBuilder:
                                             isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane
                                         )
 
-        firstSec = self.getStandardLaneSection(0, n_lanes, laneSides, lane_offset)
+        firstSec = self.getStandardLaneSection(0, n_lanes, n_lanes, lane_offset)
         laneSections = extensions.ExtendedLanes()
         laneSections.add_lanesection(firstSec)
         
@@ -53,8 +53,8 @@ class LaneBuilder:
             # 1 add the turn Section
             # 2 final section should have no turns.
 
-            midSecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, laneSides, lane_offset)
-            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, laneSides, lane_offset)
+            midSecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, n_lanes, lane_offset)
+            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, n_lanes, lane_offset)
             if isLeftTurnLane:
                 lane = self.createLinearTurnLane(lane_offset, laneLength)
                 midSecWithTurns.add_left_lane(lane)
@@ -82,8 +82,8 @@ class LaneBuilder:
             # 2 final section should have no turns.
             # 3 first section will have merge lanes
 
-            midSecWithMerges = self.getStandardLaneSection(turnOffSet, n_lanes, laneSides, lane_offset)
-            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, laneSides, lane_offset)
+            midSecWithMerges = self.getStandardLaneSection(turnOffSet, n_lanes, n_lanes, lane_offset)
+            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, n_lanes, lane_offset)
             if isLeftMergeLane:
                 lane = self.createLinearMergeLane(lane_offset, laneLength)
                 midSecWithMerges.add_left_lane(lane)
@@ -102,6 +102,20 @@ class LaneBuilder:
 
         return laneSections
 
+
+    def getStandardLanesWithDifferentLeftAndRight(self,
+                            n_lanes_left, n_lanes_right,
+                            lane_offset
+                            ):
+                            
+
+
+        firstSec = self.getStandardLaneSection(0, n_lanes_left, n_lanes_right, lane_offset)
+        laneSections = extensions.ExtendedLanes()
+        laneSections.add_lanesection(firstSec)
+        
+
+        return laneSections
 
 
     def getStandardSingleSide(self, n_lanes, lane_offset, laneSide=LaneSides.RIGHT,
@@ -130,7 +144,7 @@ class LaneBuilder:
 
         
 
-        firstSec = self.getStandardLaneSection(0, n_lanes, laneSides=laneSide, lane_offset=lane_offset)
+        firstSec = self.getStandardLaneSection(0, n_lanes, n_lanes, lane_offset=lane_offset)
         extendedLanes = extensions.ExtendedLanes()
         extendedLanes.add_lanesection(firstSec)
         
@@ -146,9 +160,8 @@ class LaneBuilder:
             # 1 add the turn Section
             # 2 final section should have no turns.
 
-            midSecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, laneSides=laneSide, lane_offset=lane_offset)
-            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, laneSides=laneSide, lane_offset=lane_offset)
-            firstLaneOffset = LaneOffset.createParallel(0, a=0)
+            midSecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, n_lanes, lane_offset=lane_offset)
+            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, n_lanes, lane_offset=lane_offset)
             turnLaneOffset = None
             finalLaneOffset = None
 
@@ -193,8 +206,6 @@ class LaneBuilder:
             extendedLanes.add_lanesection(midSecWithTurns)
             extendedLanes.add_lanesection(finalSection)
 
-            extendedLanes.addLaneOffset(firstLaneOffset)
-
             if turnLaneOffset is not None:
                 extendedLanes.addLaneOffset(turnLaneOffset)
             if finalLaneOffset is not None:
@@ -213,7 +224,27 @@ class LaneBuilder:
                             isLeftMergeLane=False,
                             isRightMergeLane=False,
                             numberOfLeftTurnLanesOnRight=1):
-        
+
+        """Will create numberOfLeftTurnLanesOnRight left turn lanes on the right side of the center line. Equal number of mergelanes will be created on the left side of the center lane, too.
+
+        Args:
+            n_lanes ([type]): [description]
+            lane_offset ([type]): [description]
+            laneSides ([type], optional): [description]. Defaults to LaneSides.BOTH.
+            roadLength ([type], optional): [description]. Defaults to None.
+            isLeftTurnLane (bool, optional): [description]. Defaults to False.
+            isRightTurnLane (bool, optional): [description]. Defaults to False.
+            isLeftMergeLane (bool, optional): [description]. Defaults to False.
+            isRightMergeLane (bool, optional): [description]. Defaults to False.
+            numberOfLeftTurnLanesOnRight (int, optional): [description]. Defaults to 1.
+
+        Raises:
+            Exception: [description]
+            Exception: [description]
+
+        Returns:
+            [type]: [description]
+        """
         
 
         if (isLeftTurnLane or isRightTurnLane) and (isLeftMergeLane or isRightMergeLane):
@@ -236,7 +267,7 @@ class LaneBuilder:
         finalSection = extendedLanes.lanesections[-1]
 
         
-        firstLaneOffset = LaneOffset.createParallel(0, a=0)
+        firstLaneOffset = extendedLanes.laneOffsets[0]
         turnLaneOffset = None
         finalLaneOffset = None
 
@@ -265,10 +296,6 @@ class LaneBuilder:
         turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=lane_offset * numberOfLeftTurnLanesOnRight, laneLength=laneLength)
         finalLaneOffset = LaneOffset.createParallel(finalOffset, a=lane_offset * numberOfLeftTurnLanesOnRight)
 
-
-
-        extendedLanes.addLaneOffset(firstLaneOffset)
-
         if turnLaneOffset is not None:
             extendedLanes.addLaneOffset(turnLaneOffset)
         if finalLaneOffset is not None:
@@ -293,25 +320,27 @@ class LaneBuilder:
      
 
 
-    def getStandardLaneSection(self, soffset,  n_lanes, laneSides, lane_offset):
+    def getStandardLaneSection(self, soffset,  
+                                n_lanes_left, n_lanes_right,
+                                lane_offset
+                                ):
 
         lsec = extensions.ExtendedLaneSection(soffset, pyodrx.standard_lane())
-        for _ in range(1, n_lanes + 1, 1):
-            if laneSides == LaneSides.BOTH:
-                lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
-                lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
-            elif laneSides == LaneSides.LEFT:
-                lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
-            else:
-                lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
+
+        for _ in range(n_lanes_left):
+            lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
+
+        for _ in range(n_lanes_right):
+            lsec.add_right_lane(pyodrx.standard_lane(lane_offset))
+
 
         return lsec
 
     
     def get3SectionLanes(self, roadLength, turnOffSet, finalOffset, n_lanes=1, lane_offset=3, laneSides=LaneSides.BOTH):
-        firstSec = self.getStandardLaneSection(0, n_lanes, laneSides=laneSides, lane_offset=lane_offset)
-        midSection = self.getStandardLaneSection(turnOffSet, n_lanes, laneSides=laneSides, lane_offset=lane_offset)
-        finalSection = self.getStandardLaneSection(finalOffset, n_lanes, laneSides=laneSides, lane_offset=lane_offset)
+        firstSec = self.getStandardLaneSection(0, n_lanes, n_lanes, lane_offset=lane_offset)
+        midSection = self.getStandardLaneSection(turnOffSet, n_lanes, n_lanes, lane_offset=lane_offset)
+        finalSection = self.getStandardLaneSection(finalOffset, n_lanes, n_lanes, lane_offset=lane_offset)
         extendedLanes = extensions.ExtendedLanes()
         extendedLanes.add_lanesection(firstSec)
         extendedLanes.add_lanesection(midSection)

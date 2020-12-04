@@ -1,12 +1,13 @@
 import pyodrx
 import xml.etree.ElementTree as ET
+import extensions
 
 
 class ExtendedLanes(pyodrx.Lanes):
 
     def __init__(self):
         super().__init__()
-        self.laneOffsets=[]
+        self.laneOffsets=[extensions.LaneOffset.createParallel(0, 0)]
     pass
 
     def addLaneOffset(self, laneOffset):

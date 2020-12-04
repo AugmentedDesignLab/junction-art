@@ -78,6 +78,8 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         Returns:
             [type]: successor road object.
         """
+        if road.successor is None:
+            return None
         return self.roads[str(road.successor.element_id)]
 
 
@@ -90,6 +92,8 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         Returns:
             [type]: predecessor road object.
         """
+        if road.predecessor is None:
+            return None
         return self.roads[str(road.predecessor.element_id)]
 
     

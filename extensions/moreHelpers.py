@@ -9,11 +9,15 @@ import math
 import matplotlib.pyplot as plt
 from .ExtendedOpenDrive import ExtendedOpenDrive
 from junctions.LaneLinker import LaneLinker
+from junctions.RoadLinker import RoadLinker
 
     
 def createOdr(name, roads, junctions):
 
     laneLinker = LaneLinker()
+    roadLinker = RoadLinker()
+    
+    
     
     odr = ExtendedOpenDrive(name, laneLinker=laneLinker)
     for r in roads:
@@ -22,6 +26,7 @@ def createOdr(name, roads, junctions):
     for junction in junctions:
         odr.add_junction(junction)
 
+    roadLinker.adjustLaneOffsetsForOdr(odr)
     print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
     odr.adjust_roads_and_lanes()
 
@@ -32,6 +37,7 @@ def createOdrByPredecessor(name, roads, junctions):
 
     
     laneLinker = LaneLinker()
+    roadLinker = RoadLinker()
     
     odr = ExtendedOpenDrive(name, laneLinker=laneLinker)
     for r in roads:
@@ -40,6 +46,7 @@ def createOdrByPredecessor(name, roads, junctions):
     for junction in junctions:
         odr.add_junction(junction)
 
+    roadLinker.adjustLaneOffsetsForOdr(odr)
     print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
     odr.adjust_roads_and_lanesByPredecessor()
 

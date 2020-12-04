@@ -1,7 +1,8 @@
 import pyodrx
-
+import logging
 
 class RoadLinker:
+
 
     def linkConsequtiveRoadsWithNoBranches(self, roads, linkLastToFirst=False, cp1 = pyodrx.ContactPoint.end, cpRest=pyodrx.ContactPoint.start):
 
@@ -23,4 +24,20 @@ class RoadLinker:
         
         if linkLastToFirst:
             roads[-1].updateSuccessor(roads[0].elementType, roads[0].id, cp1)
+
+
+    def adjustLaneOffsetsForOdr(self, odr):
+
+        for road in odr.roads.values():
+            if road.hasLaneOffsets() is False:
+                logging.error(F"The road object do not have extended lanes properties. Please, update your code.")
+                return
+                
+            pred = odr.getPredecessorRoad(road)
+            if pred is not None:
+                self.adjustLaneOffsets(pred, road)
+
+
+    def adjustLaneOffsets(self, pred, suc):
+        suc.setFirstLaneOffset(pred.getLastLaneOffset())
 

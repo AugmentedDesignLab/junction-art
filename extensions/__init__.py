@@ -14,3 +14,4 @@ from .IntertialParamPoly import IntertialParamPoly
 from .CountryCodes import CountryCodes
 from .ExtendedLanes import ExtendedLanes
 from .ExtendedLaneSection import ExtendedLaneSection
+from .LaneOffset import LaneOffset

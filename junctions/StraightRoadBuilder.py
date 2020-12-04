@@ -64,6 +64,24 @@ class StraightRoadBuilder:
                                                     isRightMergeLane=False,
                                                     numberOfLeftTurnLanesOnRight=1
                                                     ):
+        """Will create numberOfLeftTurnLanesOnRight left turn lanes on the right side of the center line. Equal number of mergelanes will be created on the left side of the center lane, too.
+
+        Args:
+            roadId ([type]): [description]
+            length (int, optional): [description]. Defaults to 100.
+            junction (int, optional): [description]. Defaults to -1.
+            n_lanes (int, optional): [description]. Defaults to 1.
+            lane_offset (int, optional): [description]. Defaults to 3.
+            laneSides ([type], optional): [description]. Defaults to LaneSides.BOTH.
+            isLeftTurnLane (bool, optional): [description]. Defaults to False.
+            isRightTurnLane (bool, optional): [description]. Defaults to False.
+            isLeftMergeLane (bool, optional): [description]. Defaults to False.
+            isRightMergeLane (bool, optional): [description]. Defaults to False.
+            numberOfLeftTurnLanesOnRight (int, optional): [description]. Defaults to 1.
+
+        Returns:
+            [type]: [description]
+        """
 
         # create geometry
         line1 = pyodrx.Line(length)
@@ -78,6 +96,25 @@ class StraightRoadBuilder:
                                                             isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
                                                             isLeftMergeLane=isRightMergeLane, isRightMergeLane=isRightMergeLane,
                                                             numberOfLeftTurnLanesOnRight=numberOfLeftTurnLanesOnRight)
+
+
+        road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
+        return road
+
+    
+    def createStraightRoadWithDifferentLanes(self, roadId, length=100,junction = -1, 
+                            n_lanes_left=1, n_lanes_right=1,
+                            lane_offset=3):
+
+        # create geometry
+        line1 = pyodrx.Line(length)
+
+        # create planviews
+        pv = extensions.ExtendedPlanview()
+        pv.add_geometry(line1)
+
+        
+        laneSections = self.laneBuilder.getStandardLanesWithDifferentLeftAndRight(n_lanes_left, n_lanes_right, lane_offset)
 
 
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)

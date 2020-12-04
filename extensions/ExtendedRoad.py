@@ -330,6 +330,7 @@ class ExtendedRoad(pyodrx.Road):
         return extensions.headingToTangent(h, tangentMagnitude)
 
 
+    # Lane Section related functions
 
     def getLaneSections(self):
         return self.lanes.lanesections
@@ -341,3 +342,38 @@ class ExtendedRoad(pyodrx.Road):
 
     def getFirstLaneSection(self):
         return self.lanes.lanesections[0]
+    
+    def hasLaneOffsets(self):
+        if hasattr(self.lanes, 'laneOffsets'):
+            return True
+        return False
+
+    def getFirstLaneOffset(self):
+
+        if len(self.lanes.laneOffsets) == 0:
+            return extensions.LaneOffset.createParallel(0, 0)
+        return self.lanes.laneOffsets[0]
+        
+
+    def getLastLaneOffset(self):
+        if len(self.lanes.laneOffsets) == 0:
+            return extensions.LaneOffset.createParallel(0, 0)
+        return self.lanes.laneOffsets[-1]
+
+
+    def setFirstLaneOffset(self, laneOffset):
+        if len(self.lanes.laneOffsets) == 0:
+            self.lanes.laneOffsets.append(laneOffset)
+        else:
+            self.lanes.laneOffsets[0] = laneOffset
+
+    def setLastLaneOffset(self, laneOffset):
+        if len(self.lanes.laneOffsets) == 0:
+            self.lanes.laneOffsets.append(laneOffset)
+        else:
+            self.lanes.laneOffsets[-1] = laneOffset
+        
+
+    
+    
+        
