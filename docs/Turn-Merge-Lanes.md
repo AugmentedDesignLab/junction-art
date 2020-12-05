@@ -60,7 +60,7 @@ Similarly, merge lanes have similar structures. Merge lanes at the beginning of 
 # Architecture
 
 
-![leftTurnLaneOnRightWithMerge-Architecture](images/leftTurnLaneOnRightWithMerge-Architecture.PNG)
+![leftTurnLaneOnRightWithMerge-Architecture](images/leftTurnLaneOnRightWithMergeArchitecture.PNG)
 
 ## 3 Lane Sections
 
