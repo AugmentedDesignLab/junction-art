@@ -1,8 +1,33 @@
 import pyodrx
 
 class ExtendedLaneSection(pyodrx.LaneSection):
+    
+    def __init__(self,s,centerlane, singleSide=False):
+        """ initalize the LaneSection
 
-    def addLeftLaneToRightLanes(self, leftLane):
+            Parameters
+            ----------
+                s (float): start of lanesection
+
+                centerlane (Lane): the centerline of the road
+        """
+        super().__init__(s, centerlane)
+
+        self.singleSide = singleSide
+
+        
+    def get_attributes(self):
+        """ returns the attributes of the Lane as a dict
+
+        """
+        retdict = super().get_attributes()
+        if self.singleSide:
+            retdict['singleSide'] = "true"
+
+        return retdict
+
+
+    def prependLaneToRightLanes(self, leftLane):
         
 
         # right lanes have negative numberings and starts from -1
@@ -19,7 +44,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
         self.rightlanes.append(leftLane)
 
 
-    def addRightLaneToLeftLanes(self, rightLane):
+    def prependLaneToLeftLanes(self, rightLane):
         
 
         # left lanes have positive numberings and starts from 1

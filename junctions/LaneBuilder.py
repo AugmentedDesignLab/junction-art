@@ -27,8 +27,7 @@ class LaneBuilder:
             [type]: Road with one lane section if there is no merge or turn lanes. 3 sections otherwise. In case of turns, the first section will have no turn lanes. In case of merges, the last section will have no merge lanes.
         """
 
-        if (isLeftTurnLane or isRightTurnLane) and (isLeftMergeLane or isRightMergeLane):
-            raise Exception("merge lane and turn lanes cannot appear in the same road. Please split the road into two for simpler calculations.")
+        self.checkTurnAndMergeConflict(isLeftTurnLane, isRightTurnLane, isLeftMergeLane, isRightMergeLane)
 
         if laneSides != LaneSides.BOTH:
             return self.getStandardSingleSide(n_lanes, lane_offset, laneSides,
@@ -46,9 +45,7 @@ class LaneBuilder:
             if roadLength is None:
                 raise Exception("Road length cannot be None for turn lanes")
             
-            turnOffSet = 1
-            finalOffset = roadLength - 1 # where the final lanesection resides.
-            laneLength = finalOffset - turnOffSet 
+            turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
 
             # 1 add the turn Section
             # 2 final section should have no turns.
@@ -56,13 +53,13 @@ class LaneBuilder:
             midSecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, n_lanes, lane_offset)
             finalSection = self.getStandardLaneSection(finalOffset, n_lanes, n_lanes, lane_offset)
             if isLeftTurnLane:
-                lane = self.createLinearTurnLane(lane_offset, laneLength)
+                lane = self.createLinearTurnLane(lane_offset, curveLaneLength)
                 midSecWithTurns.add_left_lane(lane)
 
                 finalSection.add_left_lane(pyodrx.standard_lane(lane_offset))
 
             if isRightTurnLane:
-                lane = self.createLinearTurnLane(lane_offset, laneLength)
+                lane = self.createLinearTurnLane(lane_offset, curveLaneLength)
                 midSecWithTurns.add_right_lane(lane)
 
                 finalSection.add_right_lane(pyodrx.standard_lane(lane_offset))
@@ -74,9 +71,7 @@ class LaneBuilder:
             if roadLength is None:
                 raise Exception("Road length cannot be None for turn lanes")
             
-            turnOffSet = 1
-            finalOffset = roadLength - 1 # where the final lanesection resides.
-            laneLength = finalOffset - turnOffSet 
+            turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
 
             # 1 add the MERGE Section
             # 2 final section should have no turns.
@@ -85,13 +80,13 @@ class LaneBuilder:
             midSecWithMerges = self.getStandardLaneSection(turnOffSet, n_lanes, n_lanes, lane_offset)
             finalSection = self.getStandardLaneSection(finalOffset, n_lanes, n_lanes, lane_offset)
             if isLeftMergeLane:
-                lane = self.createLinearMergeLane(lane_offset, laneLength)
+                lane = self.createLinearMergeLane(lane_offset, curveLaneLength)
                 midSecWithMerges.add_left_lane(lane)
 
                 firstSec.add_left_lane(pyodrx.standard_lane(lane_offset))
 
             if isRightMergeLane:
-                lane = self.createLinearMergeLane(lane_offset, laneLength)
+                lane = self.createLinearMergeLane(lane_offset, curveLaneLength)
                 midSecWithMerges.add_right_lane(lane)
 
                 firstSec.add_right_lane(pyodrx.standard_lane(lane_offset))
@@ -139,12 +134,11 @@ class LaneBuilder:
         if laneSide == LaneSides.BOTH:
             raise Exception(f"Lanes side can be left or right only.")
 
-        if (isLeftTurnLane or isRightTurnLane) and (isLeftMergeLane or isRightMergeLane):
-            raise Exception("merge lane and turn lanes cannot appear in the same road. Please split the road into two for simpler calculations.")
+        self.checkTurnAndMergeConflict(isLeftTurnLane, isRightTurnLane, isLeftMergeLane, isRightMergeLane)
 
         
 
-        firstSec = self.getStandardLaneSection(0, n_lanes, n_lanes, lane_offset=lane_offset)
+        firstSec = self.getStandardLaneSection(0, n_lanes, n_lanes, lane_offset=lane_offset, singleSide=True)
         extendedLanes = extensions.ExtendedLanes()
         extendedLanes.add_lanesection(firstSec)
         
@@ -153,15 +147,13 @@ class LaneBuilder:
             if roadLength is None:
                 raise Exception("Road length cannot be None for turn lanes")
             
-            turnOffSet = 1
-            finalOffset = roadLength - 1 # where the final lanesection resides.
-            laneLength = finalOffset - turnOffSet 
+            turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
 
             # 1 add the turn Section
             # 2 final section should have no turns.
 
-            midSecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, n_lanes, lane_offset=lane_offset)
-            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, n_lanes, lane_offset=lane_offset)
+            midSecWithTurns = self.getStandardLaneSection(turnOffSet, n_lanes, n_lanes, lane_offset=lane_offset, singleSide=True)
+            finalSection = self.getStandardLaneSection(finalOffset, n_lanes, n_lanes, lane_offset=lane_offset, singleSide=True)
             turnLaneOffset = None
             finalLaneOffset = None
 
@@ -169,47 +161,44 @@ class LaneBuilder:
                 if isLeftTurnLane:
                     # we need to change the center lane offset for mid and final
 
-                    lane = self.createLinearTurnLane(lane_offset, laneLength)
-                    midSecWithTurns.addLeftLaneToRightLanes(lane)
-                    finalSection.addLeftLaneToRightLanes(pyodrx.standard_lane(lane_offset))
+                    lane = self.createLinearTurnLane(lane_offset, curveLaneLength)
+                    midSecWithTurns.prependLaneToRightLanes(lane)
+                    finalSection.prependLaneToRightLanes(pyodrx.standard_lane(lane_offset))
 
                     # now the offsets
                     # 1. one for turnOffset
                     # 2. one for finalOffset
-                    turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=lane_offset, laneLength=laneLength)
+                    turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=lane_offset, laneLength=curveLaneLength)
                     finalLaneOffset = LaneOffset.createParallel(finalOffset, a=lane_offset)
                 if isRightTurnLane:
-                    lane = self.createLinearTurnLane(lane_offset, laneLength)
+                    lane = self.createLinearTurnLane(lane_offset, curveLaneLength)
                     midSecWithTurns.add_right_lane(lane)
                     finalSection.add_right_lane(pyodrx.standard_lane(lane_offset))
             
             if laneSide == LaneSides.LEFT:
                 if isLeftTurnLane:
-                    lane = self.createLinearTurnLane(lane_offset, laneLength)
+                    lane = self.createLinearTurnLane(lane_offset, curveLaneLength)
                     midSecWithTurns.add_left_lane(lane)
                     finalSection.add_left_lane(pyodrx.standard_lane(lane_offset))
 
                 if isRightTurnLane:
                     # we need to change the center lane offset for mid and final
 
-                    lane = self.createLinearTurnLane(lane_offset, laneLength)
-                    midSecWithTurns.addRightLaneToLeftLanes(lane)
-                    finalSection.addRightLaneToLeftLanes(pyodrx.standard_lane(lane_offset))
+                    lane = self.createLinearTurnLane(lane_offset, curveLaneLength)
+                    midSecWithTurns.prependLaneToLeftLanes(lane)
+                    finalSection.prependLaneToLeftLanes(pyodrx.standard_lane(lane_offset))
 
                     # now the offsets
                     # 1. one for turnOffset
                     # 2. one for finalOffset
-                    turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=-lane_offset, laneLength=laneLength)
+                    turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=-lane_offset, laneLength=curveLaneLength)
                     finalLaneOffset = LaneOffset.createParallel(finalOffset, a=-lane_offset)
                     
 
             extendedLanes.add_lanesection(midSecWithTurns)
             extendedLanes.add_lanesection(finalSection)
 
-            if turnLaneOffset is not None:
-                extendedLanes.addLaneOffset(turnLaneOffset)
-            if finalLaneOffset is not None:
-                extendedLanes.addLaneOffset(finalLaneOffset)
+            self.addLaneOffsets(extendedLanes, turnLaneOffset, finalLaneOffset)
 
 
 
@@ -247,18 +236,13 @@ class LaneBuilder:
         """
         
 
-        if (isLeftTurnLane or isRightTurnLane) and (isLeftMergeLane or isRightMergeLane):
-            raise Exception("merge lane and turn lanes cannot appear in the same road. Please split the road into two for simpler calculations.")
+        self.checkTurnAndMergeConflict(isLeftTurnLane, isRightTurnLane, isLeftMergeLane, isRightMergeLane)
 
         if roadLength is None:
             raise Exception("Road length cannot be None for turn lanes")
 
-        # if numberOfLeftTurnLanesOnRight != 1:
-        #     raise Exception("only one internal turn lane implemented")
 
-        turnOffSet = 1
-        finalOffset = roadLength - 1 # where the final lanesection resides.
-        laneLength = finalOffset - turnOffSet 
+        turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
         
         extendedLanes = self.get3SectionLanes(roadLength, turnOffSet, finalOffset, n_lanes=n_lanes, lane_offset=lane_offset, laneSides=laneSides)
 
@@ -275,57 +259,161 @@ class LaneBuilder:
         for _ in range(numberOfLeftTurnLanesOnRight):
             # 1. we need to change the center lane offset for mid and final
 
-            lane = self.createLinearTurnLane(lane_offset, laneLength)
-            midSection.addLeftLaneToRightLanes(lane)
-            finalSection.addLeftLaneToRightLanes(pyodrx.standard_lane(lane_offset))
+            lane = self.createLinearTurnLane(lane_offset, curveLaneLength)
+            midSection.prependLaneToRightLanes(lane)
+            finalSection.prependLaneToRightLanes(pyodrx.standard_lane(lane_offset))
 
             # 2. add a merge lane to left lanes
 
-            lane = self.createLinearMergeLane(lane_offset, laneLength)
-            midSection.addRightLaneToLeftLanes(lane)
-            firstSection.addRightLaneToLeftLanes(pyodrx.standard_lane(lane_offset))
+            lane = self.createLinearMergeLane(lane_offset, curveLaneLength)
+            midSection.prependLaneToLeftLanes(lane)
+            firstSection.prependLaneToLeftLanes(pyodrx.standard_lane(lane_offset))
 
         
         # Add turn lanes section if necessary
-        self.createTurnLanesAtTheEnd(isLeftTurnLane, isRightTurnLane, lane_offset, laneLength, midSection, finalSection)
+        self.createTurnLanesAtTheEdges(isLeftTurnLane, isRightTurnLane, lane_offset, curveLaneLength, midSection, finalSection)
 
 
         # now the offsets
         # 1. one for turnOffset
         # 2. one for finalOffset
-        turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=lane_offset * numberOfLeftTurnLanesOnRight, laneLength=laneLength)
+        turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=lane_offset * numberOfLeftTurnLanesOnRight, laneLength=curveLaneLength)
         finalLaneOffset = LaneOffset.createParallel(finalOffset, a=lane_offset * numberOfLeftTurnLanesOnRight)
+
+        self.addLaneOffsets(extendedLanes, turnLaneOffset, finalLaneOffset)
+
+        return extendedLanes
+
+
+
+
+
+    def getStandardLanesWithRightTurnLanesOnLeft(self, n_lanes, lane_offset, laneSides=LaneSides.BOTH,
+                            roadLength = None,
+                            isLeftTurnLane=False,
+                            isRightTurnLane=False,
+                            isLeftMergeLane=False,
+                            isRightMergeLane=False,
+                            numberOfRightTurnLanesOnLeft=1):
+        """Will create numberOfRightTurnLanesOnLeft right turn lanes on the left side of the center line. Equal number of mergelanes will be created on the right side of the center lane, too.
+
+        Args:
+            n_lanes ([type]): [description]
+            lane_offset ([type]): [description]
+            laneSides ([type], optional): [description]. Defaults to LaneSides.BOTH.
+            roadLength ([type], optional): [description]. Defaults to None.
+            isLeftTurnLane (bool, optional): [description]. Defaults to False.
+            isRightTurnLane (bool, optional): [description]. Defaults to False.
+            isLeftMergeLane (bool, optional): [description]. Defaults to False.
+            isRightMergeLane (bool, optional): [description]. Defaults to False.
+            numberOfRightTurnLanesOnLeft (int, optional): [description]. Defaults to 1.
+        """
+
+        
+
+        self.checkTurnAndMergeConflict(isLeftTurnLane, isRightTurnLane, isLeftMergeLane, isRightMergeLane)
+
+        if roadLength is None:
+            raise Exception("Road length cannot be None for turn lanes")
+
+
+        turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
+        
+        extendedLanes = self.get3SectionLanes(roadLength, turnOffSet, finalOffset, n_lanes=n_lanes, lane_offset=lane_offset, laneSides=laneSides)
+
+        firstSection = extendedLanes.lanesections[0]
+        midSection = extendedLanes.lanesections[1]
+        finalSection = extendedLanes.lanesections[-1]
+
+        
+        firstLaneOffset = extendedLanes.laneOffsets[0]
+        turnLaneOffset = None
+        finalLaneOffset = None
+
+
+        for _ in range(numberOfRightTurnLanesOnLeft):
+            # 1. we need to change the center lane offset for mid and final
+
+            lane = self.createLinearTurnLane(lane_offset, curveLaneLength)
+            midSection.prependLaneToLeftLanes(lane)
+            finalSection.prependLaneToLeftLanes(pyodrx.standard_lane(lane_offset))
+
+            # 2. add a merge lane to left lanes
+
+            lane = self.createLinearMergeLane(lane_offset, curveLaneLength)
+            midSection.prependLaneToRightLanes(lane)
+            firstSection.prependLaneToRightLanes(pyodrx.standard_lane(lane_offset))
+
+        
+        # Add turn lanes section if necessary
+        self.createTurnLanesAtTheEdges(isLeftTurnLane, isRightTurnLane, lane_offset, curveLaneLength, midSection, finalSection)
+
+
+        # now the offsets
+        # 1. one for turnOffset
+        # 2. one for finalOffset
+        # we need to shift center lane down.
+        turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=-lane_offset * numberOfRightTurnLanesOnLeft, laneLength=curveLaneLength)
+        finalLaneOffset = LaneOffset.createParallel(finalOffset, a=-lane_offset * numberOfRightTurnLanesOnLeft)
+
+        self.addLaneOffsets(extendedLanes, turnLaneOffset, finalLaneOffset)
+
+        return extendedLanes
+
+
+    def checkTurnAndMergeConflict(self, isLeftTurnLane, isRightTurnLane, isLeftMergeLane, isRightMergeLane):
+        if (isLeftTurnLane or isRightTurnLane) and (isLeftMergeLane or isRightMergeLane):
+            raise Exception("merge lane and turn lanes cannot appear in the same road. Please split the road into two for simpler calculations.")
+
+
+    def getOffsetsAndTurnLaneCurveLength(self, roadLength):
+        turnOffSet = 1
+        finalOffset = roadLength - 1 # where the final lanesection resides.
+        laneLength = finalOffset - turnOffSet 
+        return turnOffSet, finalOffset, laneLength
+
+
+    def addLaneOffsets(self, extendedLanes, turnLaneOffset, finalLaneOffset):
 
         if turnLaneOffset is not None:
             extendedLanes.addLaneOffset(turnLaneOffset)
         if finalLaneOffset is not None:
             extendedLanes.addLaneOffset(finalLaneOffset)
+        pass
 
-        return extendedLanes
 
-    def createTurnLanesAtTheEnd(self, isLeftTurnLane, isRightTurnLane, lane_offset, laneLength, midSection, finalSection):
-        if isLeftTurnLane or isRightTurnLane:
 
-            # 1 add the turn Section
-            # 2 final section should have no turns.
-            if isLeftTurnLane:
-                lane = self.createLinearTurnLane(lane_offset, laneLength)
-                midSection.add_left_lane(lane)
-                finalSection.add_left_lane(pyodrx.standard_lane(lane_offset))
+    def createTurnLanesAtTheEdges(self, isLeftTurnLane, isRightTurnLane, maxWidth, laneLength, midSection, finalSection):
+        """curve to the midSection, and parallel to the final section.
 
-            if isRightTurnLane:
-                lane = self.createLinearTurnLane(lane_offset, laneLength)
-                midSection.add_right_lane(lane)
-                finalSection.add_right_lane(pyodrx.standard_lane(lane_offset))
+        Args:
+            isLeftTurnLane (bool): [description]
+            isRightTurnLane (bool): [description]
+            maxWidth ([type]): [description]
+            laneLength ([type]): [description]
+            midSection ([type]): [description]
+            finalSection ([type]): [description]
+        """
+        
+        if isLeftTurnLane:
+            lane = self.createLinearTurnLane(maxWidth, laneLength)
+            midSection.add_left_lane(lane)
+            finalSection.add_left_lane(pyodrx.standard_lane(maxWidth))
+
+        if isRightTurnLane:
+            lane = self.createLinearTurnLane(maxWidth, laneLength)
+            midSection.add_right_lane(lane)
+            finalSection.add_right_lane(pyodrx.standard_lane(maxWidth))
      
 
 
     def getStandardLaneSection(self, soffset,  
                                 n_lanes_left, n_lanes_right,
-                                lane_offset
+                                lane_offset,
+                                singleSide=False
                                 ):
 
-        lsec = extensions.ExtendedLaneSection(soffset, pyodrx.standard_lane())
+        lsec = extensions.ExtendedLaneSection(soffset, pyodrx.standard_lane(), singleSide=singleSide)
 
         for _ in range(n_lanes_left):
             lsec.add_left_lane(pyodrx.standard_lane(lane_offset))
