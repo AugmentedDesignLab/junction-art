@@ -148,3 +148,5 @@ config.yaml
 ./config.yaml
 
 pyodrx/pyodrx-master/*
+
+log.txt

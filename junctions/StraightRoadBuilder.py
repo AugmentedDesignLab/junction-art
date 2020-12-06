@@ -59,7 +59,8 @@ class StraightRoadBuilder:
                                                     isRightTurnLane=False,
                                                     isLeftMergeLane=False,
                                                     isRightMergeLane=False,
-                                                    numberOfRightTurnLanesOnLeft=1
+                                                    numberOfRightTurnLanesOnLeft=1,
+                                                    mergeLaneOnTheOppositeSideForInternalTurn=True
                                                     ):
 
         
@@ -71,11 +72,12 @@ class StraightRoadBuilder:
         pv.add_geometry(line1)
 
         
-        laneSections = self.laneBuilder.getStandardLanesWithRightTurnLanesOnLeft(n_lanes, lane_offset, laneSides,
+        laneSections = self.laneBuilder.getStandardLanesWithInternalTurns(n_lanes, lane_offset, laneSides,
                                                             roadLength=length, 
                                                             isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
-                                                            isLeftMergeLane=isRightMergeLane, isRightMergeLane=isRightMergeLane,
-                                                            numberOfRightTurnLanesOnLeft=numberOfRightTurnLanesOnLeft)
+                                                            isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane,
+                                                            numberOfRightTurnLanesOnLeft=numberOfRightTurnLanesOnLeft,
+                                                            mergeLaneOnTheOppositeSideForInternalTurn=mergeLaneOnTheOppositeSideForInternalTurn)
 
 
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
@@ -91,7 +93,8 @@ class StraightRoadBuilder:
                                                     isRightTurnLane=False,
                                                     isLeftMergeLane=False,
                                                     isRightMergeLane=False,
-                                                    numberOfLeftTurnLanesOnRight=1
+                                                    numberOfLeftTurnLanesOnRight=1,
+                                                    mergeLaneOnTheOppositeSideForInternalTurn=True
                                                     ):
         """Will create numberOfLeftTurnLanesOnRight left turn lanes on the right side of the center line. Equal number of mergelanes will be created on the left side of the center lane, too.
 
@@ -120,11 +123,12 @@ class StraightRoadBuilder:
         pv.add_geometry(line1)
 
         
-        laneSections = self.laneBuilder.getStandardLanesWithLeftTurnLanesOnRight(n_lanes, lane_offset, laneSides,
+        laneSections = self.laneBuilder.getStandardLanesWithInternalTurns(n_lanes, lane_offset, laneSides,
                                                             roadLength=length, 
                                                             isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
-                                                            isLeftMergeLane=isRightMergeLane, isRightMergeLane=isRightMergeLane,
-                                                            numberOfLeftTurnLanesOnRight=numberOfLeftTurnLanesOnRight)
+                                                            isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane,
+                                                            numberOfLeftTurnLanesOnRight=numberOfLeftTurnLanesOnRight,
+                                                            mergeLaneOnTheOppositeSideForInternalTurn=mergeLaneOnTheOppositeSideForInternalTurn)
 
 
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
@@ -148,3 +152,25 @@ class StraightRoadBuilder:
 
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
         return road
+
+    
+    def createWithSingleSide(self, roadId, length=100,junction = -1, 
+                            n_lanes=1, lane_offset=3, 
+                            laneSide=LaneSides.RIGHT,
+                            isLeftTurnLane=False,
+                            isRightTurnLane=False,
+                            isLeftMergeLane=False,
+                            isRightMergeLane=False):
+        
+    
+        if laneSide == LaneSides.BOTH:
+            raise Exception(f"Lanes side can be left or right only.")
+
+
+        return self.createStraightRoad(roadId, length, junction,
+                                        n_lanes, lane_offset, laneSides=laneSide,
+                                        isLeftTurnLane=isLeftTurnLane,
+                                        isRightTurnLane=isRightTurnLane,
+                                        isLeftMergeLane=isLeftMergeLane,
+                                        isRightMergeLane=isRightMergeLane
+                                        )

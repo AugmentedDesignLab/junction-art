@@ -129,7 +129,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
 
 
-    def test_LeftTurnLaneOnRight(self):
+    def test_LeftTurnLaneOnRightShiftingLeftSide(self):
         roads = []
         roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, laneSides=LaneSides.RIGHT,
                                                                      isLeftTurnLane=True))
@@ -228,3 +228,77 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
         xmlPath = f"output/test_createStraightRoadWithRightTurnLanesOnLeft2.xodr"
         odr.write_xml(xmlPath)
+
+
+
+    def test_createStraightRoadWithInternalTurnLanes(self):
+ 
+        self.test_createStraightRoadWithRightTurnLanesOnLeft()
+        self.test_createStraightRoadWithLeftTurnLanesOnRight()
+
+    
+    def test_createStraightRoadWithInternalTurnLanesWithoutMergeOnTheOppositeSide(self):
+        roads = []
+
+        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=1, n_lanes_right=2))
+        roads.append(self.straightRoadBuilder.createStraightRoadWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
+                                                                                        isLeftTurnLane=True, 
+                                                                                        isRightTurnLane=True,
+                                                                                        numberOfRightTurnLanesOnLeft=2,
+                                                                                        mergeLaneOnTheOppositeSideForInternalTurn=False))
+        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=4, n_lanes_right=2))
+        self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
+
+        odrName = "test_RightTurnLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_createStraightRoadWithRightTurnLanesOnLeftWithoutMergeOnTheOppositeSide.xodr"
+        odr.write_xml(xmlPath)
+
+        
+
+
+        roads = []
+
+        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=2, n_lanes_right=1))
+        roads.append(self.straightRoadBuilder.createStraightRoadWithLeftTurnLanesOnRight(1, length = 10, n_lanes=1, 
+                                                                                        isLeftTurnLane=True, 
+                                                                                        isRightTurnLane=True,
+                                                                                        numberOfLeftTurnLanesOnRight=2,
+                                                                                        mergeLaneOnTheOppositeSideForInternalTurn=False))
+        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=2, n_lanes_right=4))
+        self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
+
+        odrName = "test_RightTurnLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_createStraightRoadWithLeftTurnLanesOnRightWithoutMergeOnTheOppositeSide.xodr"
+        odr.write_xml(xmlPath)
+
+    
+
+    def test_SingleSide(self):
+
+
+        roads = []
+
+        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=0, n_lanes_right=1))
+        roads.append(self.straightRoadBuilder.createWithSingleSide(1, length = 10, n_lanes=1, 
+                                                                    laneSide=LaneSides.RIGHT,
+                                                                    isLeftTurnLane=True, 
+                                                                    isRightTurnLane=True))
+        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=0, n_lanes_right=3))
+        self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
+
+        odrName = "test_RightTurnLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_createStraightSingleSide.xodr"
+        odr.write_xml(xmlPath)
+
