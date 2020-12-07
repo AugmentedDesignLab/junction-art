@@ -27,7 +27,7 @@ class StraightRoadBuilder:
         pass
 
     
-    def createStraightRoad(self, roadId, length=100,junction = -1, 
+    def create(self, roadId, length=100,junction = -1, 
                             n_lanes=1, lane_offset=3, 
                             laneSides=LaneSides.BOTH,
                             isLeftTurnLane=False,
@@ -52,7 +52,7 @@ class StraightRoadBuilder:
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
         return road
 
-    def createStraightRoadWithRightTurnLanesOnLeft(self, roadId, length=100,junction = -1, 
+    def createWithRightTurnLanesOnLeft(self, roadId, length=100,junction = -1, 
                                                     n_lanes=1, lane_offset=3, 
                                                     laneSides=LaneSides.BOTH,
                                                     isLeftTurnLane=False,
@@ -86,7 +86,7 @@ class StraightRoadBuilder:
     
 
 
-    def createStraightRoadWithLeftTurnLanesOnRight(self, roadId, length=100,junction = -1, 
+    def createWithLeftTurnLanesOnRight(self, roadId, length=100,junction = -1, 
                                                     n_lanes=1, lane_offset=3, 
                                                     laneSides=LaneSides.BOTH,
                                                     isLeftTurnLane=False,
@@ -135,7 +135,7 @@ class StraightRoadBuilder:
         return road
 
     
-    def createStraightRoadWithDifferentLanes(self, roadId, length=100,junction = -1, 
+    def createWithDifferentLanes(self, roadId, length=100,junction = -1, 
                             n_lanes_left=1, n_lanes_right=1,
                             lane_offset=3):
 
@@ -167,7 +167,7 @@ class StraightRoadBuilder:
             raise Exception(f"Lanes side can be left or right only.")
 
 
-        return self.createStraightRoad(roadId, length, junction,
+        return self.create(roadId, length, junction,
                                         n_lanes, lane_offset, laneSides=laneSide,
                                         isLeftTurnLane=isLeftTurnLane,
                                         isRightTurnLane=isRightTurnLane,

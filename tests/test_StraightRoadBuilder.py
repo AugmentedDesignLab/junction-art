@@ -27,7 +27,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_LeftTurnLanes(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isLeftTurnLane=True))
+        roads.append(self.straightRoadBuilder.create(0, length = 10, isLeftTurnLane=True))
 
         odrName = "test_LeftTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -40,7 +40,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_RightTurnLanes(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isRightTurnLane=True))
+        roads.append(self.straightRoadBuilder.create(0, length = 10, isRightTurnLane=True))
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -54,8 +54,8 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_TurnLanes(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isRightTurnLane=True, isLeftTurnLane=True))
-        roads.append(self.straightRoadBuilder.createStraightRoad(1, length = 10, n_lanes=2))
+        roads.append(self.straightRoadBuilder.create(0, length = 10, isRightTurnLane=True, isLeftTurnLane=True))
+        roads.append(self.straightRoadBuilder.create(1, length = 10, n_lanes=2))
 
         roads[0].updateSuccessor(pyodrx.ElementType.road, roads[1].id, pyodrx.ContactPoint.start)
         roads[1].updatePredecessor(pyodrx.ElementType.road, roads[0].id, pyodrx.ContactPoint.end)
@@ -72,7 +72,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_MergeLanes(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isLeftMergeLane=True))
+        roads.append(self.straightRoadBuilder.create(0, length = 10, isLeftMergeLane=True))
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -83,7 +83,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
         odr.write_xml(xmlPath)
 
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, isRightMergeLane=True))
+        roads.append(self.straightRoadBuilder.create(0, length = 10, isRightMergeLane=True))
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -94,8 +94,8 @@ class test_StraightRoadBuilder(unittest.TestCase):
         odr.write_xml(xmlPath)
 
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, n_lanes=2))
-        roads.append(self.straightRoadBuilder.createStraightRoad(1, length = 10, isLeftMergeLane=True, isRightMergeLane=True))
+        roads.append(self.straightRoadBuilder.create(0, length = 10, n_lanes=2))
+        roads.append(self.straightRoadBuilder.create(1, length = 10, isLeftMergeLane=True, isRightMergeLane=True))
 
         roads[0].updateSuccessor(pyodrx.ElementType.road, roads[1].id, pyodrx.ContactPoint.start)
         roads[1].updatePredecessor(pyodrx.ElementType.road, roads[0].id, pyodrx.ContactPoint.end)
@@ -112,11 +112,11 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_mergeAndTurns(self):
 
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, n_lanes=2))
-        roads.append(self.straightRoadBuilder.createStraightRoad(1, length = 10, isLeftMergeLane=True, isRightMergeLane=True))
-        roads.append(self.straightRoadBuilder.createStraightRoad(2, length = 10))
-        roads.append(self.straightRoadBuilder.createStraightRoad(3, length = 10, isRightTurnLane=True, isLeftTurnLane=True))
-        roads.append(self.straightRoadBuilder.createStraightRoad(4, length = 10, n_lanes=2))
+        roads.append(self.straightRoadBuilder.create(0, length = 10, n_lanes=2))
+        roads.append(self.straightRoadBuilder.create(1, length = 10, isLeftMergeLane=True, isRightMergeLane=True))
+        roads.append(self.straightRoadBuilder.create(2, length = 10))
+        roads.append(self.straightRoadBuilder.create(3, length = 10, isRightTurnLane=True, isLeftTurnLane=True))
+        roads.append(self.straightRoadBuilder.create(4, length = 10, n_lanes=2))
 
         self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
         odrName = "test_RightTurnLane"
@@ -131,7 +131,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
     def test_LeftTurnLaneOnRightShiftingLeftSide(self):
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, laneSides=LaneSides.RIGHT,
+        roads.append(self.straightRoadBuilder.create(0, length = 10, laneSides=LaneSides.RIGHT,
                                                                      isLeftTurnLane=True))
 
         odrName = "test_RightTurnLane"
@@ -146,7 +146,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
     def test_RightTurnLaneOnLeft(self):
         roads = []
-        roads.append(self.straightRoadBuilder.createStraightRoad(0, length = 10, laneSides=LaneSides.LEFT,
+        roads.append(self.straightRoadBuilder.create(0, length = 10, laneSides=LaneSides.LEFT,
                                                                      isRightTurnLane=True))
 
         odrName = "test_RightTurnLane"
@@ -161,7 +161,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_createStraightRoadWithLeftTurnLanesOnRight(self):
         roads = []
 
-        roads.append(self.straightRoadBuilder.createStraightRoadWithLeftTurnLanesOnRight(1, length = 10, n_lanes=0, 
+        roads.append(self.straightRoadBuilder.createWithLeftTurnLanesOnRight(1, length = 10, n_lanes=0, 
                                                                                         numberOfLeftTurnLanesOnRight=2))
         self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
 
@@ -177,12 +177,12 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
         roads = []
 
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=3, n_lanes_right=1))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithLeftTurnLanesOnRight(1, length = 10, n_lanes=1, 
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=3, n_lanes_right=1))
+        roads.append(self.straightRoadBuilder.createWithLeftTurnLanesOnRight(1, length = 10, n_lanes=1, 
                                                                                         isLeftTurnLane=True, 
                                                                                         isRightTurnLane=True,
                                                                                         numberOfLeftTurnLanesOnRight=2))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=2, n_lanes_right=4))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=2, n_lanes_right=4))
         self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
 
         odrName = "test_RightTurnLane"
@@ -197,7 +197,7 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_createStraightRoadWithRightTurnLanesOnLeft(self):
         roads = []
 
-        roads.append(self.straightRoadBuilder.createStraightRoadWithRightTurnLanesOnLeft(1, length = 10, n_lanes=0, 
+        roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=0, 
                                                                                         numberOfRightTurnLanesOnLeft=2))
         self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
 
@@ -213,12 +213,12 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
         roads = []
 
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=1, n_lanes_right=3))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=1, n_lanes_right=3))
+        roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
                                                                                         isLeftTurnLane=True, 
                                                                                         isRightTurnLane=True,
                                                                                         numberOfRightTurnLanesOnLeft=2))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=4, n_lanes_right=2))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=4, n_lanes_right=2))
         self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
 
         odrName = "test_RightTurnLane"
@@ -240,13 +240,13 @@ class test_StraightRoadBuilder(unittest.TestCase):
     def test_createStraightRoadWithInternalTurnLanesWithoutMergeOnTheOppositeSide(self):
         roads = []
 
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=1, n_lanes_right=2))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=1, n_lanes_right=2))
+        roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
                                                                                         isLeftTurnLane=True, 
                                                                                         isRightTurnLane=True,
                                                                                         numberOfRightTurnLanesOnLeft=2,
                                                                                         mergeLaneOnTheOppositeSideForInternalTurn=False))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=4, n_lanes_right=2))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=4, n_lanes_right=2))
         self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
 
         odrName = "test_RightTurnLane"
@@ -262,13 +262,13 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
         roads = []
 
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=2, n_lanes_right=1))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithLeftTurnLanesOnRight(1, length = 10, n_lanes=1, 
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=2, n_lanes_right=1))
+        roads.append(self.straightRoadBuilder.createWithLeftTurnLanesOnRight(1, length = 10, n_lanes=1, 
                                                                                         isLeftTurnLane=True, 
                                                                                         isRightTurnLane=True,
                                                                                         numberOfLeftTurnLanesOnRight=2,
                                                                                         mergeLaneOnTheOppositeSideForInternalTurn=False))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=2, n_lanes_right=4))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=2, n_lanes_right=4))
         self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
 
         odrName = "test_RightTurnLane"
@@ -286,12 +286,12 @@ class test_StraightRoadBuilder(unittest.TestCase):
 
         roads = []
 
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=0, n_lanes_right=1))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=0, n_lanes_right=1))
         roads.append(self.straightRoadBuilder.createWithSingleSide(1, length = 10, n_lanes=1, 
                                                                     laneSide=LaneSides.RIGHT,
                                                                     isLeftTurnLane=True, 
                                                                     isRightTurnLane=True))
-        roads.append(self.straightRoadBuilder.createStraightRoadWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=0, n_lanes_right=3))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=0, n_lanes_right=3))
         self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
 
         odrName = "test_RightTurnLane"

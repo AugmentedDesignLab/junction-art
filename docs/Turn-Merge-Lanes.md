@@ -5,11 +5,11 @@ There are 3 variations of turn lanes:
 
 ### 1. Turn lanes at the end of a side:
 
-method: **StraightRoadBuilder::createStraightRoad**
+method: **StraightRoadBuilder::create**
 
 example:
 
-    StraightRoadBuilder::createStraightRoad(0, length = 10, 
+    StraightRoadBuilder::create(0, length = 10, 
                                             laneSides=LaneSides.RIGHT,
                                             isLeftTurnLane=True)
 
@@ -19,29 +19,29 @@ example:
 ### 2. Turn lanes at the beginning of a side and merge lanes at the beginning on the other side
 
 
-method: **StraightRoadBuilder::createStraightRoad** 
+method: **StraightRoadBuilder::create** 
 example: 
 
-    StraightRoadBuilder::createStraightRoad(0, laneSides=LaneSides.RIGHT, isLeftTurnLane=True)
-    StraightRoadBuilder::createStraightRoad(0, laneSides=LaneSides.LEFT, isRighttTurnLane=True)
+    StraightRoadBuilder::create(0, laneSides=LaneSides.RIGHT, isLeftTurnLane=True)
+    StraightRoadBuilder::create(0, laneSides=LaneSides.LEFT, isRighttTurnLane=True)
 
 
 
 ![edge Turn Lanes](images/leftTurnLaneOnRightNoMerge.PNG)
 
 ###  3. Turn lanes at the beginning of a side and no merge lanes at the beginning on the other side
-method: **StraightRoadBuilder::createStraightRoadWithRighttTurnLanesOnLeft**
+method: **StraightRoadBuilder::createWithRighttTurnLanesOnLeft**
 
-method: **StraightRoadBuilder::createStraightRoadWithLeftTurnLanesOnRight**
+method: **StraightRoadBuilder::createWithLeftTurnLanesOnRight**
 
 example:
 
-    StraightRoadBuilder::createStraightRoadWithLeftTurnLanesOnRight(1, length = 10, n_lanes=1, 
+    StraightRoadBuilder::createWithLeftTurnLanesOnRight(1, length = 10, n_lanes=1, 
                                                                     isLeftTurnLane=True, 
                                                                     isRightTurnLane=True,
                                                                     numberOfLeftTurnLanesOnRight=2))
 
-    StraightRoadBuilder::createStraightRoadWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
+    StraightRoadBuilder::createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
                                                                     isLeftTurnLane=True, 
                                                                     isRightTurnLane=True,
                                                                     numberOfRightTurnLanesOnLeft=2))
