@@ -8,7 +8,7 @@ class SignalManager:
     def __init__(self):
         """When signalManager object is instantiated, it instantiates signals and signal objects for each road. 
         """
-        self.roads = [] #list of road objects
+        self.roads = [] #list of road objects to add signals to.
         self.signalsList = [] #List of signals objects added using this class. Need it for object lifetime. 
     
         
@@ -37,12 +37,4 @@ class SignalManager:
         temp_signals = Signals()
         temp_signals.signalList.append(temp_signal)
         self.signalsList.append(temp_signals)
-        #make sure that successor is junction type
-        #if (str(self.successor.element_type)=='junction'):
-            #final_lanesection = self.lanes.lanesections[len(self.lanes.lanesections) - 1]
-
-    #Iterate roads and add signals for each road. Also add signals element to the road element tree. 
-    #def addAllSignals(self):
-    #    for road in self.roads:
-    #        self.addSignal(road)
         

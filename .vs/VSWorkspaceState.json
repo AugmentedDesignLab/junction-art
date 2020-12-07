@@ -1,4 +1,9 @@
 {
-  "ExpandedNodes": [],
+  "ExpandedNodes": [
+    "",
+    "\\extensions",
+    "\\pyodrx"
+  ],
+  "SelectedNode": "\\extensions\\signalManager.py",
   "PreviewInSolutionExplorer": false
 }
