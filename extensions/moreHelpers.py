@@ -196,6 +196,11 @@ def plotRoadFromCSV(csvFile, show=True):
     return plt
 
 
+def getJunctionSelection(isJunction):
+    if isJunction:
+        return 1
+    return -1
+
 
 def getConnectionRoads(roads, junction):
     """ Finds connection roads which exists in the junction only

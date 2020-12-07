@@ -11,10 +11,10 @@ class ExtendedRoad(pyodrx.Road):
 
 
 
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, curveType = StandardCurveTypes.Line):
         super().__init__(road_id, planview, lanes, road_type, name, rule)
 
-        self.curveType = StandardCurveTypes.Line
+        self.curveType = curveType
         self.headingTangentMagnitude = 10 # 10 meters.
         self.isConnection = False
         self.elementType = pyodrx.ElementType.road

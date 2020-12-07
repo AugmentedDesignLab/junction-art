@@ -26,6 +26,15 @@ class StraightRoadBuilder:
         self.laneBuilder = LaneBuilder()
         pass
 
+
+    def createPVForLine(self, length):
+        line1 = pyodrx.Line(length)
+
+        # create planviews
+        pv = extensions.ExtendedPlanview()
+        pv.add_geometry(line1)
+        return pv
+
     
     def create(self, roadId, length=100,junction = -1, 
                             n_lanes=1, lane_offset=3, 
@@ -36,11 +45,7 @@ class StraightRoadBuilder:
                             isRightMergeLane=False):
 
         # create geometry
-        line1 = pyodrx.Line(length)
-
-        # create planviews
-        pv = extensions.ExtendedPlanview()
-        pv.add_geometry(line1)
+        pv = self.createPVForLine(length)
 
         
         laneSections = self.laneBuilder.getStandardLanes(n_lanes, lane_offset, laneSides,
@@ -51,6 +56,7 @@ class StraightRoadBuilder:
 
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)
         return road
+
 
     def createWithRightTurnLanesOnLeft(self, roadId, length=100,junction = -1, 
                                                     n_lanes=1, lane_offset=3, 
@@ -65,11 +71,7 @@ class StraightRoadBuilder:
 
         
         # create geometry
-        line1 = pyodrx.Line(length)
-
-        # create planviews
-        pv = extensions.ExtendedPlanview()
-        pv.add_geometry(line1)
+        pv = self.createPVForLine(length)
 
         
         laneSections = self.laneBuilder.getStandardLanesWithInternalTurns(n_lanes, lane_offset, laneSides,
@@ -116,11 +118,7 @@ class StraightRoadBuilder:
         """
 
         # create geometry
-        line1 = pyodrx.Line(length)
-
-        # create planviews
-        pv = extensions.ExtendedPlanview()
-        pv.add_geometry(line1)
+        pv = self.createPVForLine(length)
 
         
         laneSections = self.laneBuilder.getStandardLanesWithInternalTurns(n_lanes, lane_offset, laneSides,
@@ -140,11 +138,7 @@ class StraightRoadBuilder:
                             lane_offset=3):
 
         # create geometry
-        line1 = pyodrx.Line(length)
-
-        # create planviews
-        pv = extensions.ExtendedPlanview()
-        pv.add_geometry(line1)
+        pv = self.createPVForLine(length)
 
         
         laneSections = self.laneBuilder.getStandardLanesWithDifferentLeftAndRight(n_lanes_left, n_lanes_right, lane_offset)
