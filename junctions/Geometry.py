@@ -9,3 +9,22 @@ class Geometry(ABC):
         if abs(h1 - h2) <= threshold:
             return True
         return False
+
+    
+
+    @staticmethod
+    def getLengthOfGeoms(geoms):
+        """[summary]
+
+        Args:
+            geoms ([type]): List of Geometries of type Arc, Spiral, Line, ParamPoly3
+
+        Returns:
+            [type]: [description]
+        """
+        totalLength = 0
+        for geom in geoms:
+            _, _, _, length = geom.get_end_data(0, 0, 0)
+            totalLength += length
+        
+        return totalLength

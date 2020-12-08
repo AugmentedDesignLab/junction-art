@@ -6,6 +6,7 @@ import math
 import extensions
 
 from junctions.StandardCurveTypes import StandardCurveTypes
+from junctions.Geometry import Geometry
 
 class ExtendedRoad(pyodrx.Road):
 
@@ -82,16 +83,7 @@ class ExtendedRoad(pyodrx.Road):
 
 
     def length(self):
-        if self.planViewNotAdjusted():
-            raise Exception(f"Planview for road {self.id} not adjusted. Cannot get length")
-            # totalLength = 0
-            # for geom in self.planview._raw_geometries:
-            #     _, _, _, length = geom.get_end_data(0, 0, 0)
-            #     totalLength += length
-            
-            return totalLength
-
-        return self.planview.get_total_length()
+        return self.planview.getTotalLength()
 
     
     def updatePredecessor(self, element_type,element_id,contact_point=None):

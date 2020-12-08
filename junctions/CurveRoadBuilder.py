@@ -1,6 +1,7 @@
 import numpy as np
 import os
-import pyodrx, extensions
+import pyodrx
+import extensions
 import math
 
 from junctions.LaneSides import LaneSides
@@ -60,7 +61,7 @@ class CurveRoadBuilder:
         return pv
 
 
-    def createCurve(self, roadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value, curveType=StandardCurveTypes.Simple,
+    def create(self, roadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value, curveType=StandardCurveTypes.Simple,
                     n_lanes=1, lane_offset=3, 
                     laneSides=LaneSides.BOTH,
                     isLeftTurnLane=False,
@@ -70,7 +71,9 @@ class CurveRoadBuilder:
                     ):
 
         if curveType is StandardCurveTypes.Simple:
-            return self.createSimpleCurve(roadId, angleBetweenEndpoints, isJunction, curvature)
+            return self.createSimple(roadId, angleBetweenEndpoints, isJunction, curvature, 
+                                    isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
+                                    isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane)
         elif curveType is StandardCurveTypes.LongArc:
             return self.createSimpleCurveWithLongArc(roadId, angleBetweenEndpoints, isJunction, curvature)
         elif curveType is StandardCurveTypes.S:
@@ -80,7 +83,7 @@ class CurveRoadBuilder:
             raise Exception(error)
 
 
-    def createSimpleCurve(self, roadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value,
+    def createSimple(self, roadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value,
                             n_lanes=1, lane_offset=3, 
                             laneSides=LaneSides.BOTH,
                             isLeftTurnLane=False,
@@ -95,6 +98,7 @@ class CurveRoadBuilder:
         clothAngle = totalRotation / 2
         
         pv = self.createPVForArcWithCloths(curvature, arcAngle, clothAngle)
+        length = pv.getTotalLength()
 
         
         
