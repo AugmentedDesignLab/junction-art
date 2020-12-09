@@ -1,13 +1,16 @@
 {
-    "python.pythonPath": "C:\\Users\\abjaw\\Anaconda3\\envs\\opendrive\\python.exe",
+    "python.pythonPath": "C:\\Users\\adhocmaster\\.conda\\envs\\opendrive\\python.exe",
     "python.testing.unittestArgs": [
         "-v",
         "-s",
         "./tests",
         "-p",
-        "test*.py"
+        "test_*.py"
     ],
     "python.testing.pytestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    "python.testing.unittestEnabled": true
+    "python.testing.unittestEnabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": false,
+    "python.linting.flake8Enabled": false
 }

@@ -1,4 +1,4 @@
-import pyodrx
+import pyodrx, extensions
 from pyodrx.enumerations import ElementType, ContactPoint
 from pyodrx.links import _Link, _Links, create_lane_links
 import numpy as np
@@ -7,6 +7,10 @@ from itertools import combinations
 
 class ExtendedOpenDrive(pyodrx.OpenDrive):
     
+    def __init__(self, name, laneLinker = None):
+
+        super().__init__(name)
+        self.laneLinker = laneLinker
 
     def reset(self):
         """Reset only keeps road linkes, removes lane links, adjustments, adjusted geometries. Useful for editing and ODR
@@ -39,7 +43,9 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         """
         if filename == None:
             filename = self.name + '.xodr'
-        pyodrx.printToFile(self.get_element(),filename,prettyprint, standalone=True)
+        pyodrx.printToFile(self.get_element(), filename, prettyprint)
+
+        extensions.modify_xodr_for_roadrunner(filename)
 
 
     def hasRoad(self, roadId):
@@ -72,6 +78,8 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         Returns:
             [type]: successor road object.
         """
+        if road.successor is None:
+            return None
         return self.roads[str(road.successor.element_id)]
 
 
@@ -84,6 +92,8 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         Returns:
             [type]: predecessor road object.
         """
+        if road.predecessor is None:
+            return None
         return self.roads[str(road.predecessor.element_id)]
 
     
@@ -106,11 +116,17 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
             # print('analizing roads', results[r][0], results[r][1] )
             
             # print(f"create_lane_links for roads {results[r][0]} and {results[r][1]} ")
-            create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
+            if self.laneLinker is not None:
+                self.laneLinker.createLaneLinks(self.roads[results[r][0]],self.roads[results[r][1]]) 
+            else:
+                create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 
     def adjust_startpointsByPredecessor(self): 
         """ Adjust starting position of all geoemtries of all roads
+
+            roads must have predecessors and be in the order of predecessors in roads dictionary. 
+            It assumes the predecessor will always be adjusted beforehand.
 
             Parameters
             ----------
@@ -148,7 +164,16 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         
         count_adjusted_roads = 0
 
+        maxIteration = len(self.roads) * 3
+        iteration = 0
+
+
         while count_adjusted_roads < len(self.roads):
+
+            iteration += 1
+            if iteration > maxIteration:
+                raise Exception(f"maximum iteration exceeded, there might be problem with road links")
+
 
             for roadIdStr in self.roads: # fine one case when this for loop is executed more than once.
 
@@ -163,7 +188,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                     # count_adjusted_roads += 1 # don't run into an infinity loop.
                     continue                
                 
-                # the part may fail if there are 3 consecutive connection roads.
+                # the part may fail if there are 2 consecutive connection roads.
                 # adjust wrt normal predecessor 
                 if (self.canAdjust_wrt_nonConnectionPredecessor(currRoad)): 
 
@@ -262,6 +287,8 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+            else:
+                raise Exception(f"predecessor contact point not defined for road {road_id}")
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires()
 
@@ -271,6 +298,32 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+            else:
+                raise Exception(f"successor contact point not defined for road {road_id}")
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires(True)      
 
+
+    def adjust_roads_and_lanes(self): 
+        """ Adjust starting position of all geoemtries of all roads and try to link lanes in neightbouring roads 
+
+            Parameters
+            ----------
+
+        """
+        #adjust roads and their geometries 
+        print("start points starting")
+        self.adjust_startpoints()
+
+        # print("start points adjusted")
+
+        results = list(combinations(self.roads, 2))
+
+        for r in range(len(results)):
+            # print('analizing roads', results[r][0], results[r][1] )
+            
+            # print(f"create_lane_links for roads {results[r][0]} and {results[r][1]} ")
+            if self.laneLinker is not None:
+                self.laneLinker.createLaneLinks(self.roads[results[r][0]],self.roads[results[r][1]]) 
+            else:
+                create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  

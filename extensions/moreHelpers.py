@@ -8,17 +8,25 @@ import csv
 import math
 import matplotlib.pyplot as plt
 from .ExtendedOpenDrive import ExtendedOpenDrive
+from junctions.LaneLinker import LaneLinker
+from junctions.RoadLinker import RoadLinker
 
     
 def createOdr(name, roads, junctions):
+
+    laneLinker = LaneLinker()
+    roadLinker = RoadLinker()
     
-    odr = ExtendedOpenDrive(name)
+    
+    
+    odr = ExtendedOpenDrive(name, laneLinker=laneLinker)
     for r in roads:
         odr.add_road(r)
     
     for junction in junctions:
         odr.add_junction(junction)
 
+    roadLinker.adjustLaneOffsetsForOdr(odr)
     print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
     odr.adjust_roads_and_lanes()
 
@@ -26,14 +34,19 @@ def createOdr(name, roads, junctions):
 
 
 def createOdrByPredecessor(name, roads, junctions):
+
     
-    odr = ExtendedOpenDrive(name)
+    laneLinker = LaneLinker()
+    roadLinker = RoadLinker()
+    
+    odr = ExtendedOpenDrive(name, laneLinker=laneLinker)
     for r in roads:
         odr.add_road(r)
     
     for junction in junctions:
         odr.add_junction(junction)
 
+    roadLinker.adjustLaneOffsetsForOdr(odr)
     print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
     odr.adjust_roads_and_lanesByPredecessor()
 
@@ -182,6 +195,11 @@ def plotRoadFromCSV(csvFile, show=True):
         plt.show()
     return plt
 
+
+def getJunctionSelection(isJunction):
+    if isJunction:
+        return 1
+    return -1
 
 
 def getConnectionRoads(roads, junction):

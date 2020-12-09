@@ -1,5 +1,5 @@
 import pyodrx
-
+from junctions.Geometry import Geometry
 class ExtendedPlanview(pyodrx.PlanView):
 
     def reset(self):
@@ -25,3 +25,10 @@ class ExtendedPlanview(pyodrx.PlanView):
         # add more derived data created in the process of adjustment and link building.
 
         pass
+
+
+    def getTotalLength(self):
+        if self.adjusted:
+            return self.get_total_length()
+        else:
+            return Geometry.getLengthOfGeoms(self._raw_geometries)

@@ -5,6 +5,8 @@ A library to harvest different kinds of road junctions. It's built using [pyodrx
 
 1. pyodrx (included with the project. No need to install)
 2. dill
+3. pyyaml
+4. scipy, numpy, matplotlib, pytest, unittest
 
 # Configuration
 

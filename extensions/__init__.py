@@ -11,3 +11,7 @@ from .ExtendedSpiral import ExtendedSpiral
 from .ExtendedPlanview import ExtendedPlanview
 from .ExtendedOpenDrive import ExtendedOpenDrive
 from .IntertialParamPoly import IntertialParamPoly
+from .CountryCodes import CountryCodes
+from .ExtendedLanes import ExtendedLanes
+from .ExtendedLaneSection import ExtendedLaneSection
+from .LaneOffset import LaneOffset

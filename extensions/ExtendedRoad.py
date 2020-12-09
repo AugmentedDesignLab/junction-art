@@ -6,19 +6,23 @@ import math
 import extensions
 
 from junctions.StandardCurveTypes import StandardCurveTypes
+from junctions.Geometry import Geometry
 
 class ExtendedRoad(pyodrx.Road):
 
-    curveType = StandardCurveTypes.Line
-    headingTangentMagnitude = 10 # 10 meters.
-    isConnection = False
 
 
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, curveType = StandardCurveTypes.Line):
         super().__init__(road_id, planview, lanes, road_type, name, rule)
+
+        self.curveType = curveType
+        self.headingTangentMagnitude = 10 # 10 meters.
+        self.isConnection = False
+        self.elementType = pyodrx.ElementType.road
 
         if road_type == 1:
             self.isConnection = True
+            self.elementType = pyodrx.ElementType.junction
 
         pass
 
@@ -65,6 +69,8 @@ class ExtendedRoad(pyodrx.Road):
 
     def clearRoadLinks(self):
         self.links = pyodrx.links._Links()
+        self.predecessor = None
+        self.successor = None
         pass
 
 
@@ -74,6 +80,10 @@ class ExtendedRoad(pyodrx.Road):
                 lane.links = pyodrx.links._Links()
             for lane in laneSecion.rightlanes:
                 lane.links = pyodrx.links._Links()
+
+
+    def length(self):
+        return self.planview.getTotalLength()
 
     
     def updatePredecessor(self, element_type,element_id,contact_point=None):
@@ -89,6 +99,7 @@ class ExtendedRoad(pyodrx.Road):
 
         """
         self.predecessor = None
+        element_id = int(element_id)
         self.add_predecessor(element_type, element_id, contact_point)
         pass
 
@@ -106,6 +117,7 @@ class ExtendedRoad(pyodrx.Road):
 
         """
         self.successor = None
+        element_id = int(element_id)
         self.add_successor(element_type, element_id, contact_point)
         pass
 
@@ -119,6 +131,13 @@ class ExtendedRoad(pyodrx.Road):
         if self.successor is not None:
             return True
         return False
+
+    def isPredecessorOf(self, road):
+        return ( road.hasPredecessor() and road.predecessor.element_id == self.id )
+
+    def isSuccessorOf(self, road):
+        return ( road.hasSuccessor() and road.successor.element_id == self.id )
+
 
     def isJunction(self):
         return self.isConnection
@@ -206,10 +225,7 @@ class ExtendedRoad(pyodrx.Road):
             raise Exception(f"getAdjustedStartPosition cannot work without road planview adjustments.")
         
         geoms = self.planview._adjusted_geometries
-        for g in geoms:
-            # startX, startY, startH, _ = g.get_start_data() # this function changes the start position. Never call it
-            startX, startY, startH = g.x, g.y, g.heading
-        
+        startX, startY, startH = geoms[0].x, geoms[0].y, geoms[0].heading
         return startX, startY, startH
 
     def getAdjustedEndPosition(self):
@@ -227,8 +243,8 @@ class ExtendedRoad(pyodrx.Road):
             raise Exception(f"getAdjustedEndPosition cannot work without road planview adjustments.")
 
         geoms = self.planview._adjusted_geometries
-        for g in geoms:
-            startX, startY, startH, _ = g.get_end_data()
+        g = geoms[-1]
+        startX, startY, startH, _ = g.get_end_data()
         
         return startX, startY, startH
 
@@ -253,6 +269,7 @@ class ExtendedRoad(pyodrx.Road):
             _, _, heading = self.getAdjustedStartPosition() 
 
         return heading
+
 
 
     def getClockWiseAngleWith(self, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start):
@@ -308,3 +325,58 @@ class ExtendedRoad(pyodrx.Road):
 
         return extensions.headingToTangent(h, tangentMagnitude)
 
+
+    # Lane Section related functions
+
+    def getLaneSections(self):
+        return self.lanes.lanesections
+
+        
+    def getEndLaneSection(self):
+        return self.lanes.lanesections[-1]
+
+
+    def getFirstLaneSection(self):
+        return self.lanes.lanesections[0]
+    
+    def hasLaneOffsets(self):
+        if hasattr(self.lanes, 'laneOffsets'):
+            return True
+        return False
+
+    def getFirstLaneOffset(self):
+
+        if len(self.lanes.laneOffsets) == 0:
+            return extensions.LaneOffset.createParallel(0, 0)
+        return self.lanes.laneOffsets[0]
+        
+
+    def getLastLaneOffset(self):
+        if len(self.lanes.laneOffsets) == 0:
+            return extensions.LaneOffset.createParallel(0, 0)
+        return self.lanes.laneOffsets[-1]
+
+
+    def setFirstLaneOffset(self, laneOffset):
+        if len(self.lanes.laneOffsets) == 0:
+            self.lanes.laneOffsets.append(laneOffset)
+        else:
+            self.lanes.laneOffsets[0] = laneOffset
+
+    def setLastLaneOffset(self, laneOffset):
+        if len(self.lanes.laneOffsets) == 0:
+            self.lanes.laneOffsets.append(laneOffset)
+        else:
+            self.lanes.laneOffsets[-1] = laneOffset
+
+    
+    def getEndPointWidths(self):
+        """[summary]
+        Returns:
+            (tuple) : (startWidth, endWidth)
+        """
+
+        return self.lanes.getEndPointWidths(self.length())
+
+
+    

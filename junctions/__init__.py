@@ -12,3 +12,9 @@ from .JunctionBuilder import JunctionBuilder
 from .LaneSides import LaneSides
 
 from .RoadSeries import RoadSeries
+
+from .LaneLinker import LaneLinker
+from .Direction import CircularDirection
+
+from .Geometry import Geometry
+from .JunctionAreaTypes import JunctionAreaTypes

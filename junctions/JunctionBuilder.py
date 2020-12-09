@@ -3,6 +3,8 @@ from junctions.RoadBuilder import RoadBuilder
 import numpy as np
 import extensions
 from junctions.LaneSides import LaneSides
+from junctions.Direction import CircularDirection
+from junctions.JunctionAreaTypes import JunctionAreaTypes
 
 
 class JunctionBuilder:
@@ -103,6 +105,7 @@ class JunctionBuilder:
 
         lastConnectionId = nextRoadId
         lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, road1, road2, cp1, cp2,
+                                    isJunction=True,
                                     n_lanes=n_lanes,
                                     lane_offset=lane_offset,
                                     laneSides=laneSides)
@@ -118,13 +121,13 @@ class JunctionBuilder:
             lastConnection.updateSuccessor(pyodrx.ElementType.road, road2.id, cp2)
 
         if junction is not None:
-            if laneSides == LaneSides.LEFT:
+            if laneSides == LaneSides.LEFT or laneSides == LaneSides.BOTH:
                 connectionL = pyodrx.Connection(road2.id, lastConnectionId, pyodrx.ContactPoint.end)
                 connectionL.add_lanelink(-1,-1)
                 junction.add_connection(connectionL)
             else:
                 connectionL = pyodrx.Connection(road1.id, lastConnectionId, pyodrx.ContactPoint.start)
-                connectionL.add_lanelink(-1,-1)
+                connectionL.add_lanelink(1, 1)
                 junction.add_connection(connectionL)
         
         return lastConnection
@@ -179,7 +182,50 @@ class JunctionBuilder:
         pass
 
 
-    def buildSimpleRoundAbout(self, odrId=0, numRoads = 4, radius = 10, cp1 = pyodrx.ContactPoint.start):
+    def createInternalConnectionsForConnectionSeres(self, roads, connectionSeres, junction):
+        """Assumes last road has the largest id. Used to create internal connections inside a junction. Assumes a connection series has middle roads which are connected by an internal connection road. Normally each series will have 3 roads.
+
+        Args:
+            roads ([type]): [description]
+            connectionSeres ([type]): list of ConnectionSeries type
+        """
+
+
+        # for each last road in a series, connect with the next first road
+        length = len(connectionSeres)
+        nextRoadId = connectionSeres[-1].getLast().id + 1 # last id so far.
+
+        for i in range(length):
+            currentConnectionS = connectionSeres[i]
+
+            if (i + 1) < length:
+                nextConnectionS = connectionSeres[i + 1]
+            else:
+                nextConnectionS = connectionSeres[0]
+
+            # traffic will go from current to next
+
+            fromRoad = currentConnectionS.getMiddle()
+            toRoad = nextConnectionS.getMiddle()
+
+            print(f"creating internal connection from {fromRoad.id} to {toRoad.id}")
+
+            newConnection = self.createConnectionFor2Roads(
+                nextRoadId,
+                fromRoad, 
+                toRoad, 
+                cp1=pyodrx.ContactPoint.end,
+                cp2=pyodrx.ContactPoint.start,
+                junction=junction, 
+                laneSides=LaneSides.RIGHT)
+            
+            roads.append(newConnection)
+
+            nextRoadId += 1
+        
+        return nextRoadId
+
+    def buildSimpleRoundAbout(self, odrId=0, numRoads = 4, radius = 10, cp1 = pyodrx.ContactPoint.start, direction=CircularDirection.COUNTERCLOCK_WISE):
         """In a simple roundabout, there is a circle inside the junction, the connection roads reside in the circle.
 
         Args:
@@ -271,46 +317,17 @@ class JunctionBuilder:
         return odr
         
 
-    def createInternalConnectionsForConnectionSeres(self, roads, connectionSeres, junction):
-        """Assumes last road has the largest id.
 
-        Args:
-            roads ([type]): [description]
-            connectionSeres ([type]): [description]
-        """
+    def createConnectionRoads(self, roads, adjusted=False, areaType = JunctionAreaTypes.SQUARE):
 
 
-        # for each last road in a series, connect with the next first road
-        length = len(connectionSeres)
-        nextRoadId = connectionSeres[-1].getLast().id + 1 # last id so far.
+        if adjusted is False:
+            # set up x,y positions and headings for the roads around the boundary of the area
 
-        for i in range(length):
-            currentConnectionS = connectionSeres[i]
-
-            if (i + 1) < length:
-                nextConnectionS = connectionSeres[i + 1]
-            else:
-                nextConnectionS = connectionSeres[0]
-
-            # traffic will go from current to next
-
-            fromRoad = currentConnectionS.getMiddle()
-            toRoad = nextConnectionS.getMiddle()
-
-            print(f"creating internal connection from {fromRoad.id} to {toRoad.id}")
-
-            newConnection = self.createConnectionFor2Roads(
-                nextRoadId,
-                fromRoad, 
-                toRoad, 
-                junction=junction, 
-                laneSides=LaneSides.LEFT)
-            
-            roads.append(newConnection)
-
-            nextRoadId += 1
-        
-        return nextRoadId
-            
+            if areaType == JunctionAreaTypes.SQUARE:
+                # maximum roads to connect to a side
+                maxRoadsPerSide = math.floor(len(roads) / 4) + 1
+                
+                    
 
             

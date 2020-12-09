@@ -8,6 +8,7 @@ from junctions.JunctionBuilder import JunctionBuilder
 from library.Configuration import Configuration
 import junctions
 
+from junctions.Direction import CircularDirection
 
 class test_RoadBuilder(unittest.TestCase):
 
@@ -108,13 +109,13 @@ class test_RoadBuilder(unittest.TestCase):
         lastConnection = self.harvester.junctionBuilder.createLastConnectionForLastAndFirstRoad(7, roads, junction, cp1=pyodrx.ContactPoint.start)
         odr.add_road(lastConnection)
 
-        randConnection = self.harvester.junctionBuilder.createConnectionFor2Roads(8, roads[0], roads[4], junction, cp1=pyodrx.ContactPoint.start)
-        roads.append(randConnection)
-        odr.add_road(randConnection)
+        # randConnection = self.harvester.junctionBuilder.createConnectionFor2Roads(8, roads[0], roads[4], junction, cp1=pyodrx.ContactPoint.start)
+        # roads.append(randConnection)
+        # odr.add_road(randConnection)
 
-        randConnection2 = self.harvester.junctionBuilder.createConnectionFor2Roads(9, roads[2], roads[6], junction, cp1=pyodrx.ContactPoint.start)
-        roads.append(randConnection2)
-        odr.add_road(randConnection2)
+        # randConnection2 = self.harvester.junctionBuilder.createConnectionFor2Roads(9, roads[2], roads[6], junction, cp1=pyodrx.ContactPoint.start)
+        # roads.append(randConnection2)
+        # odr.add_road(randConnection2)
 
         # odr.reset()
         # odr.add_road(lastConnection)
@@ -167,6 +168,31 @@ class test_RoadBuilder(unittest.TestCase):
         roads = []
         roads.append(pyodrx.create_straight_road(0, 10))
         roads.append(self.roadBuilder.createMShape(1, 1, np.pi / 1.5, 10, laneSides=junctions.LaneSides.LEFT))
+        roads.append(pyodrx.create_straight_road(2, 10))
+
+
+        roads[0].add_successor(pyodrx.ElementType.junction,1)
+
+        roads[1].add_predecessor(pyodrx.ElementType.road,0,pyodrx.ContactPoint.end)
+        # roads[1].add_predecessor(pyodrx.ElementType.road,0,pyodrx.ContactPoint.start)
+        roads[1].add_successor(pyodrx.ElementType.road,2,pyodrx.ContactPoint.start)
+
+        roads[2].add_predecessor(pyodrx.ElementType.junction,1)
+
+        junction = self.junctionBuilder.createJunctionForASeriesOfRoads(roads)
+
+        odrName = "test_connectionRoad"
+        odr = extensions.createOdr(odrName, roads, [junction])
+
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+    
+    
+    def test_createMShapeRightLanes(self):
+
+        
+        roads = []
+        roads.append(pyodrx.create_straight_road(0, 10))
+        roads.append(self.roadBuilder.createMShape(1, 1, -np.pi / 1.5, 10, laneSides=junctions.LaneSides.RIGHT, direction=CircularDirection.COUNTERCLOCK_WISE))
         roads.append(pyodrx.create_straight_road(2, 10))
 
 
