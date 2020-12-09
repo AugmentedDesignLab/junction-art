@@ -274,6 +274,7 @@ class ExtendedRoad(pyodrx.Road):
         return heading
 
 
+
     def getClockWiseAngleWith(self, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start):
         """contact points must be the same as the connectionRoad contact points on the roads of the related junction.
 
@@ -373,8 +374,13 @@ class ExtendedRoad(pyodrx.Road):
 
     
     def getEndPointWidths(self):
+        """[summary]
+        Returns:
+            (tuple) : (startWidth, endWidth)
+        """
 
-        pass
+        return self.lanes.getEndPointWidths(self.length())
+
         
 
     

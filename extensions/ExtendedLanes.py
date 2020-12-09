@@ -26,3 +26,40 @@ class ExtendedLanes(pyodrx.Lanes):
         return element
 
     
+    def getLaneOffsetAt(self, index, default=None):
+
+        if index < 0:
+            raise Exception("getLaneOffsetAt does not work with negative indices")
+
+        if index < len(self.laneOffsets):
+            return self.laneOffsets[index]
+
+        return default
+    
+    def getEndPointWidths(self, roadLength):
+        """[summary]
+
+        Args:
+            roadLength ([type]): [description]
+
+        Returns:
+            (tuple) : (startWidth, endWidth)
+        """
+
+        firstSection = self.lanesections[0]
+
+        firstOffset = self.getLaneOffsetAt(0)
+        secondOffset = self.getLaneOffsetAt(1)
+
+        firstWidths = firstSection.widths(roadLength, firstOffset, secondOffset)
+
+        if len(self.lanesections) == 1:
+            return firstWidths
+        
+        lastSection = self.lanesections[-1]
+        lastOffset = self.getLaneOffsetAt(len(self.lanesections) - 1)
+        lastWidths = lastSection.widths(roadLength, lastOffset)
+
+        return (firstWidths[0], lastWidths[0])
+
+        pass
