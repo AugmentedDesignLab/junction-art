@@ -17,3 +17,4 @@ from .LaneLinker import LaneLinker
 from .Direction import CircularDirection
 
 from .Geometry import Geometry
+from .JunctionAreaTypes import JunctionAreaTypes

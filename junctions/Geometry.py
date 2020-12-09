@@ -28,3 +28,17 @@ class Geometry(ABC):
             totalLength += length
         
         return totalLength
+
+    
+    @staticmethod
+    def evalPoly(coeffs, pRange):
+        vals = []
+        for p in pRange:
+            val = coeffs[0] # first one is the intercept
+            for i in range(1, len(coeffs)):
+                val += coeffs[i] * p
+                p = p * p # smelly but faster than powers
+            
+            vals.append(val)
+        
+        return vals

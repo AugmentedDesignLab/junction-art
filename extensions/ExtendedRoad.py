@@ -370,6 +370,11 @@ class ExtendedRoad(pyodrx.Road):
             self.lanes.laneOffsets.append(laneOffset)
         else:
             self.lanes.laneOffsets[-1] = laneOffset
+
+    
+    def getEndPointWidths(self):
+
+        pass
         
 
     

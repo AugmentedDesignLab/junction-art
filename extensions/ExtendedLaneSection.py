@@ -1,4 +1,6 @@
 import pyodrx
+from junctions.Geometry import Geometry
+
 
 class ExtendedLaneSection(pyodrx.LaneSection):
     
@@ -59,4 +61,61 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
 
         self.leftlanes.append(rightLane)
+
+
+    def laneWidths(self, lane, laneLength):
+        """[summary]
+
+        Args:
+            lane ([type]): [description]
+            laneLength ([type]): [description]
+
+        Returns:
+            startWidth
+            endWidth
+        """
+
+        coeffs = [lane.a, lane.b, lane.c, lane.d]
+        pRange = [0, laneLength]
+        return Geometry.evalPoly(coeffs, pRange)
+
+
+    def length(self, roadLength, laneOffset = None, laneOffsetNext = None):
+        s = 0
+        if laneOffset is not None:
+            s = laneOffset.s
+
+        if laneOffsetNext is not None:
+            return laneOffsetNext.s - s
+
+        laneLength = roadLength - s
+        return laneLength
+
+
+    def widths(self, roadLength, laneOffset = None, laneOffsetNext = None):
+        """[summary]
+
+        Args:
+            roadLength ([type]): [description]
+            laneOffset ([type]): The corresponding laneOffset. None if only one laneOffset in the road.
+            laneOffsetNext ([type]): The corresponding next laneOffset. None if only one laneOffset in the road.
+            
+        Returns:
+            (tuple) : (startWidth, endWidth)
+        """
+
+        laneLength = self.length(roadLength, laneOffset, laneOffsetNext)
+
+        startWidth = 0
+        endWidth = 0
+
+        allLanes = self.leftlanes + self.rightlanes
+
+        for lane in allLanes:
+            laneWidths = self.laneWidths(lane, laneLength)
+            startWidth += laneWidths[0]
+            endWidth += laneWidths[1]
+
+
+        return (startWidth, endWidth)
 
