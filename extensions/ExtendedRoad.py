@@ -225,10 +225,7 @@ class ExtendedRoad(pyodrx.Road):
             raise Exception(f"getAdjustedStartPosition cannot work without road planview adjustments.")
         
         geoms = self.planview._adjusted_geometries
-        for g in geoms:
-            # startX, startY, startH, _ = g.get_start_data() # this function changes the start position. Never call it
-            startX, startY, startH = g.x, g.y, g.heading
-        
+        startX, startY, startH = geoms[0].x, geoms[0].y, geoms[0].heading
         return startX, startY, startH
 
     def getAdjustedEndPosition(self):
@@ -246,8 +243,8 @@ class ExtendedRoad(pyodrx.Road):
             raise Exception(f"getAdjustedEndPosition cannot work without road planview adjustments.")
 
         geoms = self.planview._adjusted_geometries
-        for g in geoms:
-            startX, startY, startH, _ = g.get_end_data()
+        g = geoms[-1]
+        startX, startY, startH, _ = g.get_end_data()
         
         return startX, startY, startH
 
@@ -381,8 +378,5 @@ class ExtendedRoad(pyodrx.Road):
 
         return self.lanes.getEndPointWidths(self.length())
 
-        
 
     
-    
-        
