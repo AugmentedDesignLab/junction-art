@@ -42,3 +42,19 @@ class Geometry(ABC):
             vals.append(val)
         
         return vals
+
+
+    @staticmethod
+    def evalSpiral(spiral):
+
+        curveRange = np.arange(spiral.curvestart + 0.001, spiral.curveEnd, 0.001)
+
+        fromCurv = spiral.curvstart
+
+        points = []
+
+        for nextCurve in curveRange:
+        
+            eulerSp = EulerSpiral.createFromLengthAndCurvature(self.length, fromCurv, nextCurve)
+            (deltax, deltay, t) = eulerSp.calc(self.length, x, y, self.curvstart, h)
+            points.append((deltax, deltay))
