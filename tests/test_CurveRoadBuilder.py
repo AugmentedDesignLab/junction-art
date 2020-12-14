@@ -13,7 +13,7 @@ from junctions.RoadLinker import RoadLinker
 from junctions.LaneSides import LaneSides
 
 
-class test_StraightRoadBuilder(unittest.TestCase):
+class test_CurveRoadBuilder(unittest.TestCase):
 
     def setUp(self):
         
@@ -35,4 +35,16 @@ class test_StraightRoadBuilder(unittest.TestCase):
         extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
 
         xmlPath = f"output/test_LeftTurnLaneCurve.xodr"
+        odr.write_xml(xmlPath)
+        
+        roads = []
+        roads.append(self.curveRoadBuilder.create(0, angleBetweenEndpoints=np.pi/2, curvature=0.05,
+                                                    isRightTurnLane=True))
+
+        odrName = "test_RightTurnLaneCurve"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_RightTurnLaneCurve.xodr"
         odr.write_xml(xmlPath)
