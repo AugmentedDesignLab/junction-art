@@ -47,7 +47,7 @@ class test_ExtendedRoad(unittest.TestCase):
         roads = []
 
         roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=1, n_lanes_right=1))
-        roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
+        roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, junction=1,
                                                                                         isLeftTurnLane=True, 
                                                                                         isRightTurnLane=True,
                                                                                         numberOfRightTurnLanesOnLeft=2,
@@ -64,6 +64,8 @@ class test_ExtendedRoad(unittest.TestCase):
         assert roads[1].getBorderDistanceOfLane(4, pyodrx.ContactPoint.end) == 12
         assert roads[1].getBorderDistanceOfLane(-1, pyodrx.ContactPoint.start) == 3
 
+        roads[1].updatePredecessorOffset(-1)
+
         odrName = "test_getBorderDistanceOfLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
         
@@ -72,5 +74,32 @@ class test_ExtendedRoad(unittest.TestCase):
 
         
 
-        # xmlPath = f"output/test_getBorderDistanceOfLane.xodr"
-        # odr.write_xml(xmlPath)
+        xmlPath = f"output/test_getBorderDistanceOfLane.xodr"
+        odr.write_xml(xmlPath)
+
+        roads = []
+
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=2, n_lanes_right=2))
+        roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=2, junction=1,
+                                                                                        isLeftTurnLane=True, 
+                                                                                        isRightTurnLane=True,
+                                                                                        numberOfRightTurnLanesOnLeft=2,
+                                                                                        mergeLaneOnTheOppositeSideForInternalTurn=False))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=5, n_lanes_right=3))
+        self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
+
+        
+
+        roads[1].updatePredecessorOffset(-2)
+
+        odrName = "test_getBorderDistanceOfLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+
+        
+
+        xmlPath = f"output/test_getBorderDistanceOfLane.xodr"
+        odr.write_xml(xmlPath)
+

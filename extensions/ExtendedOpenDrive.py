@@ -3,7 +3,7 @@ from pyodrx.enumerations import ElementType, ContactPoint
 from pyodrx.links import _Link, _Links, create_lane_links
 import numpy as np
 from itertools import combinations
-
+import math
 
 class ExtendedOpenDrive(pyodrx.OpenDrive):
     
@@ -279,19 +279,35 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         """
 
         main_road = self.roads[str(road_id)]
+        neighbourRoad = self.roads[str(neightbour_id)]
 
         if neightbour_type == 'predecessor':
 
             if contact_point == ContactPoint.start :    
-                x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
+                x,y,h = neighbourRoad.planview.get_start_point()
                 h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
-                x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+                x,y,h = neighbourRoad.planview.get_end_point()
             else:
                 raise Exception(f"predecessor contact point not defined for road {road_id}")
             
             if main_road.predecessorOffset != 0:
-                raise Exception("predecessorOffset is not implemented yet")
+
+                if main_road.isConnection is False:
+                    raise Exception("Cannot shift reference line for non connection roads")
+
+                # in local coordinate the reference line moves along v
+
+                localShiftAmount = neighbourRoad.getBorderDistanceOfLane(main_road.predecessorOffset, contact_point)
+
+                if main_road.predecessorOffset > 0: 
+                    x += localShiftAmount * math.cos(h + np.pi/2) * -1
+                    y += localShiftAmount * math.sin(h + np.pi/2)
+                else:
+                    x += localShiftAmount * math.cos(h + np.pi/2)
+                    y += localShiftAmount * math.sin(h + np.pi/2) * -1
+
+                # raise Exception("predecessorOffset is not implemented yet")
 
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires()
@@ -299,9 +315,9 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         elif neightbour_type == 'successor':
 
             if contact_point == ContactPoint.start:    
-                x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
+                x,y,h = neighbourRoad.planview.get_start_point()
             elif contact_point == ContactPoint.end:
-                x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+                x,y,h = neighbourRoad.planview.get_end_point()
             else:
                 raise Exception(f"successor contact point not defined for road {road_id}")
             main_road.planview.set_start_point(x,y,h)

@@ -4,10 +4,12 @@ esmini GIT BRANCH: tags/v2.0.9^0
 esmini BUILD VERSION: 2.0.9.build.1017
 RoadManager.cpp / 4284 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
 RoadManager.cpp / 4286 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 4 on road 1 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 5 on road 1 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 1 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 1 on road 1 is not defined
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 1 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -3 on road 1 is not defined
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)
