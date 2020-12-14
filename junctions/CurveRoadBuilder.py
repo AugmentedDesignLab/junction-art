@@ -21,8 +21,8 @@ import extensions
 
 class CurveRoadBuilder:
 
-    def __init__(self, country = CountryCodes.US):
-        self.STD_ROADMARK = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,rule=pyodrx.MarkRule.no_passing)
+    def __init__(self, country=CountryCodes.US):
+        self.STD_ROADMARK = pyodrx.RoadMark(pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing)
         self.STD_START_CLOTH = 1/1000000000
         self.country = country
         self.laneBuilder = LaneBuilder()
@@ -97,22 +97,42 @@ class CurveRoadBuilder:
         arcAngle = np.pi / 10000000
         clothAngle = totalRotation / 2
         
+        return self.createCurveGeoAndLanes(roadId, isJunction, curvature, arcAngle, clothAngle, n_lanes, lane_offset, laneSides, 
+                                            isLeftTurnLane, isRightTurnLane, isLeftMergeLane, isRightMergeLane)
+
+    def createCurveGeoAndLanes(self, roadId, isJunction, curvature, arcAngle, clothAngle, n_lanes, lane_offset, 
+                                
+                                laneSides=LaneSides.BOTH,
+                                isLeftTurnLane=False,
+                                isRightTurnLane=False,
+                                isLeftMergeLane=False,
+                                isRightMergeLane=False):
+
+        
+        junction = extensions.getJunctionSelection(isJunction)
+
         pv = self.createPVForArcWithCloths(curvature, arcAngle, clothAngle)
         length = pv.getTotalLength()
 
-        
-        
+
+
         laneSections = self.laneBuilder.getStandardLanes(n_lanes, lane_offset, laneSides,
                                                             roadLength=length, 
                                                             isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
                                                             isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane)
 
-
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction, curveType=StandardCurveTypes.LongArc)
         return road
 
     
-    def createSimpleCurveWithLongArc(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value): 
+    def createSimpleCurveWithLongArc(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value,
+                            n_lanes=1, lane_offset=3, 
+                            laneSides=LaneSides.BOTH,
+                            isLeftTurnLane=False,
+                            isRightTurnLane=False,
+                            isLeftMergeLane=False,
+                            isRightMergeLane=False
+                            ): 
         
         junction = extensions.getJunctionSelection(isJunction)
 
@@ -122,10 +142,9 @@ class CurveRoadBuilder:
         arcAngle = totalRotation * 0.9 # main curve
         clothAngle = (totalRotation * 0.1) / 2 # curve more.
 
-        # print(f"arcAngle: {math.degrees(arcAngle)}")
-        # print(f"clothAngle: {math.degrees(clothAngle)}")
+        return self.createCurveGeoAndLanes( roadId, isJunction, curvature, arcAngle, clothAngle, n_lanes, lane_offset, laneSides, 
+                                            isLeftTurnLane, isRightTurnLane, isLeftMergeLane, isRightMergeLane)
 
-        return pyodrx.create_cloth_arc_cloth(curvature, arc_angle=arcAngle, cloth_angle=clothAngle, r_id=connectionRoadId, junction = junction)
 
     
     def createS(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value): 

@@ -18,3 +18,4 @@ from .Direction import CircularDirection
 
 from .Geometry import Geometry
 from .JunctionAreaTypes import JunctionAreaTypes
+from .TurnTypes import  TurnTypes

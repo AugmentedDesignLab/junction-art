@@ -11,6 +11,10 @@
     "python.testing.nosetestsEnabled": false,
     "python.testing.unittestEnabled": true,
     "python.linting.pylintEnabled": true,
-    "python.linting.enabled": false,
-    "python.linting.flake8Enabled": false
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": false,
+    "python.linting.pylintArgs": [
+        "--disable=all",
+        "--enable=E1101,unreachable,duplicate-key,unnecessary-semicolon,global-variable-not-assigned,unused-variable,binary-op-exception,bad-format-string,anomalous-backslash-in-string,bad-open-mode"
+    ]
 }
