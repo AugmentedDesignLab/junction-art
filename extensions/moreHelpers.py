@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from .ExtendedOpenDrive import ExtendedOpenDrive
 from junctions.LaneLinker import LaneLinker
 from junctions.RoadLinker import RoadLinker
+from junctions.Geometry import Geometry
 
     
 def createOdr(name, roads, junctions):
@@ -289,3 +290,20 @@ def modify_xodr_for_roadrunner(filepath):
     set_standalone_attribute(filepath)
     change_revMinor(filepath)
 
+
+
+def laneWidths(lane, laneLength):
+    """[summary]
+
+    Args:
+        lane ([type]): [description]
+        laneLength ([type]): [description]
+
+    Returns:
+        startWidth
+        endWidth
+    """
+
+    coeffs = [lane.a, lane.b, lane.c, lane.d]
+    pRange = [0, laneLength]
+    return Geometry.evalPoly(coeffs, pRange)

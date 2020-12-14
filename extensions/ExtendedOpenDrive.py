@@ -289,6 +289,10 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
             else:
                 raise Exception(f"predecessor contact point not defined for road {road_id}")
+            
+            if main_road.predecessorOffset != 0:
+                raise Exception("predecessorOffset is not implemented yet")
+
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires()
 
@@ -327,3 +331,4 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 self.laneLinker.createLaneLinks(self.roads[results[r][0]],self.roads[results[r][1]]) 
             else:
                 create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
+                

@@ -1,15 +1,28 @@
-import unittest
-
-import extensions, junctions
+import unittest, os, math
+from junctions.StraightRoadBuilder import StraightRoadBuilder
+from scipy.interpolate import CubicHermiteSpline
+from junctions.JunctionHarvester import JunctionHarvester
 import numpy as np
-import math
+import pyodrx, extensions
+from junctions.JunctionBuilder import JunctionBuilder
+from library.Configuration import Configuration
+import junctions
 
+from junctions.Direction import CircularDirection
+from junctions.RoadLinker import RoadLinker
+from junctions.LaneSides import LaneSides
 from junctions.StandardCurveTypes import StandardCurveTypes
 
-class test_ExtendedRoad(unittest.TestCase):
 
+class test_ExtendedRoad(unittest.TestCase):
     def setUp(self):
+        
+        self.configuration = Configuration()
         self.roadBuilder = junctions.RoadBuilder()
+
+        self.straightRoadBuilder = StraightRoadBuilder()
+        self.roadLinker = RoadLinker()
+
 
     def test_getArcAngle(self):
 
@@ -26,3 +39,38 @@ class test_ExtendedRoad(unittest.TestCase):
 
                 print( f"curveType: {road.curveType} inputAngle: {math.degrees(inputAngle)} outputAngle: {math.degrees(outputAngle)} deviation: {deviation}")
                 assert deviation < 50.0
+
+
+    def test_getBorderDistanceOfLane(self):
+        
+
+        roads = []
+
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=1, n_lanes_right=1))
+        roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=1, 
+                                                                                        isLeftTurnLane=True, 
+                                                                                        isRightTurnLane=True,
+                                                                                        numberOfRightTurnLanesOnLeft=2,
+                                                                                        mergeLaneOnTheOppositeSideForInternalTurn=False))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=4, n_lanes_right=2))
+        self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
+
+        
+        assert roads[0].getBorderDistanceOfLane(1, pyodrx.ContactPoint.start) == 3
+        assert roads[0].getBorderDistanceOfLane(-1, pyodrx.ContactPoint.start) == 3
+        assert roads[1].getBorderDistanceOfLane(1, pyodrx.ContactPoint.start) == 3
+        assert roads[1].getBorderDistanceOfLane(2, pyodrx.ContactPoint.end) == 6
+        assert roads[1].getBorderDistanceOfLane(3, pyodrx.ContactPoint.end) == 9
+        assert roads[1].getBorderDistanceOfLane(4, pyodrx.ContactPoint.end) == 12
+        assert roads[1].getBorderDistanceOfLane(-1, pyodrx.ContactPoint.start) == 3
+
+        odrName = "test_getBorderDistanceOfLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+
+        
+
+        # xmlPath = f"output/test_getBorderDistanceOfLane.xodr"
+        # odr.write_xml(xmlPath)

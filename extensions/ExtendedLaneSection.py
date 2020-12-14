@@ -81,6 +81,16 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
 
     def length(self, roadLength, laneOffset = None, laneOffsetNext = None):
+        """The width of the lane section depends on its laneOffset and next section's offset
+
+        Args:
+            roadLength ([type]): [description]
+            laneOffset ([type], optional): [description]. Defaults to None.
+            laneOffsetNext ([type], optional): [description]. Defaults to None.
+
+        Returns:
+            [type]: [description]
+        """
         s = 0
         if laneOffset is not None:
             s = laneOffset.s

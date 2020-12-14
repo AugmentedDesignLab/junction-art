@@ -12,7 +12,19 @@ class ExtendedRoad(pyodrx.Road):
 
 
 
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, curveType = StandardCurveTypes.Line):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, curveType = StandardCurveTypes.Line, predecessorOffset = 0): 
+        """[summary]
+
+        Args:
+            road_id ([type]): [description]
+            planview ([type]): [description]
+            lanes ([type]): [description]
+            road_type (int, optional): [description]. Defaults to -1.
+            name ([type], optional): [description]. Defaults to None.
+            rule ([type], optional): [description]. Defaults to None.
+            curveType ([type], optional): [description]. Defaults to StandardCurveTypes.Line.
+            predecessorOffset (int, optional): lane number of predecessor. refernce line of this road can be shifted with this setting wrt the predecessor. -1 means reference line will start from the border of -1 lane of predecessor
+        """
         super().__init__(road_id, planview, lanes, road_type, name, rule)
 
         self.curveType = curveType
@@ -23,6 +35,8 @@ class ExtendedRoad(pyodrx.Road):
         if road_type == 1:
             self.isConnection = True
             self.elementType = pyodrx.ElementType.junction
+        
+        self.predecessorOffset = predecessorOffset
 
         pass
 
@@ -377,6 +391,61 @@ class ExtendedRoad(pyodrx.Road):
         """
 
         return self.lanes.getEndPointWidths(self.length())
+    
+    
+    def getBorderDistanceOfLane(self, laneNo, cp):
+        """[summary]
+
+        Args:
+            laneNo ([type]): [description]
+            cp ([type]):  cp = pyodrx.ContactPoint.end/start
+
+        Raises:
+            Exception: [description]
+
+        Returns:
+            [type]: [description]
+        """
+
+        laneSection = self.lanes.lanesections[0]
+        laneOffset = self.lanes.getLaneOffsetAt(0)
+        nextLaneOffset = self.lanes.getLaneOffsetAt(1)
+
+        sectionLength = laneSection.length(self.length(), laneOffset, nextLaneOffset)
+
+        if cp ==  pyodrx.ContactPoint.end:
+            if self.length is None:
+                raise Exception("Lane border distance cannot be calcualted at the end point without road length")
+
+            laneSection = self.lanes.lanesections[-1]
+            laneOffset = self.lanes.getLaneOffsetAt(len(self.lanes.lanesections) - 1)
+            nextLaneOffset = None
+            sectionLength = laneSection.length(self.length(), laneOffset, nextLaneOffset)
+
+        
+        lanes = laneSection.leftlanes
+        if laneNo < 0:
+            lanes = laneSection.rightlanes
+        
+        laneLimit = abs(laneNo)
+
+        width = 0
+
+        for i in range(laneLimit):
+            lane = lanes[i]
+
+            if cp == pyodrx.ContactPoint.start and lane.soffset == 0:
+                width += lane.a
+            elif cp == pyodrx.ContactPoint.end:
+                
+                sectionLength = self.length() - lane.soffset
+
+                coeffs = [lane.a, lane.b, lane.c, lane.d]
+                pRange=[sectionLength]
+                laneWidths = Geometry.evalPoly(coeffs, pRange)
+                width += laneWidths[0]
+        
+        return width
 
 
     
