@@ -3,7 +3,7 @@ from junctions.TurnTypes import TurnTypes
 
 class ExtendedLane(pyodrx.Lane):
 
-    def __init__(self,lane_type=pyodrx.LaneType.driving,a=0,b=0,c=0,d=0,soffset=0, turnType=TurnTypes.ALL):
+    def __init__(self,lane_type=pyodrx.LaneType.driving,a=0,b=0,c=0,d=0,soffset=0, turnType=TurnTypes.UNDEFINED):
         """ initalizes the Lane
 
         Parameters
