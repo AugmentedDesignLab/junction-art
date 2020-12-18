@@ -5,3 +5,13 @@ test2:
 
 esminipath: "F:\\myProjects\\av\\esmini"
 rootPath: "F:\\myProjects\\av\\junction-art"
+
+default_lane_width: 3
+default_max_lane_width: 4
+
+random_max_lanes: 2
+random_max_median_turns: 2
+random_max_edge_turns: 2
+random_max_merge_lanes: 2
+random_max_min_angle_between_roads: 30
+random_max_max_angle_between_roads: 120

@@ -16,6 +16,8 @@ from junctions.Geometry import Geometry
 from junctions.LaneBuilder import LaneBuilder
 from extensions.CountryCodes import CountryCodes
 
+from library.Configuration import Configuration
+
 
 class StraightRoadBuilder:
 
@@ -24,6 +26,7 @@ class StraightRoadBuilder:
         self.STD_START_CLOTH = 1/1000000000
         self.country = country
         self.laneBuilder = LaneBuilder()
+        self.configuration = Configuration()
         pass
 
 
@@ -35,8 +38,29 @@ class StraightRoadBuilder:
         pv.add_geometry(line1)
         return pv
 
+
+    def createRandom(self, roadId, length=20, junction=-1, lane_offset=None, randomState=None):
+
+        if randomState is not None:
+            np.random.set_state(randomState)
+
+        if lane_offset is None:
+            lane_offset = self.configuration.get("default_lane_width")
+
+        laneSides = np.random.choice([LaneSides.LEFT, LaneSides.RIGHT, LaneSides.BOTH])
+
+        isLeftTurnLane = np.randoms.choice([True, False])
+        isRightTurnLane = np.random.choice([True, False])
+        isLeftMergeLane = np.random.choice([True, False])
+        isRightMergeLane = np.random.choice([True, False])
+
+        pass
+
+
+
+
     
-    def create(self, roadId, length=100,junction = -1, 
+    def create(self, roadId, length=20,junction = -1, 
                             n_lanes=1, lane_offset=3, 
                             laneSides=LaneSides.BOTH,
                             isLeftTurnLane=False,

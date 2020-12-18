@@ -125,7 +125,7 @@ class CurveRoadBuilder:
         return road
 
     
-    def createSimpleCurveWithLongArc(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value,
+    def createSimpleCurveWithLongArc(self, roadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value,
                             n_lanes=1, lane_offset=3, 
                             laneSides=LaneSides.BOTH,
                             isLeftTurnLane=False,
@@ -160,49 +160,49 @@ class CurveRoadBuilder:
             [type]: [description]
         """
         
-        junction = extensions.getJunctionSelection(isJunction)
+        # junction = extensions.getJunctionSelection(isJunction)
 
-        totalRotation = np.pi - angleBetweenEndpoints
+        # totalRotation = np.pi - angleBetweenEndpoints
 
-        # most of the angleBetweenEndpoints should be assigned to the Arc
-        arcAngle = totalRotation * 0.9
-        clothAngle = (totalRotation * 0.1) / 2 # curve more.
+        # # most of the angleBetweenEndpoints should be assigned to the Arc
+        # arcAngle = totalRotation * 0.9
+        # clothAngle = (totalRotation * 0.1) / 2 # curve more.
 
-        arc_curv = curvature 
-        arc_angle = arcAngle 
-        cloth_angle = clothAngle 
-        r_id = connectionRoadId
-        cloth_start = self.STD_START_CLOTH
-        n_lanes = 1
-        lane_offset = 3
+        # arc_curv = curvature 
+        # arc_angle = arcAngle 
+        # cloth_angle = clothAngle 
+        # r_id = connectionRoadId
+        # cloth_start = self.STD_START_CLOTH
+        # n_lanes = 1
+        # lane_offset = 3
 
-        pv = ExtendedPlanview()
-        # adjust sign if angle is negative
-        if cloth_angle < 0 and  arc_curv > 0:
+        # pv = ExtendedPlanview()
+        # # adjust sign if angle is negative
+        # if cloth_angle < 0 and  arc_curv > 0:
 
-            cloth_angle = -cloth_angle
-            arc_curv = -arc_curv
-            cloth_start = -cloth_start
-            arc_angle = -arc_angle 
+        #     cloth_angle = -cloth_angle
+        #     arc_curv = -arc_curv
+        #     cloth_start = -cloth_start
+        #     arc_angle = -arc_angle 
 
-        # we are changing the second half of the S to have different arc angle and curvature.
-        multiplier = np.random.choice(9) / 10
-        arc_angle2 = arc_angle - arc_angle * multiplier
-        arc_curv2 = -(arc_curv + arc_curv * multiplier) # the angle needs to be opposite for the second half.
+        # # we are changing the second half of the S to have different arc angle and curvature.
+        # multiplier = np.random.choice(9) / 10
+        # arc_angle2 = arc_angle - arc_angle * multiplier
+        # arc_curv2 = -(arc_curv + arc_curv * multiplier) # the angle needs to be opposite for the second half.
         
-        # create geometries
-        spiral1 = extensions.ExtendedSpiral(cloth_start, arc_curv, angle=cloth_angle)
-        arc = pyodrx.Arc(arc_curv, angle=arc_angle )
-        arc2 = pyodrx.Arc(arc_curv2, angle = -arc_angle2)
-        spiral2 = extensions.ExtendedSpiral(-arc_curv, cloth_start, angle= -cloth_angle)
+        # # create geometries
+        # spiral1 = extensions.ExtendedSpiral(cloth_start, arc_curv, angle=cloth_angle)
+        # arc = pyodrx.Arc(arc_curv, angle=arc_angle )
+        # arc2 = pyodrx.Arc(arc_curv2, angle = -arc_angle2)
+        # spiral2 = extensions.ExtendedSpiral(-arc_curv, cloth_start, angle= -cloth_angle)
 
-        pv.add_geometry(spiral1)
-        pv.add_geometry(arc)
-        pv.add_geometry(arc2)
-        pv.add_geometry(spiral2)
+        # pv.add_geometry(spiral1)
+        # pv.add_geometry(arc)
+        # pv.add_geometry(arc2)
+        # pv.add_geometry(spiral2)
 
-        # create lanes
-        road =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, r_id, pv, junction)
-        road.curveType = StandardCurveTypes.S
-        return road
+        # # create lanes
+        # road =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, r_id, pv, junction)
+        # road.curveType = StandardCurveTypes.S
+        # return road
     

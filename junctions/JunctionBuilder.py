@@ -327,6 +327,15 @@ class JunctionBuilder:
             if areaType == JunctionAreaTypes.SQUARE:
                 # maximum roads to connect to a side
                 maxRoadsPerSide = math.floor(len(roads) / 4) + 1
+
+
+    
+    def createWithRandomLaneConfigurations(self, numRoads=3):
+
+        raise NotImplementedError()
+
+
+
                 
                     
 

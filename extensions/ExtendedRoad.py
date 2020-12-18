@@ -40,6 +40,7 @@ class ExtendedRoad(pyodrx.Road):
             raise Exception("Cannot set predecessorOffset for non-connection road to non-zero")
 
         self.predecessorOffset = predecessorOffset
+        self.extendedPredecessors = []
 
         pass
 
@@ -118,6 +119,13 @@ class ExtendedRoad(pyodrx.Road):
         self.predecessor = None
         element_id = int(element_id)
         self.add_predecessor(element_type, element_id, contact_point)
+        pass
+
+
+    def addExtendedPredecessor(self, road, angleWithRoad, cp, xodr=False):
+        self.extendedPredecessors.append(road, angleWithRoad, cp)
+        if xodr:
+            self.updatePredecessor(road.road_type, road.id, contact_point=cp)
         pass
 
     
