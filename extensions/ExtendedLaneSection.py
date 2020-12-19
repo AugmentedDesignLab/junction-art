@@ -28,6 +28,13 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
         return retdict
 
+    def clearLanes(self):
+        self._left_id = 1
+        self._right_id = -1
+        self.leftlanes = []
+        self.rightlanes = []
+        pass
+    
 
     def prependLaneToRightLanes(self, leftLane):
         

@@ -14,6 +14,12 @@ A library to harvest different kinds of road junctions. It's built using [pyodrx
 2. esmini resources folder
 3. notebook path
 
+
+# Conventions:
+
+1. successor is connected to one's end.
+2. predecessor is connected to one's start.
+
 # JunctionHarvester
 This is the class that harvests junctions. 
 
@@ -22,3 +28,5 @@ This is the class that harvests junctions.
 ## 2 roads 2 lanes: harvest2ways2Lanes
 
 ## 3 roads from 2 roads: harvest3WayJunctionsFrom2Ways
+
+

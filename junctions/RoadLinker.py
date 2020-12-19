@@ -1,7 +1,37 @@
 import pyodrx
 import logging
+from extensions.ExtendedRoad import ExtendedRoad
 
 class RoadLinker:
+
+    @staticmethod
+    
+    def getContactPoints(road1: ExtendedRoad, road2: ExtendedRoad):
+
+        # if road1 is a pred, then road1's cp and start
+        road1IsPred = road2.getExtendedPredecessorByRoadId(road1.id)
+
+        if road1IsPred is not None:
+            return road1IsPred.cp, pyodrx.ContactPoint.start # road1's cp is connected to road2's start
+
+        # if road2 is a pred, then road2's cp and start
+        road2IsPred = road1.getExtendedPredecessorByRoadId(road2.id)
+
+        if road2IsPred is not None:
+            return pyodrx.ContactPoint.start, road2IsPred.cp # road1's start is connected to road2's cp
+
+        
+        road2IsSuc = road1.getExtendedSuccessorByRoadId(road2.id)
+        if road2IsSuc is not None:
+            return pyodrx.ContactPoint.end, road2IsSuc.cp # road1's end is connected to road2's cp
+        
+        road1IsSuc = road2.getExtendedSuccessorByRoadId(road1.id)
+        if road1IsSuc is not None:
+            return road1IsSuc.cp, pyodrx.ContactPoint.end # road1's cp is connected to road2's start
+        
+        raise Exception(f"contact points not available for {road1.id} and {road2.id}")
+
+    
 
 
     def linkConsecutiveRoadsWithNoBranches(self, roads, linkLastToFirst=False, cp1 = pyodrx.ContactPoint.end, cpRest=pyodrx.ContactPoint.start):

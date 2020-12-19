@@ -28,7 +28,7 @@ class LaneConfiguration(ABC):
             laneSection1 (ExtendedLaneSection): [description]
             laneSection2 (ExtendedLaneSection): [description]
         Returns:
-            a list of left lane links and a list of right lane links. A lane link is a tuple (laneId on road1, laneId on road2, isMerge)
+            a list of left lane links and a list of right lane links. A lane link is a tuple (laneId on road1, laneId on road2, 0/1/2) 0 means = straight, 1 = merge, 2 = turn
         """
 
         leftConnections = []
@@ -42,7 +42,7 @@ class LaneConfiguration(ABC):
         if nonMergeIds > 0:
             curId = 1
             for _ in range(nonMergeIds): # commons
-                leftConnections.append((curId, curId, False))
+                leftConnections.append((curId, curId, 0))
                 curId += 1
             
             if len(lanes1) > len(lanes2):  # merges on the first
@@ -50,13 +50,13 @@ class LaneConfiguration(ABC):
                 edgeId2 = lanes2[-1].lane_id
                 diff = len(lanes1) - len(lanes2)
                 for _ in range(diff):
-                    leftConnections.append((curId, edgeId2, True))
+                    leftConnections.append((curId, edgeId2, 1))
                     curId += 1
             elif len(lanes1) < len(lanes2): # merges on the second
                 edgeId1 = lanes1[-1].lane_id
                 diff = len(lanes2) - len(lanes1)
                 for _ in range(diff):
-                    leftConnections.append((edgeId1, curId, True))
+                    leftConnections.append((edgeId1, curId, 2))
                     curId += 1
 
         
@@ -69,21 +69,21 @@ class LaneConfiguration(ABC):
         if nonMergeIds > 0:
             curId = -1
             for _ in range(nonMergeIds):
-                rightConnections.append((curId, curId, False))
+                rightConnections.append((curId, curId, 0))
                 curId -= 1
             
             if len(lanes1) > len(lanes2):
                 edgeId2 = lanes2[-1].lane_id
                 diff = len(lanes1) - len(lanes2)
                 for _ in range(diff):
-                    rightConnections.append((curId, edgeId2, True))
+                    rightConnections.append((curId, edgeId2, 1))
                     curId -= 1
 
             elif len(lanes1) < len(lanes2): # merges on the second
                 edgeId1 = lanes1[-1].lane_id
                 diff = len(lanes2) - len(lanes1)
                 for _ in range(diff):
-                    rightConnections.append((edgeId1, curId, True))
+                    rightConnections.append((edgeId1, curId, 2))
                     curId -= 1
 
 

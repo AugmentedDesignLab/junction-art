@@ -11,6 +11,7 @@ from .ExtendedOpenDrive import ExtendedOpenDrive
 from junctions.LaneLinker import LaneLinker
 from junctions.RoadLinker import RoadLinker
 from junctions.Geometry import Geometry
+from extensions.ExtendedRoad import ExtendedRoad
 
     
 def createOdr(name, roads, junctions):

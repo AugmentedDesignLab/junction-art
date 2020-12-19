@@ -7,6 +7,8 @@ import extensions
 
 from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.Geometry import Geometry
+from extensions.ExtendedPredecessor import ExtendedPredecessor
+from extensions.ExtendedSuccessor import ExtendedSuccessor
 
 class ExtendedRoad(pyodrx.Road):
 
@@ -40,7 +42,8 @@ class ExtendedRoad(pyodrx.Road):
             raise Exception("Cannot set predecessorOffset for non-connection road to non-zero")
 
         self.predecessorOffset = predecessorOffset
-        self.extendedPredecessors = []
+        self.extendedPredecessors = {}
+        self.extendedSuccessors = {}
 
         pass
 
@@ -123,10 +126,33 @@ class ExtendedRoad(pyodrx.Road):
 
 
     def addExtendedPredecessor(self, road, angleWithRoad, cp, xodr=False):
-        self.extendedPredecessors.append(road, angleWithRoad, cp)
+        self.extendedPredecessors[road.id] = ExtendedPredecessor(road, angleWithRoad, cp)
         if xodr:
             self.updatePredecessor(road.road_type, road.id, contact_point=cp)
         pass
+
+
+    def getExtendedPredecessorByRoadId(self, roadId):
+
+        if roadId in self.extendedPredecessors:
+            return self.extendedPredecessors[roadId]
+        
+        return None
+
+
+    def addExtendedSuccessor(self, road, angleWithRoad, cp, xodr=False):
+        self.extendedSuccessors[road.id] = ExtendedSuccessor(road, angleWithRoad, cp)
+        if xodr:
+            self.updateSuccessor(road.road_type, road.id, contact_point=cp)
+        pass
+
+
+    def getExtendedSuccessorByRoadId(self, roadId):
+
+        if roadId in self.extendedSuccessors:
+            return self.extendedSuccessors[roadId]
+        
+        return None
 
     
     def updatePredecessorOffset(self, predecessorOffset):
@@ -360,16 +386,36 @@ class ExtendedRoad(pyodrx.Road):
 
     # Lane Section related functions
 
+    def clearLanes(self):
+        self.lanes.clearLanes()
+
     def getLaneSections(self):
         return self.lanes.lanesections
 
         
-    def getEndLaneSection(self):
+    def getLastLaneSection(self):
         return self.lanes.lanesections[-1]
 
 
     def getFirstLaneSection(self):
         return self.lanes.lanesections[0]
+
+    
+    def getLaneSectionByCP(self, cp):
+
+        if cp == pyodrx.ContactPoint.start:
+            return self.getFirstLaneSection()
+        return self.getLastLaneSection()
+
+    def getLaneOffsetByCP(self, cp):
+        if cp == pyodrx.ContactPoint.start:
+            return self.getFirstLaneOffset()
+        return self.getLastLaneOffset()
+
+    
+    def getLaneSectionAndLaneOffsetByCP(self, cp):
+        return self.getLaneSectionByCP(cp), self.getLaneOffsetByCP(cp)
+    
     
     def hasLaneOffsets(self):
         if hasattr(self.lanes, 'laneOffsets'):
