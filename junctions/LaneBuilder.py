@@ -669,12 +669,20 @@ class LaneBuilder:
 
             connectionRoad.clearLanes()
 
-            leftConnections, rightConnections = LaneConfiguration.getLaneLinks(laneSection1, laneSection2, strategy)
+            leftConnections, rightConnections = LaneConfiguration.getLaneLinks(laneSection1, laneSection2, (cp1 == cp2), strategy)
 
             # now we need to workout the number of straight lanes, merge lanes, and turn lanes on each side.
 
-            leftNumStandard, leftNumMerge, leftNumTurn = LaneConfiguration.getNumberDifferentLanes(leftConnections)
-            rightNumStandard, rightNumMerge, rightNumTurn = LaneConfiguration.getNumberDifferentLanes(rightConnections)
+
+            # switch lane sides if cp1 and cp1Con are the same, because the lane orientation is reversed
+
+            if cp1 == cp1Con:
+                leftNumStandard, leftNumMerge, leftNumTurn = LaneConfiguration.getNumberDifferentLanes(rightConnections)
+                rightNumStandard, rightNumMerge, rightNumTurn = LaneConfiguration.getNumberDifferentLanes(leftConnections)
+            else:
+                leftNumStandard, leftNumMerge, leftNumTurn = LaneConfiguration.getNumberDifferentLanes(leftConnections)
+                rightNumStandard, rightNumMerge, rightNumTurn = LaneConfiguration.getNumberDifferentLanes(rightConnections)
+
 
             connectionRoad.lanes = self.getLanes(n_lanes_left=leftNumStandard, n_lanes_right=rightNumStandard,
                                  roadLength=connectionRoad.length(),

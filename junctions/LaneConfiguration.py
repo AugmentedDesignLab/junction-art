@@ -30,16 +30,16 @@ class LaneConfiguration(ABC):
 
 
     @staticmethod
-    def getLaneLinks(laneSection1: ExtendedLaneSection, laneSection2: ExtendedLaneSection, strategy = LaneConfigurationStrategies.MERGE_EDGE):
+    def getLaneLinks(laneSection1: ExtendedLaneSection, laneSection2: ExtendedLaneSection, isCpSame: bool, strategy = LaneConfigurationStrategies.MERGE_EDGE):
 
         if strategy == LaneConfigurationStrategies.MERGE_EDGE:
-            return LaneConfiguration.getLaneLinksByMergingEdge(laneSection1, laneSection2)
+            return LaneConfiguration.getLaneLinksByMergingEdge(laneSection1, laneSection2, isCpSame)
         
         raise Exception(f"{strategy} not implemented")
 
 
     @staticmethod
-    def getLaneLinksByMergingEdge(laneSection1: ExtendedLaneSection, laneSection2: ExtendedLaneSection):
+    def getLaneLinksByMergingEdge(laneSection1: ExtendedLaneSection, laneSection2: ExtendedLaneSection, isCpSame: bool):
         """[summary]
 
         Args:
@@ -48,6 +48,9 @@ class LaneConfiguration(ABC):
         Returns:
             a list of left lane links and a list of right lane links. A lane link is a tuple (laneId on road1, laneId on road2, 0/1/2) 0 means = straight, 1 = merge, 2 = turn
         """
+        sign = 1
+        if isCpSame:
+            sign = -1 # left lanes with right
 
         leftConnections = []
         rightConnections = []
@@ -55,12 +58,14 @@ class LaneConfiguration(ABC):
         # left lanes
         lanes1 = laneSection1.leftlanes
         lanes2 = laneSection2.leftlanes
+        if isCpSame:
+            lanes2 = laneSection2.rightlanes
 
         nonMergeIds = min(len(lanes1), len(lanes2))
         if nonMergeIds > 0:
             curId = 1
             for _ in range(nonMergeIds): # commons
-                leftConnections.append((curId, curId, 0))
+                leftConnections.append((curId, curId * sign, 0))
                 curId += 1
             
             if len(lanes1) > len(lanes2):  # merges on the first
@@ -74,7 +79,7 @@ class LaneConfiguration(ABC):
                 edgeId1 = lanes1[-1].lane_id
                 diff = len(lanes2) - len(lanes1)
                 for _ in range(diff):
-                    leftConnections.append((edgeId1, curId, 2))
+                    leftConnections.append((edgeId1, curId * sign, 2))
                     curId += 1
 
         
@@ -83,11 +88,14 @@ class LaneConfiguration(ABC):
         lanes1 = laneSection1.rightlanes
         lanes2 = laneSection2.rightlanes
 
+        if isCpSame:
+            lanes2 = laneSection2.leftlanes
+
         nonMergeIds = min(len(lanes1), len(lanes2))
         if nonMergeIds > 0:
             curId = -1
             for _ in range(nonMergeIds):
-                rightConnections.append((curId, curId, 0))
+                rightConnections.append((curId, curId * sign, 0))
                 curId -= 1
             
             if len(lanes1) > len(lanes2):
@@ -101,7 +109,7 @@ class LaneConfiguration(ABC):
                 edgeId1 = lanes1[-1].lane_id
                 diff = len(lanes2) - len(lanes1)
                 for _ in range(diff):
-                    rightConnections.append((edgeId1, curId, 2))
+                    rightConnections.append((edgeId1, curId * sign, 2))
                     curId -= 1
 
 

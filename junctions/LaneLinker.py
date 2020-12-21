@@ -3,12 +3,13 @@ import junctions
 import extensions
 from pyodrx.exceptions import NotSameAmountOfLanesError
 import logging
-
+from extensions.ExtendedRoad import ExtendedRoad
+from junctions.RoadLinker import RoadLinker
 
 class LaneLinker:
 
 
-    def createLaneLinks(self, road1,road2):
+    def createLaneLinks(self, road1: ExtendedRoad, road2: ExtendedRoad, ignoreMismatch=False):
         """ create_lane_links takes to roads and if they are connected, match their lanes 
             and creates lane links. 
             NOTE: now only works for roads/connecting roads with the same amount of lanes
@@ -48,7 +49,7 @@ class LaneLinker:
         return road1.isPredecessorOf(road2) and road2.isSuccessorOf(road1)
 
         
-    def _create_links_connecting_road(self, connecting, road):
+    def _create_links_connecting_road(self, connecting: ExtendedRoad, road: ExtendedRoad, ignoreMismatch=True):
         """ _create_links_connecting_road will create lane links between a connecting road and a normal road
 
             Parameters
@@ -61,23 +62,51 @@ class LaneLinker:
         linktype, sign, connecting_lanesec =  self._get_related_lanesection(connecting,road)
         _, _, road_lanesection_id =  self._get_related_lanesection(road,connecting) 
 
+        # invert lanes if contact points are the same
+        try:
+            roadCp, conCp = RoadLinker.getContactPoints(road, connecting)
+        except:
+            # lane linking not possible because they are not neighbours
+            return
+        
+                
+        if roadCp == conCp:
+            logging.warn(f"switching lane sides for {connecting.id} and {road.id}")
+
         if connecting_lanesec != None:
             laneSectionForConnection = connecting.lanes.lanesections[connecting_lanesec]
             laneSectionForRoad = road.lanes.lanesections[road_lanesection_id]
             if laneSectionForConnection.leftlanes:
                 # do left lanes
-                if len(laneSectionForConnection.leftlanes) == len(laneSectionForRoad.leftlanes):
-                    for i in range(len(laneSectionForRoad.leftlanes)):
-                        linkid = laneSectionForRoad.leftlanes[i].lane_id*sign
-                        laneSectionForConnection.leftlanes[i].add_link(linktype,linkid)
+                connectionLanes = laneSectionForConnection.leftlanes
+                roadLanes = laneSectionForRoad.leftlanes
+                
+                if roadCp == conCp:
+                    roadLanes = laneSectionForRoad.rightlanes
+
+
+                if len(connectionLanes) == len(roadLanes):
+                    for i in range(len(roadLanes)):
+                        linkid = roadLanes[i].lane_id
+                        connectionLanes[i].add_link(linktype,linkid)
+                elif ignoreMismatch:
+                    raise NotImplementedError()
                 else:
                     raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of left lanes.')
             if laneSectionForConnection.rightlanes:
                 # do right lanes
-                if len(laneSectionForConnection.rightlanes) == len(laneSectionForRoad.rightlanes):
-                    for i in range(len(laneSectionForRoad.rightlanes)):
-                        linkid = laneSectionForRoad.rightlanes[i].lane_id*sign
-                        laneSectionForConnection.rightlanes[i].add_link(linktype,linkid)
+                connectionLanes = laneSectionForConnection.rightlanes
+                roadLanes = laneSectionForRoad.rightlanes
+
+                if roadCp == conCp:
+                    roadLanes = laneSectionForRoad.leftlanes
+
+                if len(connectionLanes) == len(roadLanes):
+                    for i in range(len(roadLanes)):
+                        linkid = roadLanes[i].lane_id
+                        connectionLanes[i].add_link(linktype,linkid)
+                elif ignoreMismatch:
+                    raise NotImplementedError()
                 else:
                     raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of right lanes.')
 

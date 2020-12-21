@@ -13,7 +13,7 @@ class Configuration:
     def load(self):
         with open('./config.yaml', 'r') as stream:
             self.dic = DotDict(yaml.safe_load(stream))
-            print(self.dic)
+            # print(self.dic)
             
     
     def get(self, key):
