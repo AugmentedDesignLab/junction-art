@@ -91,5 +91,9 @@ class test_LaneConfiguration(unittest.TestCase):
         assert rs[0][0] == -1 and rs[0][1] == -1 and rs[0][2] == False
 
         
+        straightLanesLeft = set([i for i, _, conType in ls if conType == 0])
+        print(straightLanesLeft)
+
+        
 
 

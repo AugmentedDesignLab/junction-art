@@ -12,6 +12,24 @@ class LaneConfigurationStrategies(Enum):
 class LaneConfiguration(ABC):
 
     @staticmethod
+    def getNumberDifferentLanes(connections):
+        numStandard = 0
+        numMerge = 0
+        numTurn = 0
+
+        for i, j, conType in connections:
+            if conType == 0:
+                numStandard += 1
+            elif conType == 1:
+                numMerge += 1
+            else:
+                numTurn += 1
+
+        return numStandard, numMerge, numTurn
+
+
+
+    @staticmethod
     def getLaneLinks(laneSection1: ExtendedLaneSection, laneSection2: ExtendedLaneSection, strategy = LaneConfigurationStrategies.MERGE_EDGE):
 
         if strategy == LaneConfigurationStrategies.MERGE_EDGE:

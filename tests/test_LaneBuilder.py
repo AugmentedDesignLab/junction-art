@@ -12,6 +12,8 @@ from junctions.LaneBuilder import LaneBuilder
 
 from junctions.LaneLinker import LaneLinker
 
+from junctions.StraightRoadBuilder import StraightRoadBuilder
+
 
 class test_LaneBuilder(unittest.TestCase):
 
@@ -22,6 +24,7 @@ class test_LaneBuilder(unittest.TestCase):
         self.roadBuilder = RoadBuilder()
         self.laneBuilder = LaneBuilder()
         self.laneLinker = LaneLinker()
+        self.straightRoadBuilder = StraightRoadBuilder()
 
 
     
@@ -56,6 +59,34 @@ class test_LaneBuilder(unittest.TestCase):
         
         xmlPath = f"output/test-RightLane.xodr"
         odr.write_xml(xmlPath)
+
+
+    def test_DifferentLaneConfigurations(self):
+        roads = []
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, 10, n_lanes_left=1, n_lanes_right=1))
+        connectionRoad = self.straightRoadBuilder.createWithDifferentLanes(1, 10, n_lanes_left=2, n_lanes_right=2)
+        roads.append(connectionRoad)
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, 10, n_lanes_left=1, n_lanes_right=2))
+
+        roads[0].addExtendedSuccessor(roads[1], 0, pyodrx.ContactPoint.start)
+
+        roads[1].addExtendedPredecessor(roads[0], 0, pyodrx.ContactPoint.end)
+        roads[1].addExtendedSuccessor(roads[2], 0, pyodrx.ContactPoint.start)
+
+        roads[2].addExtendedPredecessor(roads[1], 0, pyodrx.ContactPoint.end)
+
+        self.laneBuilder.createLanesForConnectionRoad(connectionRoad, roads[0], roads[2])
+
+        
+        odrName = "test_DifferentLaneConfigurations"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_DifferentLaneConfigurations.xodr"
+        odr.write_xml(xmlPath)
+
+
 
     
         

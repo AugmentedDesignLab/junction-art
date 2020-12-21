@@ -61,7 +61,8 @@ class LaneBuilder:
 
     def getStandardLanesWithDifferentLeftAndRight(self,
                             n_lanes_left, n_lanes_right,
-                            lane_offset
+                            lane_offset,
+                            singleSide=False
                             ):
         """[summary]
 
@@ -75,7 +76,7 @@ class LaneBuilder:
         """
                             
 
-        firstSec = self.getStandardLaneSection(0, n_lanes_left, n_lanes_right, lane_offset)
+        firstSec = self.getStandardLaneSection(0, n_lanes_left, n_lanes_right, lane_offset, singleSide=singleSide)
         laneSections = extensions.ExtendedLanes()
         laneSections.add_lanesection(firstSec)
         return laneSections
@@ -222,7 +223,7 @@ class LaneBuilder:
 
         turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
         
-        extendedLanes = self.get3SectionLanes(roadLength, turnOffSet, finalOffset, n_lanes_left=n_lanes, n_lanes_right=n_lanes, lane_offset=lane_offset, laneSides=laneSides)
+        extendedLanes = self.get3SectionLanes(roadLength, turnOffSet, finalOffset, n_lanes_left=n_lanes, n_lanes_right=n_lanes, lane_offset=lane_offset)
 
         firstSection = extendedLanes.lanesections[0]
         midSection = extendedLanes.lanesections[1]
@@ -246,7 +247,7 @@ class LaneBuilder:
     
     
     
-    def getLanes(self, n_lanes_left, n_lanes_right, lane_offset = None, laneSides=LaneSides.BOTH,
+    def getLanes(self, n_lanes_left, n_lanes_right, lane_offset = None, singleSide=False,
                 roadLength=None,
                 numLeftTurnsOnLeft=0,
                 numRightTurnsOnRight=0,
@@ -256,13 +257,18 @@ class LaneBuilder:
                 numberOfRightTurnLanesOnLeft=0,
                 mergeLaneOnTheOppositeSideForInternalTurn=True):
         
-        """Always returns 3 lane sections
+        """Always returns 3 lane sections if there is a turn or merge.
         """
-
         
 
         if lane_offset is None:
             lane_offset = self.defaultLaneWidth
+
+        if (numLeftTurnsOnLeft == 0 and numRightTurnsOnRight == 0
+            and numLeftMergeOnLeft == 0 and numRightMergeOnRight == 0
+            and numberOfLeftTurnLanesOnRight == 0  and numberOfRightTurnLanesOnLeft == 0):
+            return self.getStandardLanesWithDifferentLeftAndRight(n_lanes_left, n_lanes_right, lane_offset, singleSide)     
+
         
         if numberOfLeftTurnLanesOnRight > 0 and numberOfRightTurnLanesOnLeft > 0:
             raise Exception(f"Cannot add internal turn lanes on both sides.")
@@ -277,7 +283,7 @@ class LaneBuilder:
 
         turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
         
-        extendedLanes = self.get3SectionLanes(roadLength, turnOffSet, finalOffset, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right, lane_offset=lane_offset, laneSides=laneSides)
+        extendedLanes = self.get3SectionLanes(roadLength, turnOffSet, finalOffset, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right, lane_offset=lane_offset)
 
         firstSection = extendedLanes.lanesections[0]
         midSection = extendedLanes.lanesections[1]
@@ -286,7 +292,7 @@ class LaneBuilder:
         
         # TODO refactor to input number of turns
         self.createLeftTurnLanesOnLeftEdge(numLeftTurnsOnLeft, lane_offset, curveLaneLength, midSection, finalSection)
-        self.createRightTurnLanesOnRightEdge(numRightMergeOnRight, lane_offset, curveLaneLength, midSection, firstSection)
+        self.createRightTurnLanesOnRightEdge(numRightTurnsOnRight, lane_offset, curveLaneLength, midSection, finalSection)
 
         self.createLeftMergesOnLeftEdge(numLeftMergeOnLeft, lane_offset, curveLaneLength, midSection, firstSection)
         self.createRightMergesOnRightEdge(numRightMergeOnRight, lane_offset, curveLaneLength, midSection, firstSection)
@@ -483,7 +489,7 @@ class LaneBuilder:
         return lsec
 
     
-    def get3SectionLanes(self, roadLength, turnOffSet, finalOffset, n_lanes_left=1, n_lanes_right=1, lane_offset=3, laneSides=LaneSides.BOTH):
+    def get3SectionLanes(self, roadLength, turnOffSet, finalOffset, n_lanes_left=1, n_lanes_right=1, lane_offset=3):
         firstSec = self.getStandardLaneSection(0, n_lanes_left, n_lanes_right, lane_offset=lane_offset)
         midSection = self.getStandardLaneSection(turnOffSet, n_lanes_left, n_lanes_right, lane_offset=lane_offset)
         finalSection = self.getStandardLaneSection(finalOffset, n_lanes_left, n_lanes_right, lane_offset=lane_offset)
@@ -665,15 +671,26 @@ class LaneBuilder:
 
             leftConnections, rightConnections = LaneConfiguration.getLaneLinks(laneSection1, laneSection2, strategy)
 
-            for con in leftConnections:
-                idFrom = con[0]
-                idTo = con[1]
-                if con[2] == 0: # straight
-                    self.addLeftLane(connectionRoad, self.defaultLaneWidth)
-                elif con[2] == 1: # merge
-                    pass # TODO we need a function.
+            # now we need to workout the number of straight lanes, merge lanes, and turn lanes on each side.
 
-            ##### test get lanes.
+            leftNumStandard, leftNumMerge, leftNumTurn = LaneConfiguration.getNumberDifferentLanes(leftConnections)
+            rightNumStandard, rightNumMerge, rightNumTurn = LaneConfiguration.getNumberDifferentLanes(rightConnections)
+
+            connectionRoad.lanes = self.getLanes(n_lanes_left=leftNumStandard, n_lanes_right=rightNumStandard,
+                                 roadLength=connectionRoad.length(),
+                                 numLeftTurnsOnLeft=leftNumTurn, numLeftMergeOnLeft=leftNumMerge,
+                                 numRightTurnsOnRight= rightNumTurn, numRightMergeOnRight=rightNumMerge)
+
+
+            # for con in leftConnections:
+            #     idFrom = con[0]
+            #     idTo = con[1]
+            #     if con[2] == 0: # straight
+            #         self.addLeftLane(connectionRoad, self.defaultLaneWidth)
+            #     elif con[2] == 1: # merge
+            #         pass # TODO we need a function.
+
+            # ##### test get lanes.
             
 
 

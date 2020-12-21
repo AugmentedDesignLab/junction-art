@@ -125,10 +125,16 @@ class ExtendedRoad(pyodrx.Road):
         pass
 
 
+    def getElementType(self):
+        if self.isConnection:
+            return pyodrx.ElementType.junction
+        return pyodrx.ElementType.road
+
+
     def addExtendedPredecessor(self, road, angleWithRoad, cp, xodr=False):
         self.extendedPredecessors[road.id] = ExtendedPredecessor(road, angleWithRoad, cp)
-        if xodr:
-            self.updatePredecessor(road.road_type, road.id, contact_point=cp)
+        if xodr or self.predecessor is None:
+            self.updatePredecessor(road.getElementType(), road.id, contact_point=cp)
         pass
 
 
@@ -142,8 +148,8 @@ class ExtendedRoad(pyodrx.Road):
 
     def addExtendedSuccessor(self, road, angleWithRoad, cp, xodr=False):
         self.extendedSuccessors[road.id] = ExtendedSuccessor(road, angleWithRoad, cp)
-        if xodr:
-            self.updateSuccessor(road.road_type, road.id, contact_point=cp)
+        if xodr or self.successor is None:
+            self.updateSuccessor(road.getElementType(), road.id, contact_point=cp)
         pass
 
 
