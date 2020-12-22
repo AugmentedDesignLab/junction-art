@@ -14,7 +14,8 @@ class JunctionBuilder:
     
 
     def __init__(self, roadBuilder = None,
-                straightRoadLen = 10,):
+                straightRoadLen = 10,
+                minAngle = np.pi/6, maxAngle = 1.8 * np.pi):
 
 
         self.roadBuilder = roadBuilder
@@ -25,6 +26,10 @@ class JunctionBuilder:
         self.straightRoadBuilder = StraightRoadBuilder()
 
         self.straightRoadLen = straightRoadLen
+
+        self.minAngle = minAngle
+        self.maxAngle = maxAngle
+
         pass
 
     def createJunctionForASeriesOfRoads(self, roads):
@@ -69,13 +74,17 @@ class JunctionBuilder:
                                                 cp2 = pyodrx.ContactPoint.start
                                                 ):
 
-        lastConnectionId = nextRoadId + 100
+        lastConnectionId = nextRoadId
         lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, roads[0], roads[-1], cp1, cp2)
-        lastConnection.add_predecessor(pyodrx.ElementType.road, roads[-1].id, cp2)
-        lastConnection.add_successor(pyodrx.ElementType.road, roads[0].id, cp1)
 
-        roads[-1].add_successor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.start) 
-        roads[0].add_predecessor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.end) 
+        RoadLinker.createExtendedPredSuc(predRoad=roads[-1], predCp=cp2, sucRoad=lastConnection, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=lastConnection, predCp=pyodrx.ContactPoint.end, sucRoad=roads[0], sucCP=cp1)
+
+        # lastConnection.add_predecessor(pyodrx.ElementType.road, roads[-1].id, cp2)
+        # lastConnection.add_successor(pyodrx.ElementType.road, roads[0].id, cp1)
+
+        # roads[-1].add_successor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.start) 
+        # roads[0].add_predecessor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.end) 
 
 
         connectionL = pyodrx.Connection(roads[-1].id, lastConnectionId, pyodrx.ContactPoint.start)

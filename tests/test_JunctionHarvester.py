@@ -1,31 +1,22 @@
 import unittest
-from junctions.JunctionHarvester import JunctionHarvester
-import extensions, os
+
 import numpy as np
+import os, dill
+import pyodrx 
+
+from junctions.JunctionHarvester import JunctionHarvester
 from library.Configuration import Configuration
 
-class test_JunctionHarvester(unittest.TestCase):
 
+class test_JunctionHarvester(unittest.TestCase):
+    
     def setUp(self):
         
         self.configuration = Configuration()
-        outputDir= os.path.join(os.getcwd(), 'output')
-        lastId = 0
-        self.harvester = JunctionHarvester(outputDir=outputDir, 
-                                        outputPrefix='test_', 
-                                        lastId=lastId,
-                                        minAngle = np.pi / 30, 
-                                        maxAngle = np.pi)
-        pass
+        self.esminiPath = self.configuration.get("esminipath")
+        self.harvester = JunctionHarvester(outputDir="./output", outputPrefix="harvest-", lastId=0, esminiPath=self.esminiPath)
+    
 
+    def test_harvestByPainting2L(self):
 
-    def test_drawLikeAPainter2L(self):
-        odr = self.harvester.drawLikeAPainter2L(4)
-        extensions.printRoadPositions(odr)
-        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
-
-
-    def test_drawLikeAPainter2LWihtoutInternalConnections(self):
-        odr = self.harvester.drawLikeAPainter2L(5, internalConnections=False)
-        extensions.printRoadPositions(odr)
-        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        self.harvester.harvestByPainting2L(maxNumberOfRoadsPerJunction=4, triesPerRoadCount=3, show=True)
