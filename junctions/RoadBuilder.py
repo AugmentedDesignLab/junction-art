@@ -14,6 +14,7 @@ from junctions.RoadSeries import RoadSeries
 from junctions.Direction import CircularDirection
 from junctions.Geometry import Geometry
 from junctions.LaneBuilder import LaneBuilder
+from junctions.RoadLinker import RoadLinker
 
 
 class RoadBuilder:
@@ -450,12 +451,9 @@ class RoadBuilder:
         roadMain =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, mainRoadId, pvMain, junction, laneSides=laneSides)
         roadEnd =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, endRoadId, pvEnd, junction, laneSides=laneSides)
 
-        roadStart.updateSuccessor(pyodrx.ElementType.junction, mainRoadId, pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=roadStart, predCp=pyodrx.ContactPoint.end, sucRoad=roadMain, sucCP= pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=roadMain, predCp=pyodrx.ContactPoint.end, sucRoad=roadEnd, sucCP= pyodrx.ContactPoint.start)
 
-        roadMain.updatePredecessor(pyodrx.ElementType.junction, startRoadId, pyodrx.ContactPoint.end)
-        roadMain.updateSuccessor(pyodrx.ElementType.junction, endRoadId, pyodrx.ContactPoint.start)
-
-        roadEnd.updatePredecessor(pyodrx.ElementType.junction, mainRoadId, pyodrx.ContactPoint.end)
 
         return roadStart, roadMain, roadEnd
 
@@ -485,4 +483,3 @@ class RoadBuilder:
         return spiral1, curve1, mainCurve, curve3, spiral2
 
     
-     

@@ -5,6 +5,9 @@ import extensions
 from junctions.LaneSides import LaneSides
 from junctions.Direction import CircularDirection
 from junctions.JunctionAreaTypes import JunctionAreaTypes
+from junctions.StraightRoadBuilder import StraightRoadBuilder
+from extensions.ExtendedRoad import ExtendedRoad
+from junctions.RoadLinker import RoadLinker
 
 
 class JunctionBuilder:
@@ -18,6 +21,8 @@ class JunctionBuilder:
 
         if self.roadBuilder is None:
             self.roadBuilder = RoadBuilder()
+
+        self.straightRoadBuilder = StraightRoadBuilder()
 
         self.straightRoadLen = straightRoadLen
         pass
@@ -109,16 +114,14 @@ class JunctionBuilder:
                                     n_lanes=n_lanes,
                                     lane_offset=lane_offset,
                                     laneSides=laneSides)
-        if road1.isConnection:
-            lastConnection.updatePredecessor(pyodrx.ElementType.junction, road1.id, cp1)
-        else:
-            lastConnection.updatePredecessor(pyodrx.ElementType.road, road1.id, cp1)
+        
+        road1.addExtendedSuccessor(lastConnection, 0, pyodrx.ContactPoint.start)
 
+        lastConnection.addExtendedPredecessor(road1, 0, cp1)
             
-        if road2.isConnection:
-            lastConnection.updateSuccessor(pyodrx.ElementType.junction, road2.id, cp2)
-        else:
-            lastConnection.updateSuccessor(pyodrx.ElementType.road, road2.id, cp2)
+        lastConnection.addExtendedSuccessor(road2, 0, cp2)
+
+        road2.addExtendedPredecessor(lastConnection, 0, pyodrx.ContactPoint.end)
 
         if junction is not None:
             if laneSides == LaneSides.LEFT or laneSides == LaneSides.BOTH:
@@ -237,7 +240,7 @@ class JunctionBuilder:
         anglePerRoad = (np.pi * 2) / numRoads
 
         roads = []
-        roads.append(pyodrx.create_straight_road(0, 10))
+        roads.append(self.straightRoadBuilder.create(0, length=self.straightRoadLen))
         nextRoadId = 1
 
         roadsCreated = 1
@@ -248,7 +251,7 @@ class JunctionBuilder:
             previousRoadId = nextRoadId - 1
             newConnectionId = nextRoadId
 
-            # 2. create a new connection road
+            # 1. create a new connection road series and increase nextRoadId
             newConnectionSeries = self.roadBuilder.createRoundAboutConnection(newConnectionId, anglePerRoad, radius)
             connectionSeres.append(newConnectionSeries)
 
@@ -256,31 +259,30 @@ class JunctionBuilder:
             newRoadId = nextRoadId
             nextRoadId += 1
 
-            # 1. create a road
-            newRoad = pyodrx.create_straight_road(newRoadId, self.straightRoadLen)
-
+            # 2. create a road
+            newRoad = self.straightRoadBuilder.create(newRoadId, length=self.straightRoadLen)
             
-            # 5 add new roads and increase road id
+            # 3 add new roads 
             roads += newConnectionSeries.getAll()
             roads.append(newRoad)
 
-            roads[previousRoadId].add_successor(pyodrx.ElementType.junction, newConnectionSeries.getFirst().id, pyodrx.ContactPoint.start)
+            roads[previousRoadId].addExtendedSuccessor(newConnectionSeries.getFirst(), 0, pyodrx.ContactPoint.start)
 
-            if newConnectionSeries.getFirst().id == 1 and cp1 == pyodrx.ContactPoint.end:
-                newConnectionSeries.getFirst().add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.end)
+            if newConnectionSeries.getFirst().id == 1:
+                newConnectionSeries.getFirst().addExtendedPredecessor(roads[previousRoadId], 0, cp1)
                 # TODO this is a hack. It will not eventually work because outgoing roads' ends will come to join other junctions.
-                # newConnectionSeries.getFirst().add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
             else:
-                newConnectionSeries.getFirst().add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
+                newConnectionSeries.getFirst().addExtendedPredecessor(roads[previousRoadId], 0, pyodrx.ContactPoint.start)
             
-            newConnectionSeries.getLast().add_successor(pyodrx.ElementType.road, newRoad.id, pyodrx.ContactPoint.start) 
-            newRoad.add_predecessor(pyodrx.ElementType.junction, newConnectionSeries.getLast().id, pyodrx.ContactPoint.end)
+            RoadLinker.createExtendedPredSuc(predRoad=newConnectionSeries.getLast(), predCp=pyodrx.ContactPoint.end, sucRoad=newRoad, sucCP= pyodrx.ContactPoint.start)
 
 
             # 6 get next action
             roadsCreated += 1
 
             pass
+
+        lastRoad = roads[-1]
         # 3. create connections and junction
 
         junction = self.createJunctionForASeriesOfRoads(roads)
@@ -291,18 +293,14 @@ class JunctionBuilder:
 
         # The last connection and resetting odr
 
-        newConnectionSeries = self.roadBuilder.createRoundAboutConnection(nextRoadId, anglePerRoad, radius)
-        connectionSeres.append(newConnectionSeries)
+        finalConnectionSeries = self.roadBuilder.createRoundAboutConnection(nextRoadId, anglePerRoad, radius)
+        connectionSeres.append(finalConnectionSeries)
 
-        roads += newConnectionSeries.getAll()
-        newConnectionSeries.getFirst().add_predecessor(pyodrx.ElementType.road, nextRoadId-1, pyodrx.ContactPoint.start)
-
-        if cp1 == pyodrx.ContactPoint.end:
-            newConnectionSeries.getLast().add_successor(pyodrx.ElementType.road, 0, pyodrx.ContactPoint.end)
-            # TODO this is a hack. It will not eventually work because outgoing roads' ends will come to join other junctions.
-            # newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
-        else:
-            newConnectionSeries.getLast().add_successor(pyodrx.ElementType.road, 0, pyodrx.ContactPoint.start)
+        roads += finalConnectionSeries.getAll()
+        
+        RoadLinker.createExtendedPredSuc(predRoad=lastRoad, predCp=pyodrx.ContactPoint.start, sucRoad=finalConnectionSeries.getFirst(), sucCP= pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=finalConnectionSeries.getLast(), predCp=pyodrx.ContactPoint.end, sucRoad=roads[0], sucCP=cp1)
+        
             
         odr.updateRoads(roads)
         odr.resetAndReadjust(byPredecessor=True)

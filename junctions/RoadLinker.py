@@ -7,7 +7,13 @@ import numpy as np
 class RoadLinker:
 
     @staticmethod
-    
+    def createExtendedPredSuc(predRoad, predCp, sucRoad, sucCP):
+        predRoad.addExtendedSuccessor(sucRoad, 0, sucCP)
+        sucRoad.addExtendedPredecessor(predRoad, 0, predCp)
+        pass
+     
+
+    @staticmethod
     def getContactPoints(road1: ExtendedRoad, road2: ExtendedRoad):
 
         # TODO we are assuming start points
