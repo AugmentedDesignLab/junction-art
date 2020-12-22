@@ -178,7 +178,7 @@ class LaneLinker:
         return sign, road_lanesection_id
 
     
-    def _create_links_roads(self, pre_road, suc_road, ignoreMismatch=True):
+    def _create_links_roads(self, pre_road: ExtendedRoad, suc_road: ExtendedRoad, ignoreMismatch=True):
         """ _create_links_roads takes two roads and connect the lanes with links, if they have the same amount. 
 
             Parameters
@@ -188,6 +188,18 @@ class LaneLinker:
                 suc_road (Road): the successor road
 
         """
+        # invert lanes if contact points are the same
+        try:
+            roadCp, conCp = RoadLinker.getContactPoints(pre_road, suc_road)
+        except:
+            # lane linking not possible because they are not neighbours
+            return
+        
+                
+        if roadCp == conCp:
+            logging.warn(f"switching lane sides for {pre_road.id} and {suc_road.id}")
+
+
         pre_linktype, pre_sign, pre_connecting_lanesec =  self._get_related_lanesection(pre_road,suc_road)
         suc_linktype, suc_sign, suc_connecting_lanesec =  self._get_related_lanesection(suc_road,pre_road)
         preLaneSection = pre_road.lanes.lanesections[pre_connecting_lanesec]
@@ -196,38 +208,42 @@ class LaneLinker:
         sucLaneSection = suc_road.lanes.lanesections[suc_connecting_lanesec] 
 
 
-        preLeftLanes = preLaneSection.leftlanes
-        sucLeftLanes = sucLaneSection.leftlanes
-        if len(preLeftLanes) == len(sucLeftLanes):
-            for i in range(len(preLeftLanes)):
-                linkid = preLeftLanes[i].lane_id*pre_sign
-                preLeftLanes[i].add_link(pre_linktype,linkid)
-                
-                sucLeftLanes[i].add_link(suc_linktype,linkid*pre_sign)
+        # left
+        preLanes = preLaneSection.leftlanes
+        sucLanes = sucLaneSection.leftlanes
+        if roadCp == conCp:
+            sucLanes = sucLaneSection.rightlanes
+
+        if len(preLanes) == len(sucLanes):
+            for i in range(len(preLanes)):
+                preLanes[i].add_link(pre_linktype, sucLanes[i].lane_id)
+                sucLanes[i].add_link(suc_linktype, preLanes[i].lane_id)
 
         elif ignoreMismatch:
             
             logging.warn(f"number of left lanes are not the same for {pre_road.id} and {suc_road.id}")
-            self.connectMinLanesOnOneSide(preLeftLanes, sucLeftLanes, pre_sign, pre_linktype, suc_linktype)
+            self.connectMinLanesOnOneSide(preLanes, sucLanes, pre_sign, pre_linktype, suc_linktype)
             
 
         else:
             raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
 
+        #right
+        preLanes = preLaneSection.rightlanes
+        sucLanes = sucLaneSection.rightlanes
+        if roadCp == conCp:
+            sucLanes = sucLaneSection.leftlanes
 
-        preRightLanes = preLaneSection.rightlanes
-        sucRightLanes = sucLaneSection.rightlanes
-        if len(preRightLanes) == len(sucRightLanes):
-            for i in range(len(preRightLanes)):
-                linkid = preRightLanes[i].lane_id
-                preRightLanes[i].add_link(pre_linktype,linkid)
-                sucRightLanes[i].add_link(suc_linktype,linkid)
+        if len(preLanes) == len(sucLanes):
+            for i in range(len(preLanes)):
+                preLanes[i].add_link(pre_linktype, sucLanes[i].lane_id)
+                sucLanes[i].add_link(suc_linktype, preLanes[i].lane_id)
 
         elif ignoreMismatch:
 
             logging.warn(f"number of left lanes are not the same for {pre_road.id} and {suc_road.id}")
             
-            self.connectMinLanesOnOneSide(preRightLanes, sucRightLanes, pre_sign, pre_linktype, suc_linktype)
+            self.connectMinLanesOnOneSide(preLanes, sucLanes, pre_sign, pre_linktype, suc_linktype)
             
         else:
             raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
@@ -240,8 +256,7 @@ class LaneLinker:
             lensToConnect = len(sucLanes)
 
         for i in range(lensToConnect):
-            linkid = preLanes[i].lane_id*pre_sign
-            preLanes[i].add_link(pre_linktype,linkid)
-            sucLanes[i].add_link(suc_linktype,linkid*pre_sign)
+            preLanes[i].add_link(pre_linktype, sucLanes[i].lane_id)
+            sucLanes[i].add_link(suc_linktype, preLanes[i].lane_id)
 
 

@@ -126,7 +126,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         """ Adjust starting position of all geoemtries of all roads
 
             roads must have predecessors and be in the order of predecessors in roads dictionary. 
-            It assumes the predecessor will always be adjusted beforehand.
+            It assumes the predecessor will always be adjusted beforehand, and current road is an extended succesor with cp == start
 
             Parameters
             ----------
@@ -144,6 +144,15 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 continue
 
             if currRoad.hasPredecessor():
+                predRoad = self.getPredecessorRoad(currRoad)
+                curAsSuc = predRoad.getExtendedSuccessorByRoadId(currRoad.id)
+
+                if curAsSuc is None:
+                    raise Exception(f"current road {currRoad.id} is not an extended successor of its predecessor. Cannot adjust start point")
+
+                if curAsSuc.cp != pyodrx.ContactPoint.start:
+                    raise Exception(f"current road {currRoad.id}'s cp is not start. Cannot adjust start point")
+
                 if self.getPredecessorRoad(currRoad).planViewAdjusted():
                     self.adjust_road_wrt_neightbour(roadIdStr, currRoad.predecessor.element_id, currRoad.predecessor.contact_point, 'predecessor')
                 else:
