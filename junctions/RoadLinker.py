@@ -101,31 +101,34 @@ class RoadLinker:
 
     def linkConsecutiveRoadsWithNoBranches(self, roads, linkLastToFirst=False, cp1 = pyodrx.ContactPoint.end, cpRest=pyodrx.ContactPoint.start):
         """establishes sucessor, predecessor relationships in a sequantial manner given a list of roads..
+            Successor cp is always start. Predecessor is end, except for the first road which can be specified by **cp1**.
+            All the connection roads are start to end
 
         Args:
             roads ([type]): [description]
             linkLastToFirst (bool, optional): [description]. Defaults to False.
-            cp1 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.end.
-            cpRest ([type], optional): [description]. Defaults to pyodrx.ContactPoint.start.
+            cp1 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.end. Contact point on the first road.
+            cpRest ([type], optional): [description]. Defaults to pyodrx.ContactPoint.start. Should be start for junctions. This is the contact point on previous road.
         """
 
         previousRoad = None
         previousFirst = True
         for road in roads:
             if previousRoad is not None:
-                previousRoad.updateSuccessor(road.elementType, road.id, pyodrx.ContactPoint.start)
+
+                previousRoad.addExtendedSuccessor(road, 0, pyodrx.ContactPoint.start)
 
                 if previousFirst:
-                    road.updatePredecessor(previousRoad.elementType, previousRoad.id, cp1)
+                    road.addExtendedPredecessor(previousRoad, 0, cp1)
                 elif previousRoad.isConnection:
-                    road.updatePredecessor(previousRoad.elementType, previousRoad.id, pyodrx.ContactPoint.end)
+                    road.addExtendedPredecessor(previousRoad, 0, pyodrx.ContactPoint.end)
                 else:
-                    road.updatePredecessor(previousRoad.elementType, previousRoad.id, cpRest)
+                    road.addExtendedPredecessor(previousRoad, 0, cpRest)
                     previousFirst = False
             previousRoad = road
         
         if linkLastToFirst:
-            roads[-1].updateSuccessor(roads[0].elementType, roads[0].id, cp1)
+            roads[-1].addExtendedSuccessor(roads[0], 0, cp1)
 
 
     def adjustLaneOffsetsForOdr(self, odr):

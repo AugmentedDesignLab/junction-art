@@ -57,8 +57,8 @@ class test_StraightRoadBuilder(unittest.TestCase):
         roads.append(self.straightRoadBuilder.create(0, length = 10, isRightTurnLane=True, isLeftTurnLane=True))
         roads.append(self.straightRoadBuilder.create(1, length = 10, n_lanes=2))
 
-        roads[0].updateSuccessor(pyodrx.ElementType.road, roads[1].id, pyodrx.ContactPoint.start)
-        roads[1].updatePredecessor(pyodrx.ElementType.road, roads[0].id, pyodrx.ContactPoint.end)
+        
+        RoadLinker.createExtendedPredSuc(predRoad=roads[0], predCp=pyodrx.ContactPoint.end, sucRoad=roads[1], sucCP=pyodrx.ContactPoint.start)
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
@@ -97,8 +97,9 @@ class test_StraightRoadBuilder(unittest.TestCase):
         roads.append(self.straightRoadBuilder.create(0, length = 10, n_lanes=2))
         roads.append(self.straightRoadBuilder.create(1, length = 10, isLeftMergeLane=True, isRightMergeLane=True))
 
-        roads[0].updateSuccessor(pyodrx.ElementType.road, roads[1].id, pyodrx.ContactPoint.start)
-        roads[1].updatePredecessor(pyodrx.ElementType.road, roads[0].id, pyodrx.ContactPoint.end)
+        RoadLinker.createExtendedPredSuc(predRoad=roads[0], predCp=pyodrx.ContactPoint.end, sucRoad=roads[1], sucCP=pyodrx.ContactPoint.start)
+
+
 
         odrName = "test_RightTurnLane"
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
