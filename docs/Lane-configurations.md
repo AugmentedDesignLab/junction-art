@@ -1,5 +1,15 @@
 # Strategies for lane configurations
 
+Two roads with different lane configurations can be connected by a connection road. There are may ways this connection road can be created. Connection roads can connect all the lanes or some of them.
+
+Basic steps:
+
+ 1. Create all the roads
+ 2. Drop all the lanes from the connection roads and rebuild the lanes.
+
+
+
+
 ## Intersections
 
 ## Non-intersections (2-roads only)
@@ -9,6 +19,9 @@ In case of two roads, they are connected by a middle road if they have different
 
 #### Merge at edge
 Lanes closer to the median are connected first. Lanes at the edges are merged if there are no unique relationships possible. This is useful when roads are not already placed on inertial system.
+
+
+    LaneBuilder::createLanesForConnectionRoad
 
 #### Merge by distance:
 
