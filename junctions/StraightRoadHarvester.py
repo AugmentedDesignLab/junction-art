@@ -64,7 +64,7 @@ class StraightRoadHarvester:
         # incoming lanes in a junction are right lanes if end point is connected, left lanes if start point is connected.
         # 5x5x5x5 for 2, 2
 
-        road = self.straightRoadBuilder.createWithDifferentLanes(self.lastId, length=self.straightRoadLen, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right)
+        roads = []
 
         # now iterate through lanes and set types.
 
@@ -75,11 +75,25 @@ class StraightRoadHarvester:
 
         for leftComb in leftCombinations:
             for rightComb in rightCombinations:
-                pass
-
-
-        return None
+                road = self.straightRoadBuilder.createWithDifferentLanes(self.lastId, length=self.straightRoadLen, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right)
+                # right lanes, change last lane secion
+                # left lanes, change first lane section.
+                laneSectionForLeft = road.getFirstLaneSection()
+                laneSectionForRight = road.getLastLaneSection()
     
+                self.applyTurnCombinationOnLanes(laneSectionForLeft.leftlanes, leftComb)
+                self.applyTurnCombinationOnLanes(laneSectionForRight.rightlanes, rightComb)
+
+                roads.append(road)
+
+        return roads
+    
+    def applyTurnCombinationOnLanes(self, lanes, combination):
+
+        for i in range(len(lanes)):
+            lanes[i].turnType = combination[i]
+
+        pass
 
     def getLaneTurnCombinations(self, n):
         """[summary]
