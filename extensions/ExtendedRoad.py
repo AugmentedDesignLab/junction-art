@@ -2,9 +2,8 @@ import pyodrx
 from copy import copy
 import numpy as np
 import math
-
 import extensions
-
+from pyodrx.signals import Signals
 from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.Geometry import Geometry
 from extensions.ExtendedPredecessor import ExtendedPredecessor
@@ -28,6 +27,7 @@ class ExtendedRoad(pyodrx.Road):
             predecessorOffset (int, optional): lane number of predecessor. refernce line of this road can be shifted with this setting wrt the predecessor. -1 means reference line will start from the border of -1 lane of predecessor
         """
         super().__init__(road_id, planview, lanes, road_type, name, rule)
+        self.signals = Signals()
 
         self.curveType = curveType
         self.headingTangentMagnitude = 10 # 10 meters.
@@ -519,3 +519,9 @@ class ExtendedRoad(pyodrx.Road):
 
 
     
+    def get_element(self):
+        element = super().get_element()
+        element.append(self.signals.get_element())
+        return element
+
+
