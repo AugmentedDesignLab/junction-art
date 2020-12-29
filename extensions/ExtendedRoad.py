@@ -325,7 +325,6 @@ class ExtendedRoad(pyodrx.Road):
 
         return extensions.headingToTangent(h, tangentMagnitude)
 
-<<<<<<< HEAD
 
     # Lane Section related functions
 
@@ -381,11 +380,9 @@ class ExtendedRoad(pyodrx.Road):
 
 
     
-=======
     def get_element(self):
         element = super().get_element()
         element.append(self.signals.get_element())
         return element
 
 
->>>>>>> signals-feature-ishaan
