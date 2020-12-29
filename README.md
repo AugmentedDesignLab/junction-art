@@ -7,6 +7,7 @@ A library to harvest different kinds of road junctions. It's built using [pyodrx
 2. dill
 3. pyyaml
 4. scipy, numpy, matplotlib, pytest, unittest
+5. methodtools.
 
 # Configuration
 
