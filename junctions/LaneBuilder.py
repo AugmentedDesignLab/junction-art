@@ -564,7 +564,7 @@ class LaneBuilder:
         lane = self.createLinearTurnLane(TurnTypes.LEFT, maxWidth, laneLength, soffset)
 
         # 2. add lane
-        laneSection = road.getEndLaneSection()
+        laneSection = road.getLastLaneSection()
         laneSection.add_left_lane(lane)
 
         raise NotImplementedError("addLeftTurnLaneForUS not implemented")
@@ -591,6 +591,7 @@ class LaneBuilder:
     def addRightTurnLaneUS(self, road, maxWidth, laneLength = None):
 
         """Assumes that the last lane section is longer than laneLength
+        Will not work for 3 lane section plan
         """
 
         # 1. define lane equation params
@@ -603,7 +604,7 @@ class LaneBuilder:
         lane = self.createLinearTurnLane(TurnTypes.RIGHT, maxWidth, laneLength, soffset)
 
         # 2. add lane
-        laneSection = road.getEndLaneSection()
+        laneSection = road.getLastLaneSection()
         laneSection.add_right_lane(lane)
 
         pass
@@ -690,16 +691,6 @@ class LaneBuilder:
                                  numRightTurnsOnRight= rightNumTurn, numRightMergeOnRight=rightNumMerge)
 
 
-            # for con in leftConnections:
-            #     idFrom = con[0]
-            #     idTo = con[1]
-            #     if con[2] == 0: # straight
-            #         self.addLeftLane(connectionRoad, self.defaultLaneWidth)
-            #     elif con[2] == 1: # merge
-            #         pass # TODO we need a function.
-
-            # ##### test get lanes.
-            
 
 
 
