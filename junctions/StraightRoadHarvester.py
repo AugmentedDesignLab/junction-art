@@ -73,6 +73,11 @@ class StraightRoadHarvester:
         rightCombinations = self.getLaneTurnCombinations(n_lanes_right)
 
 
+        for leftComb in leftCombinations:
+            for rightComb in rightCombinations:
+                pass
+
+
         return None
     
 
