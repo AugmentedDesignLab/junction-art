@@ -2,9 +2,8 @@ import pyodrx
 from copy import copy
 import numpy as np
 import math
-
 import extensions
-
+from pyodrx.signals import Signals
 from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.Geometry import Geometry
 
@@ -14,6 +13,7 @@ class ExtendedRoad(pyodrx.Road):
 
     def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, curveType = StandardCurveTypes.Line):
         super().__init__(road_id, planview, lanes, road_type, name, rule)
+        self.signals = Signals()
 
         self.curveType = curveType
         self.headingTangentMagnitude = 10 # 10 meters.
@@ -325,6 +325,7 @@ class ExtendedRoad(pyodrx.Road):
 
         return extensions.headingToTangent(h, tangentMagnitude)
 
+<<<<<<< HEAD
 
     # Lane Section related functions
 
@@ -380,3 +381,11 @@ class ExtendedRoad(pyodrx.Road):
 
 
     
+=======
+    def get_element(self):
+        element = super().get_element()
+        element.append(self.signals.get_element())
+        return element
+
+
+>>>>>>> signals-feature-ishaan

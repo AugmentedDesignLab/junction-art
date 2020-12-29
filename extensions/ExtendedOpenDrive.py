@@ -13,7 +13,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         self.laneLinker = laneLinker
 
     def reset(self):
-        """Reset only keeps road linkes, removes lane links, adjustments, adjusted geometries. Useful for editing and ODR
+        """Reset only keeps road links, removes lane links, adjustments, adjusted geometries. Useful for editing and ODR
         """
         
         print(f"refreshing odr road adjustments")

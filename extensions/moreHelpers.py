@@ -127,7 +127,7 @@ def getODRPlotPath(esminipath):
     if os.name == 'posix':
         ordPlotPath = os.path.join(esminipath,'bin','odrplot')
     elif os.name == 'nt':
-        ordPlotPath = os.path.join(esminipath,'bin','odrplot.exe')
+        ordPlotPath = os.path.join(esminipath,'bin','odrplot')
     return ordPlotPath
 
 

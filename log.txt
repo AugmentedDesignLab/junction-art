@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 esmini GIT REV: 988165d
 esmini GIT TAG: v2.0.9
 esmini GIT BRANCH: tags/v2.0.9^0
@@ -19,3 +20,13 @@ RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road 
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (10.01) to road length (10.00)
 RoadManager.cpp / 4288 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries
 RoadManager.cpp / 4290 / roadmanager::OpenDrive::SetRoadOSI(): OSI road features done
+=======
+esmini GIT REV: ea28829
+esmini GIT TAG: v2.0.6
+esmini GIT BRANCH: tags/v2.0.6^0
+esmini BUILD VERSION: 2.0.6.build.991
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
+RoadManager.cpp / 4276 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
+RoadManager.cpp / 4278 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries
+RoadManager.cpp / 4280 / roadmanager::OpenDrive::SetRoadOSI(): OSI road features done
+>>>>>>> signals-feature-ishaan
