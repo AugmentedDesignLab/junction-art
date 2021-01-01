@@ -1,5 +1,5 @@
 
-import os
+import os, dill
 import numpy as np
 import logging
 from junctions.LaneSides import LaneSides
@@ -7,6 +7,7 @@ from library.Configuration import Configuration
 from junctions.StraightRoadBuilder import StraightRoadBuilder
 from extensions.CountryCodes import CountryCodes
 from junctions.TurnTypes import TurnTypes
+import extensions
 
 class StraightRoadHarvester:
 
@@ -42,6 +43,11 @@ class StraightRoadHarvester:
         pass
 
 
+
+    def getOutputPath(self, fname):
+        return self.destinationPrefix + fname + '.xodr'
+
+
     def harvest(self, maxLeftLanes=2, maxRightLanes=2, countryCode=CountryCodes.US, show=False):
 
         if countryCode != CountryCodes.US:
@@ -51,20 +57,27 @@ class StraightRoadHarvester:
         # no merge or extension
         # each lane can have one of the 5 traffic direction.
 
-        roads = {}
+        odrs = {} # values are a list of odrs for each key
 
         for l in range(maxLeftLanes + 1):
             for r in range(maxRightLanes + 1):
-                roads[f"{l}-{r}"] = self.harvestUS(l, r, show)
+                odrs[f"{l}-{r}"] = self.harvestUS(l, r, show)
         
-        # TODO save odrs
+        # Save the odrs
+
+        objectPath = self.destinationPrefix + f"harvestedStraightRoads-{countryCode}.dill"
+        with(open(objectPath, "wb")) as f:
+            dill.dump(odrs, f)
+            print("Odr objects saved to " + objectPath)
+
+        pass
     
     def harvestUS(self, n_lanes_left=2, n_lanes_right=2, show=False):
 
         # incoming lanes in a junction are right lanes if end point is connected, left lanes if start point is connected.
         # 5x5x5x5 for 2, 2
 
-        roads = []
+        odrs = []
 
         # now iterate through lanes and set types.
 
@@ -84,9 +97,25 @@ class StraightRoadHarvester:
                 self.applyTurnCombinationOnLanes(laneSectionForLeft.leftlanes, leftComb)
                 self.applyTurnCombinationOnLanes(laneSectionForRight.rightlanes, rightComb)
 
-                roads.append(road)
+                name = f"straightRoad-{self.lastId}"
+                self.lastId += 1
+                odr = extensions.createOdrByPredecessor(name, roads=[road], junctions=[])
+                # 1. save the xml file
+                fname = odr.name
+                xmlPath = self.getOutputPath(fname)
+                odr.write_xml(xmlPath)
 
-        return roads
+                # 2. save image
+                if self.saveImage is True:
+                    extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
+
+                if show:
+                    extensions.view_road(odr, os.path.join('..', self.esminiPath))
+
+                odrs.append(odr)
+
+        return odrs
+        
     
     def applyTurnCombinationOnLanes(self, lanes, combination):
 
