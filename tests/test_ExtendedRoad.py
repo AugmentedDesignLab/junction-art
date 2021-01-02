@@ -103,3 +103,34 @@ class test_ExtendedRoad(unittest.TestCase):
         xmlPath = f"output/test_getBorderDistanceOfLane.xodr"
         odr.write_xml(xmlPath)
 
+
+
+    def test_getLanePosition(self):
+
+        roads = []
+
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=2, n_lanes_right=2))
+        # roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=2, junction=1,
+        #                                                                                 isLeftTurnLane=True, 
+        #                                                                                 isRightTurnLane=True,
+        #                                                                                 numberOfRightTurnLanesOnLeft=2,
+        #                                                                                 mergeLaneOnTheOppositeSideForInternalTurn=False))
+        # roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=5, n_lanes_right=3))
+        # self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
+
+        
+
+        roads[1].updatePredecessorOffset(-2)
+
+        odrName = "test_getBorderDistanceOfLane"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.printRoadPositions(odr)
+
+        print(roads[0].getLanePosition(0, pyodrx.ContactPoint.end))
+        print(roads[0].getLanePosition(1, pyodrx.ContactPoint.end))
+        print(roads[0].getLanePosition(2, pyodrx.ContactPoint.end))
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+

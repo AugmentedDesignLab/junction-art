@@ -47,6 +47,11 @@ class ExtendedRoad(pyodrx.Road):
 
         pass
 
+    
+    def get_element(self):
+        element = super().get_element()
+        element.append(self.signals.get_element())
+        return element
 
     def reset(self, clearRoadLinks = False):
         """[summary]
@@ -462,13 +467,15 @@ class ExtendedRoad(pyodrx.Road):
 
         return self.lanes.getEndPointWidths(self.length())
     
+
+    ### Lane related functions
     
     def getBorderDistanceOfLane(self, laneNo, cp):
         """[summary]
 
         Args:
-            laneNo ([type]): [description]
-            cp ([type]):  cp = pyodrx.ContactPoint.end/start
+            laneNo ([type]): [description] 
+            cp ([type]):  cp = pyodrx.ContactPoint.end/start. border distance  reference point.
 
         Raises:
             Exception: [description]
@@ -477,11 +484,16 @@ class ExtendedRoad(pyodrx.Road):
             [type]: [description]
         """
 
+        if laneNo == 0:
+            return 0
+
+        # 1. Assuming cp is start point
         laneSection = self.lanes.lanesections[0]
         laneOffset = self.lanes.getLaneOffsetAt(0)
         nextLaneOffset = self.lanes.getLaneOffsetAt(1)
+        sectionLength = None # not needed for start point as ds is 0
 
-        sectionLength = laneSection.length(self.length(), laneOffset, nextLaneOffset)
+        # 2. Chaning if cp is end.
 
         if cp ==  pyodrx.ContactPoint.end:
             if self.length is None:
@@ -492,7 +504,8 @@ class ExtendedRoad(pyodrx.Road):
             nextLaneOffset = None
             sectionLength = laneSection.length(self.length(), laneOffset, nextLaneOffset)
 
-        
+        # 3. Now the calculations
+
         lanes = laneSection.leftlanes
         if laneNo < 0:
             lanes = laneSection.rightlanes
@@ -504,7 +517,7 @@ class ExtendedRoad(pyodrx.Road):
         for i in range(laneLimit):
             lane = lanes[i]
 
-            if cp == pyodrx.ContactPoint.start and lane.soffset == 0:
+            if cp == pyodrx.ContactPoint.start and lane.soffset == 0: # if offset is not 0, this lane does not contribute to the width.
                 width += lane.a
             elif cp == pyodrx.ContactPoint.end:
                 
@@ -518,10 +531,34 @@ class ExtendedRoad(pyodrx.Road):
         return width
 
 
-    
-    def get_element(self):
-        element = super().get_element()
-        element.append(self.signals.get_element())
-        return element
+    def getLanePosition(self, laneNo, cp):
+        """[summary]
+
+        Args:
+            laneNo ([type]): [description]
+            cp ([type]): [description]
+        """
+
+        # 1. get reference line position
+
+        x, y, h = self.getPosition(cp)
+
+        if laneNo == 0:
+            return x, y, h
+
+        # 2. shift reference line position
+        
+        # in local coordinate the reference line moves along v
+
+        localShiftAmount = self.getBorderDistanceOfLane(laneNo, cp)
+
+        if laneNo > 0: 
+            x += localShiftAmount * math.cos(h + np.pi/2) * -1
+            y += localShiftAmount * math.sin(h + np.pi/2)
+        else:
+            x += localShiftAmount * math.cos(h + np.pi/2)
+            y += localShiftAmount * math.sin(h + np.pi/2) * -1
+
+        return x, y, h
 
 

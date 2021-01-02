@@ -18,7 +18,7 @@ class StraightRoadHarvester:
                 straightRoadBuilder=None,
                 straightRoadLen = 2,
                 esminiPath = None, 
-                saveImage = True
+                saveImage = False
                 ):
         
         self.destinationPrefix = os.path.join(outputDir, outputPrefix)
@@ -49,6 +49,19 @@ class StraightRoadHarvester:
 
 
     def harvest(self, maxLeftLanes=2, maxRightLanes=2, countryCode=CountryCodes.US, show=False):
+        """[summary]
+
+        Args:
+            maxLeftLanes (int, optional): [description]. Defaults to 2.
+            maxRightLanes (int, optional): [description]. Defaults to 2.
+            countryCode ([type], optional): [description]. Defaults to CountryCodes.US.
+            show (bool, optional): [description]. Defaults to False.
+
+        Raises:
+            NotImplementedError: [description]
+        
+        Returns: dic with keys like "n_lanes_left-n_lanes_right" and list of odrs per key
+        """
 
         if countryCode != CountryCodes.US:
             raise NotImplementedError("Only US is implemented")
@@ -61,21 +74,28 @@ class StraightRoadHarvester:
 
         for l in range(maxLeftLanes + 1):
             for r in range(maxRightLanes + 1):
-                odrs[f"{l}-{r}"] = self.harvestUS(l, r, show)
+                if l == 0 and r == 0:
+                    continue
+                odrs[f"{l}-{r}"] = self.harvestUS(l, r, show) # do not change the key convention
         
         # Save the odrs
 
-        objectPath = self.destinationPrefix + f"harvestedStraightRoads-{countryCode}.dill"
+        objectPath = self.destinationPrefix + f"{countryCode.value}.dill"
         with(open(objectPath, "wb")) as f:
             dill.dump(odrs, f)
             print("Odr objects saved to " + objectPath)
 
-        pass
+        print(f"keys {odrs.keys()}")
+
+        return objectPath
+
     
     def harvestUS(self, n_lanes_left=2, n_lanes_right=2, show=False):
 
         # incoming lanes in a junction are right lanes if end point is connected, left lanes if start point is connected.
         # 5x5x5x5 for 2, 2
+
+        print(f"harvestUS with {n_lanes_left} and {n_lanes_right}")
 
         odrs = []
 
@@ -95,6 +115,57 @@ class StraightRoadHarvester:
                 laneSectionForRight = road.getLastLaneSection()
     
                 self.applyTurnCombinationOnLanes(laneSectionForLeft.leftlanes, leftComb)
+                self.applyTurnCombinationOnLanes(laneSectionForRight.rightlanes, rightComb)
+
+                name = f"straightRoad-{self.lastId}"
+                self.lastId += 1
+                odr = extensions.createOdrByPredecessor(name, roads=[road], junctions=[])
+                # 1. save the xml file
+                fname = odr.name
+                xmlPath = self.getOutputPath(fname)
+                odr.write_xml(xmlPath)
+
+                # 2. save image
+                if self.saveImage is True:
+                    extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
+
+                if show:
+                    extensions.view_road(odr, os.path.join('..', self.esminiPath))
+
+                odrs.append(odr)
+
+        if n_lanes_right == 0:
+            for leftComb in leftCombinations:
+                road = self.straightRoadBuilder.createWithDifferentLanes(self.lastId, length=self.straightRoadLen, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right)
+                # right lanes, change last lane secion
+                # left lanes, change first lane section.
+                laneSectionForLeft = road.getFirstLaneSection()
+    
+                self.applyTurnCombinationOnLanes(laneSectionForLeft.leftlanes, leftComb)
+
+                name = f"straightRoad-{self.lastId}"
+                self.lastId += 1
+                odr = extensions.createOdrByPredecessor(name, roads=[road], junctions=[])
+                # 1. save the xml file
+                fname = odr.name
+                xmlPath = self.getOutputPath(fname)
+                odr.write_xml(xmlPath)
+
+                # 2. save image
+                if self.saveImage is True:
+                    extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
+
+                if show:
+                    extensions.view_road(odr, os.path.join('..', self.esminiPath))
+
+                odrs.append(odr)
+
+        if n_lanes_left == 0:
+            for rightComb in rightCombinations:
+                road = self.straightRoadBuilder.createWithDifferentLanes(self.lastId, length=self.straightRoadLen, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right)
+                # right lanes, change last lane secion
+                # left lanes, change first lane section.
+                laneSectionForRight = road.getLastLaneSection()
                 self.applyTurnCombinationOnLanes(laneSectionForRight.rightlanes, rightComb)
 
                 name = f"straightRoad-{self.lastId}"
@@ -134,7 +205,13 @@ class StraightRoadHarvester:
             [type]: List of combinations. each combination is an ordered list
         """
 
+    
+
         # from left to right
+
+        if n == 0:
+            return []
+
         if n == 1:
             return [[i] for i in TurnTypes.getAll()]
 

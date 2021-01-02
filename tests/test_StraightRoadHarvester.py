@@ -8,6 +8,7 @@ from junctions.StraightRoadHarvester import StraightRoadHarvester
 from junctions.StraightRoadBuilder import StraightRoadBuilder
 from library.Configuration import Configuration
 from junctions.TurnTypes import TurnTypes
+from extensions.CountryCodes import CountryCodes
 
 
 class test_StraightRoadHarvester(unittest.TestCase):
@@ -74,6 +75,10 @@ class test_StraightRoadHarvester(unittest.TestCase):
     
     def test_harvestUS(self):
 
-        odrs = self.harvester.harvestUS(1, 1, False)
+        odrs = self.harvester.harvestUS(2, 2, False)
 
         print(len(odrs))
+
+    
+    def test_harvest(self):
+        self.harvester.harvest(maxLeftLanes=2, maxRightLanes=2, countryCode=CountryCodes.US)

@@ -2,7 +2,7 @@
 
 This class does operations associated with successor-predecessor relationships. 
 
-User case #1: Adjusting laneOffsets of roads in case of both having different laneOffset at the contact point lane sections:
+Use-case #1: Adjusting laneOffsets of roads in case of both having different laneOffset at the contact point lane sections:
 
 Method: **adjustLaneOffsetsForOdr**
 
@@ -20,3 +20,9 @@ The last road in the former picture  has the center lane on the reference line. 
 ![](images/laneOffsetAdjusted.PNG)
 
 This one was adjusted by the Road linker.
+
+Use-case #2: Linking roads with no branches (sequentially generated roads)
+
+Method: **linkConsecutiveRoadsWithNoBranches**
+
+The ordering of roads inside the input list determines the predecessor and successor relationships.
