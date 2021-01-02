@@ -240,6 +240,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
         n_lanes_left = np.random.choice(maxLanePerSide + 1)
         n_lanes_right = np.random.choice(maxLanePerSide + 1)
 
+        if (n_lanes_left == 0) and (n_lanes_right == 0):
+            return self.getRandomStraightRoad(roadId, harvestedStraightRoads, maxLanePerSide)
+
         odrs = harvestedStraightRoads[f"{n_lanes_left}-{n_lanes_right}"]
         print(f"{n_lanes_left}-{n_lanes_right}")
         print(len(odrs))
