@@ -32,7 +32,7 @@ class test_LaneLinker(unittest.TestCase):
         
         roads = []
         roads.append(self.straightRoadBuilder.create(0))
-        roads.append(self.roadBuilder.createSimpleCurve(1, np.pi/4, False, curvature = 0.2))
+        roads.append(self.roadBuilder.curveBuilder.createSimple(1, np.pi/4, False, curvature = 0.2))
         roads.append(self.straightRoadBuilder.create(2))
 
 

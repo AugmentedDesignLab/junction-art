@@ -117,7 +117,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # if curvature < StandardCurvature.Medium.value:
         #     curvature = StandardCurvature.Medium.value
 
-        newConnection = self.roadBuilder.createCurve(newConnectionId, angleBetweenEndpoints, isJunction=True, curvature=curvature, curveType=curveType)
+        newConnection = self.curveBuilder.create(newConnectionId, angleBetweenEndpoints, isJunction=True, curvature=curvature, curveType=curveType)
         return newConnection, availableAngle
 
 
@@ -205,6 +205,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             
             RoadLinker.createExtendedPredSuc(predRoad=newConnection, predCp=pyodrx.ContactPoint.end, sucRoad=newRoad, sucCP=pyodrx.ContactPoint.start)
 
+            self.laneBuilder.createLanesForConnectionRoad(newConnection, roads[previousRoadId], newRoad)
 
             # 6 get next action
             action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)

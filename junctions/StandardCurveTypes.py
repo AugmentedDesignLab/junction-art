@@ -7,6 +7,7 @@ class StandardCurveTypes(IntEnum):
     LongArc = 2
     S       = 3
     Poly    = 4
+    M       = 5
     Line    = 100 # must be the last element 
 
 
@@ -34,3 +35,8 @@ class StandardCurveTypes(IntEnum):
             return items[np.random.choice(len(items))]
         else:
             return items[np.random.choice(len(items)-1)]
+    
+    @staticmethod
+    def getRandomItemForCurve():
+        items = StandardCurveTypes.items()
+        return items[np.random.choice([0, 1, 2])]

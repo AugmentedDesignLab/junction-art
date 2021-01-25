@@ -21,9 +21,10 @@ class test_LaneConfiguration(unittest.TestCase):
 
         section1.add_left_lane(ExtendedLane(a=3))
         section1.add_right_lane(ExtendedLane(a=3))
+
         section2.add_left_lane(ExtendedLane(a=3))
 
-        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2)
+        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2, False)
 
         assert len(ls) == max(len(section1.leftlanes), len(section2.leftlanes))
         assert len(rs) == 0
@@ -38,7 +39,7 @@ class test_LaneConfiguration(unittest.TestCase):
         #2
         
         section2.add_right_lane(ExtendedLane(a=3))
-        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2)
+        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2, False)
         assert len(ls) == max(len(section1.leftlanes), len(section2.leftlanes))
         assert len(rs) == max(len(section1.rightlanes), len(section2.rightlanes))
         assert ls[0][0] == 1 and ls[0][1] == 1 and ls[0][2] == False
@@ -52,7 +53,7 @@ class test_LaneConfiguration(unittest.TestCase):
         section1.add_left_lane(ExtendedLane(a=3))
         section1.add_left_lane(ExtendedLane(a=3))
 
-        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2)
+        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2, False)
         print("test 3")
         print(ls)
         print(rs)
@@ -64,7 +65,7 @@ class test_LaneConfiguration(unittest.TestCase):
         
         section2.add_right_lane(ExtendedLane(a=3))
 
-        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2)
+        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2, False)
         print("test 4")
         print(ls)
         print(rs)
@@ -81,7 +82,7 @@ class test_LaneConfiguration(unittest.TestCase):
         section1.add_right_lane(ExtendedLane(a=3))
         section1.add_right_lane(ExtendedLane(a=3))
 
-        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2)
+        ls, rs = LaneConfiguration.getLaneLinksByMergingEdge(section1, section2, False)
         print("test 5")
         print(ls)
         print(rs)

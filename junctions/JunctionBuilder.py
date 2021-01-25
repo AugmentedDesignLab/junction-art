@@ -8,14 +8,16 @@ from junctions.JunctionAreaTypes import JunctionAreaTypes
 from junctions.StraightRoadBuilder import StraightRoadBuilder
 from extensions.ExtendedRoad import ExtendedRoad
 from junctions.RoadLinker import RoadLinker
-
+from junctions.LaneBuilder import LaneBuilder
+from junctions.CurveRoadBuilder import CurveRoadBuilder
+from extensions.CountryCodes import CountryCodes
 
 class JunctionBuilder:
     
 
     def __init__(self, roadBuilder = None,
                 straightRoadLen = 10,
-                minAngle = np.pi/6, maxAngle = 1.8 * np.pi):
+                minAngle = np.pi/6, maxAngle = 1.8 * np.pi, country=CountryCodes.US):
 
 
         self.roadBuilder = roadBuilder
@@ -24,11 +26,13 @@ class JunctionBuilder:
             self.roadBuilder = RoadBuilder()
 
         self.straightRoadBuilder = StraightRoadBuilder()
+        self.laneBuilder = LaneBuilder()
 
         self.straightRoadLen = straightRoadLen
 
         self.minAngle = minAngle
         self.maxAngle = maxAngle
+        self.curveBuilder = CurveRoadBuilder(country=country)
 
         pass
 

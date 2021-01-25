@@ -42,7 +42,7 @@ class test_RoadBuilder(unittest.TestCase):
         yCoeffs = hermiteY.c.flatten()
 
         # scipy coefficient and open drive coefficents have opposite order.
-        myRoad = self.roadBuilder.createParamPoly3(
+        myRoad = self.roadBuilder.curveBuilder.createParamPoly3(
                                                 0, 
                                                 isJunction=False,
                                                 au=xCoeffs[3],
@@ -70,11 +70,11 @@ class test_RoadBuilder(unittest.TestCase):
         
         roads = []
         roads.append(pyodrx.create_straight_road(0, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(1, np.pi/4, True, curvature = 0.2))
+        roads.append(self.roadBuilder.curveBuilder.createSimple(1, np.pi/4, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(2, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(3, np.pi/3, True, curvature = 0.2))
+        roads.append(self.roadBuilder.curveBuilder.createSimple(3, np.pi/3, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(4, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(5, np.pi/2, True, curvature = 0.2))
+        roads.append(self.roadBuilder.curveBuilder.createSimple(5, np.pi/2, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(6, 10))
 
         roads[0].add_successor(pyodrx.ElementType.junction,1)

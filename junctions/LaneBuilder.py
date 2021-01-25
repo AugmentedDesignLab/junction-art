@@ -647,26 +647,26 @@ class LaneBuilder:
     ### Section: Connecting roads
 
     def createLanesForConnectionRoad(self, connectionRoad: ExtendedRoad, 
-                                    road1: ExtendedRoad, 
-                                    road2: ExtendedRoad, 
+                                    predRoad: ExtendedRoad, 
+                                    sucRoad: ExtendedRoad, 
                                     strategy = LaneConfigurationStrategies.MERGE_EDGE, 
                                     countryCode=extensions.CountryCodes.US):
-        """Assumes start of connection road is connected to road1 and end to road2 and connection road's lanes are not connected to either of the roads.
+        """Assumes start of connection road is connected to predRoad and end to sucRoad and connection road's lanes are not connected to either of the roads.
 
         Args:
             connectionRoad (ExtendedRoad): 
-            road1 (ExtendedRoad): Extended predecessor road of connectionRoad. That means connection road's start is connected to road1
-            road2 (ExtendedRoad): Extended successor road of connectionRoad. That means connection road's start is connected to road1
+            predRoad (ExtendedRoad): Extended predecessor road of connectionRoad. That means connection road's start is connected to predRoad
+            sucRoad (ExtendedRoad): Extended successor road of connectionRoad. That means connection road's end is connected to sucRoad
             strategy ([type], optional): [description]. Defaults to LaneConfigurationStrategies.MERGE_EDGE.
         """
 
 
         try:
-            cp1, cp1Con = RoadLinker.getContactPoints(road1, connectionRoad)
-            cp2, cp2Con = RoadLinker.getContactPoints(road2, connectionRoad)
+            cp1, cp1Con = RoadLinker.getContactPoints(predRoad, connectionRoad)
+            cp2, cp2Con = RoadLinker.getContactPoints(sucRoad, connectionRoad)
 
-            laneSection1 = road1.getLaneSectionByCP(cp1)
-            laneSection2 = road2.getLaneSectionByCP(cp2)
+            laneSection1 = predRoad.getLaneSectionByCP(cp1)
+            laneSection2 = sucRoad.getLaneSectionByCP(cp2)
 
             connectionRoad.clearLanes()
 
