@@ -84,18 +84,12 @@ class JunctionBuilder:
         RoadLinker.createExtendedPredSuc(predRoad=roads[-1], predCp=cp2, sucRoad=lastConnection, sucCP=pyodrx.ContactPoint.start)
         RoadLinker.createExtendedPredSuc(predRoad=lastConnection, predCp=pyodrx.ContactPoint.end, sucRoad=roads[0], sucCP=cp1)
 
-        # lastConnection.add_predecessor(pyodrx.ElementType.road, roads[-1].id, cp2)
-        # lastConnection.add_successor(pyodrx.ElementType.road, roads[0].id, cp1)
-
-        # roads[-1].add_successor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.start) 
-        # roads[0].add_predecessor(pyodrx.ElementType.junction, lastConnectionId, pyodrx.ContactPoint.end) 
-
 
         connectionL = pyodrx.Connection(roads[-1].id, lastConnectionId, pyodrx.ContactPoint.start)
         connectionL.add_lanelink(-1,-1)
         junction.add_connection(connectionL)
         
-        roads.append(lastConnection)
+        # roads.append(lastConnection) # dangerous. do not add the road
 
         return lastConnection
     

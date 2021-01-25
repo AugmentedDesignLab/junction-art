@@ -64,6 +64,7 @@ class test_ExtendedOpenDrive(unittest.TestCase):
         odr = extensions.createOdr(odrName, roads, [junction])
 
         lastConnection = self.harvester.junctionBuilder.createLastConnectionForLastAndFirstRoad(7, roads, junction, cp1=pyodrx.ContactPoint.start)
+        roads.append(lastConnection)
         odr.add_road(lastConnection)
 
         # randConnection = self.harvester.junctionBuilder.createConnectionFor2Roads(8, roads[0], roads[4], junction, cp1=pyodrx.ContactPoint.start)

@@ -74,6 +74,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # The last connection and resetting odr
 
         lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=cp1)
+        roads.append(lastConnection)
         odr.add_road(lastConnection)
 
         print(f"roads before internal connections {len(roads)}")
@@ -222,6 +223,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # The last connection and resetting odr
 
         lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=cp1)
+        self.laneBuilder.createLanesForConnectionRoad(lastConnection, roads[-1], roads[0])
+        roads.append(lastConnection)
+
         odr.add_road(lastConnection)
 
         print(f"roads before internal connections {len(roads)}")
