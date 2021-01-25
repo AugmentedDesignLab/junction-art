@@ -149,6 +149,12 @@ class ExtendedRoad(pyodrx.Road):
             return self.extendedPredecessors[roadId]
         
         return None
+    
+
+    def isExtendedPredecessorOf(self, road):
+        if road.getExtendedPredecessorByRoadId(self.id) is not None:
+            return True
+        return False
 
 
     def addExtendedSuccessor(self, road, angleWithRoad, cp, xodr=False):
@@ -164,6 +170,21 @@ class ExtendedRoad(pyodrx.Road):
             return self.extendedSuccessors[roadId]
         
         return None
+
+
+    def isExtendedSuccessorOf(self, road):
+        if road.getExtendedSuccessorByRoadId(self.id) is not None:
+            return True
+        return False
+
+    
+    def isConnectionFor(self, road1, road2):
+
+        # to be a connection, one of the roads needs to be an extended predecessor and another and extended successor.
+
+        if (road1.isExtendedPredecessorOf(self) and road2.isExtendedSuccessorOf(self)) or (road2.isExtendedPredecessorOf(self) and road1.isExtendedSuccessorOf(self)):
+            return True
+        return False
 
     
     def updatePredecessorOffset(self, predecessorOffset):

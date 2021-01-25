@@ -96,7 +96,12 @@ class RoadLinker:
         return angle2 - angle1
 
 
-    
+    @staticmethod
+    def areRoadsConnected(road1, road2, connectionRoads):
+        for connectionRoad in connectionRoads:
+            if connectionRoad.isConnectionFor(road1, road2):
+                return True
+        return False
 
 
     def linkConsecutiveRoadsWithNoBranches(self, roads, linkLastToFirst=False, cp1 = pyodrx.ContactPoint.end, cpRest=pyodrx.ContactPoint.start):

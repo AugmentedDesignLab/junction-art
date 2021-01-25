@@ -13,6 +13,7 @@ from junctions.JunctionBuilder import JunctionBuilder
 from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.AngleCurvatureMap import AngleCurvatureMap
 
+
 class SequentialJunctionBuilder(JunctionBuilder):
     
 
@@ -78,7 +79,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         print(f"roads before internal connections {len(roads)}")
 
         if internalConnections:
-            self.createInternalConnectionsForOddIndices(roads, junction, cp1=cp1)
+            self.createInternalConnectionsForMissingSequentialRoads(roads, junction, cp1=cp1)
             odr.updateRoads(roads)
 
         print(f"roads after internal connections {len(roads)}")
@@ -225,7 +226,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         print(f"roads before internal connections {len(roads)}")
 
         if internalConnections:
-            self.createInternalConnectionsForOddIndices(roads, junction, cp1=cp1)
+            self.createInternalConnectionsForMissingSequentialRoads(roads, junction, cp1=cp1)
             odr.updateRoads(roads)
 
         print(f"roads after internal connections {len(roads)}")
@@ -257,3 +258,71 @@ class SequentialJunctionBuilder(JunctionBuilder):
         raise Exception("No road found")
 
 
+
+    
+    def getConnectionRoadsForSequentialRoads(self, roads):
+
+        
+        fromIndex = 1
+        countOldRoads = len(roads)
+        connectionRoads = []
+        while fromIndex < countOldRoads:
+            connectionRoad = roads[fromIndex]
+            if connectionRoad.isConnection is False:
+                raise Exception(f"getConnectionRoadsForSequentialRoads: road #{connectionRoad.id} is not a connection. Check if it's a sequentially generated junction.")
+            connectionRoads.append(connectionRoad)
+            fromIndex += 2
+        
+        return connectionRoads
+
+
+
+    def createInternalConnectionsForMissingSequentialRoads(self, roads, junction, cp1 = pyodrx.ContactPoint.start ):
+
+        """Does not add connection to any junction. When are junction has all the roads connected to at least one connection road in a sequential manner, you can use
+        this method to connect roads which are not already connected. 
+        """
+
+
+        # for first road:
+        # fromId = 0
+        # toId = roads[2].id
+        # nextRoadId = roads[-1].id + 1
+        # countOldRoads = len(roads)
+        # while(toId < countOldRoads):
+        #     connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromId], roads[toId], junction, cp1=cp1)
+        #     roads.append(connectionRoad)
+        #     toId += 2
+        #     nextRoadId += 1
+
+        
+        
+        connectionRoads = self.getConnectionRoadsForSequentialRoads(roads)
+
+        fromIndex = 0
+        countOldRoads = len(roads)
+        nextRoadId = roads[-1].id + 1
+
+        while fromIndex < countOldRoads:
+            toIndex = fromIndex + 4
+
+            while toIndex < countOldRoads:
+                if toIndex == fromIndex:
+                    toIndex += 2
+                    continue
+                
+                if RoadLinker.areRoadsConnected(roads[fromIndex], roads[toIndex], connectionRoads) is False:
+                    if fromIndex == 0:
+                        connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction, cp1=cp1)
+                    else:
+                        connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction)
+                    roads.append(connectionRoad)
+                    
+                toIndex += 2
+                nextRoadId += 1
+                pass
+
+            fromIndex += 2
+
+        
+        pass

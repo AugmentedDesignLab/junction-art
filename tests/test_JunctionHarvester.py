@@ -14,7 +14,7 @@ class test_JunctionHarvester(unittest.TestCase):
         
         self.configuration = Configuration()
         self.esminiPath = self.configuration.get("esminipath")
-        self.harvester = JunctionHarvester(outputDir="./output", outputPrefix="harvest-", lastId=0, esminiPath=self.esminiPath)
+        self.harvester = JunctionHarvester(outputDir="./output", outputPrefix="test-harvest-", lastId=0, esminiPath=self.esminiPath)
     
 
     def test_harvestByPainting2L(self):
