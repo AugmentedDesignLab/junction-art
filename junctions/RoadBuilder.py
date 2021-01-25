@@ -262,6 +262,10 @@ class RoadBuilder:
         return road
 
 
+    def getRelativeHeading(self, rootHeading, anotherHeading):
+        return (anotherHeading + (np.pi * 2) - rootHeading) % (np.pi * 2)
+
+
     def getStraightRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True,
                                     n_lanes=1,
                                     lane_offset=3,
@@ -271,7 +275,17 @@ class RoadBuilder:
         x1, y1, h1 = road1.getPosition(cp1)
         x2, y2, h2 = road2.getPosition(cp2)
         length = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
-        return self.createStraightRoad(newRoadId, length=length, junction=junction, n_lanes=n_lanes, lane_offset=lane_offset, laneSides = laneSides)
+        road = self.createStraightRoad(newRoadId, length=length, junction=junction, n_lanes=n_lanes, lane_offset=lane_offset, laneSides = laneSides)
+        
+        if cp1 == pyodrx.ContactPoint.start:
+            h1 = h1 + np.pi
+        
+        if cp2 == pyodrx.ContactPoint.end:
+            h2 = h2 + np.pi
+
+        road.startHeading = self.getRelativeHeading(h1, h2)
+
+        return road
     
 
 
@@ -302,13 +316,13 @@ class RoadBuilder:
         
         # TODO we need to solve the problem with param poly, not a straight road, as there can still be some angles near threshold for which it can fail.
 
-        if Geometry.headingsTooClose(h1, h2):
-            # return a straight road. This is flawed because heading is assumed to be 0 for straight roads in pyodrx
-            return self.getStraightRoadBetween(newRoadId, road1, road2, cp1, cp2,
-                                    isJunction=isJunction,
-                                    n_lanes=n_lanes,
-                                    lane_offset=lane_offset,
-                                    laneSides=laneSides)
+        # if Geometry.headingsTooClose(h1, h2):
+        #     # return a straight road. This is flawed because heading is assumed to be 0 for straight roads in pyodrx
+        #     return self.getStraightRoadBetween(newRoadId, road1, road2, cp1, cp2,
+        #                             isJunction=isJunction,
+        #                             n_lanes=n_lanes,
+        #                             lane_offset=lane_offset,
+        #                             laneSides=laneSides)
             # TODO return a curve because points can have the same heading, but big translation which creates problem.
 
         tangentMagnitude = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) 
@@ -345,7 +359,7 @@ class RoadBuilder:
 
         u2, v2 = self.inertialToLocal((x1, y1), localRotation, (x2, y2))
         localStartTangent = extensions.headingToTangent(0, tangentMagnitude)
-        localEndHeading = h2 + (np.pi * 2) - h1
+        localEndHeading = self.getRelativeHeading(h1, h2)
         localEndTangent = extensions.headingToTangent(localEndHeading, tangentMagnitude)
 
         

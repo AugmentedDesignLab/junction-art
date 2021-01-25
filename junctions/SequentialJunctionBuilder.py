@@ -17,7 +17,7 @@ from junctions.AngleCurvatureMap import AngleCurvatureMap
 class SequentialJunctionBuilder(JunctionBuilder):
     
 
-    def drawLikeAPainter2L(self, odrId, maxNumberOfRoadsPerJunction, save=True, internalConnections=True, cp1=pyodrx.ContactPoint.start):
+    def drawLikeAPainter2L(self, odrId, maxNumberOfRoadsPerJunction, save=True, internalConnections=True, cp1=pyodrx.ContactPoint.end):
         if maxNumberOfRoadsPerJunction < 3:
             raise Exception("drawLikeAPainter is not for the weak. Please add more than 3 roads")
 

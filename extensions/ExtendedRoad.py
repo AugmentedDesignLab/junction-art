@@ -45,6 +45,8 @@ class ExtendedRoad(pyodrx.Road):
         self.extendedPredecessors = {}
         self.extendedSuccessors = {}
 
+        self.startHeading = None
+
         pass
 
     

@@ -317,6 +317,10 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                     y += localShiftAmount * math.sin(h + np.pi/2) * -1
 
                 # raise Exception("predecessorOffset is not implemented yet")
+            
+            # check if the heading is predefined.
+            if main_road.startHeading is not None:
+                h = main_road.startHeading
 
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires()
