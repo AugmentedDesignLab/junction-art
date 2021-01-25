@@ -292,7 +292,7 @@ class JunctionHarvester:
 
         odrs = []
         
-        for numRoads in range(3, maxNumberOfRoadsPerJunction + 1):
+        for numRoads in range(4, maxNumberOfRoadsPerJunction + 1):
             for _ in range(triesPerRoadCount):
                 odr = self.sequentialJunctionBuilder.drawLikeAPainter2L(self.lastId, numRoads)
                 self.lastId += 1

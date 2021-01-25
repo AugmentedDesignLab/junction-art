@@ -313,11 +313,11 @@ class SequentialJunctionBuilder(JunctionBuilder):
                 
                 if RoadLinker.areRoadsConnected(roads[fromIndex], roads[toIndex], connectionRoads) is False:
                     if fromIndex == 0:
-                        connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction, cp1=cp1)
+                        connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction, cp1=cp1, cp2=pyodrx.ContactPoint.start)
                     else:
-                        connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction)
+                        connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction, cp1=pyodrx.ContactPoint.start, cp2=pyodrx.ContactPoint.start)
                     roads.append(connectionRoad)
-                    
+
                 toIndex += 2
                 nextRoadId += 1
                 pass

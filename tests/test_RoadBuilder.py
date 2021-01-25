@@ -29,18 +29,14 @@ class test_RoadBuilder(unittest.TestCase):
 
 
     def test_ParamPoly(self):
-        tangentX = np.array([
-            -4.8598137403931405, -9.719616726833108
-        ])
+        tangentX = np.array([9.389829642616592, -7.596531772501544])
+        tangentY = np.array([0.0, 5.5192033616035365])
 
         t = np.array([0, 1])
-        x = np.array([18.41743655268492, 10.0])
-        y = np.array([-4.8598056749275225, 0.0])
+        x = np.array([0, 17.8605173461395])
+        y = np.array([0, -5.803233839653106])
         hermiteX = CubicHermiteSpline(t, x, tangentX)
 
-        tangentY = np.array([
-            8.417431896084457, 1.190309751345524e-15
-        ])
         hermiteY = CubicHermiteSpline(t, y, tangentY)
         xCoeffs = hermiteX.c.flatten()
         yCoeffs = hermiteY.c.flatten()

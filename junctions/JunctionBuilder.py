@@ -75,7 +75,7 @@ class JunctionBuilder:
                                                 ):
 
         lastConnectionId = nextRoadId
-        lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, roads[0], roads[-1], cp1, cp2)
+        lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, roads[-1], roads[0], cp2, cp1)
 
         RoadLinker.createExtendedPredSuc(predRoad=roads[-1], predCp=cp2, sucRoad=lastConnection, sucCP=pyodrx.ContactPoint.start)
         RoadLinker.createExtendedPredSuc(predRoad=lastConnection, predCp=pyodrx.ContactPoint.end, sucRoad=roads[0], sucCP=cp1)
@@ -100,8 +100,8 @@ class JunctionBuilder:
                                     road1, 
                                     road2, 
                                     junction, 
-                                    cp1 = pyodrx.ContactPoint.end, 
-                                    cp2 = pyodrx.ContactPoint.start,
+                                    cp1,
+                                    cp2,
                                     n_lanes=1,
                                     lane_offset=3,
                                     laneSides=LaneSides.BOTH
@@ -117,32 +117,27 @@ class JunctionBuilder:
         """
 
 
-        lastConnectionId = nextRoadId
-        lastConnection = self.roadBuilder.getConnectionRoadBetween(lastConnectionId, road1, road2, cp1, cp2,
+        newConnectionId = nextRoadId
+        newConnectionRoad = self.roadBuilder.getConnectionRoadBetween(newConnectionId, road1, road2, cp1, cp2,
                                     isJunction=True,
                                     n_lanes=n_lanes,
                                     lane_offset=lane_offset,
                                     laneSides=laneSides)
         
-        road1.addExtendedSuccessor(lastConnection, 0, pyodrx.ContactPoint.start)
-
-        lastConnection.addExtendedPredecessor(road1, 0, cp1)
-            
-        lastConnection.addExtendedSuccessor(road2, 0, cp2)
-
-        road2.addExtendedPredecessor(lastConnection, 0, pyodrx.ContactPoint.end)
+        RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=newConnectionRoad, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=newConnectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
 
         if junction is not None:
             if laneSides == LaneSides.LEFT or laneSides == LaneSides.BOTH:
-                connectionL = pyodrx.Connection(road2.id, lastConnectionId, pyodrx.ContactPoint.end)
+                connectionL = pyodrx.Connection(road2.id, newConnectionId, pyodrx.ContactPoint.end)
                 connectionL.add_lanelink(-1,-1)
                 junction.add_connection(connectionL)
             else:
-                connectionL = pyodrx.Connection(road1.id, lastConnectionId, pyodrx.ContactPoint.start)
+                connectionL = pyodrx.Connection(road1.id, newConnectionId, pyodrx.ContactPoint.start)
                 connectionL.add_lanelink(1, 1)
                 junction.add_connection(connectionL)
         
-        return lastConnection
+        return newConnectionRoad
 
 
 

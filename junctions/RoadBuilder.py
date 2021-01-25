@@ -290,41 +290,73 @@ class RoadBuilder:
         """
         x1, y1, h1 = road1.getPosition(cp1)
         x2, y2, h2 = road2.getPosition(cp2)
+
+        if cp1 == pyodrx.ContactPoint.start:
+            h1 = h1 + np.pi
+        
+        if cp2 == pyodrx.ContactPoint.end:
+            h2 = h2 + np.pi
+
+        h1 = h1 % (np.pi * 2)
+        h2 = h2 % (np.pi * 2)
         
         # TODO we need to solve the problem with param poly, not a straight road, as there can still be some angles near threshold for which it can fail.
 
         if Geometry.headingsTooClose(h1, h2):
-            # return a straight road
+            # return a straight road. This is flawed because heading is assumed to be 0 for straight roads in pyodrx
             return self.getStraightRoadBetween(newRoadId, road1, road2, cp1, cp2,
                                     isJunction=isJunction,
                                     n_lanes=n_lanes,
                                     lane_offset=lane_offset,
                                     laneSides=laneSides)
+            # TODO return a curve because points can have the same heading, but big translation which creates problem.
 
-        tangentMagnitude = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        tangentMagnitude = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) 
 
         # some magic of converting intertial points to local points. local 0, 0 is the start point of the second road.
         # here the local frame corresponds to the starting point of the new connection road. It's heading is on u axis
 
-        localRotation = h2 + np.pi # rotation of local frame wrt inertial frame.
+        # localRotation = h2 + np.pi # rotation of local frame wrt inertial frame.
 
-        u1, v1 = self.inertialToLocal((x2, y2), localRotation, (x1, y1))
-        u2 = 0
-        v2 = 0
+        # u1, v1 = self.inertialToLocal((x2, y2), localRotation, (x1, y1))
+        # u2 = 0
+        # v2 = 0
 
-        # Now we need tangents in local reference frame
+        # # Now we need tangents in local reference frame
 
+        # localStartTangent = extensions.headingToTangent(0, tangentMagnitude)
+        # # if cp1 == pyodrx.ContactPoint.start:
+        # localEndTangent = extensions.headingToTangent(h1 - localRotation, tangentMagnitude)
+
+        # # will this magic survive?
+
+        # X = [u2, u1]
+        # Y = [v2, v1]
+
+
+        # tangentX = [localStartTangent[0], localEndTangent[0]]
+        # tangentY = [localStartTangent[1], localEndTangent[1]]
+
+
+        localRotation = h1 # rotation of local frame wrt inertial frame.
+
+        u1 = 0
+        v1 = 0
+
+        u2, v2 = self.inertialToLocal((x1, y1), localRotation, (x2, y2))
         localStartTangent = extensions.headingToTangent(0, tangentMagnitude)
-        localEndTangent = extensions.headingToTangent(h1 - localRotation, tangentMagnitude)
+        localEndHeading = h2 + (np.pi * 2) - h1
+        localEndTangent = extensions.headingToTangent(localEndHeading, tangentMagnitude)
 
-        # will this magic survive?
+        
+        X = [u1, u2]
+        Y = [v1, v2]
 
-        X = [u2, u1]
-        Y = [v2, v1]
         tangentX = [localStartTangent[0], localEndTangent[0]]
         tangentY = [localStartTangent[1], localEndTangent[1]]
 
-        # print("connecting road X, Y, tangentX, tangentY")
+        # print(f"connecting road #{road1.id} and # {road2.id}: {x1, y1, x2, y2}")
+        # print(f"connecting road #{road1.id} and # {road2.id}: X, Y, tangentX, tangentY")
         # print(X)
         # print(Y)
         # print(tangentX)

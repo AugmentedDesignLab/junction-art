@@ -19,4 +19,4 @@ class test_JunctionHarvester(unittest.TestCase):
 
     def test_harvestByPainting2L(self):
 
-        self.harvester.harvestByPainting2L(maxNumberOfRoadsPerJunction=4, triesPerRoadCount=3, show=True)
+        self.harvester.harvestByPainting2L(maxNumberOfRoadsPerJunction=4, triesPerRoadCount=1, show=True)
