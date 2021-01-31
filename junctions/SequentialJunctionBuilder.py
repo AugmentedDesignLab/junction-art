@@ -150,7 +150,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         return actions[np.random.choice(len(actions))]
 
     
-    def createWithRandomLaneConfigurations(self, straightRoadsPath, odrId, maxNumberOfRoadsPerJunction, maxLanePerSide=2, internalConnections=True, cp1=pyodrx.ContactPoint.start, randomState=None):
+    def createWithRandomLaneConfigurations(self, straightRoadsPath, odrId, maxNumberOfRoadsPerJunction, maxLanePerSide=2, minLanePerSide=0, internalConnections=True, cp1=pyodrx.ContactPoint.start, randomState=None):
 
         if not os.path.isfile(straightRoadsPath):
             raise Exception(f"{straightRoadsPath} does not exist")
@@ -169,7 +169,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             raise Exception("Please add more than 1 roads")
 
         roads = []
-        roads.append(self.getRandomStraightRoad(0, harvestedStraightRoads, maxLanePerSide)) # first road
+        roads.append(self.getRandomStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide)) # first road
         roads[0].id = 0
 
         availableAngle = 1.8 * np.pi # 360 degrees
@@ -186,7 +186,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             nextRoadId += 1
 
             # 1. create a road
-            newRoad = self.getRandomStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide)
+            newRoad = self.getRandomStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
 
             # 2. create a new connection road
             newConnection, availableAngle = self.createNewConnectionForDrawing(action, newConnectionId, availableAngle, maxAnglePerConnection)
@@ -241,10 +241,11 @@ class SequentialJunctionBuilder(JunctionBuilder):
         return odr
 
 
-    def getRandomStraightRoad(self, roadId, harvestedStraightRoads, maxLanePerSide=2):
+    def getRandomStraightRoad(self, roadId, harvestedStraightRoads, maxLanePerSide=2, minLanePerSide=0):
 
-        n_lanes_left = np.random.choice(maxLanePerSide + 1)
-        n_lanes_right = np.random.choice(maxLanePerSide + 1)
+        laneRange = np.arange(minLanePerSide, maxLanePerSide + 1)
+        n_lanes_left = np.random.choice(laneRange)
+        n_lanes_right = np.random.choice(laneRange)
 
         if (n_lanes_left == 0) and (n_lanes_right == 0):
             return self.getRandomStraightRoad(roadId, harvestedStraightRoads, maxLanePerSide)

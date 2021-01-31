@@ -39,7 +39,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
     def test_createWithRandomLaneConfigurations(self):
 
         path = self.configuration.get("harvested_straight_roads")
-        odr = self.builder.createWithRandomLaneConfigurations(path, 0, maxNumberOfRoadsPerJunction=3, maxLanePerSide=2, internalConnections=False, cp1=pyodrx.ContactPoint.end)
+        odr = self.builder.createWithRandomLaneConfigurations(path, 0, maxNumberOfRoadsPerJunction=3, maxLanePerSide=2, minLanePerSide=1, internalConnections=False, cp1=pyodrx.ContactPoint.end)
 
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
         xmlPath = f"output/test_createWithRandomLaneConfigurations.xodr"

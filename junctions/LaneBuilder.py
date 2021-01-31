@@ -652,6 +652,7 @@ class LaneBuilder:
                                     strategy = LaneConfigurationStrategies.MERGE_EDGE, 
                                     countryCode=extensions.CountryCodes.US):
         """Assumes start of connection road is connected to predRoad and end to sucRoad and connection road's lanes are not connected to either of the roads.
+        It can connect roads with two different lane configurations.
 
         Args:
             connectionRoad (ExtendedRoad): 
