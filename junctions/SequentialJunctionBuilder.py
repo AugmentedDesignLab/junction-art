@@ -231,7 +231,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         print(f"roads before internal connections {len(roads)}")
 
         if internalConnections:
-            self.createInternalConnectionsForMissingSequentialRoads(roads, junction, cp1=cp1)
+            newConnectionRoads = self.createInternalConnectionsForMissingSequentialRoads(roads, junction, cp1=cp1, rebuildLanes=True)
             odr.updateRoads(roads)
 
         print(f"roads after internal connections {len(roads)}")
@@ -283,7 +283,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
 
 
-    def createInternalConnectionsForMissingSequentialRoads(self, roads, junction, cp1 = pyodrx.ContactPoint.start ):
+    def createInternalConnectionsForMissingSequentialRoads(self, roads, junction, cp1 = pyodrx.ContactPoint.start, rebuildLanes=False):
 
         """Does not add connection to any junction. When are junction has all the roads connected to at least one connection road in a sequential manner, you can use
         this method to connect roads which are not already connected. 
@@ -301,7 +301,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         #     toId += 2
         #     nextRoadId += 1
 
-        
+        newConnectionRoads = []        
         
         connectionRoads = self.getConnectionRoadsForSequentialRoads(roads)
 
@@ -323,6 +323,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
                     else:
                         connectionRoad = self.createConnectionFor2Roads(nextRoadId, roads[fromIndex], roads[toIndex], junction, cp1=pyodrx.ContactPoint.start, cp2=pyodrx.ContactPoint.start)
                     roads.append(connectionRoad)
+                    newConnectionRoads.append(connectionRoad)
+                    if rebuildLanes:
+                        self.laneBuilder.createLanesForConnectionRoad(connectionRoad, roads[fromIndex], roads[toIndex])
 
                 toIndex += 2
                 nextRoadId += 1
@@ -330,5 +333,4 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
             fromIndex += 2
 
-        
-        pass
+        return newConnectionRoads        

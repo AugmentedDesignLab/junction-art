@@ -15,6 +15,8 @@ class test_RoadBuilder(unittest.TestCase):
     def setUp(self):
         
         self.configuration = Configuration()
+        self.esminiPath = self.configuration.get("esminipath")
+        self.configuration = Configuration()
 
         self.roadBuilder = RoadBuilder()
         self.junctionBuilder = JunctionBuilder()
@@ -158,6 +160,10 @@ class test_RoadBuilder(unittest.TestCase):
         extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
 
     
+        xmlPath = f"output/m-shape.xodr"
+        odr.write_xml(xmlPath)
+
+        extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
     
     def test_createMShapeLeftLanes(self):
 
