@@ -494,7 +494,7 @@ class ExtendedRoad(pyodrx.Road):
     ### Lane related functions
     
     def getBorderDistanceOfLane(self, laneNo, cp):
-        """[summary]
+        """returns distance of outer border to the center lane.
 
         Args:
             laneNo ([type]): [description] 
@@ -555,7 +555,7 @@ class ExtendedRoad(pyodrx.Road):
 
 
     def getLanePosition(self, laneNo, cp):
-        """[summary]
+        """returns the intertial position of lane boundary. road must be 
 
         Args:
             laneNo ([type]): [description]

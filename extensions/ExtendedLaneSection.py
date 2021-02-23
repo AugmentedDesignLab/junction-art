@@ -71,7 +71,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
 
     def laneWidths(self, lane, laneLength):
-        """[summary]
+        """returns the width of the lane at ds=0 and ds=laneLength as a list of values
 
         Args:
             lane ([type]): [description]
@@ -110,7 +110,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
 
     def widths(self, roadLength, laneOffset = None, laneOffsetNext = None):
-        """[summary]
+        """ returns the width of the section at the start and end of the secion.
 
         Args:
             roadLength ([type]): [description]
@@ -121,7 +121,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
             (tuple) : (startWidth, endWidth)
         """
 
-        laneLength = self.length(roadLength, laneOffset, laneOffsetNext)
+        sectionLength = self.length(roadLength, laneOffset, laneOffsetNext)
 
         startWidth = 0
         endWidth = 0
@@ -129,7 +129,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
         allLanes = self.leftlanes + self.rightlanes
 
         for lane in allLanes:
-            laneWidths = self.laneWidths(lane, laneLength)
+            laneWidths = self.laneWidths(lane, sectionLength)
             startWidth += laneWidths[0]
             endWidth += laneWidths[1]
 

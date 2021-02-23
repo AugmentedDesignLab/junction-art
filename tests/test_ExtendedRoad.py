@@ -110,13 +110,13 @@ class test_ExtendedRoad(unittest.TestCase):
         roads = []
 
         roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=2, n_lanes_right=2))
-        # roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=2, junction=1,
-        #                                                                                 isLeftTurnLane=True, 
-        #                                                                                 isRightTurnLane=True,
-        #                                                                                 numberOfRightTurnLanesOnLeft=2,
-        #                                                                                 mergeLaneOnTheOppositeSideForInternalTurn=False))
-        # roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=5, n_lanes_right=3))
-        # self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
+        roads.append(self.straightRoadBuilder.createWithRightTurnLanesOnLeft(1, length = 10, n_lanes=2, junction=1,
+                                                                                        isLeftTurnLane=True, 
+                                                                                        isRightTurnLane=True,
+                                                                                        numberOfRightTurnLanesOnLeft=2,
+                                                                                        mergeLaneOnTheOppositeSideForInternalTurn=False))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=5, n_lanes_right=3))
+        self.roadLinker.linkConsecutiveRoadsWithNoBranches(roads)
 
         
 
@@ -130,6 +130,11 @@ class test_ExtendedRoad(unittest.TestCase):
         print(roads[0].getLanePosition(0, pyodrx.ContactPoint.end))
         print(roads[0].getLanePosition(1, pyodrx.ContactPoint.end))
         print(roads[0].getLanePosition(2, pyodrx.ContactPoint.end))
+
+        positionLeftMost = roads[0].getLanePosition(2, pyodrx.ContactPoint.end)
+        assert positionLeftMost[0][0] == 10.0
+        assert positionLeftMost[0][1] == 6.0
+        assert positionLeftMost[0][2] == 0
         
         extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
 

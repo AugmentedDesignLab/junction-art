@@ -7,6 +7,8 @@ esminipath: "F:\\myProjects\\av\\esmini"
 rootPath: "F:\\myProjects\\av"
 
 
+countryCode: "US"
+
 default_lane_width: 3
 default_max_lane_width: 4
 
