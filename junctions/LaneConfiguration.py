@@ -8,6 +8,9 @@ class LaneConfigurationStrategies(Enum):
     MERGE_EDGE = "MERGE_EDGE"
     MERGE_MID = "MERGE_MID"
     MERGE_DISTANCE = "MERGE_DISTANCE"
+    NO_MERGE = "NO_MERGE"
+    SPLIT_LAST = "SPLIT_LAST"
+
 
 class LaneConfiguration(ABC):
 
@@ -36,6 +39,52 @@ class LaneConfiguration(ABC):
             return LaneConfiguration.getLaneLinksByMergingEdge(laneSection1, laneSection2, isCpSame)
         
         raise Exception(f"{strategy} not implemented")
+
+
+    @staticmethod
+    def getIntersectionLinks1ToMany(incomingLanes, outgoingLanes, strategy=LaneConfigurationStrategies.SPLIT_LAST):
+        """[summary]
+
+        Args:
+            incomingLanes ([type]): list of unique lane ids (1-2) means road 1, lane 2
+            outgoingLanes ([type]): list of unique lane ids (1-2) means road 1, lane 2
+
+        Returns:
+            [type]: a list of left lane links and a list of right lane links. A lane link is a tuple (unique left lane id, unique right lane id, 0/1/2) 0 means = straight, 2 = split
+        """
+        if len(incomingLanes) > len(outgoingLanes):
+            raise Exception("# of incoming lanes is greater than # of outgoing lanes in this intersection")
+
+        return LaneConfiguration.getIntersectionLinks1ToManyBySplittingLast(incomingLanes, outgoingLanes)
+
+        
+    @staticmethod
+    def getIntersectionLinks1ToManyBySplittingLast(incomingLanes, outgoingLanes):
+        """[summary]
+
+        Args:
+            incomingLanes ([type]): [description]
+            outgoingLanes ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        if len(incomingLanes) > len(outgoingLanes):
+            raise Exception("Splitting last will not work if # of incoming lanes is >= # of outgoing lanes in this intersection ")
+
+        connections = []
+        for i in range(len(incomingLanes)):
+            connections.append((incomingLanes[i], outgoingLanes[i], 0))
+        # if len(incomingLanes) == len(outgoingLanes):
+        #     return connections
+            
+        # split the last
+        for i in range(len(outgoingLanes) - len(incomingLanes)):
+            connections.append((incomingLanes[-1], outgoingLanes[i + len(incomingLanes)], 2))
+
+        return connections
+
+
 
 
     @staticmethod

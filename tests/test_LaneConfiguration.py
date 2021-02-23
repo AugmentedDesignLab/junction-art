@@ -98,3 +98,50 @@ class test_LaneConfiguration(unittest.TestCase):
         
 
 
+    def test_getIntersectionLinks1ToMany(self):
+
+        incomingLanes = ['1:-1', '1:-2']
+        outgoingLanes = ['2:1']
+
+        try:
+            LaneConfiguration.getIntersectionLinks1ToMany(incomingLanes, outgoingLanes)
+            assert False
+        except Exception as e:
+            print(e)
+            pass
+
+        incomingLanes = ['1:-1', '1:-2']
+        outgoingLanes = ['2:1', '2:2']
+
+        try:
+            connections = LaneConfiguration.getIntersectionLinks1ToMany(incomingLanes, outgoingLanes)
+            assert connections[0][0] == '1:-1'
+            assert connections[0][1] == '2:1'
+            assert connections[0][2] == 0
+            assert connections[1][0] == '1:-2'
+            assert connections[1][1] == '2:2'
+            assert connections[1][2] == 0
+            # print(connections)
+        except Exception as e:
+            print(e)
+            assert False
+
+
+        incomingLanes = ['1:-1', '1:-2']
+        outgoingLanes = ['2:1', '2:2', '3:1']
+
+        try:
+            connections = LaneConfiguration.getIntersectionLinks1ToMany(incomingLanes, outgoingLanes)
+            assert connections[0][0] == '1:-1'
+            assert connections[0][1] == '2:1'
+            assert connections[0][2] == 0
+            assert connections[1][0] == '1:-2'
+            assert connections[1][1] == '2:2'
+            assert connections[1][2] == 0
+            assert connections[2][0] == '1:-2'
+            assert connections[2][1] == '3:1'
+            assert connections[2][2] == 2
+            print(connections)
+        except Exception as e:
+            print(e)
+            assert False
