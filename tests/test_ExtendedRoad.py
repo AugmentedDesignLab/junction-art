@@ -132,9 +132,9 @@ class test_ExtendedRoad(unittest.TestCase):
         print(roads[0].getLanePosition(2, pyodrx.ContactPoint.end))
 
         positionLeftMost = roads[0].getLanePosition(2, pyodrx.ContactPoint.end)
-        assert positionLeftMost[0][0] == 10.0
-        assert positionLeftMost[0][1] == 6.0
-        assert positionLeftMost[0][2] == 0
+        assert positionLeftMost[0] == 10.0
+        assert positionLeftMost[1] == 6.0
+        assert positionLeftMost[2] == 0
         
         extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
 

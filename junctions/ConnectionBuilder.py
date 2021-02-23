@@ -47,13 +47,12 @@ class ConnectionBuilder:
         # TODO, get lane widths from road and create an equation.
         width = self.config.get("default_lane_width")
         
-        startPos = incomingRoad.getLanePosition(incomingBoundaryId, incomingCp)
-        endPos = outgoingRoad.getLanePosition(outgoingBoundaryId, outgoingCp)
 
+        x1, y1, h1 = incomingRoad.getLanePosition(incomingBoundaryId, incomingCp)
+        x2, y2, h2 = outgoingRoad.getLanePosition(outgoingBoundaryId, outgoingCp)
 
-
-        x1, y1, h1 = incomingRoad.getPosition(incomingCp)
-        x2, y2, h2 = outgoingRoad.getPosition(outgoingCp)
+        print("start: ", x1, y1, h1)
+        print("end: ", x2, y2, h2)
 
         xCoeffs, yCoeffs = Geometry.getCoeffsForParamPoly(x1, y1, h1, x2, y2, h2, incomingCp, outgoingCp)
 

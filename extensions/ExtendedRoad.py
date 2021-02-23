@@ -576,11 +576,11 @@ class ExtendedRoad(pyodrx.Road):
         localShiftAmount = self.getBorderDistanceOfLane(laneNo, cp)
 
         if laneNo > 0: 
-            x += localShiftAmount * math.cos(h + np.pi/2) * -1
+            x += localShiftAmount * math.cos(h + np.pi/2)
             y += localShiftAmount * math.sin(h + np.pi/2)
         else:
-            x += localShiftAmount * math.cos(h + np.pi/2)
-            y += localShiftAmount * math.sin(h + np.pi/2) * -1
+            x += localShiftAmount * math.cos(h - np.pi/2)
+            y += localShiftAmount * math.sin(h - np.pi/2) 
 
         return x, y, h
 
