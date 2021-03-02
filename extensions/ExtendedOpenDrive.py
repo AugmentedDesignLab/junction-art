@@ -309,12 +309,20 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
 
                 localShiftAmount = neighbourRoad.getBorderDistanceOfLane(main_road.predecessorOffset, contact_point)
 
-                if main_road.predecessorOffset > 0: 
-                    x += localShiftAmount * math.cos(h + np.pi/2) * -1
-                    y += localShiftAmount * math.sin(h + np.pi/2)
+                if contact_point == pyodrx.ContactPoint.start:
+                    if main_road.predecessorOffset > 0: 
+                        x += localShiftAmount * math.cos(h + np.pi/2) * -1
+                        y += localShiftAmount * math.sin(h + np.pi/2) * -1
+                    else:
+                        x += localShiftAmount * math.cos(h + np.pi/2)
+                        y += localShiftAmount * math.sin(h + np.pi/2) 
                 else:
-                    x += localShiftAmount * math.cos(h + np.pi/2)
-                    y += localShiftAmount * math.sin(h + np.pi/2) * -1
+                    if main_road.predecessorOffset > 0: 
+                        x += localShiftAmount * math.cos(h + np.pi/2) 
+                        y += localShiftAmount * math.sin(h + np.pi/2) 
+                    else:
+                        x += localShiftAmount * math.cos(h + np.pi/2) * -1
+                        y += localShiftAmount * math.sin(h + np.pi/2) * -1
 
                 # raise Exception("predecessorOffset is not implemented yet")
             

@@ -93,6 +93,8 @@ class Geometry(ABC):
 
     @staticmethod
     def getCoeffsForParamPoly(x1, y1, h1, x2, y2, h2, cp1, cp2):
+        """ Assumes traffice goes from point1 to point2. By default if the contact point is start, traffic is going into the road, and end, traffic is going out. """
+
         if cp1 == pyodrx.ContactPoint.start:
             h1 = h1 + np.pi
 
