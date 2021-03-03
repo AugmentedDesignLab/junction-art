@@ -151,26 +151,44 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
     
     def createWithRandomLaneConfigurations(self, straightRoadsPath, odrId, maxNumberOfRoadsPerJunction, maxLanePerSide=2, minLanePerSide=0, internalConnections=True, cp1=pyodrx.ContactPoint.start, randomState=None):
+        """All the incoming roads, except for the first, will have their start endpoint connected to the junction.
 
-        if not os.path.isfile(straightRoadsPath):
-            raise Exception(f"{straightRoadsPath} does not exist")
+        Args:
+            straightRoadsPath ([type]): [description]
+            odrId ([type]): [description]
+            maxNumberOfRoadsPerJunction ([type]): [description]
+            maxLanePerSide (int, optional): [description]. Defaults to 2.
+            minLanePerSide (int, optional): [description]. Defaults to 0.
+            internalConnections (bool, optional): [description]. Defaults to True.
+            cp1 ([type], optional): [description]. Defaults to pyodrx.ContactPoint.start.
+            randomState ([type], optional): [description]. Defaults to None.
 
-        harvestedStraightRoads = None
+        Raises:
+            Exception: [description]
+
+        Returns:
+            [type]: [description]
+        """
+
+
+        harvestedStraightRoads = extensions.getObjectsFromDill(straightRoadsPath)
+
         if randomState is not None:
             np.random.set_state(randomState)
-
-        with open(straightRoadsPath, "rb") as f:
-            harvestedStraightRoads = dill.load(f)
 
         for key in harvestedStraightRoads:
             print(f"{key} has {len(harvestedStraightRoads[key])} number of roads")
 
         if maxNumberOfRoadsPerJunction < 2:
             raise Exception("Please add more than 1 roads")
-
+        
+        outsideRoads = [] # all the incoming/outgoing roads in this junction
+        geoConnectionRoads = [] # connections roads which are for geometric positions, having no lanes
+        laneConnectionRoads = [] # connection roads that have lanes.
         roads = []
         roads.append(self.getRandomStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide)) # first road
         roads[0].id = 0
+        outsideRoads.append(roads[0])
 
         availableAngle = 1.8 * np.pi # 360 degrees
         maxAnglePerConnection = availableAngle / (maxNumberOfRoadsPerJunction - 1)
@@ -179,6 +197,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
         while (action != "end"):
 
             print(f"availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
+
+            # 0. road id generation
             previousRoadId = nextRoadId - 1
             newConnectionId = nextRoadId
             nextRoadId += 1
@@ -187,19 +207,19 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
             # 1. create a road
             newRoad = self.getRandomStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
+            outsideRoads.append(newRoad)
 
             # 2. create a new connection road
             newConnection, availableAngle = self.createNewConnectionForDrawing(action, newConnectionId, availableAngle, maxAnglePerConnection)
+            geoConnectionRoads.append(newConnection)
             
-            # 5 add new roads and increase road id
+            # 5 add new roads
             roads.append(newConnection)
             roads.append(newRoad)
 
-            # roads[previousRoadId].add_successor(pyodrx.ElementType.junction, newConnection.id)
             roads[previousRoadId].addExtendedSuccessor(newConnection, 0, pyodrx.ContactPoint.start)
 
             if newConnection.id == 1:
-                # TODO this is a hack. It will not eventually work because outgoing roads' ends will come to join other junctions.
                 newConnection.addExtendedPredecessor(roads[previousRoadId], 0 , cp1)
             else:
                 newConnection.addExtendedPredecessor(roads[previousRoadId], 0 , pyodrx.ContactPoint.start)
@@ -213,7 +233,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             pass
         
         # 3. create connections and junction
-
+        # TODO this is not correct anymore.
         junction = self.createJunctionForASeriesOfRoads(roads)
 
         # print(f"number of roads created {len(roads)}")

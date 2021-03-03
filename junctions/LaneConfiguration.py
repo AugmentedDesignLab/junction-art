@@ -2,6 +2,9 @@ from abc import ABC
 from enum import Enum
 from extensions.ExtendedRoad import ExtendedRoad
 from extensions.ExtendedLaneSection import ExtendedLaneSection
+from library.Configuration import Configuration
+from extensions.CountryCodes import CountryCodes
+import pyodrx
 
 class LaneConfigurationStrategies(Enum):
     MERGE_MEDIAN = "MERGE_MEDIAN"
@@ -39,6 +42,91 @@ class LaneConfiguration(ABC):
             return LaneConfiguration.getLaneLinksByMergingEdge(laneSection1, laneSection2, isCpSame)
         
         raise Exception(f"{strategy} not implemented")
+
+
+    # methods for lane link configurations in an intersection
+
+    @staticmethod
+    def getIncomingLanesOnARoad(road, cp, countryCode):
+
+        laneSection = road.getLaneSectionByCP(cp)
+        if countryCode == CountryCodes.US:
+            if cp == pyodrx.ContactPoint.start:
+                return laneSection.leftlanes
+            return laneSection.rightlanes
+        
+        raise NotImplementedError()
+
+    @staticmethod
+    def getIncomingLaneIdsOnARoad(road, cp, countryCode):
+        return LaneConfiguration.getUniqueLaneIds(road, LaneConfiguration.getIncomingLanesOnARoad(road, cp, countryCode))
+
+    @staticmethod
+    def getOutgoingLanesOnARoad(road, cp, countryCode):
+
+        laneSection = road.getLaneSectionByCP(cp)
+        if countryCode == CountryCodes.US:
+            if cp == pyodrx.ContactPoint.end:
+                return laneSection.leftlanes
+            return laneSection.rightlanes
+        
+        raise NotImplementedError()
+
+    
+    @staticmethod
+    def getOutgoingLanesIdsFromARoad(incomingRoad, allRoads, cp1, countryCode):
+        """Assumes all roads are connected by start point except for the first one
+
+        Args:
+            incomingRoad ([type]): [description]
+            allRoads ([type]): [description]
+            cp1 ([type]): Contact point of the first road.
+            countryCode ([type]): [description]
+        """
+
+        # allRoads may have the incoming road, too.
+        outgoingLanes = []
+
+        firstRoadId = allRoads[0].id
+
+        if countryCode == CountryCodes.US:
+            for road in allRoads:
+                if road.id != incomingRoad.id:
+                    lanes = []
+                    if road.id == firstRoadId:
+                        lanes = LaneConfiguration.getOutgoingLanesOnARoad(road, cp1, countryCode)
+                    else:
+                        lanes = LaneConfiguration.getOutgoingLanesOnARoad(road, pyodrx.ContactPoint.start, countryCode)
+                    
+                    outgoingLanes += LaneConfiguration.getUniqueLaneIds(road, lanes)
+
+            return outgoingLanes
+
+        raise NotImplementedError()
+
+
+
+    @staticmethod
+    def getUniqueLaneId(roadId, lane_id):
+
+        return f"{roadId}:{lane_id}"
+
+
+
+    @staticmethod
+    def getUniqueLaneIds(road, lanes):
+
+        roadId = road.id
+        laneIds = []
+        for lane in lanes:
+            laneIds.append(LaneConfiguration.getUniqueLaneId(roadId, lane.lane_id))
+        
+        return laneIds
+
+
+
+
+
 
 
     @staticmethod

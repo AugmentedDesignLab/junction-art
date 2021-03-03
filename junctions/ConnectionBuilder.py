@@ -8,6 +8,7 @@ from junctions.CurveRoadBuilder import CurveRoadBuilder
 from junctions.Geometry import Geometry
 from scipy.interpolate import CubicHermiteSpline
 from junctions.LaneSides import LaneSides
+from junctions.RoadLinker import RoadLinker
 
 class ConnectionBuilder:
 
@@ -74,6 +75,47 @@ class ConnectionBuilder:
 
                                             )
 
+        newConnection.isSingleLaneConnection = True
         return newConnection
 
 
+    def createSingleLaneConnectionRoads(self, outsideRoads, cp1):
+
+        newConnectionRoads = []        
+        
+
+        fromIndex = 0
+        countOldRoads = len(outsideRoads)
+        nextRoadId = outsideRoads[-1].id + 1
+
+        while fromIndex < countOldRoads:
+
+            
+
+            toIndex = fromIndex + 2
+
+            while toIndex < countOldRoads:
+                if toIndex == fromIndex:
+                    toIndex += 2
+                    continue
+                
+                
+
+                
+                if fromIndex == 0:
+                    connectionRoad = self.createSingleLaneConnectionRoad(newRoadId, outsideRoads[fromIndex], outsideRoads[toIndex], )
+                    connectionRoad = self.createConnectionFor2Roads(nextRoadId, outsideRoads[fromIndex], outsideRoads[toIndex], junction, cp1=cp1, cp2=pyodrx.ContactPoint.start)
+                else:
+                    connectionRoad = self.createConnectionFor2Roads(nextRoadId, outsideRoads[fromIndex], outsideRoads[toIndex], junction, cp1=pyodrx.ContactPoint.start, cp2=pyodrx.ContactPoint.start)
+                outsideRoads.append(connectionRoad)
+                newConnectionRoads.append(connectionRoad)
+                if rebuildLanes:
+                    self.laneBuilder.createLanesForConnectionRoad(connectionRoad, outsideRoads[fromIndex], outsideRoads[toIndex])
+
+                toIndex += 1
+                nextRoadId += 1
+                pass
+
+            fromIndex += 2
+
+        return newConnectionRoads     

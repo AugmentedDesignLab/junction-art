@@ -32,6 +32,7 @@ class ExtendedRoad(pyodrx.Road):
         self.curveType = curveType
         self.headingTangentMagnitude = 10 # 10 meters.
         self.isConnection = False
+        self.isSingleLaneConnection = False
         self.elementType = pyodrx.ElementType.road
 
         if road_type == 1:
