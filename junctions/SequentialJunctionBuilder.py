@@ -12,6 +12,7 @@ from junctions.RoadLinker import RoadLinker
 from junctions.JunctionBuilder import JunctionBuilder
 from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.AngleCurvatureMap import AngleCurvatureMap
+from extensions.CountryCodes import CountryCodes
 
 
 class SequentialJunctionBuilder(JunctionBuilder):
@@ -235,7 +236,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
         
         # 3. create connections and junction
         # TODO this is not correct anymore.
-        junction = self.createJunctionForASeriesOfRoads(roads)
+        # junction = self.createJunctionForASeriesOfRoads(roads)
+        junction = pyodrx.Junction("singleConnectionsJunction", 0)
 
         # print(f"number of roads created {len(roads)}")
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(odrId)
@@ -261,6 +263,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
             for geoRoad in geoConnectionRoads:
                 geoRoad.clearLanes()
+
+            # TODO create the junction
+            self.addInternalConnectionsToJunction(junction, internalConnections)
 
 
         print(f"roads after internal connections {len(roads)}")
@@ -293,6 +298,21 @@ class SequentialJunctionBuilder(JunctionBuilder):
         raise Exception("No road found")
 
 
+    
+    def addInternalConnectionsToJunction(self, junction, internalConnections):
+        # NEed to implement it while creating the connection.
+        
+        # connectionLaneId = -1
+        # if self.countryCode == CountryCodes.US:
+        #     connectionLaneId = -1
+        # elif self.countryCode == CountryCodes.UK:
+        #     connectionLaneId = 1
+
+        # for connectionRoad in internalConnections:
+        #     extendedPred = connectionRoad.extendedPredecessors.values()[0]
+        #     connectionL = pyodrx.Connection(extendedPred.road.id, connectionRoad.id, pyodrx.ContactPoint.start)
+        #     connectionL.add_lanelink(connectionLaneId,-1)
+        pass
 
     
     def getConnectionRoadsForSequentialRoads(self, roads):

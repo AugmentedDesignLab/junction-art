@@ -35,6 +35,7 @@ class JunctionBuilder:
         self.maxAngle = maxAngle
         self.curveBuilder = CurveRoadBuilder(country=country)
         self.connectionBuilder = ConnectionBuilder()
+        self.countryCode = country
 
         pass
 
@@ -48,6 +49,8 @@ class JunctionBuilder:
             [type]: [description]
         """
 
+        # TODO it does not support all lanes.
+        # ID is wrong
         junction = pyodrx.Junction("spiderJunction", 0)
 
         connectionId = 1
