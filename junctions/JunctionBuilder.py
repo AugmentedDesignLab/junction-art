@@ -11,6 +11,7 @@ from junctions.RoadLinker import RoadLinker
 from junctions.LaneBuilder import LaneBuilder
 from junctions.CurveRoadBuilder import CurveRoadBuilder
 from extensions.CountryCodes import CountryCodes
+from junctions.ConnectionBuilder import ConnectionBuilder
 
 class JunctionBuilder:
     
@@ -33,6 +34,7 @@ class JunctionBuilder:
         self.minAngle = minAngle
         self.maxAngle = maxAngle
         self.curveBuilder = CurveRoadBuilder(country=country)
+        self.connectionBuilder = ConnectionBuilder()
 
         pass
 

@@ -17,7 +17,7 @@ class test_StraightRoadHarvester(unittest.TestCase):
         
         self.configuration = Configuration()
         self.esminiPath = self.configuration.get("esminipath")
-        self.harvester = StraightRoadHarvester(outputDir="./output", outputPrefix="harvest-straight-", lastId=0, straightRoadLen=5, esminiPath=self.esminiPath)
+        self.harvester = StraightRoadHarvester(outputDir="./output", outputPrefix="harvest-straight-", lastId=0, straightRoadLen=10, esminiPath=self.esminiPath)
         self.straightRoadBuilder = StraightRoadBuilder()
         self.pp = pprint.PrettyPrinter(indent=4)
 

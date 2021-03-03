@@ -15,6 +15,7 @@ from junctions.AngleCurvatureMap import AngleCurvatureMap
 
 
 class SequentialJunctionBuilder(JunctionBuilder):
+
     
 
     def drawLikeAPainter2L(self, odrId, maxNumberOfRoadsPerJunction, save=True, internalConnections=True, cp1=pyodrx.ContactPoint.end):
@@ -242,17 +243,25 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
         # The last connection and resetting odr
 
-        lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=cp1)
-        self.laneBuilder.createLanesForConnectionRoad(lastConnection, roads[-1], roads[0])
-        roads.append(lastConnection)
+        # lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=cp1)
+        # nextRoadId += 1
+        # self.laneBuilder.createLanesForConnectionRoad(lastConnection, roads[-1], roads[0])
+        # roads.append(lastConnection)
 
-        odr.add_road(lastConnection)
+        # odr.add_road(lastConnection)
 
         print(f"roads before internal connections {len(roads)}")
 
         if internalConnections:
-            newConnectionRoads = self.createInternalConnectionsForMissingSequentialRoads(roads, junction, cp1=cp1, rebuildLanes=True)
+            # newConnectionRoads = self.createInternalConnectionsForMissingSequentialRoads(roads, junction, cp1=cp1, rebuildLanes=True)
+            internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId, outsideRoads, cp1)
+            nextRoadId += 1
+            roads += internalConnections
             odr.updateRoads(roads)
+
+            for geoRoad in geoConnectionRoads:
+                geoRoad.clearLanes()
+
 
         print(f"roads after internal connections {len(roads)}")
 

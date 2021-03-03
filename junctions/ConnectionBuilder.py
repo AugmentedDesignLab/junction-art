@@ -9,6 +9,8 @@ from junctions.Geometry import Geometry
 from scipy.interpolate import CubicHermiteSpline
 from junctions.LaneSides import LaneSides
 from junctions.RoadLinker import RoadLinker
+from junctions.LaneConfiguration import LaneConfiguration
+import logging
 
 class ConnectionBuilder:
 
@@ -17,6 +19,7 @@ class ConnectionBuilder:
         self.config = Configuration()
         self.countryCode = CountryCodes.getByStr(self.config.get("countryCode"))
         self.curveBuilder = CurveRoadBuilder()
+        self.name = "ConnectionBuilder"
         
 
     
@@ -74,48 +77,84 @@ class ConnectionBuilder:
                                                 laneSides=laneSides
 
                                             )
+        
+        newConnection.predecessorOffset = incomingBoundaryId
 
         newConnection.isSingleLaneConnection = True
+
+        RoadLinker.createExtendedPredSuc(predRoad=incomingRoad, predCp=incomingCp, sucRoad=newConnection, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=newConnection, predCp=pyodrx.ContactPoint.end, sucRoad=outgoingRoad, sucCP=outgoingCp)
+
         return newConnection
 
 
-    def createSingleLaneConnectionRoads(self, outsideRoads, cp1):
+    def createSingleLaneConnectionRoads(self, nextRoadId, outsideRoads, cp1):
+        """Assumes all roads are connected by start point except for the first one
+
+        Args:
+            outsideRoads ([type]): [description]
+            cp1 ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+
+        roadDic = {}
+        for road in outsideRoads:
+            roadDic[road.id] = road
 
         newConnectionRoads = []        
         
+        firstRoadId = outsideRoads[0].id
 
-        fromIndex = 0
         countOldRoads = len(outsideRoads)
-        nextRoadId = outsideRoads[-1].id + 1
 
-        while fromIndex < countOldRoads:
+        # count = 0
 
+        for incomingRoad in outsideRoads:
+
+            # count += 1
+            # if count == 1:
+            #     continue
+
+            incomingLaneIds = []
+            if firstRoadId == incomingRoad.id:
+                incomingLaneIds = LaneConfiguration.getIncomingLaneIdsOnARoad(incomingRoad, cp1, self.countryCode)
+            else:
+                incomingLaneIds = LaneConfiguration.getIncomingLaneIdsOnARoad(incomingRoad, pyodrx.ContactPoint.start, self.countryCode)
             
+            outgoingLaneIds = LaneConfiguration.getOutgoingLanesIdsFromARoad(incomingRoad, outsideRoads, cp1=cp1, countryCode=self.countryCode)
 
-            toIndex = fromIndex + 2
+            try:
+                linkConfig = LaneConfiguration.getIntersectionLinks1ToMany(incomingLaneIds, outgoingLaneIds)
 
-            while toIndex < countOldRoads:
-                if toIndex == fromIndex:
-                    toIndex += 2
-                    continue
-                
-                
+                # for each link, create a new connection road
+                for link in linkConfig:
 
-                
-                if fromIndex == 0:
-                    connectionRoad = self.createSingleLaneConnectionRoad(newRoadId, outsideRoads[fromIndex], outsideRoads[toIndex], )
-                    connectionRoad = self.createConnectionFor2Roads(nextRoadId, outsideRoads[fromIndex], outsideRoads[toIndex], junction, cp1=cp1, cp2=pyodrx.ContactPoint.start)
-                else:
-                    connectionRoad = self.createConnectionFor2Roads(nextRoadId, outsideRoads[fromIndex], outsideRoads[toIndex], junction, cp1=pyodrx.ContactPoint.start, cp2=pyodrx.ContactPoint.start)
-                outsideRoads.append(connectionRoad)
-                newConnectionRoads.append(connectionRoad)
-                if rebuildLanes:
-                    self.laneBuilder.createLanesForConnectionRoad(connectionRoad, outsideRoads[fromIndex], outsideRoads[toIndex])
+                    fromUniqueLaneId = link[0]
+                    incomingLaneId = int(fromUniqueLaneId.split(':')[1])
 
-                toIndex += 1
-                nextRoadId += 1
-                pass
+                    toUniqueLaneId = link[1]
+                    outgoingRoadId = int(toUniqueLaneId.split(':')[0])
+                    outgoingLaneId = int(toUniqueLaneId.split(':')[1])
 
-            fromIndex += 2
+                    outgoingRoad = roadDic[outgoingRoadId]
+
+                    if firstRoadId == incomingRoad.id:
+                        newConnection = self.createSingleLaneConnectionRoad(nextRoadId, incomingRoad, outgoingRoad, incomingLaneId, outgoingLaneId, cp1, pyodrx.ContactPoint.start)
+                    elif firstRoadId == outgoingRoad.id:
+                        newConnection = self.createSingleLaneConnectionRoad(nextRoadId, incomingRoad, outgoingRoad, incomingLaneId, outgoingLaneId, pyodrx.ContactPoint.start, cp1)
+                    else:
+                        newConnection = self.createSingleLaneConnectionRoad(nextRoadId, incomingRoad, outgoingRoad, incomingLaneId, outgoingLaneId, pyodrx.ContactPoint.start, pyodrx.ContactPoint.start)
+
+                    newConnectionRoads.append(newConnection)
+
+                    nextRoadId += 1
+
+                    logging.info(f"{self.name}: created connection for link {link}")
+            except Exception as e:
+                logging.warn(f"{self.name}: {e}")
+            # break
+            
 
         return newConnectionRoads     

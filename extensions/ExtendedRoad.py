@@ -423,6 +423,7 @@ class ExtendedRoad(pyodrx.Road):
 
     def clearLanes(self):
         self.lanes.clearLanes()
+        self.clearLaneLinks()
 
     def getLaneSections(self):
         return self.lanes.lanesections

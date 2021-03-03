@@ -182,9 +182,6 @@ class test_LaneConfiguration(unittest.TestCase):
         outLanes = LaneConfiguration.getOutgoingLanesIdsFromARoad(roads[0], roads, cp1=pyodrx.ContactPoint.end, countryCode=CountryCodes.US)
         assert inLanes[0] == '0:-1'
         assert inLanes[1] == '0:-2'
-        print(inLanes)
-        print(outLanes)
-
         assert outLanes[0] == '1:-1'
         assert outLanes[1] == '2:-1'
         assert outLanes[2] == '2:-2'
@@ -199,3 +196,7 @@ class test_LaneConfiguration(unittest.TestCase):
         assert outLanes[0] == '0:1'
         assert outLanes[1] == '0:2'
         assert outLanes[2] == '1:-1'
+
+        linkConfig = LaneConfiguration.getIntersectionLinks1ToMany(inLanes, outLanes)
+
+        print(linkConfig)

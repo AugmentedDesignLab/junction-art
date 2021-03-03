@@ -160,6 +160,9 @@ class LaneConfiguration(ABC):
         if len(incomingLanes) > len(outgoingLanes):
             raise Exception("Splitting last will not work if # of incoming lanes is >= # of outgoing lanes in this intersection ")
 
+        if len(incomingLanes) == 0 or len(outgoingLanes) == 0:
+            return []
+
         connections = []
         for i in range(len(incomingLanes)):
             connections.append((incomingLanes[i], outgoingLanes[i], 0))

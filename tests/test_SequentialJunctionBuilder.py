@@ -4,6 +4,8 @@ import extensions, os
 import numpy as np
 from library.Configuration import Configuration
 import pyodrx
+import logging
+logging.basicConfig(level=logging.INFO)
 
 class test_SequentialJunctionBuilder(unittest.TestCase):
 
@@ -12,7 +14,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         self.configuration = Configuration()
         outputDir= os.path.join(os.getcwd(), 'output')
         lastId = 0
-        self.builder = SequentialJunctionBuilder(straightRoadLen=10)
+        self.builder = SequentialJunctionBuilder(straightRoadLen=20)
         
         self.randomState =self.configuration.get("random_state")
 
@@ -42,7 +44,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
 
         maxNumberOfRoadsPerJunction = 4
         path = self.configuration.get("harvested_straight_roads")
-        odr = self.builder.createWithRandomLaneConfigurations(path, 0, maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, maxLanePerSide=2, minLanePerSide=0, internalConnections=True, cp1=pyodrx.ContactPoint.end)
+        odr = self.builder.createWithRandomLaneConfigurations(path, 0, maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, maxLanePerSide=2, minLanePerSide=1, internalConnections=True, cp1=pyodrx.ContactPoint.end)
 
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
         xmlPath = f"output/test_createWithRandomLaneConfigurations.xodr"
