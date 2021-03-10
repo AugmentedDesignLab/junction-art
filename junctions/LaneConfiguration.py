@@ -1,5 +1,6 @@
 from abc import ABC
 from enum import Enum
+import numpy as np
 from extensions.ExtendedRoad import ExtendedRoad
 from extensions.ExtendedLaneSection import ExtendedLaneSection
 from library.Configuration import Configuration
@@ -13,6 +14,21 @@ class LaneConfigurationStrategies(Enum):
     MERGE_DISTANCE = "MERGE_DISTANCE"
     NO_MERGE = "NO_MERGE"
     SPLIT_LAST = "SPLIT_LAST"
+    SPLIT_FIRST = "SPLIT_FIRST"
+    SPLIT_MULTI = "SPLIT_MULTI"
+    SPLIT_ANY = "SPLIT_ANY"
+
+    @staticmethod
+    def getAvailableSplitStrategies():
+        return [
+            LaneConfigurationStrategies.SPLIT_FIRST,
+            LaneConfigurationStrategies.SPLIT_LAST
+        ]
+    
+    @staticmethod
+    def getRandomAvailableSplitStrategy():
+        strategies = LaneConfigurationStrategies.getAvailableSplitStrategies()
+        return strategies[np.random.choice(len(strategies))]
 
 
 class LaneConfiguration(ABC):
@@ -130,7 +146,7 @@ class LaneConfiguration(ABC):
 
 
     @staticmethod
-    def getIntersectionLinks1ToMany(incomingLanes, outgoingLanes, strategy=LaneConfigurationStrategies.SPLIT_LAST):
+    def getIntersectionLinks1ToMany(incomingLanes, outgoingLanes, strategy=LaneConfigurationStrategies.SPLIT_ANY):
         """[summary]
 
         Args:
@@ -143,7 +159,46 @@ class LaneConfiguration(ABC):
         if len(incomingLanes) > len(outgoingLanes):
             raise Exception("# of incoming lanes is greater than # of outgoing lanes in this intersection")
 
-        return LaneConfiguration.getIntersectionLinks1ToManyBySplittingLast(incomingLanes, outgoingLanes)
+        if strategy == LaneConfigurationStrategies.SPLIT_ANY:
+            strategy = LaneConfigurationStrategies.getRandomAvailableSplitStrategy()
+
+        if strategy == LaneConfigurationStrategies.SPLIT_LAST:
+            return LaneConfiguration.getIntersectionLinks1ToManyBySplittingLast(incomingLanes, outgoingLanes)
+        if strategy == LaneConfigurationStrategies.SPLIT_FIRST:
+            return LaneConfiguration.getIntersectionLinks1ToManyBySplittingFirst(incomingLanes, outgoingLanes)
+
+        
+    @staticmethod
+    def getIntersectionLinks1ToManyBySplittingFirst(incomingLanes, outgoingLanes):
+        """[summary]
+
+        Args:
+            incomingLanes ([type]): [description]
+            outgoingLanes ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        LaneConfiguration.validateIncomingAndOutgoingLanes(incomingLanes, outgoingLanes)
+
+        if len(incomingLanes) == 0 or len(outgoingLanes) == 0:
+            return []
+
+        connections = LaneConfiguration.get1To1Connections(incomingLanes, outgoingLanes, fromTop=False)
+
+        # now we have outgoing lanes on the top of the stack. We find the bottommost non-connected lane
+        numNonConnectedOutgoing = len(outgoingLanes) - len(connections)
+
+        if numNonConnectedOutgoing < 1:
+            return connections
+
+        lastNonConnectedIndex = numNonConnectedOutgoing - 1
+            
+        # split the last
+        for i in range(numNonConnectedOutgoing):
+            connections.insert(0, (incomingLanes[0], outgoingLanes[lastNonConnectedIndex - i], 2))
+
+        return connections
 
         
     @staticmethod
@@ -157,23 +212,38 @@ class LaneConfiguration(ABC):
         Returns:
             [type]: [description]
         """
-        if len(incomingLanes) > len(outgoingLanes):
-            raise Exception("Splitting last will not work if # of incoming lanes is >= # of outgoing lanes in this intersection ")
+        LaneConfiguration.validateIncomingAndOutgoingLanes(incomingLanes, outgoingLanes)
 
         if len(incomingLanes) == 0 or len(outgoingLanes) == 0:
             return []
 
-        connections = []
-        for i in range(len(incomingLanes)):
-            connections.append((incomingLanes[i], outgoingLanes[i], 0))
-        # if len(incomingLanes) == len(outgoingLanes):
-        #     return connections
+        connections = LaneConfiguration.get1To1Connections(incomingLanes, outgoingLanes)
             
         # split the last
         for i in range(len(outgoingLanes) - len(incomingLanes)):
             connections.append((incomingLanes[-1], outgoingLanes[i + len(incomingLanes)], 2))
 
         return connections
+
+    @staticmethod
+    def get1To1Connections(incomingLanes, outgoingLanes, fromTop=True):
+        connections = []
+        if fromTop:
+            for i in range(len(incomingLanes)):
+                connections.append((incomingLanes[i], outgoingLanes[i], 0))
+        else:
+            # we start at the bottom of two stacks and insert connections at the top.
+            incomingLastIndex = len(incomingLanes) - 1
+            outgoingLastIndex = len(outgoingLanes) - 1
+            for i in range(len(incomingLanes)):
+                connections.insert(0, (incomingLanes[incomingLastIndex - i], outgoingLanes[outgoingLastIndex - i], 0))
+
+        return connections
+
+    @staticmethod
+    def validateIncomingAndOutgoingLanes(incomingLanes, outgoingLanes):
+        if len(incomingLanes) > len(outgoingLanes):
+            raise Exception("Splitting last will not work if # of incoming lanes is >= # of outgoing lanes in this intersection ")
 
 
 

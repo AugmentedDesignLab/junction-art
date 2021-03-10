@@ -200,3 +200,81 @@ class test_LaneConfiguration(unittest.TestCase):
         linkConfig = LaneConfiguration.getIntersectionLinks1ToMany(inLanes, outLanes)
 
         print(linkConfig)
+
+
+
+    def test_get1To1Connections(self):
+        
+        incomingLanes = ['1:-1', '1:-2']
+        outgoingLanes = ['2:1', '2:2']
+
+        connections = LaneConfiguration.get1To1Connections(incomingLanes, outgoingLanes, True)
+        assert connections[0][0] == '1:-1'
+        assert connections[0][1] == '2:1'
+        assert connections[0][2] == 0
+        assert connections[1][0] == '1:-2'
+        assert connections[1][1] == '2:2'
+        assert connections[1][2] == 0
+
+        incomingLanes = ['1:-1', '1:-2']
+        outgoingLanes = ['2:1', '2:2', '3:1']
+        connections = LaneConfiguration.get1To1Connections(incomingLanes, outgoingLanes, True)
+
+        assert len(connections) == 2
+        assert connections[0][0] == '1:-1'
+        assert connections[0][1] == '2:1'
+        assert connections[0][2] == 0
+        assert connections[1][0] == '1:-2'
+        assert connections[1][1] == '2:2'
+        assert connections[1][2] == 0
+        connections = LaneConfiguration.get1To1Connections(incomingLanes, outgoingLanes, False)
+
+        # print(connections)
+        assert len(connections) == 2
+        assert connections[0][0] == '1:-1'
+        assert connections[0][1] == '2:2'
+        assert connections[0][2] == 0
+        assert connections[1][0] == '1:-2'
+        assert connections[1][1] == '3:1'
+        assert connections[1][2] == 0
+
+
+        incomingLanes = ['1:-1']
+        outgoingLanes = ['2:1', '2:2', '3:1']
+        connections = LaneConfiguration.get1To1Connections(incomingLanes, outgoingLanes, False)
+
+        # print(connections)
+        assert len(connections) == 1
+        assert connections[0][0] == '1:-1'
+        assert connections[0][1] == '3:1'
+        assert connections[0][2] == 0
+
+        
+    def test_getIntersectionLinks1ToManyBySplittingFirst(self):
+        
+        incomingLanes = ['1:-1', '1:-2']
+        outgoingLanes = ['2:1', '2:2']
+
+        connections = LaneConfiguration.getIntersectionLinks1ToManyBySplittingFirst(incomingLanes, outgoingLanes)
+        assert connections[0][0] == '1:-1'
+        assert connections[0][1] == '2:1'
+        assert connections[0][2] == 0
+        assert connections[1][0] == '1:-2'
+        assert connections[1][1] == '2:2'
+        assert connections[1][2] == 0
+
+        incomingLanes = ['1:-1', '1:-2']
+        outgoingLanes = ['2:1', '2:2', '3:1']
+        connections = LaneConfiguration.getIntersectionLinks1ToManyBySplittingFirst(incomingLanes, outgoingLanes)
+
+        print(connections)
+        assert len(connections) == 3
+        assert connections[0][0] == '1:-1'
+        assert connections[0][1] == '2:1'
+        assert connections[0][2] == 2
+        assert connections[1][0] == '1:-1'
+        assert connections[1][1] == '2:2'
+        assert connections[1][2] == 0
+        assert connections[2][0] == '1:-2'
+        assert connections[2][1] == '3:1'
+        assert connections[2][2] == 0

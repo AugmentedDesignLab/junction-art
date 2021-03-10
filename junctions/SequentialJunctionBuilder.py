@@ -13,6 +13,7 @@ from junctions.JunctionBuilder import JunctionBuilder
 from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.AngleCurvatureMap import AngleCurvatureMap
 from extensions.CountryCodes import CountryCodes
+from junctions.LaneConfiguration import LaneConfigurationStrategies
 
 
 class SequentialJunctionBuilder(JunctionBuilder):
@@ -152,7 +153,16 @@ class SequentialJunctionBuilder(JunctionBuilder):
         return actions[np.random.choice(len(actions))]
 
     
-    def createWithRandomLaneConfigurations(self, straightRoadsPath, odrId, maxNumberOfRoadsPerJunction, maxLanePerSide=2, minLanePerSide=0, internalConnections=True, cp1=pyodrx.ContactPoint.start, randomState=None):
+    def createWithRandomLaneConfigurations(self, 
+                                            straightRoadsPath, 
+                                            odrId, 
+                                            maxNumberOfRoadsPerJunction, 
+                                            maxLanePerSide=2, 
+                                            minLanePerSide=0, 
+                                            internalConnections=True, 
+                                            cp1=pyodrx.ContactPoint.start, 
+                                            randomState=None,
+                                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY):
         """All the incoming roads, except for the first, will have their start endpoint connected to the junction.
 
         Args:
@@ -261,6 +271,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             roads += internalConnections
             odr.updateRoads(roads)
 
+            # remove lanes from connection roads which are used for geometric positioning of roads 
             for geoRoad in geoConnectionRoads:
                 geoRoad.clearLanes()
 
