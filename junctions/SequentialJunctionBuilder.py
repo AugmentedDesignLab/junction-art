@@ -194,6 +194,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
         if maxNumberOfRoadsPerJunction < 2:
             raise Exception("Please add more than 1 roads")
         
+        randomStraightRoads = [self.getRandomStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide) for i in range(maxNumberOfRoadsPerJunction)]
+
         outsideRoads = [] # all the incoming/outgoing roads in this junction
         geoConnectionRoads = [] # connections roads which are for geometric positions, having no lanes
         laneConnectionRoads = [] # connection roads that have lanes.
@@ -284,6 +286,19 @@ class SequentialJunctionBuilder(JunctionBuilder):
         odr.resetAndReadjust(byPredecessor=True)
         
         return odr
+
+
+    def fixNumOutgoingLanes(self, roads, cp1): 
+        """Assumes all roads except the first road have start point in the intersection.
+
+        Args:
+            roads ([type]): outside roads for an intersection
+            cp1 ([type]): contact point of the first road
+        """
+
+        # check left lanes, check right lanes
+
+        # for each road, if the number of incoming lanes < number other's outgoing lanes, add necessary lanes to the next other.
 
 
     def getRandomStraightRoad(self, roadId, harvestedStraightRoads, maxLanePerSide=2, minLanePerSide=0):
