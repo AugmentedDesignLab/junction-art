@@ -28,6 +28,13 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
         return retdict
 
+    def clearLanes(self):
+        self._left_id = 1
+        self._right_id = -1
+        self.leftlanes = []
+        self.rightlanes = []
+        pass
+    
 
     def prependLaneToRightLanes(self, leftLane):
         
@@ -64,7 +71,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
 
     def laneWidths(self, lane, laneLength):
-        """[summary]
+        """returns the width of the lane at ds=0 and ds=laneLength as a list of values
 
         Args:
             lane ([type]): [description]
@@ -81,6 +88,16 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
 
     def length(self, roadLength, laneOffset = None, laneOffsetNext = None):
+        """The width of the lane section depends on its laneOffset and next section's offset
+
+        Args:
+            roadLength ([type]): [description]
+            laneOffset ([type], optional): [description]. Defaults to None.
+            laneOffsetNext ([type], optional): [description]. Defaults to None.
+
+        Returns:
+            [type]: [description]
+        """
         s = 0
         if laneOffset is not None:
             s = laneOffset.s
@@ -93,7 +110,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
 
     def widths(self, roadLength, laneOffset = None, laneOffsetNext = None):
-        """[summary]
+        """ returns the width of the section at the start and end of the secion.
 
         Args:
             roadLength ([type]): [description]
@@ -104,7 +121,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
             (tuple) : (startWidth, endWidth)
         """
 
-        laneLength = self.length(roadLength, laneOffset, laneOffsetNext)
+        sectionLength = self.length(roadLength, laneOffset, laneOffsetNext)
 
         startWidth = 0
         endWidth = 0
@@ -112,7 +129,7 @@ class ExtendedLaneSection(pyodrx.LaneSection):
         allLanes = self.leftlanes + self.rightlanes
 
         for lane in allLanes:
-            laneWidths = self.laneWidths(lane, laneLength)
+            laneWidths = self.laneWidths(lane, sectionLength)
             startWidth += laneWidths[0]
             endWidth += laneWidths[1]
 

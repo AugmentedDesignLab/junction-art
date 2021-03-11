@@ -3,7 +3,7 @@ from junctions.TurnTypes import TurnTypes
 
 class ExtendedLane(pyodrx.Lane):
 
-    def __init__(self,lane_type=pyodrx.LaneType.driving,a=0,b=0,c=0,d=0,soffset=0, turnType=TurnTypes.ALL):
+    def __init__(self,lane_type=pyodrx.LaneType.driving,a=0,b=0,c=0,d=0,soffset=0, turnType=TurnTypes.UNDEFINED):
         """ initalizes the Lane
 
         Parameters
@@ -29,6 +29,7 @@ class ExtendedLane(pyodrx.Lane):
         """
         super().__init__(lane_type=lane_type, a=a, b=b, c=c, d=d, soffset=soffset)
         self.turnType = turnType
+        self.rules = []
         
 
 
@@ -37,4 +38,13 @@ class ExtendedLane(pyodrx.Lane):
         if self.a == 0 and (self.b != 0 or self.c!=0 or self.d !=0):
             return True
 
+
+    def addRule(self, rule):
+        """A rule is a tuple (soffset, serialized rule)
+
+        Args:
+            rule ([type]): [description]
+        """
+
+        self.rules.append(rule)
 

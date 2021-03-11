@@ -10,6 +10,9 @@ import matplotlib.pyplot as plt
 from .ExtendedOpenDrive import ExtendedOpenDrive
 from junctions.LaneLinker import LaneLinker
 from junctions.RoadLinker import RoadLinker
+from junctions.Geometry import Geometry
+from extensions.ExtendedRoad import ExtendedRoad
+import dill
 
     
 def createOdr(name, roads, junctions):
@@ -127,7 +130,7 @@ def getODRPlotPath(esminipath):
     if os.name == 'posix':
         ordPlotPath = os.path.join(esminipath,'bin','odrplot')
     elif os.name == 'nt':
-        ordPlotPath = os.path.join(esminipath,'bin','odrplot.exe')
+        ordPlotPath = os.path.join(esminipath,'bin','odrplot')
     return ordPlotPath
 
 
@@ -289,3 +292,32 @@ def modify_xodr_for_roadrunner(filepath):
     set_standalone_attribute(filepath)
     change_revMinor(filepath)
 
+
+
+def laneWidths(lane, laneLength):
+    """[summary]
+
+    Args:
+        lane ([type]): [description]
+        laneLength ([type]): [description]
+
+    Returns:
+        startWidth
+        endWidth
+    """
+
+    coeffs = [lane.a, lane.b, lane.c, lane.d]
+    pRange = [0, laneLength]
+    return Geometry.evalPoly(coeffs, pRange)
+
+
+def getObjectsFromDill(path):
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"{path} does not exist!")
+
+    objects = None
+
+    with open(path, "rb") as f:
+        objects = dill.load(f)
+
+    return objects

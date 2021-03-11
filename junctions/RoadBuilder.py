@@ -14,14 +14,18 @@ from junctions.RoadSeries import RoadSeries
 from junctions.Direction import CircularDirection
 from junctions.Geometry import Geometry
 from junctions.LaneBuilder import LaneBuilder
+from junctions.RoadLinker import RoadLinker
+from junctions.CurveRoadBuilder import CurveRoadBuilder
+from extensions.CountryCodes import CountryCodes
 
 
 class RoadBuilder:
 
-    def __init__(self):
+    def __init__(self, country=CountryCodes.US):
         self.STD_ROADMARK = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,rule=pyodrx.MarkRule.no_passing)
         self.STD_START_CLOTH = 1/1000000000
         self.laneBuilder = LaneBuilder()
+        self.curveBuilder = CurveRoadBuilder(country=country)
         pass
 
 
@@ -74,50 +78,50 @@ class RoadBuilder:
         curvature = curvature + (np.random.choice(10) / 10) * curvature
 
         # 2 random curve type
-        randomCurveType = StandardCurveTypes.getRandomItem()
+        randomCurveType = StandardCurveTypes.getRandomItemForCurve()
 
-        road = self.createCurve(connectionRoadId, angleBetweenRoads, isJunction, curvature=curvature, curveType=randomCurveType)
+        road = self.curveBuilder.create(connectionRoadId, angleBetweenRoads, isJunction, curvature=curvature, curveType=randomCurveType)
         return road
 
 
-    def createCurve(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value, curveType=StandardCurveTypes.Simple):
+    # def createCurve(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value, curveType=StandardCurveTypes.Simple):
 
-        if curveType is StandardCurveTypes.Simple:
-            return self.createSimpleCurve(connectionRoadId, angleBetweenEndpoints, isJunction, curvature)
-        elif curveType is StandardCurveTypes.LongArc:
-            return self.createSimpleCurveWithLongArc(connectionRoadId, angleBetweenEndpoints, isJunction, curvature)
-        elif curveType is StandardCurveTypes.S:
-            return self.createS(connectionRoadId, angleBetweenEndpoints, isJunction, curvature)
-        else:
-            error = f"Unkown curveType {curveType}"
-            raise Exception(error)
+    #     if curveType is StandardCurveTypes.Simple:
+    #         return self.createSimpleCurve(connectionRoadId, angleBetweenEndpoints, isJunction, curvature)
+    #     elif curveType is StandardCurveTypes.LongArc:
+    #         return self.createSimpleCurveWithLongArc(connectionRoadId, angleBetweenEndpoints, isJunction, curvature)
+    #     elif curveType is StandardCurveTypes.S:
+    #         return self.createS(connectionRoadId, angleBetweenEndpoints, isJunction, curvature)
+    #     else:
+    #         error = f"Unkown curveType {curveType}"
+    #         raise Exception(error)
 
 
 
-    def createSimpleCurve(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value):
+    # def createSimpleCurve(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value):
 
-        junction = self.getJunctionSelection(isJunction)
-        totalRotation = np.pi - angleBetweenEndpoints
-        arcAngle = np.pi / 10000000
-        clothAngle = totalRotation / 2
+    #     junction = self.getJunctionSelection(isJunction)
+    #     totalRotation = np.pi - angleBetweenEndpoints
+    #     arcAngle = np.pi / 10000000
+    #     clothAngle = totalRotation / 2
         
-        return pyodrx.create_cloth_arc_cloth(curvature, arc_angle=arcAngle, cloth_angle=clothAngle, r_id=connectionRoadId, junction = junction)
+    #     return pyodrx.create_cloth_arc_cloth(curvature, arc_angle=arcAngle, cloth_angle=clothAngle, r_id=connectionRoadId, junction = junction)
 
     
-    def createSimpleCurveWithLongArc(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value): 
+    # def createSimpleCurveWithLongArc(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value): 
         
-        junction = self.getJunctionSelection(isJunction)
+    #     junction = self.getJunctionSelection(isJunction)
 
-        totalRotation = np.pi - angleBetweenEndpoints
+    #     totalRotation = np.pi - angleBetweenEndpoints
 
-        # most of the angleBetweenEndpoints should be assigned to the Arc
-        arcAngle = totalRotation * 0.9 # main curve
-        clothAngle = (totalRotation * 0.1) / 2 # curve more.
+    #     # most of the angleBetweenEndpoints should be assigned to the Arc
+    #     arcAngle = totalRotation * 0.9 # main curve
+    #     clothAngle = (totalRotation * 0.1) / 2 # curve more.
 
-        # print(f"arcAngle: {math.degrees(arcAngle)}")
-        # print(f"clothAngle: {math.degrees(clothAngle)}")
+    #     # print(f"arcAngle: {math.degrees(arcAngle)}")
+    #     # print(f"clothAngle: {math.degrees(clothAngle)}")
 
-        return pyodrx.create_cloth_arc_cloth(curvature, arc_angle=arcAngle, cloth_angle=clothAngle, r_id=connectionRoadId, junction = junction)
+    #     return pyodrx.create_cloth_arc_cloth(curvature, arc_angle=arcAngle, cloth_angle=clothAngle, r_id=connectionRoadId, junction = junction)
 
 
     def createSimpleCurveWithLongArcWithLaneNumberandOffset(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value, _lane_offset = 3, _n_lanes = 1): 
@@ -135,109 +139,109 @@ class RoadBuilder:
 
         return pyodrx.create_cloth_arc_cloth(curvature, arc_angle=arcAngle, cloth_angle=clothAngle, r_id=connectionRoadId, junction = junction,n_lanes = _n_lanes, lane_offset=_lane_offset)
     
-    def createS(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value): 
-        """Here the angleBetweenEndpoints are used for the first road and S mid point, and S mid point and Second road
+    # def createS(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value): 
+    #     """Here the angleBetweenEndpoints are used for the first road and S mid point, and S mid point and Second road
 
-        Args:
-            connectionRoadId ([type]): [description]
-            angleBetweenEndpoints ([type]): used for the first road and S mid point, and S mid point and Second road. Use negative angles for interesting Ss
-            isJunction (bool, optional): [description]. Defaults to False.
-            curvature ([type], optional): [description]. Defaults to StandardCurvature.Medium.value.
+    #     Args:
+    #         connectionRoadId ([type]): [description]
+    #         angleBetweenEndpoints ([type]): used for the first road and S mid point, and S mid point and Second road. Use negative angles for interesting Ss
+    #         isJunction (bool, optional): [description]. Defaults to False.
+    #         curvature ([type], optional): [description]. Defaults to StandardCurvature.Medium.value.
 
-        Returns:
-            [type]: [description]
-        """
+    #     Returns:
+    #         [type]: [description]
+    #     """
         
-        junction = self.getJunctionSelection(isJunction)
+    #     junction = self.getJunctionSelection(isJunction)
 
-        totalRotation = np.pi - angleBetweenEndpoints
+    #     totalRotation = np.pi - angleBetweenEndpoints
 
-        # most of the angleBetweenEndpoints should be assigned to the Arc
-        arcAngle = totalRotation * 0.9
-        clothAngle = (totalRotation * 0.1) / 2 # curve more.
+    #     # most of the angleBetweenEndpoints should be assigned to the Arc
+    #     arcAngle = totalRotation * 0.9
+    #     clothAngle = (totalRotation * 0.1) / 2 # curve more.
 
-        arc_curv = curvature 
-        arc_angle = arcAngle 
-        cloth_angle = clothAngle 
-        r_id = connectionRoadId
-        cloth_start = self.STD_START_CLOTH
-        n_lanes = 1
-        lane_offset = 3
+    #     arc_curv = curvature 
+    #     arc_angle = arcAngle 
+    #     cloth_angle = clothAngle 
+    #     r_id = connectionRoadId
+    #     cloth_start = self.STD_START_CLOTH
+    #     n_lanes = 1
+    #     lane_offset = 3
 
-        pv = ExtendedPlanview()
-        # adjust sign if angle is negative
-        if cloth_angle < 0 and  arc_curv > 0:
+    #     pv = ExtendedPlanview()
+    #     # adjust sign if angle is negative
+    #     if cloth_angle < 0 and  arc_curv > 0:
 
-            cloth_angle = -cloth_angle
-            arc_curv = -arc_curv
-            cloth_start = -cloth_start
-            arc_angle = -arc_angle 
+    #         cloth_angle = -cloth_angle
+    #         arc_curv = -arc_curv
+    #         cloth_start = -cloth_start
+    #         arc_angle = -arc_angle 
 
-        # we are changing the second half of the S to have different arc angle and curvature.
-        multiplier = np.random.choice(9) / 10
-        arc_angle2 = arc_angle - arc_angle * multiplier
-        arc_curv2 = -(arc_curv + arc_curv * multiplier) # the angle needs to be opposite for the second half.
+    #     # we are changing the second half of the S to have different arc angle and curvature.
+    #     multiplier = np.random.choice(9) / 10
+    #     arc_angle2 = arc_angle - arc_angle * multiplier
+    #     arc_curv2 = -(arc_curv + arc_curv * multiplier) # the angle needs to be opposite for the second half.
         
-        # create geometries
-        spiral1 = extensions.ExtendedSpiral(cloth_start, arc_curv, angle=cloth_angle)
-        arc = pyodrx.Arc(arc_curv, angle=arc_angle )
-        arc2 = pyodrx.Arc(arc_curv2, angle = -arc_angle2)
-        spiral2 = extensions.ExtendedSpiral(-arc_curv, cloth_start, angle= -cloth_angle)
+    #     # create geometries
+    #     spiral1 = extensions.ExtendedSpiral(cloth_start, arc_curv, angle=cloth_angle)
+    #     arc = pyodrx.Arc(arc_curv, angle=arc_angle )
+    #     arc2 = pyodrx.Arc(arc_curv2, angle = -arc_angle2)
+    #     spiral2 = extensions.ExtendedSpiral(-arc_curv, cloth_start, angle= -cloth_angle)
 
-        pv.add_geometry(spiral1)
-        pv.add_geometry(arc)
-        pv.add_geometry(arc2)
-        pv.add_geometry(spiral2)
+    #     pv.add_geometry(spiral1)
+    #     pv.add_geometry(arc)
+    #     pv.add_geometry(arc2)
+    #     pv.add_geometry(spiral2)
 
-        # create lanes
-        road =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, r_id, pv, junction)
-        road.curveType = StandardCurveTypes.S
-        return road
+    #     # create lanes
+    #     road =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, r_id, pv, junction)
+    #     road.curveType = StandardCurveTypes.S
+    #     return road
     
 
-    def createCurveByLength(self, roadId, length, isJunction = False, curvature = StandardCurvature.Medium.value):
+    # def createCurveByLength(self, roadId, length, isJunction = False, curvature = StandardCurvature.Medium.value):
 
-        junction = self.getJunctionSelection(isJunction)
+    #     junction = self.getJunctionSelection(isJunction)
 
-        n_lanes = 1
-        lane_offset = 3
+    #     n_lanes = 1
+    #     lane_offset = 3
 
-        pv = ExtendedPlanview()
-        arc = pyodrx.Arc(curvature, length=length )
-        pv.add_geometry(arc)
+    #     pv = ExtendedPlanview()
+    #     arc = pyodrx.Arc(curvature, length=length )
+    #     pv.add_geometry(arc)
 
-        # create lanes
-        road = self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction)
-        road.curveType = StandardCurveTypes.LongArc
-        return road
+    #     # create lanes
+    #     road = self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction)
+    #     road.curveType = StandardCurveTypes.LongArc
+    #     return road
 
     # def createCurveWithEndpoints(self, start, end):
 
-    def createParamPoly3(self, roadId, isJunction=False, 
-        au=0,bu=20,cu=20,du= 10,
-        av=0,bv=2,cv=20,dv= 10,
-        prange='normalized',
-        length=None,
-        n_lanes=1,
-        lane_offset=3,
-        laneSides=LaneSides.BOTH):
+    # def createParamPoly3(self, roadId, isJunction=False, 
+    #     au=0,bu=20,cu=20,du= 10,
+    #     av=0,bv=2,cv=20,dv= 10,
+    #     prange='normalized',
+    #     length=None,
+    #     n_lanes=1,
+    #     lane_offset=3,
+    #     laneSides=LaneSides.BOTH):
 
-        junction = self.getJunctionSelection(isJunction)
+    #     junction = self.getJunctionSelection(isJunction)
 
-        n_lanes = 1
-        lane_offset = 3
+    #     n_lanes = 1
+    #     lane_offset = 3
 
-        pv = ExtendedPlanview()
+    #     pv = ExtendedPlanview()
         
-        poly = pyodrx.ParamPoly3(au,bu,cu,du,av,bv,cv,dv,prange,length)
-        # poly = extensions.IntertialParamPoly(au,bu,cu,du,av,bv,cv,dv,prange,length)
+    #     poly = pyodrx.ParamPoly3(au,bu,cu,du,av,bv,cv,dv,prange,length)
+    #     # poly = extensions.IntertialParamPoly(au,bu,cu,du,av,bv,cv,dv,prange,length)
 
-        pv.add_geometry(poly)
+    #     pv.add_geometry(poly)
 
-        # create lanes
-        road = self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction, laneSides=laneSides)
-        road.curveType = StandardCurveTypes.Poly
-        return road
+    #     # create lanes
+    #     road = self.composeRoadWithStandardLanes(n_lanes, lane_offset, roadId, pv, junction, laneSides=laneSides)
+    #     road.curveType = StandardCurveTypes.Poly
+    #     return road
 
 
 
@@ -276,6 +280,10 @@ class RoadBuilder:
         return road
 
 
+    def getRelativeHeading(self, rootHeading, anotherHeading):
+        return (anotherHeading + (np.pi * 2) - rootHeading) % (np.pi * 2)
+
+
     def getStraightRoadBetween(self, newRoadId, road1, road2, cp1 = pyodrx.ContactPoint.end, cp2 = pyodrx.ContactPoint.start, isJunction = True,
                                     n_lanes=1,
                                     lane_offset=3,
@@ -285,7 +293,17 @@ class RoadBuilder:
         x1, y1, h1 = road1.getPosition(cp1)
         x2, y2, h2 = road2.getPosition(cp2)
         length = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
-        return self.createStraightRoad(newRoadId, length=length, junction=junction, n_lanes=n_lanes, lane_offset=lane_offset, laneSides = laneSides)
+        road = self.createStraightRoad(newRoadId, length=length, junction=junction, n_lanes=n_lanes, lane_offset=lane_offset, laneSides = laneSides)
+        
+        if cp1 == pyodrx.ContactPoint.start:
+            h1 = h1 + np.pi
+        
+        if cp2 == pyodrx.ContactPoint.end:
+            h2 = h2 + np.pi
+
+        road.startHeading = self.getRelativeHeading(h1, h2)
+
+        return road
     
 
 
@@ -304,56 +322,11 @@ class RoadBuilder:
         """
         x1, y1, h1 = road1.getPosition(cp1)
         x2, y2, h2 = road2.getPosition(cp2)
-        
-        # TODO we need to solve the problem with param poly, not a straight road, as there can still be some angles near threshold for which it can fail.
 
-        if Geometry.headingsTooClose(h1, h2):
-            # return a straight road
-            return self.getStraightRoadBetween(newRoadId, road1, road2, cp1, cp2,
-                                    isJunction=isJunction,
-                                    n_lanes=n_lanes,
-                                    lane_offset=lane_offset,
-                                    laneSides=laneSides)
-
-        tangentMagnitude = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
-
-        # some magic of converting intertial points to local points. local 0, 0 is the start point of the second road.
-        # here the local frame corresponds to the starting point of the new connection road. It's heading is on u axis
-
-        localRotation = h2 + np.pi # rotation of local frame wrt inertial frame.
-
-        u1, v1 = self.inertialToLocal((x2, y2), localRotation, (x1, y1))
-        u2 = 0
-        v2 = 0
-
-        # Now we need tangents in local reference frame
-
-        localStartTangent = extensions.headingToTangent(0, tangentMagnitude)
-        localEndTangent = extensions.headingToTangent(h1 - localRotation, tangentMagnitude)
-
-        # will this magic survive?
-
-        X = [u2, u1]
-        Y = [v2, v1]
-        tangentX = [localStartTangent[0], localEndTangent[0]]
-        tangentY = [localStartTangent[1], localEndTangent[1]]
-
-        # print("connecting road X, Y, tangentX, tangentY")
-        # print(X)
-        # print(Y)
-        # print(tangentX)
-        # print(tangentY)
-
-        p = [0, 1]
-
-        hermiteX = CubicHermiteSpline(p, X, tangentX)
-        hermiteY = CubicHermiteSpline(p, Y, tangentY)
-
-        xCoeffs = hermiteX.c.flatten()
-        yCoeffs = hermiteY.c.flatten()
+        xCoeffs, yCoeffs = Geometry.getCoeffsForParamPoly(x1, y1, h1, x2, y2, h2, cp1, cp2)
 
         # scipy coefficient and open drive coefficents have opposite order.
-        newConnection = self.createParamPoly3(
+        newConnection = self.curveBuilder.createParamPoly3(
                                                 newRoadId, 
                                                 isJunction=isJunction,
                                                 au=xCoeffs[3],
@@ -465,12 +438,9 @@ class RoadBuilder:
         roadMain =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, mainRoadId, pvMain, junction, laneSides=laneSides)
         roadEnd =  self.composeRoadWithStandardLanes(n_lanes, lane_offset, endRoadId, pvEnd, junction, laneSides=laneSides)
 
-        roadStart.updateSuccessor(pyodrx.ElementType.junction, mainRoadId, pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=roadStart, predCp=pyodrx.ContactPoint.end, sucRoad=roadMain, sucCP= pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=roadMain, predCp=pyodrx.ContactPoint.end, sucRoad=roadEnd, sucCP= pyodrx.ContactPoint.start)
 
-        roadMain.updatePredecessor(pyodrx.ElementType.junction, startRoadId, pyodrx.ContactPoint.end)
-        roadMain.updateSuccessor(pyodrx.ElementType.junction, endRoadId, pyodrx.ContactPoint.start)
-
-        roadEnd.updatePredecessor(pyodrx.ElementType.junction, mainRoadId, pyodrx.ContactPoint.end)
 
         return roadStart, roadMain, roadEnd
 
@@ -500,4 +470,3 @@ class RoadBuilder:
         return spiral1, curve1, mainCurve, curve3, spiral2
 
     
-     

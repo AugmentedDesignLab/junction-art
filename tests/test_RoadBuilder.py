@@ -15,6 +15,8 @@ class test_RoadBuilder(unittest.TestCase):
     def setUp(self):
         
         self.configuration = Configuration()
+        self.esminiPath = self.configuration.get("esminipath")
+        self.configuration = Configuration()
 
         self.roadBuilder = RoadBuilder()
         self.junctionBuilder = JunctionBuilder()
@@ -29,24 +31,20 @@ class test_RoadBuilder(unittest.TestCase):
 
 
     def test_ParamPoly(self):
-        tangentX = np.array([
-            -4.8598137403931405, -9.719616726833108
-        ])
+        tangentX = np.array([9.389829642616592, -7.596531772501544])
+        tangentY = np.array([0.0, 5.5192033616035365])
 
         t = np.array([0, 1])
-        x = np.array([18.41743655268492, 10.0])
-        y = np.array([-4.8598056749275225, 0.0])
+        x = np.array([0, 17.8605173461395])
+        y = np.array([0, -5.803233839653106])
         hermiteX = CubicHermiteSpline(t, x, tangentX)
 
-        tangentY = np.array([
-            8.417431896084457, 1.190309751345524e-15
-        ])
         hermiteY = CubicHermiteSpline(t, y, tangentY)
         xCoeffs = hermiteX.c.flatten()
         yCoeffs = hermiteY.c.flatten()
 
         # scipy coefficient and open drive coefficents have opposite order.
-        myRoad = self.roadBuilder.createParamPoly3(
+        myRoad = self.roadBuilder.curveBuilder.createParamPoly3(
                                                 0, 
                                                 isJunction=False,
                                                 au=xCoeffs[3],
@@ -74,11 +72,11 @@ class test_RoadBuilder(unittest.TestCase):
         
         roads = []
         roads.append(pyodrx.create_straight_road(0, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(1, np.pi/4, True, curvature = 0.2))
+        roads.append(self.roadBuilder.curveBuilder.createSimple(1, np.pi/4, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(2, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(3, np.pi/3, True, curvature = 0.2))
+        roads.append(self.roadBuilder.curveBuilder.createSimple(3, np.pi/3, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(4, 10))
-        roads.append(self.roadBuilder.createSimpleCurve(5, np.pi/2, True, curvature = 0.2))
+        roads.append(self.roadBuilder.curveBuilder.createSimple(5, np.pi/2, True, curvature = 0.2))
         roads.append(pyodrx.create_straight_road(6, 10))
 
         roads[0].add_successor(pyodrx.ElementType.junction,1)
@@ -107,6 +105,7 @@ class test_RoadBuilder(unittest.TestCase):
         odr = extensions.createOdr(odrName, roads, [junction])
 
         lastConnection = self.harvester.junctionBuilder.createLastConnectionForLastAndFirstRoad(7, roads, junction, cp1=pyodrx.ContactPoint.start)
+        roads.append(lastConnection)
         odr.add_road(lastConnection)
 
         # randConnection = self.harvester.junctionBuilder.createConnectionFor2Roads(8, roads[0], roads[4], junction, cp1=pyodrx.ContactPoint.start)
@@ -161,6 +160,10 @@ class test_RoadBuilder(unittest.TestCase):
         extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
 
     
+        xmlPath = f"output/m-shape.xodr"
+        odr.write_xml(xmlPath)
+
+        extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
     
     def test_createMShapeLeftLanes(self):
 

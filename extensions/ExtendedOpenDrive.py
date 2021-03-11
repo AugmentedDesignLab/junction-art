@@ -3,7 +3,7 @@ from pyodrx.enumerations import ElementType, ContactPoint
 from pyodrx.links import _Link, _Links, create_lane_links
 import numpy as np
 from itertools import combinations
-
+import math
 
 class ExtendedOpenDrive(pyodrx.OpenDrive):
     
@@ -13,7 +13,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         self.laneLinker = laneLinker
 
     def reset(self):
-        """Reset only keeps road linkes, removes lane links, adjustments, adjusted geometries. Useful for editing and ODR
+        """Reset only keeps road links, removes lane links, adjustments, adjusted geometries. Useful for editing and ODR
         """
         
         print(f"refreshing odr road adjustments")
@@ -126,7 +126,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         """ Adjust starting position of all geoemtries of all roads
 
             roads must have predecessors and be in the order of predecessors in roads dictionary. 
-            It assumes the predecessor will always be adjusted beforehand.
+            It assumes the predecessor will always be adjusted beforehand, and current road is an extended succesor with cp == start
 
             Parameters
             ----------
@@ -144,6 +144,15 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 continue
 
             if currRoad.hasPredecessor():
+                predRoad = self.getPredecessorRoad(currRoad)
+                curAsSuc = predRoad.getExtendedSuccessorByRoadId(currRoad.id)
+
+                if curAsSuc is None:
+                    raise Exception(f"current road {currRoad.id} is not an extended successor of its predecessor. Cannot adjust start point")
+
+                if curAsSuc.cp != pyodrx.ContactPoint.start:
+                    raise Exception(f"current road {currRoad.id}'s cp is not start. Cannot adjust start point")
+
                 if self.getPredecessorRoad(currRoad).planViewAdjusted():
                     self.adjust_road_wrt_neightbour(roadIdStr, currRoad.predecessor.element_id, currRoad.predecessor.contact_point, 'predecessor')
                 else:
@@ -279,25 +288,57 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         """
 
         main_road = self.roads[str(road_id)]
+        neighbourRoad = self.roads[str(neightbour_id)]
 
         if neightbour_type == 'predecessor':
 
             if contact_point == ContactPoint.start :    
-                x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
+                x,y,h = neighbourRoad.planview.get_start_point()
                 h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
-                x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+                x,y,h = neighbourRoad.planview.get_end_point()
             else:
                 raise Exception(f"predecessor contact point not defined for road {road_id}")
+            
+            if main_road.predecessorOffset != 0:
+
+                if main_road.isConnection is False:
+                    raise Exception("Cannot shift reference line for non connection roads")
+
+                # in local coordinate the reference line moves along v
+
+                localShiftAmount = neighbourRoad.getBorderDistanceOfLane(main_road.predecessorOffset, contact_point)
+
+                if contact_point == pyodrx.ContactPoint.start:
+                    if main_road.predecessorOffset > 0: 
+                        x += localShiftAmount * math.cos(h + np.pi/2) * -1
+                        y += localShiftAmount * math.sin(h + np.pi/2) * -1
+                    else:
+                        x += localShiftAmount * math.cos(h + np.pi/2)
+                        y += localShiftAmount * math.sin(h + np.pi/2) 
+                else:
+                    if main_road.predecessorOffset > 0: 
+                        x += localShiftAmount * math.cos(h + np.pi/2) 
+                        y += localShiftAmount * math.sin(h + np.pi/2) 
+                    else:
+                        x += localShiftAmount * math.cos(h + np.pi/2) * -1
+                        y += localShiftAmount * math.sin(h + np.pi/2) * -1
+
+                # raise Exception("predecessorOffset is not implemented yet")
+            
+            # check if the heading is predefined.
+            if main_road.startHeading is not None:
+                h = main_road.startHeading
+
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometires()
 
         elif neightbour_type == 'successor':
 
             if contact_point == ContactPoint.start:    
-                x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
+                x,y,h = neighbourRoad.planview.get_start_point()
             elif contact_point == ContactPoint.end:
-                x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+                x,y,h = neighbourRoad.planview.get_end_point()
             else:
                 raise Exception(f"successor contact point not defined for road {road_id}")
             main_road.planview.set_start_point(x,y,h)
@@ -327,3 +368,4 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 self.laneLinker.createLaneLinks(self.roads[results[r][0]],self.roads[results[r][1]]) 
             else:
                 create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
+                

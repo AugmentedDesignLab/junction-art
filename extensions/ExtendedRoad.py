@@ -2,30 +2,59 @@ import pyodrx
 from copy import copy
 import numpy as np
 import math
-
 import extensions
-
+from pyodrx.signals import Signals
 from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.Geometry import Geometry
+from extensions.ExtendedPredecessor import ExtendedPredecessor
+from extensions.ExtendedSuccessor import ExtendedSuccessor
 
 class ExtendedRoad(pyodrx.Road):
 
 
 
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, curveType = StandardCurveTypes.Line):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, curveType = StandardCurveTypes.Line, predecessorOffset = 0): 
+        """[summary]
+
+        Args:
+            road_id ([type]): [description]
+            planview ([type]): [description]
+            lanes ([type]): [description]
+            road_type (int, optional): [description]. Defaults to -1.
+            name ([type], optional): [description]. Defaults to None.
+            rule ([type], optional): [description]. Defaults to None.
+            curveType ([type], optional): [description]. Defaults to StandardCurveTypes.Line.
+            predecessorOffset (int, optional): lane number of predecessor. refernce line of this road can be shifted with this setting wrt the predecessor. -1 means reference line will start from the border of -1 lane of predecessor
+        """
         super().__init__(road_id, planview, lanes, road_type, name, rule)
+        self.signals = Signals()
 
         self.curveType = curveType
         self.headingTangentMagnitude = 10 # 10 meters.
         self.isConnection = False
+        self.isSingleLaneConnection = False
         self.elementType = pyodrx.ElementType.road
 
         if road_type == 1:
             self.isConnection = True
             self.elementType = pyodrx.ElementType.junction
+        
+        if self.isConnection is False and predecessorOffset != 0:
+            raise Exception("Cannot set predecessorOffset for non-connection road to non-zero")
+
+        self.predecessorOffset = predecessorOffset
+        self.extendedPredecessors = {}
+        self.extendedSuccessors = {}
+
+        self.startHeading = None
 
         pass
 
+    
+    def get_element(self):
+        element = super().get_element()
+        element.append(self.signals.get_element())
+        return element
 
     def reset(self, clearRoadLinks = False):
         """[summary]
@@ -102,6 +131,70 @@ class ExtendedRoad(pyodrx.Road):
         element_id = int(element_id)
         self.add_predecessor(element_type, element_id, contact_point)
         pass
+
+
+    def getElementType(self):
+        if self.isConnection:
+            return pyodrx.ElementType.junction
+        return pyodrx.ElementType.road
+
+
+    def addExtendedPredecessor(self, road, angleWithRoad, cp, xodr=False):
+        self.extendedPredecessors[road.id] = ExtendedPredecessor(road, angleWithRoad, cp)
+        if xodr or self.predecessor is None:
+            self.updatePredecessor(road.getElementType(), road.id, contact_point=cp)
+        pass
+
+
+    def getExtendedPredecessorByRoadId(self, roadId):
+
+        if roadId in self.extendedPredecessors:
+            return self.extendedPredecessors[roadId]
+        
+        return None
+    
+
+    def isExtendedPredecessorOf(self, road):
+        if road.getExtendedPredecessorByRoadId(self.id) is not None:
+            return True
+        return False
+
+
+    def addExtendedSuccessor(self, road, angleWithRoad, cp, xodr=False):
+        self.extendedSuccessors[road.id] = ExtendedSuccessor(road, angleWithRoad, cp)
+        if xodr or self.successor is None:
+            self.updateSuccessor(road.getElementType(), road.id, contact_point=cp)
+        pass
+
+
+    def getExtendedSuccessorByRoadId(self, roadId):
+
+        if roadId in self.extendedSuccessors:
+            return self.extendedSuccessors[roadId]
+        
+        return None
+
+
+    def isExtendedSuccessorOf(self, road):
+        if road.getExtendedSuccessorByRoadId(self.id) is not None:
+            return True
+        return False
+
+    
+    def isConnectionFor(self, road1, road2):
+
+        # to be a connection, one of the roads needs to be an extended predecessor and another and extended successor.
+
+        if (road1.isExtendedPredecessorOf(self) and road2.isExtendedSuccessorOf(self)) or (road2.isExtendedPredecessorOf(self) and road1.isExtendedSuccessorOf(self)):
+            return True
+        return False
+
+    
+    def updatePredecessorOffset(self, predecessorOffset):
+        if self.isConnection is False:
+            raise Exception("Cannot set predecessorOffset for non-connection road")
+
+        self.predecessorOffset = predecessorOffset
 
 
     def updateSuccessor(self, element_type,element_id,contact_point=None):
@@ -328,16 +421,37 @@ class ExtendedRoad(pyodrx.Road):
 
     # Lane Section related functions
 
+    def clearLanes(self):
+        self.lanes.clearLanes()
+        self.clearLaneLinks()
+
     def getLaneSections(self):
         return self.lanes.lanesections
 
         
-    def getEndLaneSection(self):
+    def getLastLaneSection(self):
         return self.lanes.lanesections[-1]
 
 
     def getFirstLaneSection(self):
         return self.lanes.lanesections[0]
+
+    
+    def getLaneSectionByCP(self, cp):
+
+        if cp == pyodrx.ContactPoint.start:
+            return self.getFirstLaneSection()
+        return self.getLastLaneSection()
+
+    def getLaneOffsetByCP(self, cp):
+        if cp == pyodrx.ContactPoint.start:
+            return self.getFirstLaneOffset()
+        return self.getLastLaneOffset()
+
+    
+    def getLaneSectionAndLaneOffsetByCP(self, cp):
+        return self.getLaneSectionByCP(cp), self.getLaneOffsetByCP(cp)
+    
     
     def hasLaneOffsets(self):
         if hasattr(self.lanes, 'laneOffsets'):
@@ -377,6 +491,99 @@ class ExtendedRoad(pyodrx.Road):
         """
 
         return self.lanes.getEndPointWidths(self.length())
-
-
     
+
+    ### Lane related functions
+    
+    def getBorderDistanceOfLane(self, laneNo, cp):
+        """returns distance of outer border to the center lane.
+
+        Args:
+            laneNo ([type]): [description] 
+            cp ([type]):  cp = pyodrx.ContactPoint.end/start. border distance  reference point.
+
+        Raises:
+            Exception: [description]
+
+        Returns:
+            [type]: [description]
+        """
+
+        if laneNo == 0:
+            return 0
+
+        # 1. Assuming cp is start point
+        laneSection = self.lanes.lanesections[0]
+        laneOffset = self.lanes.getLaneOffsetAt(0)
+        nextLaneOffset = self.lanes.getLaneOffsetAt(1)
+        sectionLength = None # not needed for start point as ds is 0
+
+        # 2. Chaning if cp is end.
+
+        if cp ==  pyodrx.ContactPoint.end:
+            if self.length is None:
+                raise Exception("Lane border distance cannot be calcualted at the end point without road length")
+
+            laneSection = self.lanes.lanesections[-1]
+            laneOffset = self.lanes.getLaneOffsetAt(len(self.lanes.lanesections) - 1)
+            nextLaneOffset = None
+            sectionLength = laneSection.length(self.length(), laneOffset, nextLaneOffset)
+
+        # 3. Now the calculations
+
+        lanes = laneSection.leftlanes
+        if laneNo < 0:
+            lanes = laneSection.rightlanes
+        
+        laneLimit = abs(laneNo)
+
+        width = 0
+
+        for i in range(laneLimit):
+            lane = lanes[i]
+
+            if cp == pyodrx.ContactPoint.start and lane.soffset == 0: # if offset is not 0, this lane does not contribute to the width.
+                width += lane.a
+            elif cp == pyodrx.ContactPoint.end:
+                
+                sectionLength = self.length() - lane.soffset
+
+                coeffs = [lane.a, lane.b, lane.c, lane.d]
+                pRange=[sectionLength]
+                laneWidths = Geometry.evalPoly(coeffs, pRange)
+                width += laneWidths[0]
+        
+        return width
+
+
+    def getLanePosition(self, laneNo, cp):
+        """returns the intertial position of lane boundary. road must be 
+
+        Args:
+            laneNo ([type]): [description]
+            cp ([type]): [description]
+        """
+
+        # 1. get reference line position
+
+        x, y, h = self.getPosition(cp)
+
+        if laneNo == 0:
+            return x, y, h
+
+        # 2. shift reference line position
+        
+        # in local coordinate the reference line moves along v
+
+        localShiftAmount = self.getBorderDistanceOfLane(laneNo, cp)
+
+        if laneNo > 0: 
+            x += localShiftAmount * math.cos(h + np.pi/2)
+            y += localShiftAmount * math.sin(h + np.pi/2)
+        else:
+            x += localShiftAmount * math.cos(h - np.pi/2)
+            y += localShiftAmount * math.sin(h - np.pi/2) 
+
+        return x, y, h
+
+

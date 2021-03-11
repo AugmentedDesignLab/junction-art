@@ -26,6 +26,11 @@ class ExtendedLanes(pyodrx.Lanes):
         return element
 
     
+    def clearLanes(self):
+        for ls in self.lanesections:
+            ls.clearLanes()
+
+    
     def getLaneOffsetAt(self, index, default=None):
 
         if index < 0:

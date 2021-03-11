@@ -14,6 +14,9 @@ import logging
 from junctions.JunctionBuilder import JunctionBuilder
 
 from library.Configuration import Configuration
+from junctions.RoadLinker import RoadLinker
+from junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 
 
 class JunctionHarvester:
@@ -46,8 +49,10 @@ class JunctionHarvester:
         self.straightRoadLen = straightRoadLen
 
         self.roadBuilder = RoadBuilder()
+        self.straightRoadBuilder = StraightRoadBuilder()
 
         self.junctionBuilder = JunctionBuilder(self.roadBuilder)
+        self.sequentialJunctionBuilder = SequentialJunctionBuilder(self.roadBuilder, self.straightRoadLen, minAngle=minAngle, maxAngle=maxAngle)
 
         self.junctionMerger = JunctionMerger(outputDir, outputPrefix, lastId)
 
@@ -276,163 +281,39 @@ class JunctionHarvester:
         pass 
 
 
-    def harvestByPainting2L(self, maxNumberOfRoadsPerJunction, triesPerRoadCount, save=True):
+    def harvestByPainting2L(self, maxNumberOfRoadsPerJunction, triesPerRoadCount, show=False):
         """[summary]
 
         Args:
             maxNumberOfRoadsPerJunction ([type]): [description]
-            triesPerRoadCount ([type]): number of junctions to be created for each set of roads.
+            triesPerRoadCount ([type]): number of junctions to be created for each set of roads. for 3 roads, we will try triesPerRoadCount, for 4 roads the same.
             save (bool, optional): [description]. Defaults to True.
         """
 
+        odrs = []
         
         for numRoads in range(3, maxNumberOfRoadsPerJunction + 1):
             for _ in range(triesPerRoadCount):
-               self.drawLikeAPainter2L(numRoads)
-               self.lastId += 1
+                odr = self.sequentialJunctionBuilder.drawLikeAPainter2L(self.lastId, numRoads)
+                self.lastId += 1
 
-        pass
+                if show:
+                    extensions.view_road(odr, os.path.join('..', self.esminiPath))
+                    
+                xmlPath = self.getOutputPath(odr.name)
+                odr.write_xml(xmlPath)
+                # 2. save image
+                if self.saveImage is True:
+                    extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
+                
+                odrs.append(odr)
+        
+        
+        
+        with(open(self.destinationPrefix + "harvestedByPainting2L.dill", "wb")) as f:
+            dill.dump(odrs, f)
+            print("Odr objects saved to " + self.destinationPrefix + "harvestedByPainting2L.dill" )
 
+        pass 
+                
     
-
-    def drawLikeAPainter2L(self, maxNumberOfRoadsPerJunction, save=True, internalConnections=True, cp1=pyodrx.ContactPoint.start):
-        if maxNumberOfRoadsPerJunction < 3:
-            raise Exception("drawLikeAPainter is not for the weak. Please add more than 3 roads")
-
-        roads = []
-        roads.append(pyodrx.create_straight_road(0, length=self.straightRoadLen * 4)) # first road
-
-        availableAngle = 1.8 * np.pi # 360 degrees
-        maxAnglePerConnection = availableAngle / (maxNumberOfRoadsPerJunction - 1)
-        action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
-        nextRoadId = 1
-        while (action != "end"):
-
-            print(f"availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
-            previousRoadId = nextRoadId - 1
-            newConnectionId = nextRoadId
-            nextRoadId += 1
-            newRoadId = nextRoadId
-            nextRoadId += 1
-
-            # 1. create a road
-            newRoad = pyodrx.create_straight_road(newRoadId, self.straightRoadLen)
-
-            # 2. create a new connection road
-            newConnection, availableAngle = self.createNewConnectionForDrawing(action, newConnectionId, availableAngle, maxAnglePerConnection)
-            
-            # 5 add new roads and increase road id
-            roads.append(newConnection)
-            roads.append(newRoad)
-
-            roads[previousRoadId].add_successor(pyodrx.ElementType.junction, newConnection.id)
-
-            if newConnection.id == 1:
-                # newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.end)
-                # TODO this is a hack. It will not eventually work because outgoing roads' ends will come to join other junctions.
-                newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, cp1)
-            else:
-                newConnection.add_predecessor(pyodrx.ElementType.road, previousRoadId, pyodrx.ContactPoint.start)
-            
-            newConnection.add_successor(pyodrx.ElementType.road, newRoad.id, pyodrx.ContactPoint.start) 
-            newRoad.add_predecessor(pyodrx.ElementType.junction, newConnection.id)
-
-
-            # 6 get next action
-            action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
-            pass
-        
-        # 3. create connections and junction
-
-        junction = self.junctionBuilder.createJunctionForASeriesOfRoads(roads)
-
-        # print(f"number of roads created {len(roads)}")
-        odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(self.lastId)
-        odr = self.createOdr(odrName, roads, [junction])
-
-        # The last connection and resetting odr
-
-        lastConnection = self.junctionBuilder.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=cp1)
-        odr.add_road(lastConnection)
-
-        print(f"roads before internal connections {len(roads)}")
-
-        if internalConnections:
-            self.junctionBuilder.createInternalConnectionsForOddIndices(roads, junction, cp1=cp1)
-            odr.updateRoads(roads)
-
-        print(f"roads after internal connections {len(roads)}")
-
-        odr.resetAndReadjust()
-        
-
-        xmlPath = self.getOutputPath(odr.name)
-        if save:
-            odr.write_xml(xmlPath)
-
-        if self.saveImage:
-            extensions.saveRoadImageFromFile(xmlPath, self.esminiPath)
-
-        return odr
-
-
-    def createNewConnectionForDrawing(self, action, newConnectionId, availableAngle, maxAnglePerConnection):
-
-        newConnection = None
-        newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.LongArc)
-        return newConnection, availableAngle
-        # if action is 'straightLine':
-        #     newConnection = pyodrx.create_straight_road(newConnectionId, self.straightRoadLen, junction=1)
-        #     availableAngle -= np.pi
-        # elif action is 'curve':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.LongArc)
-        # elif action is 'spiral':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle,maxAnglePerConnection,  newConnectionId, curveType= StandardCurveTypes.Simple)
-        # elif action is 's':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.S)
-
-        # return newConnection, availableAngle
-
-
-    def createCurveForDrawing(self, availableAngle, maxAnglePerConnection, newConnectionId, curveType):
-        angleBetweenEndpoints = self.getSomeAngle(availableAngle, maxAnglePerConnection)
-        availableAngle -= angleBetweenEndpoints
-        # curvature = StandardCurvature.getRandomValue()
-        curvature = AngleCurvatureMap.getCurvatureForJunction(angleBetweenEndpoints)
-
-        print(f"Curvature for angle {math.degrees(angleBetweenEndpoints)} is {curvature}")
-        # if curvature < StandardCurvature.Medium.value:
-        #     curvature = StandardCurvature.Medium.value
-
-        newConnection = self.roadBuilder.createCurve(newConnectionId, angleBetweenEndpoints, isJunction=True, curvature=curvature, curveType=curveType)
-        return newConnection, availableAngle
-
-
-
-    def getSomeAngle(self, availableAngle, maxAnglePerConnection):
-
-        angle = (availableAngle * np.random.choice(10)) / 9
-
-        
-        if angle < self.minAngle:
-            angle = self.minAngle
-
-        if angle > maxAnglePerConnection:
-            angle = maxAnglePerConnection
-        return angle
-
-    
-    def actionAfterDrawingOne(self, currentRoads, availableAngle, maxNumberOfRoads):
-
-
-        actions = ['straightLine', "curve", "spiral", "s"]
-        
-        if availableAngle < self.minAngle:
-            return "end"
-        
-        if len(currentRoads) >= (maxNumberOfRoads * 2 - 1): # dont count connection roads
-            return "end"
-        
-        return actions[np.random.choice(len(actions))]
-
-
