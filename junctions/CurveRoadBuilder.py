@@ -75,6 +75,22 @@ class CurveRoadBuilder:
                     isRightMergeLane=False
                     ):
 
+        """[summary]
+        Args:
+            angleBetweenEndpoints (radian): (0, 180) range in radian
+            curvature (float): (-inf, +inf)
+
+        Raises:
+            Exception: [description]
+
+        Returns:
+            [type]: [description]
+        """
+
+        if angleBetweenEndpoints < 0:
+            angleBetweenEndpoints *= -1
+            curvature *= -1
+
         if curveType is StandardCurveTypes.Simple:
             return self.createSimple(roadId, angleBetweenEndpoints, isJunction, curvature, 
                                     isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,

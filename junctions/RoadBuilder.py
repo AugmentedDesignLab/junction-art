@@ -123,6 +123,21 @@ class RoadBuilder:
 
     #     return pyodrx.create_cloth_arc_cloth(curvature, arc_angle=arcAngle, cloth_angle=clothAngle, r_id=connectionRoadId, junction = junction)
 
+
+    def createSimpleCurveWithLongArcWithLaneNumberandOffset(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value, _lane_offset = 3, _n_lanes = 1): 
+        
+        junction = self.getJunctionSelection(isJunction)
+
+        totalRotation = np.pi - angleBetweenEndpoints
+
+        # most of the angleBetweenEndpoints should be assigned to the Arc
+        arcAngle = totalRotation * 0.9 # main curve
+        clothAngle = (totalRotation * 0.1) / 2 # curve more.
+
+        # print(f"arcAngle: {math.degrees(arcAngle)}")
+        # print(f"clothAngle: {math.degrees(clothAngle)}")
+
+        return pyodrx.create_cloth_arc_cloth(curvature, arc_angle=arcAngle, cloth_angle=clothAngle, r_id=connectionRoadId, junction = junction,n_lanes = _n_lanes, lane_offset=_lane_offset)
     
     # def createS(self, connectionRoadId, angleBetweenEndpoints, isJunction = False, curvature = StandardCurvature.Medium.value): 
     #     """Here the angleBetweenEndpoints are used for the first road and S mid point, and S mid point and Second road
