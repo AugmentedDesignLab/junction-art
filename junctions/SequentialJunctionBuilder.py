@@ -320,6 +320,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             incomingLanes = LaneConfiguration.getIncomingLanesOnARoad(road, cp, self.countryCode)
             outgoingLaneIds = LaneConfiguration.getOutgoingLanesIdsFromARoad(road, roads, cp1, self.countryCode)
 
+
             diff = len(incomingLanes) - len(outgoingLaneIds) 
             if diff > 0:
 
@@ -332,7 +333,31 @@ class SequentialJunctionBuilder(JunctionBuilder):
                 else:
                     # add necessary outgoing lanes to the first road with existing outgoing lanes
                     firstOutgoinRoadId = int(outgoingLaneIds[0].split(':')[0])
-                    self.laneBuilder.addOutgoingLanes(roadDic[firstOutgoinRoadId], cp, diff, self.countryCode, laneWidth=self.laneWidth)
+                    if firstOutgoinRoadId == firstRoadId:
+                        self.laneBuilder.addOutgoingLanes(roads[0], cp1, diff, self.countryCode, laneWidth=self.laneWidth)
+                    else:
+                        self.laneBuilder.addOutgoingLanes(roadDic[firstOutgoinRoadId], pyodrx.ContactPoint.start, diff, self.countryCode, laneWidth=self.laneWidth)
+
+
+            # now check if the road as lonely outgoing lanes, add one incoming lane to some other road if needed.
+            outgoingLanes = LaneConfiguration.getOutgoingLanesOnARoad(road, cp, self.countryCode)
+            incomingLaneIds = LaneConfiguration.getIncomingLanesIdsToARoad(road, roads, cp1, self.countryCode)
+
+            if len(outgoingLanes) > 0 and len(incomingLaneIds) == 0:
+                if len(incomingLaneIds) == 0:
+                    # special case when we have no incoming lanes
+                    if road.id != firstRoadId:
+                        self.laneBuilder.addIncomingLanes(roads[0], cp1, 1, self.countryCode, laneWidth=self.laneWidth)
+                    else:
+                        self.laneBuilder.addIncomingLanes(road[-1], pyodrx.ContactPoint.start, 1, self.countryCode, laneWidth=self.laneWidth)
+                else:
+                    firstIncomingRoadId = int(incomingLaneIds[0].split(':')[0])
+                    if firstIncomingRoadId == firstRoadId:
+                        self.laneBuilder.addIncomingLanes(roads[0], cp1, 1, self.countryCode, laneWidth=self.laneWidth)
+                    else:
+                        self.laneBuilder.addIncomingLanes(roadDic[firstIncomingRoadId], pyodrx.ContactPoint.start, 1, self.countryCode, laneWidth=self.laneWidth)
+
+
 
         pass
 

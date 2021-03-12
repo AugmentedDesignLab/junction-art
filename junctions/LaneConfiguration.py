@@ -90,8 +90,42 @@ class LaneConfiguration(ABC):
 
     
     @staticmethod
+    def getIncomingLanesIdsToARoad(outgoingRoad, allRoads, cp1, countryCode):
+        """Assumes all roads are connected by start point except for the first one
+           all the incoming lanes that enters the outgoingRoad
+
+        Args:
+            outgoingRoad ([type]): [description]
+            allRoads ([type]): [description]
+            cp1 ([type]): Contact point of the first road.
+            countryCode ([type]): [description]
+        """
+
+        # allRoads may have the incoming road, too.
+        outgoingLanes = []
+
+        firstRoadId = allRoads[0].id
+
+        if countryCode == CountryCodes.US:
+            for road in allRoads:
+                if road.id != outgoingRoad.id:
+                    lanes = []
+                    if road.id == firstRoadId:
+                        lanes = LaneConfiguration.getIncomingLanesOnARoad(road, cp1, countryCode)
+                    else:
+                        lanes = LaneConfiguration.getIncomingLanesOnARoad(road, pyodrx.ContactPoint.start, countryCode)
+                    
+                    outgoingLanes += LaneConfiguration.getUniqueLaneIds(road, lanes)
+
+            return outgoingLanes
+
+        raise NotImplementedError()
+
+
+    @staticmethod
     def getOutgoingLanesIdsFromARoad(incomingRoad, allRoads, cp1, countryCode):
         """Assumes all roads are connected by start point except for the first one
+        all the outgoing lanes from the incoming road
 
         Args:
             incomingRoad ([type]): [description]

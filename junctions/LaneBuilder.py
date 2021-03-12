@@ -517,6 +517,20 @@ class LaneBuilder:
         raise NotImplementedError("Only us are implemented")
 
 
+    def addIncomingLanes(self, road, cp, num, countryCode, laneWidth=3):
+
+        if countryCode == extensions.CountryCodes.US:
+            if cp == pyodrx.ContactPoint.start:
+                for _ in range(num):
+                    self.addLefLaneUS(road, laneWidth=laneWidth)
+            else:
+                for _ in range(num):
+                    self.addRightLaneUS(road, laneWidth=laneWidth)
+            return
+        
+        raise NotImplementedError("Only us are implemented")
+
+
     def createLinearTurnLane(self, turnType, maxWidth, laneLength, soffset=0, laneOffset = 0):
 
         if laneLength is None:

@@ -15,7 +15,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         self.configuration = Configuration()
         outputDir= os.path.join(os.getcwd(), 'output')
         lastId = 0
-        self.builder = SequentialJunctionBuilder(straightRoadLen=20, random_seed=7)
+        self.builder = SequentialJunctionBuilder(straightRoadLen=20, random_seed=12)
         
         self.randomState =self.configuration.get("random_state")
 
