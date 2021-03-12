@@ -99,6 +99,14 @@ class LaneOffset:
         element = ET.Element('laneOffset',attrib=self.get_attributes())
         return element
 
+    def copy(self):
+        laneOffset = LaneOffset(
+                            a=self.a,
+                            b=self.b,
+                            c=self.c,
+                            d=self.d,
+                            s=self.s)
+        return laneOffset
     
     @staticmethod
     def createLinear(s, maxWidth, laneLength):

@@ -106,6 +106,7 @@ class StraightRoadHarvester:
         rightCombinations = self.getLaneTurnCombinations(n_lanes_right)
 
 
+        # for each combinations on left and right, create a new road
         for leftComb in leftCombinations:
             for rightComb in rightCombinations:
                 road = self.straightRoadBuilder.createWithDifferentLanes(self.lastId, length=self.straightRoadLen, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right)
@@ -134,6 +135,7 @@ class StraightRoadHarvester:
 
                 odrs.append(odr)
 
+        # handle cases where we dont need right lanes
         if n_lanes_right == 0:
             for leftComb in leftCombinations:
                 road = self.straightRoadBuilder.createWithDifferentLanes(self.lastId, length=self.straightRoadLen, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right)
@@ -160,6 +162,7 @@ class StraightRoadHarvester:
 
                 odrs.append(odr)
 
+        # handle cases where we dont need left lanes
         if n_lanes_left == 0:
             for rightComb in rightCombinations:
                 road = self.straightRoadBuilder.createWithDifferentLanes(self.lastId, length=self.straightRoadLen, n_lanes_left=n_lanes_left, n_lanes_right=n_lanes_right)

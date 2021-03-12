@@ -45,7 +45,6 @@ class ExtendedRoad(pyodrx.Road):
         self.predecessorOffset = predecessorOffset
         self.extendedPredecessors = {}
         self.extendedSuccessors = {}
-
         self.startHeading = None
 
         pass
@@ -239,10 +238,18 @@ class ExtendedRoad(pyodrx.Road):
     def shallowCopy(self):
         copiedRoad = copy(self)
         copiedRoad.reset()
+        self.reinitializePropertiesForCopy()
+        self.copyLanesForCopy()
         return copiedRoad
+
+    def reinitializePropertiesForCopy(self):
+        self.extendedPredecessors = {}
+        self.extendedSuccessors = {}
+        self.startHeading = None
     
 
-
+    def copyLanesForCopy(self):
+        self.lanes = self.lanes.copy()
 
     def getArcAngle(self):
         """Assumes the road has an spiral, arc, spiral

@@ -32,6 +32,24 @@ class ExtendedLane(pyodrx.Lane):
         self.rules = []
         
 
+    def copy(self, copyLinks=False):
+        lane = ExtendedLane(lane_type=self.lane_type,
+                            a=self.a,
+                            b=self.b,
+                            c=self.c,
+                            d=self.d,
+                            soffset=self.soffset)
+        lane.lane_id = self.lane_id
+        lane.turnType = self.turnType
+        # TODO copy the rules.
+        for rule in self.rules:
+            lane.rules.append(rule)
+        
+        if copyLinks:
+            for link in self.links.links:
+                lane.links.add_link(link) # TODO may be problematic if link is changed. it should be immutable.
+
+        return lane
 
 
     def isProbableTurnLane(self):

@@ -28,6 +28,18 @@ class ExtendedLaneSection(pyodrx.LaneSection):
 
         return retdict
 
+    
+    def copy(self):
+        newCenterLane = self.centerlane.copy()
+        newLS = ExtendedLaneSection(self.s, newCenterLane, singleSide=self.singleSide)
+        newLS._left_id = self._left_id
+        newLS._right_id = self._right_id
+        for lane in self.leftlanes:
+            newLS.leftlanes.append(lane.copy())
+        for lane in self.rightlanes:
+            newLS.rightlanes.append(lane.copy())
+        return newLS
+
     def clearLanes(self):
         self._left_id = 1
         self._right_id = -1

@@ -25,6 +25,22 @@ class ExtendedLanes(pyodrx.Lanes):
         
         return element
 
+    def copy(self):
+        newLaneSections = []
+        newLaneOffsets = []
+
+        for ls in self.lanesections:
+            newLaneSections.append(ls.copy())
+        
+        for laneOffset in self.laneOffsets:
+            newLaneOffsets.append(laneOffset.copy())
+        
+        lanes = ExtendedLanes()
+        lanes.laneOffsets = newLaneOffsets
+        lanes.lanesections = newLaneSections
+
+        return lanes
+
     
     def clearLanes(self):
         for ls in self.lanesections:
