@@ -15,7 +15,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         self.configuration = Configuration()
         outputDir= os.path.join(os.getcwd(), 'output')
         lastId = 0
-        self.builder = SequentialJunctionBuilder(straightRoadLen=20)
+        self.builder = SequentialJunctionBuilder(straightRoadLen=20, random_seed=7)
         
         self.randomState =self.configuration.get("random_state")
 
@@ -48,7 +48,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         odr = self.builder.createWithRandomLaneConfigurations(path, 
                             0, 
                             maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
-                            maxLanePerSide=2, minLanePerSide=1, 
+                            maxLanePerSide=2, minLanePerSide=0, 
                             internalConnections=True, 
                             cp1=pyodrx.ContactPoint.end,
                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_FIRST)
@@ -62,7 +62,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         odr = self.builder.createWithRandomLaneConfigurations(path, 
                             0, 
                             maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
-                            maxLanePerSide=2, minLanePerSide=1, 
+                            maxLanePerSide=2, minLanePerSide=0, 
                             internalConnections=True, 
                             cp1=pyodrx.ContactPoint.end,
                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_LAST)
@@ -77,7 +77,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         odr = self.builder.createWithRandomLaneConfigurations(path, 
                             0, 
                             maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
-                            maxLanePerSide=2, minLanePerSide=1, 
+                            maxLanePerSide=2, minLanePerSide=0, 
                             internalConnections=True, 
                             cp1=pyodrx.ContactPoint.end,
                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)

@@ -12,15 +12,16 @@ from junctions.LaneBuilder import LaneBuilder
 from junctions.CurveRoadBuilder import CurveRoadBuilder
 from extensions.CountryCodes import CountryCodes
 from junctions.ConnectionBuilder import ConnectionBuilder
+from library.Configuration import Configuration
 
 class JunctionBuilder:
     
 
     def __init__(self, roadBuilder = None,
                 straightRoadLen = 10,
-                minAngle = np.pi/6, maxAngle = 1.8 * np.pi, country=CountryCodes.US):
+                minAngle = np.pi/6, maxAngle = 1.8 * np.pi, country=CountryCodes.US, random_seed=39):
 
-
+        self.config = Configuration()
         self.roadBuilder = roadBuilder
 
         if self.roadBuilder is None:
@@ -33,10 +34,11 @@ class JunctionBuilder:
 
         self.minAngle = minAngle
         self.maxAngle = maxAngle
+        self.laneWidth = self.config.get("default_lane_width")
         self.curveBuilder = CurveRoadBuilder(country=country)
         self.connectionBuilder = ConnectionBuilder()
         self.countryCode = country
-
+        np.random.seed(random_seed)
         pass
 
     def createJunctionForASeriesOfRoads(self, roads):

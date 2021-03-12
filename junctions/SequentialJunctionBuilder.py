@@ -14,6 +14,7 @@ from junctions.StandardCurveTypes import StandardCurveTypes
 from junctions.AngleCurvatureMap import AngleCurvatureMap
 from extensions.CountryCodes import CountryCodes
 from junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctions.LaneConfiguration import LaneConfiguration
 
 
 class SequentialJunctionBuilder(JunctionBuilder):
@@ -246,6 +247,10 @@ class SequentialJunctionBuilder(JunctionBuilder):
             action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
             pass
         
+        # 3.0 fix outgoing lane numbers
+
+        self.fixNumOutgoingLanes(outsideRoads, cp1)
+
         # 3. create connections and junction
         # TODO this is not correct anymore.
         # junction = self.createJunctionForASeriesOfRoads(roads)
@@ -296,9 +301,40 @@ class SequentialJunctionBuilder(JunctionBuilder):
             cp1 ([type]): contact point of the first road
         """
 
-        # check left lanes, check right lanes
+        roadDic = {}
+        for road in roads:
+            roadDic[road.id] = road
 
-        # for each road, if the number of incoming lanes < number other's outgoing lanes, add necessary lanes to the next other.
+
+        firstRoadId = roads[0].id
+        incomingLanes = []
+        outgoingLanes = []
+        cp = None
+        for road in roads:
+
+            if road.id == firstRoadId:
+                cp = cp1
+            else:
+                cp = pyodrx.ContactPoint.start
+            
+            incomingLanes = LaneConfiguration.getIncomingLanesOnARoad(road, cp, self.countryCode)
+            outgoingLaneIds = LaneConfiguration.getOutgoingLanesIdsFromARoad(road, roads, cp1, self.countryCode)
+
+            diff = len(incomingLanes) - len(outgoingLaneIds) 
+            if diff > 0:
+
+                if len(outgoingLaneIds) == 0:
+                    # special case when we have no outgoing lanes
+                    if road.id != firstRoadId:
+                        self.laneBuilder.addOutgoingLanes(roads[0], cp1, diff, self.countryCode, laneWidth=self.laneWidth)
+                    else:
+                        self.laneBuilder.addOutgoingLanes(road[-1], pyodrx.ContactPoint.start, diff, self.countryCode, laneWidth=self.laneWidth)
+                else:
+                    # add necessary outgoing lanes to the first road with existing outgoing lanes
+                    firstOutgoinRoadId = int(outgoingLaneIds[0].split(':')[0])
+                    self.laneBuilder.addOutgoingLanes(roadDic[firstOutgoinRoadId], cp, diff, self.countryCode, laneWidth=self.laneWidth)
+
+        pass
 
 
     def getRandomStraightRoad(self, roadId, harvestedStraightRoads, maxLanePerSide=2, minLanePerSide=0):

@@ -501,7 +501,21 @@ class LaneBuilder:
         return extendedLanes
 
     
-    ### Section : Turn Lanes
+    ### Section : Adding Lanes to existing roads
+
+    def addOutgoingLanes(self, road, cp, num, countryCode, laneWidth=3):
+
+        if countryCode == extensions.CountryCodes.US:
+            if cp == pyodrx.ContactPoint.start:
+                for _ in range(num):
+                    self.addRightLaneUS(road, laneWidth=laneWidth)
+            else:
+                for _ in range(num):
+                    self.addLefLaneUS(road, laneWidth=laneWidth)
+            return
+        
+        raise NotImplementedError("Only us are implemented")
+
 
     def createLinearTurnLane(self, turnType, maxWidth, laneLength, soffset=0, laneOffset = 0):
 
@@ -545,7 +559,7 @@ class LaneBuilder:
         laneSections = road.getLaneSections()
 
         for laneSection in laneSections:
-            lane = pyodrx.Lane(soffset=soffset, a=laneWidth)
+            lane = ExtendedLane(soffset=soffset, a=laneWidth)
             laneSection.add_left_lane(lane)
 
         pass
@@ -617,7 +631,7 @@ class LaneBuilder:
         laneSections = road.getLaneSections()
 
         for laneSection in laneSections:
-            lane = pyodrx.Lane(soffset=soffset, a=laneWidth)
+            lane = ExtendedLane(soffset=soffset, a=laneWidth)
             laneSection.add_right_lane(lane)
 
         pass

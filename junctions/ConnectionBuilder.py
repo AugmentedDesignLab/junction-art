@@ -154,7 +154,7 @@ class ConnectionBuilder:
                     logging.info(f"{self.name}: created connection for link {link}")
             except Exception as e:
                 logging.warn(f"{self.name}: {e}")
-            break
+            # break
             
 
         return newConnectionRoads     
