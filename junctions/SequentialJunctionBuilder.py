@@ -163,7 +163,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
                                             internalConnections=True, 
                                             cp1=pyodrx.ContactPoint.start, 
                                             randomState=None,
-                                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY):
+                                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY, 
+                                            uTurnLanes=1):
         """All the incoming roads, except for the first, will have their start endpoint connected to the junction.
 
         Args:
@@ -183,6 +184,11 @@ class SequentialJunctionBuilder(JunctionBuilder):
             [type]: [description]
         """
 
+        if maxNumberOfRoadsPerJunction < 2:
+            raise Exception("Please add more than 1 roads")
+
+        if uTurnLanes > 1:
+            raise Exception("U-turn from more than one lanes is not implemented")
 
         harvestedStraightRoads = extensions.getObjectsFromDill(straightRoadsPath)
 
@@ -192,8 +198,6 @@ class SequentialJunctionBuilder(JunctionBuilder):
         for key in harvestedStraightRoads:
             print(f"{key} has {len(harvestedStraightRoads[key])} number of roads")
 
-        if maxNumberOfRoadsPerJunction < 2:
-            raise Exception("Please add more than 1 roads")
         
         randomStraightRoads = [self.getRandomStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide) for i in range(maxNumberOfRoadsPerJunction)]
 
@@ -272,9 +276,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
         print(f"roads before internal connections {len(roads)}")
 
         if internalConnections:
-            # newConnectionRoads = self.createInternalConnectionsForMissingSequentialRoads(roads, junction, cp1=cp1, rebuildLanes=True)
-            internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId, outsideRoads, cp1)
-            nextRoadId += 1
+            internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId, outsideRoads, cp1, internalLinkStrategy)
+            nextRoadId += len(internalConnections)
             roads += internalConnections
             odr.updateRoads(roads)
 
@@ -283,6 +286,14 @@ class SequentialJunctionBuilder(JunctionBuilder):
                 geoRoad.clearLanes()
 
             # TODO create the junction
+            self.addInternalConnectionsToJunction(junction, internalConnections)
+
+        # U-Turns
+        if uTurnLanes == 1:
+            uTurnConnections = self.connectionBuilder.createUTurnConnectionRoads(nextRoadId, outsideRoads, cp1)
+            nextRoadId += 1
+            roads += uTurnConnections
+            odr.updateRoads(roads)
             self.addInternalConnectionsToJunction(junction, internalConnections)
 
 

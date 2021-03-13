@@ -76,10 +76,10 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
                             cp1=pyodrx.ContactPoint.end,
                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_FIRST)
 
-        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
-        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-first.xodr"
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-first-{maxNumberOfRoadsPerJunction}.xodr"
         odr.write_xml(xmlPath)
 
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
         # print(odr.roads['0'].links)
         # print(odr.roads['0'].links.links)
         # print(odr.roads['4'].links)
@@ -107,7 +107,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_LAST)
 
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
-        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-last.xodr"
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-last-{maxNumberOfRoadsPerJunction}.xodr"
         odr.write_xml(xmlPath)
 
 
@@ -122,7 +122,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
 
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
-        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any.xodr"
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
         odr.write_xml(xmlPath)
 
 
@@ -137,6 +137,6 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
 
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
-        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any.xodr"
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
         odr.write_xml(xmlPath)
 

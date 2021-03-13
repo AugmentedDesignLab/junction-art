@@ -78,6 +78,10 @@ class LaneConfiguration(ABC):
         return LaneConfiguration.getUniqueLaneIds(road, LaneConfiguration.getIncomingLanesOnARoad(road, cp, countryCode))
 
     @staticmethod
+    def getOutgoingLaneIdsOnARoad(road, cp, countryCode):
+        return LaneConfiguration.getUniqueLaneIds(road, LaneConfiguration.getOutgoingLanesOnARoad(road, cp, countryCode))
+
+    @staticmethod
     def getOutgoingLanesOnARoad(road, cp, countryCode):
 
         laneSection = road.getLaneSectionByCP(cp)

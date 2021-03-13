@@ -92,7 +92,7 @@ class Geometry(ABC):
 
 
     @staticmethod
-    def getCoeffsForParamPoly(x1, y1, h1, x2, y2, h2, cp1, cp2):
+    def getCoeffsForParamPoly(x1, y1, h1, x2, y2, h2, cp1, cp2, vShiftForSamePoint=0):
         """ Assumes traffice goes from point1 to point2. By default if the contact point is start, traffic is going into the road, and end, traffic is going out. """
 
         if cp1 == pyodrx.ContactPoint.start:
@@ -117,12 +117,20 @@ class Geometry(ABC):
 
         tangentMagnitude = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) 
 
+        if tangentMagnitude < 3: # it too short, for U-turns
+            tangentMagnitude = 3
+
         localRotation = h1 # rotation of local frame wrt inertial frame.
 
         u1 = 0
         v1 = 0
 
         u2, v2 = Geometry.inertialToLocal((x1, y1), localRotation, (x2, y2))
+
+        if u1 == u2 and v1 == v2:
+            v1 -= vShiftForSamePoint
+            v2 += vShiftForSamePoint
+
         localStartTangent = Geometry.headingToTangent(0, tangentMagnitude)
         localEndHeading = Geometry.getRelativeHeading(h1, h2)
         localEndTangent = Geometry.headingToTangent(localEndHeading, tangentMagnitude)
