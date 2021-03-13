@@ -15,7 +15,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         self.configuration = Configuration()
         outputDir= os.path.join(os.getcwd(), 'output')
         lastId = 0
-        self.builder = SequentialJunctionBuilder(straightRoadLen=20, random_seed=12)
+        self.builder = SequentialJunctionBuilder(straightRoadLen=20, random_seed=20)
         
         self.randomState =self.configuration.get("random_state")
 
@@ -31,6 +31,29 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         xmlPath = f"output/test_drawLikeAPainter2L-{maxNumberOfRoadsPerJunction}.xodr"
         odr.write_xml(xmlPath)
 
+        maxNumberOfRoadsPerJunction = 4
+        odr = self.builder.drawLikeAPainter2L(odrId=0, maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction)
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        
+        xmlPath = f"output/test_drawLikeAPainter2L-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+
+        maxNumberOfRoadsPerJunction = 5
+        odr = self.builder.drawLikeAPainter2L(odrId=0, maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction)
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        
+        xmlPath = f"output/test_drawLikeAPainter2L-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+
+        maxNumberOfRoadsPerJunction = 6
+        odr = self.builder.drawLikeAPainter2L(odrId=0, maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction)
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        
+        xmlPath = f"output/test_drawLikeAPainter2L-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
 
     def test_drawLikeAPainter2LWihtoutInternalConnections(self):
         maxNumberOfRoadsPerJunction = 5
@@ -57,6 +80,22 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         xmlPath = f"output/test_createWithRandomLaneConfigurations-split-first.xodr"
         odr.write_xml(xmlPath)
 
+        # print(odr.roads['0'].links)
+        # print(odr.roads['0'].links.links)
+        # print(odr.roads['4'].links)
+        # print(odr.roads['4'].links.links)
+        # for link in odr.roads['0'].links.links:
+        #     print(link)
+        # for link in odr.roads['4'].links.links:
+        #     print(link)
+
+        # print(odr.roads['0'].planview)
+        # print(odr.roads['4'].planview)
+
+
+
+        # return
+
         maxNumberOfRoadsPerJunction = 4
         path = self.configuration.get("harvested_straight_roads")
         odr = self.builder.createWithRandomLaneConfigurations(path, 
@@ -72,7 +111,22 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         odr.write_xml(xmlPath)
 
 
-        maxNumberOfRoadsPerJunction = 4
+        maxNumberOfRoadsPerJunction = 5
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any.xodr"
+        odr.write_xml(xmlPath)
+
+
+        maxNumberOfRoadsPerJunction = 6
         path = self.configuration.get("harvested_straight_roads")
         odr = self.builder.createWithRandomLaneConfigurations(path, 
                             0, 

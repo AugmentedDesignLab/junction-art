@@ -21,6 +21,12 @@ Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Develo
 1. successor is connected to one's end.
 2. predecessor is connected to one's start.
 
+
+# Immutable objects: (recreate instead of edits because they are shared amount different users)
+1. raw geometries in planview (Line, Arc, Spiral, ParamPoly, etc.)
+2. any lane
+3. any link
+
 # JunctionHarvester
 This is the class that harvests junctions. 
 

@@ -237,19 +237,26 @@ class ExtendedRoad(pyodrx.Road):
 
     def shallowCopy(self):
         copiedRoad = copy(self)
-        copiedRoad.reset()
-        self.reinitializePropertiesForCopy()
-        self.copyLanesForCopy()
+        copiedRoad.reset(clearRoadLinks=True)
+        self.reinitializePropertiesForCopy(copiedRoad)
+        self.copyLanesForCopy(copiedRoad)
+        self.copyPVforCopy(copiedRoad)
         return copiedRoad
+        
 
-    def reinitializePropertiesForCopy(self):
-        self.extendedPredecessors = {}
-        self.extendedSuccessors = {}
-        self.startHeading = None
+    def reinitializePropertiesForCopy(self, copiedRoad):
+        copiedRoad.extendedPredecessors = {}
+        copiedRoad.extendedSuccessors = {}
+        copiedRoad.startHeading = None
     
 
-    def copyLanesForCopy(self):
-        self.lanes = self.lanes.copy()
+    def copyLanesForCopy(self, copiedRoad):
+        copiedRoad.lanes = self.lanes.copy()
+
+
+    def copyPVforCopy(self, copiedRoad):
+        copiedRoad.planview = self.planview.copy()
+        
 
     def getArcAngle(self):
         """Assumes the road has an spiral, arc, spiral

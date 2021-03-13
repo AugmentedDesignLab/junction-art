@@ -329,7 +329,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
                     if road.id != firstRoadId:
                         self.laneBuilder.addOutgoingLanes(roads[0], cp1, diff, self.countryCode, laneWidth=self.laneWidth)
                     else:
-                        self.laneBuilder.addOutgoingLanes(road[-1], pyodrx.ContactPoint.start, diff, self.countryCode, laneWidth=self.laneWidth)
+                        self.laneBuilder.addOutgoingLanes(roads[-1], pyodrx.ContactPoint.start, diff, self.countryCode, laneWidth=self.laneWidth)
                 else:
                     # add necessary outgoing lanes to the first road with existing outgoing lanes
                     firstOutgoinRoadId = int(outgoingLaneIds[0].split(':')[0])
@@ -349,7 +349,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
                     if road.id != firstRoadId:
                         self.laneBuilder.addIncomingLanes(roads[0], cp1, 1, self.countryCode, laneWidth=self.laneWidth)
                     else:
-                        self.laneBuilder.addIncomingLanes(road[-1], pyodrx.ContactPoint.start, 1, self.countryCode, laneWidth=self.laneWidth)
+                        self.laneBuilder.addIncomingLanes(roads[-1], pyodrx.ContactPoint.start, 1, self.countryCode, laneWidth=self.laneWidth)
                 else:
                     firstIncomingRoadId = int(incomingLaneIds[0].split(':')[0])
                     if firstIncomingRoadId == firstRoadId:

@@ -26,6 +26,12 @@ class ExtendedPlanview(pyodrx.PlanView):
 
         pass
 
+    def copy(self):
+        newPV = ExtendedPlanview(x_start=self.x_start, y_start=self.y_start, h_start=self.h_start)
+        for geom in self._raw_geometries:
+            newPV.add_geometry(geom)
+        
+        return newPV
 
     def getTotalLength(self):
         if self.adjusted:
