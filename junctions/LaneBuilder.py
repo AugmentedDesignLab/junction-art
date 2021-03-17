@@ -494,6 +494,11 @@ class LaneBuilder:
         lane.add_roadmark(STD_ROADMARK)
         return lane
 
+    def createLane(self, laneType, a, b=0, c=0, d=0):
+        lane = ExtendedLane(lane_type=laneType, a=a, b=b, c=c, d=d)
+        lane.add_roadmark(STD_ROADMARK)
+        return lane
+
     
     def get3SectionLanes(self, roadLength, turnOffSet, finalOffset, n_lanes_left=1, n_lanes_right=1, lane_offset=3):
         firstSec = self.getStandardLaneSection(0, n_lanes_left, n_lanes_right, lane_offset=lane_offset)
@@ -736,5 +741,30 @@ class LaneBuilder:
 
     
 
+    # Section Non-driving lanes.
 
+    def addMedianIslandsToAllSections(self, road, width, laneType=pyodrx.LaneType.restricted):
+
+        # 1. check if islands exists on left and right side.
+
+        lanes = road.lanes
+
+        for ls in lanes.lanesections:
+            self.addMedianIslandsToSection(road, ls, width, laneType)
+        
+        pass
+    
+
+    def addMedianIslandsToSection(self, road, ls, width, laneType=pyodrx.LaneType.restricted):
+
+            # lane = self.createLinearTurnLane(TurnTypes.RIGHT, lane_offset, curveLaneLength)
+            # midSection.prependLaneToLeftLanes(lane)
+            # finalSection.prependLaneToLeftLanes(self.createStandardDrivingLane(lane_offset))
+
+        if len(ls.leftlanes) > 0:
+            ls.prependLaneToLeftLanes(self.createLane(laneType, a=width/2))
+        if len(ls.rightlanes) > 0:
+            ls.prependLaneToRightLanes(self.createLane(laneType, a=width/2))
+
+        pass
     

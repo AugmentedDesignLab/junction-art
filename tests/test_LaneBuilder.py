@@ -87,6 +87,22 @@ class test_LaneBuilder(unittest.TestCase):
         odr.write_xml(xmlPath)
 
 
+    def test_addMedianIslandsToAllSections(self):
+        roads = []
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, 10, n_lanes_left=1, n_lanes_right=1))
+        self.laneBuilder.addMedianIslandsToAllSections(roads[0], self.configuration.get('default_lane_width'))
+        odrName = "test_DifferentLaneConfigurations"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_addMedianIslandsToAllSections.xodr"
+        odr.write_xml(xmlPath)
+
+        
+
+
+
 
     
         
