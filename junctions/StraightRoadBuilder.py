@@ -60,22 +60,51 @@ class StraightRoadBuilder:
 
 
     
-    def create(self, roadId, length=20,junction = -1, 
-                            n_lanes=1, lane_offset=3, 
-                            laneSides=LaneSides.BOTH,
-                            isLeftTurnLane=False,
-                            isRightTurnLane=False,
-                            isLeftMergeLane=False,
-                            isRightMergeLane=False):
+    def create(self, 
+                    roadId, 
+                    n_lanes_left, 
+                    n_lanes_right, 
+                    length=20,
+                    junction = -1, 
+                    lane_offset=3, 
+                    laneSides=LaneSides.BOTH,
+                    numLeftTurnsOnLeft=0,
+                    numRightTurnsOnRight=0,
+                    numLeftMergeOnLeft=0,
+                    numRightMergeOnRight=0,
+                    numberOfLeftTurnLanesOnRight=0,
+                    numberOfRightTurnLanesOnLeft=0,
+                    mergeLaneOnTheOppositeSideForInternalTurn=True,
+                    force3Section=False
+                ):
 
         # create geometry
         pv = self.createPVForLine(length)
 
         
-        laneSections = self.laneBuilder.getStandardLanes(n_lanes, lane_offset, laneSides,
-                                                            roadLength=length, 
-                                                            isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
-                                                            isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane)
+        # laneSections = self.laneBuilder.getStandardLanes(n_lanes, lane_offset, laneSides,
+        #                                                     roadLength=length, 
+        #                                                     isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
+        #                                                     isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane)
+        singleSide=False
+        if laneSides != LaneSides.BOTH:
+            singleSide=True
+        laneSections = self.laneBuilder.getLanes( 
+                                                    n_lanes_left, 
+                                                    n_lanes_right, 
+                                                    lane_offset = lane_offset, 
+                                                    singleSide=singleSide,
+                                                    roadLength=length,
+                                                    numLeftTurnsOnLeft=numLeftTurnsOnLeft,
+                                                    numRightTurnsOnRight=numRightTurnsOnRight,
+                                                    numLeftMergeOnLeft=numLeftMergeOnLeft,
+                                                    numRightMergeOnRight=numRightMergeOnRight,
+                                                    numberOfLeftTurnLanesOnRight=numberOfLeftTurnLanesOnRight,
+                                                    numberOfRightTurnLanesOnLeft=numberOfRightTurnLanesOnLeft,
+                                                    mergeLaneOnTheOppositeSideForInternalTurn=mergeLaneOnTheOppositeSideForInternalTurn,
+                                                    force3Section=force3Section
+                                                )
+
 
 
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction)

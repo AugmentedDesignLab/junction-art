@@ -99,6 +99,44 @@ class test_LaneBuilder(unittest.TestCase):
         xmlPath = f"output/test_addMedianIslandsToAllSections.xodr"
         odr.write_xml(xmlPath)
 
+
+    def test_addMedianIslandsTo3Sections(self):
+
+        road = self.straightRoadBuilder.create(1, n_lanes_left=1, n_lanes_right=1, length=20, force3Section=False)
+
+        try:
+            self.laneBuilder.addMedianIslandsTo3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.start, width=3)
+            assert False
+        except:
+            assert True
+
+        road = self.straightRoadBuilder.create(1, n_lanes_left=1, n_lanes_right=1, length=20, force3Section=True)
+        self.laneBuilder.addMedianIslandsTo3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.start, width=3)
+
+        assert len(road.lanes.lanesections[0].leftlanes) == 1
+        assert len(road.lanes.lanesections[0].rightlanes) == 1
+        assert len(road.lanes.lanesections[1].leftlanes) == 2
+        assert len(road.lanes.lanesections[1].rightlanes) == 2
+        assert len(road.lanes.lanesections[2].leftlanes) == 2
+        assert len(road.lanes.lanesections[2].rightlanes) == 2
+
+        road = self.straightRoadBuilder.create(1, n_lanes_left=1, n_lanes_right=1, length=20, force3Section=True)
+        self.laneBuilder.addMedianIslandsTo3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.end, width=3)
+
+        assert len(road.lanes.lanesections[0].leftlanes) == 2
+        assert len(road.lanes.lanesections[0].rightlanes) == 2
+        assert len(road.lanes.lanesections[1].leftlanes) == 2
+        assert len(road.lanes.lanesections[1].rightlanes) == 2
+        assert len(road.lanes.lanesections[2].leftlanes) == 1
+        assert len(road.lanes.lanesections[2].rightlanes) == 1
+
+        odrName = "test_DifferentLaneConfigurations"
+        odr = extensions.createOdrByPredecessor(odrName, [road], [])
+        
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/test_addMedianIslandsTo3Sections.xodr"
+        odr.write_xml(xmlPath)
         
 
 

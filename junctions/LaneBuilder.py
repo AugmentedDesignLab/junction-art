@@ -20,6 +20,7 @@ class LaneBuilder:
     def __init__(self):
         self.config = Configuration()
         self.defaultLaneWidth = self.config.get("default_lane_width")
+        self.name = 'LaneBuilder'
 
     def getStandardLanes(self, n_lanes, lane_offset, laneSides=LaneSides.BOTH,
                             roadLength = None,
@@ -142,7 +143,7 @@ class LaneBuilder:
                 if isLeftTurnLane:
                     # we need to change the center lane offset for mid and final
 
-                    lane = self.createLinearTurnLane(TurnTypes.LEFT, lane_offset, curveLaneLength)
+                    lane = self.createLinearSplitLane(TurnTypes.LEFT, lane_offset, curveLaneLength)
                     midSecWithTurns.prependLaneToRightLanes(lane)
                     finalSection.prependLaneToRightLanes(self.createStandardDrivingLane(lane_offset))
 
@@ -152,20 +153,20 @@ class LaneBuilder:
                     turnLaneOffset = LaneOffset.createLinear(turnOffSet, maxWidth=lane_offset, laneLength=curveLaneLength)
                     finalLaneOffset = LaneOffset.createParallel(finalOffset, a=lane_offset)
                 if isRightTurnLane:
-                    lane = self.createLinearTurnLane(TurnTypes.RIGHT, lane_offset, curveLaneLength)
+                    lane = self.createLinearSplitLane(TurnTypes.RIGHT, lane_offset, curveLaneLength)
                     midSecWithTurns.add_right_lane(lane)
                     finalSection.add_right_lane(self.createStandardDrivingLane(lane_offset))
             
             if laneSide == LaneSides.LEFT:
                 if isLeftTurnLane:
-                    lane = self.createLinearTurnLane(TurnTypes.LEFT, lane_offset, curveLaneLength)
+                    lane = self.createLinearSplitLane(TurnTypes.LEFT, lane_offset, curveLaneLength)
                     midSecWithTurns.add_left_lane(lane)
                     finalSection.add_left_lane(self.createStandardDrivingLane(lane_offset))
 
                 if isRightTurnLane:
                     # we need to change the center lane offset for mid and final
 
-                    lane = self.createLinearTurnLane(TurnTypes.RIGHT, lane_offset, curveLaneLength)
+                    lane = self.createLinearSplitLane(TurnTypes.RIGHT, lane_offset, curveLaneLength)
                     midSecWithTurns.prependLaneToLeftLanes(lane)
                     finalSection.prependLaneToLeftLanes(self.createStandardDrivingLane(lane_offset))
 
@@ -255,7 +256,8 @@ class LaneBuilder:
                 numRightMergeOnRight=0,
                 numberOfLeftTurnLanesOnRight=0,
                 numberOfRightTurnLanesOnLeft=0,
-                mergeLaneOnTheOppositeSideForInternalTurn=True):
+                mergeLaneOnTheOppositeSideForInternalTurn=True,
+                force3Section=False):
         
         """Always returns 3 lane sections if there is a turn or merge.
         """
@@ -264,7 +266,7 @@ class LaneBuilder:
         if lane_offset is None:
             lane_offset = self.defaultLaneWidth
 
-        if (numLeftTurnsOnLeft == 0 and numRightTurnsOnRight == 0
+        if (force3Section is False and numLeftTurnsOnLeft == 0 and numRightTurnsOnRight == 0
             and numLeftMergeOnLeft == 0 and numRightMergeOnRight == 0
             and numberOfLeftTurnLanesOnRight == 0  and numberOfRightTurnLanesOnLeft == 0):
             return self.getStandardLanesWithDifferentLeftAndRight(n_lanes_left, n_lanes_right, lane_offset, singleSide)     
@@ -313,7 +315,7 @@ class LaneBuilder:
         for _ in range(numberOfLeftTurnLanesOnRight):
             # 1. we need to change the center lane offset for mid and final
 
-            lane = self.createLinearTurnLane(TurnTypes.LEFT, lane_offset, curveLaneLength)
+            lane = self.createLinearSplitLane(TurnTypes.LEFT, lane_offset, curveLaneLength)
             midSection.prependLaneToRightLanes(lane)
             finalSection.prependLaneToRightLanes(self.createStandardDrivingLane(lane_offset))
 
@@ -339,7 +341,7 @@ class LaneBuilder:
         for _ in range(numberOfRightTurnLanesOnLeft):
             # 1. we need to change the center lane offset for mid and final
 
-            lane = self.createLinearTurnLane(TurnTypes.RIGHT, lane_offset, curveLaneLength)
+            lane = self.createLinearSplitLane(TurnTypes.RIGHT, lane_offset, curveLaneLength)
             midSection.prependLaneToLeftLanes(lane)
             finalSection.prependLaneToLeftLanes(self.createStandardDrivingLane(lane_offset))
 
@@ -376,6 +378,14 @@ class LaneBuilder:
 
 
     def getOffsetsAndTurnLaneCurveLength(self, roadLength):
+        """returns soffsets for turn slope start and end
+
+        Args:
+            roadLength ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         turnOffSet = 1
         finalOffset = roadLength - 1 # where the final lanesection resides.
         laneLength = finalOffset - turnOffSet 
@@ -394,7 +404,7 @@ class LaneBuilder:
     def createLeftTurnLanesOnLeftEdge(self, numLeftTurnsOnLeft, maxWidth, laneLength, midSection, finalSection):
 
         for _ in range(numLeftTurnsOnLeft):
-            lane = self.createLinearTurnLane(TurnTypes.LEFT, maxWidth, laneLength)
+            lane = self.createLinearSplitLane(TurnTypes.LEFT, maxWidth, laneLength)
             midSection.add_left_lane(lane)
             finalSection.add_left_lane(self.createStandardDrivingLane(maxWidth))
         pass
@@ -403,7 +413,7 @@ class LaneBuilder:
     def createRightTurnLanesOnRightEdge(self, numRightTurnsOnRight, maxWidth, laneLength, midSection, finalSection):
 
         for _ in range(numRightTurnsOnRight):
-            lane = self.createLinearTurnLane(TurnTypes.RIGHT, maxWidth, laneLength)
+            lane = self.createLinearSplitLane(TurnTypes.RIGHT, maxWidth, laneLength)
             midSection.add_right_lane(lane)
             finalSection.add_right_lane(self.createStandardDrivingLane(maxWidth))
         
@@ -424,12 +434,12 @@ class LaneBuilder:
         """
         
         if isLeftTurnLane:
-            lane = self.createLinearTurnLane(TurnTypes.LEFT, maxWidth, laneLength)
+            lane = self.createLinearSplitLane(TurnTypes.LEFT, maxWidth, laneLength)
             midSection.add_left_lane(lane)
             finalSection.add_left_lane(self.createStandardDrivingLane(maxWidth))
 
         if isRightTurnLane:
-            lane = self.createLinearTurnLane(TurnTypes.RIGHT, maxWidth, laneLength)
+            lane = self.createLinearSplitLane(TurnTypes.RIGHT, maxWidth, laneLength)
             midSection.add_right_lane(lane)
             finalSection.add_right_lane(self.createStandardDrivingLane(maxWidth))
         
@@ -542,7 +552,7 @@ class LaneBuilder:
         raise NotImplementedError("Only us are implemented")
 
 
-    def createLinearTurnLane(self, turnType, maxWidth, laneLength, soffset=0, laneOffset = 0):
+    def createLinearSplitLane(self, turnType, maxWidth, laneLength, soffset=0, laneOffset = 0, laneType=pyodrx.LaneType.driving):
 
         if laneLength is None:
             raise Exception("Lane length cannot be None for turn lanes")
@@ -555,7 +565,7 @@ class LaneBuilder:
         # c = 0
         # c = .1 * (maxWidth / laneLength)
 
-        lane = ExtendedLane(soffset=soffset, a=a, b=b, turnType=turnType)
+        lane = ExtendedLane(lane_type=laneType, soffset=soffset, a=a, b=b, turnType=turnType)
         return lane
 
 
@@ -600,7 +610,7 @@ class LaneBuilder:
         else:
             laneLength = road.length()
 
-        lane = self.createLinearTurnLane(TurnTypes.LEFT, maxWidth, laneLength, soffset)
+        lane = self.createLinearSplitLane(TurnTypes.LEFT, maxWidth, laneLength, soffset)
 
         # 2. add lane
         laneSection = road.getLastLaneSection()
@@ -640,7 +650,7 @@ class LaneBuilder:
         else:
             laneLength = road.length()
 
-        lane = self.createLinearTurnLane(TurnTypes.RIGHT, maxWidth, laneLength, soffset)
+        lane = self.createLinearSplitLane(TurnTypes.RIGHT, maxWidth, laneLength, soffset)
 
         # 2. add lane
         laneSection = road.getLastLaneSection()
@@ -664,7 +674,7 @@ class LaneBuilder:
 
     ### Section: Merge Lanes
 
-    def createLinearMergeLane(self, maxWidth, laneLength, soffset=0):
+    def createLinearMergeLane(self, maxWidth, laneLength, soffset=0, laneType=pyodrx.LaneType.driving):
 
 
         if laneLength is None:
@@ -678,7 +688,7 @@ class LaneBuilder:
         # c = 0
         # c = .1 * (maxWidth / laneLength)
 
-        lane = pyodrx.Lane(soffset=soffset, a=a, b=b)
+        lane = ExtendedLane(lane_type=laneType, soffset=soffset, a=a, b=b)
         return lane
 
     
@@ -768,3 +778,51 @@ class LaneBuilder:
 
         pass
     
+    def addMedianIslandsTo3Sections(self, 
+                road, 
+                roadLength, 
+                skipEndpoint, 
+                width, 
+                laneType=pyodrx.LaneType.restricted):
+        """[summary]
+
+        Args:
+            road ([type]): [description]
+            roadLength ([type]): [description]
+            skipSection ([type]): valid values are: pyodrx ContactPoints. No new lane will be added to this end point.
+            width ([type]): [description]
+            laneType ([type], optional): [description]. Defaults to pyodrx.LaneType.restricted.
+
+        Raises:
+            Exception: [description]
+        """
+
+        # 1. check if islands exists on left and right side.
+
+        extendedLanes = road.lanes
+
+        if len(extendedLanes.lanesections) != 3:
+            raise Exception(f"{self.name}: addMedianIslandsTo3Sections only works on 3 lane section roads")
+        if roadLength is None or roadLength < 3:
+            raise Exception(f"{self.name}: addMedianIslandsTo3Sections requires roadLength >= 3")
+
+        firstSection = extendedLanes.lanesections[0]
+        midSection = extendedLanes.lanesections[1]
+        finalSection = extendedLanes.lanesections[-1]
+        turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
+
+        if skipEndpoint == pyodrx.ContactPoint.start:
+            increasingLaneL = self.createLinearSplitLane(None, maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
+            increasingLaneR = self.createLinearSplitLane(None, maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
+            midSection.prependLaneToLeftLanes(increasingLaneL)
+            midSection.prependLaneToRightLanes(increasingLaneR)
+            self.addMedianIslandsToSection(road, finalSection, width, laneType=laneType)
+        else:
+            decreasingLaneL = self.createLinearMergeLane(maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
+            decreasingLaneR = self.createLinearMergeLane(maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
+            midSection.prependLaneToLeftLanes(decreasingLaneL)
+            midSection.prependLaneToRightLanes(decreasingLaneR)
+            self.addMedianIslandsToSection(road, firstSection, width, laneType=laneType)
+
+        
+        pass
