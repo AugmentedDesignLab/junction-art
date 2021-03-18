@@ -4,6 +4,8 @@ from pyodrx.links import _Link, _Links, create_lane_links
 import numpy as np
 from itertools import combinations
 import math
+import logging
+
 
 class ExtendedOpenDrive(pyodrx.OpenDrive):
     
@@ -11,12 +13,13 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
 
         super().__init__(name)
         self.laneLinker = laneLinker
+        self.name = 'ExtendedOpenDrive'
 
     def reset(self):
         """Reset only keeps road links, removes lane links, adjustments, adjusted geometries. Useful for editing and ODR
         """
         
-        print(f"refreshing odr road adjustments")
+        logging.debug(f"{self.name}: reset: refreshing odr road adjustments")
         # TODO create a method to readjust in Extended Open Drive.
         for road in self.roads.values():
             road.reset()
@@ -105,7 +108,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
 
         """
         #adjust roads and their geometries 
-        print("start points starting")
+        logging.debug(f"{self.name}: adjust_roads_and_lanesByPredecessor: start points starting")
         self.adjust_startpointsByPredecessor()
 
         # print("start points adjusted")
@@ -353,7 +356,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
 
         """
         #adjust roads and their geometries 
-        print("start points starting")
+        logging.debug(f"{self.name}: adjust_roads_and_lanes: start points starting")
         self.adjust_startpoints()
 
         # print("start points adjusted")

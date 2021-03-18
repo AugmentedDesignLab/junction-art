@@ -120,7 +120,7 @@ class test_AngleCurvatureMap(unittest.TestCase):
         laneOffset = 3
         angle = np.pi * .75
         
-        maxCurve = AngleCurvatureMap.getMaxCurvatureMaxRoadWidth(angle, numberofLanes * laneOffset)
+        maxCurve = AngleCurvatureMap.getMaxCurvatureAgainstMaxRoadWidth(angle, numberofLanes * laneOffset)
 
         curve = maxCurve * 1.1
 

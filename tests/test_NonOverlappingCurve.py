@@ -26,7 +26,7 @@ class test_NonOverlappingCurve(unittest.TestCase):
 
         angle = np.pi * 0.75 
         # curve, angle = AngleCurvatureMap.getCurvatureForNonOverlappingRoads(angle, numberofLanes, laneOffset)
-        curve = AngleCurvatureMap.getMaxCurvatureMaxRoadWidth(angle, numberofLanes * laneOffset)
+        curve = AngleCurvatureMap.getMaxCurvatureAgainstMaxRoadWidth(angle, numberofLanes * laneOffset)
         roads = []
         roads.append(pyodrx.create_straight_road(0, 50,  n_lanes=numberofLanes, lane_offset=laneOffset))
         roads.append(self.roadBuilder.createSimpleCurveWithLongArcWithLaneNumberandOffset(1, angle, False, curvature = curve, _n_lanes = numberofLanes, _lane_offset=laneOffset))
@@ -54,7 +54,7 @@ class test_NonOverlappingCurve(unittest.TestCase):
         angle = np.pi * 1.2
         length = 20
         # curve, angle = AngleCurvatureMap.getCurvatureForNonOverlappingRoads(angle, numberofLanes, laneOffset)
-        maxCurve = AngleCurvatureMap.getMaxCurvatureMaxRoadWidth(angle, numberofLanes * laneOffset)
+        maxCurve = AngleCurvatureMap.getMaxCurvatureAgainstMaxRoadWidth(angle, numberofLanes * laneOffset)
         curve = AngleCurvatureMap.getCurvatureForAngleAndLength(angle, length)
 
         print(f"max curve {maxCurve}, current curve {curve}")

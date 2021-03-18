@@ -15,15 +15,35 @@ from junctions.AngleCurvatureMap import AngleCurvatureMap
 from extensions.CountryCodes import CountryCodes
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.LaneConfiguration import LaneConfiguration
+import logging
 
 
 class SequentialJunctionBuilder(JunctionBuilder):
 
+    def __init__(self, roadBuilder = None,
+                straightRoadLen = 10,
+                minAngle = np.pi/6, 
+                maxAngle = 1.8 * np.pi, 
+                country=CountryCodes.US, 
+                random_seed=39
+                ):
+            
+        super().__init__(roadBuilder=roadBuilder,
+                        straightRoadLen=straightRoadLen,
+                        minAngle=minAngle,
+                        maxAngle=maxAngle,
+                        country=country,
+                        random_seed=random_seed
+                        )
+        self.name = 'SequentialJunctionBuilder'
     
 
     def drawLikeAPainter2L(self, odrId, maxNumberOfRoadsPerJunction, save=True, internalConnections=True, cp1=pyodrx.ContactPoint.end):
         if maxNumberOfRoadsPerJunction < 3:
             raise Exception("drawLikeAPainter is not for the weak. Please add more than 3 roads")
+
+        
+        maxLaneWidth = self.laneWidth 
 
         roads = []
         roads.append(self.straightRoadBuilder.create(0, length=self.straightRoadLen * 4)) # first road
@@ -34,7 +54,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         nextRoadId = 1
         while (action != "end"):
 
-            print(f"availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
+            logging.debug(f"{self.name}: availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
             previousRoadId = nextRoadId - 1
             newConnectionId = nextRoadId
             nextRoadId += 1
@@ -45,7 +65,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             newRoad = self.straightRoadBuilder.create(newRoadId, length=self.straightRoadLen)
 
             # 2. create a new connection road
-            newConnection, availableAngle = self.createNewConnectionForDrawing(action, newConnectionId, availableAngle, maxAnglePerConnection)
+            newConnection, availableAngle = self.createGeoConnectionRoad(action, newConnectionId, availableAngle, maxAnglePerConnection, maxLaneWidth=maxLaneWidth)
             
             # 5 add new roads and increase road id
             roads.append(newConnection)
@@ -71,7 +91,6 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
         junction = self.createJunctionForASeriesOfRoads(roads)
 
-        # print(f"number of roads created {len(roads)}")
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(odrId)
         odr = extensions.createOdrByPredecessor(odrName, roads, [junction])
 
@@ -81,44 +100,45 @@ class SequentialJunctionBuilder(JunctionBuilder):
         roads.append(lastConnection)
         odr.add_road(lastConnection)
 
-        print(f"roads before internal connections {len(roads)}")
+        logging.debug(f"{self.name}: roads before internal connections {len(roads)}")
 
         if internalConnections:
             self.createInternalConnectionsForMissingSequentialRoads(roads, junction, cp1=cp1)
             odr.updateRoads(roads)
 
-        print(f"roads after internal connections {len(roads)}")
+        logging.debug(f"{self.name}: roads after internal connections {len(roads)}")
 
         odr.resetAndReadjust(byPredecessor=True)
         
         return odr
 
 
-    def createNewConnectionForDrawing(self, action, newConnectionId, availableAngle, maxAnglePerConnection):
+    def createGeoConnectionRoad(self, action, newConnectionId, availableAngle, maxAnglePerConnection, maxLaneWidth):
 
         newConnection = None
-        newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.LongArc)
+        newConnection, availableAngle = self.createGeoConnectionCurve(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.LongArc, maxLaneWidth=maxLaneWidth)
         return newConnection, availableAngle
-        # if action is 'straightLine':
-        #     newConnection = pyodrx.create_straight_road(newConnectionId, self.straightRoadLen, junction=1)
-        #     availableAngle -= np.pi
-        # elif action is 'curve':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.LongArc)
-        # elif action is 'spiral':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle,maxAnglePerConnection,  newConnectionId, curveType= StandardCurveTypes.Simple)
-        # elif action is 's':
-        #     newConnection, availableAngle = self.createCurveForDrawing(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.S)
-
-        # return newConnection, availableAngle
 
 
-    def createCurveForDrawing(self, availableAngle, maxAnglePerConnection, newConnectionId, curveType):
+    def createGeoConnectionCurve(self, availableAngle, maxAnglePerConnection, newConnectionId, curveType, maxLaneWidth):
+
         angleBetweenEndpoints = self.getSomeAngle(availableAngle, maxAnglePerConnection)
         availableAngle -= angleBetweenEndpoints
         # curvature = StandardCurvature.getRandomValue()
-        curvature = AngleCurvatureMap.getCurvatureForJunction(angleBetweenEndpoints)
+        # curvature = AngleCurvatureMap.getCurvatureForJunction(angleBetweenEndpoints)
+        curvature = AngleCurvatureMap.getMaxCurvatureAgainstMaxRoadWidth(angleBetweenEndpoints, maxLaneWidth=maxLaneWidth)
 
-        print(f"Curvature for angle {math.degrees(angleBetweenEndpoints)} is {curvature}")
+        currentLength = AngleCurvatureMap.getLength(angleBetweenEndpoints, curvature, curveType)
+        if currentLength > self.maxConnectionLength:
+            raise Exception(f"{self.name}: createGeoConnectionCurve current length is greater than max length")
+        
+        if np.random.choice([0, 1, 2, 3]) == 0: # 25% chance
+            # create a long curve
+            newLength = np.random.uniform(currentLength, self.maxConnectionLength)
+            curvature = AngleCurvatureMap.getCurvatureForAngleBetweenRoadAndLength(angleBetweenEndpoints, newLength, curveType)
+            logging.info(f"{self.name}: extending curve length")
+
+        logging.debug(f"{self.name}: Curvature for angle {math.degrees(angleBetweenEndpoints)} is {curvature}")
         # if curvature < StandardCurvature.Medium.value:
         #     curvature = StandardCurvature.Medium.value
 
@@ -161,7 +181,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
                                             maxLanePerSide=2, 
                                             minLanePerSide=0, 
                                             internalConnections=True, 
-                                            cp1=pyodrx.ContactPoint.start, 
+                                            cp1=pyodrx.ContactPoint.end, 
                                             randomState=None,
                                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY, 
                                             uTurnLanes=1,
@@ -197,7 +217,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             np.random.set_state(randomState)
 
         for key in harvestedStraightRoads:
-            print(f"{key} has {len(harvestedStraightRoads[key])} number of roads")
+            logging.debug(f"{self.name}: {key} has {len(harvestedStraightRoads[key])} number of roads")
 
         
         randomStraightRoads = [self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide) for i in range(maxNumberOfRoadsPerJunction)]
@@ -208,20 +228,24 @@ class SequentialJunctionBuilder(JunctionBuilder):
         roads = []
 
         if restrictedLanes:
-            roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.start)) # first road
+            if cp1 == pyodrx.ContactPoint.end:
+                roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.start)) # first road
+            else:
+                roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.end)) # first road
         else:
             roads.append(self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide)) # first road
 
         roads[0].id = 0
         outsideRoads.append(roads[0])
 
+
         availableAngle = 1.8 * np.pi # 360 degrees
-        maxAnglePerConnection = availableAngle / (maxNumberOfRoadsPerJunction - 1)
+        maxAnglePerConnection = availableAngle / maxNumberOfRoadsPerJunction
         action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
         nextRoadId = 1
         while (action != "end"):
 
-            print(f"availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
+            logging.debug(f"{self.name}: availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
 
             # 0. road id generation
             previousRoadId = nextRoadId - 1
@@ -240,7 +264,13 @@ class SequentialJunctionBuilder(JunctionBuilder):
             outsideRoads.append(newRoad)
 
             # 2. create a new connection road
-            newConnection, availableAngle = self.createNewConnectionForDrawing(action, newConnectionId, availableAngle, maxAnglePerConnection)
+            prevCp = pyodrx.ContactPoint.start
+            if len(roads) == 1: # first road
+                prevCp = cp1
+
+            prevLanes, nextLanes = self.laneBuilder.getClockwiseAdjacentLanes(roads[-1], prevCp, newRoad, pyodrx.ContactPoint.start)
+            maxLaneWidth = max(len(prevLanes), len(nextLanes)) * self.laneWidth
+            newConnection, availableAngle = self.createGeoConnectionRoad(action, newConnectionId, availableAngle, maxAnglePerConnection, maxLaneWidth=maxLaneWidth)
             geoConnectionRoads.append(newConnection)
             
             # 5 add new roads
@@ -271,7 +301,6 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # junction = self.createJunctionForASeriesOfRoads(roads)
         junction = pyodrx.Junction("singleConnectionsJunction", 0)
 
-        # print(f"number of roads created {len(roads)}")
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(odrId)
         odr = extensions.createOdrByPredecessor(odrName, roads, [junction])
 
@@ -284,7 +313,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
         # odr.add_road(lastConnection)
         
-        print(f"roads before internal connections {len(roads)}")
+        logging.debug(f"{self.name}: roads before internal connections {len(roads)}")
 
         if internalConnections:
             internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId, outsideRoads, cp1, internalLinkStrategy)
@@ -308,7 +337,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             self.addInternalConnectionsToJunction(junction, internalConnections)
 
 
-        print(f"roads after internal connections {len(roads)}")
+        logging.debug(f"{self.name}: roads after internal connections {len(roads)}")
 
         odr.resetAndReadjust(byPredecessor=True)
         
@@ -395,8 +424,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
             return self.getRandomHarvestedStraightRoad(roadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
 
         odrs = harvestedStraightRoads[f"{n_lanes_left}-{n_lanes_right}"]
-        print(f"{n_lanes_left}-{n_lanes_right}")
-        print(len(odrs))
+        logging.debug(f"{self.name}: getRandomHarvestedStraightRoad {n_lanes_left}-{n_lanes_right}")
+        logging.debug(f"{self.name}: getRandomHarvestedStraightRoad{len(odrs)}")
 
         odr = odrs[np.random.choice(len(odrs))]
 

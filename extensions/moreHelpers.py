@@ -13,6 +13,7 @@ from junctions.RoadLinker import RoadLinker
 from junctions.Geometry import Geometry
 from extensions.ExtendedRoad import ExtendedRoad
 import dill
+import logging
 
     
 def createOdr(name, roads, junctions):
@@ -30,7 +31,7 @@ def createOdr(name, roads, junctions):
         odr.add_junction(junction)
 
     roadLinker.adjustLaneOffsetsForOdr(odr)
-    print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
+    logging.info(f"moreHelpers: createOdr: starting adjustment. May freeze!!!!!!!!!!!!!")
     odr.adjust_roads_and_lanes()
 
     return odr
@@ -50,7 +51,7 @@ def createOdrByPredecessor(name, roads, junctions):
         odr.add_junction(junction)
 
     roadLinker.adjustLaneOffsetsForOdr(odr)
-    print(f"starting adjustment. May freeze!!!!!!!!!!!!!")
+    logging.info(f"moreHelpers: createOdrByPredecessor: starting adjustment. May freeze!!!!!!!!!!!!!")
     odr.adjust_roads_and_lanesByPredecessor()
 
     return odr

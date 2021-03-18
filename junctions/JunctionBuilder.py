@@ -35,6 +35,7 @@ class JunctionBuilder:
         self.minAngle = minAngle
         self.maxAngle = maxAngle
         self.laneWidth = self.config.get("default_lane_width")
+        self.maxConnectionLength = self.config.get("max_connection_length")
         self.curveBuilder = CurveRoadBuilder(country=country)
         self.connectionBuilder = ConnectionBuilder()
         self.countryCode = country

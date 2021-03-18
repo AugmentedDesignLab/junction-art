@@ -58,7 +58,7 @@ class AngleCurvatureMap:
 
 
     @staticmethod
-    def getMaxCurvatureMaxRoadWidth(angleBetweenRoads, maxLaneWidth):
+    def getMaxCurvatureAgainstMaxRoadWidth(angleBetweenRoads, maxLaneWidth):
         """Angle in degree
 
         Args:
@@ -73,7 +73,7 @@ class AngleCurvatureMap:
 
     @staticmethod
     def getCurvatureForAngleBetweenRoadAndLength(angleBetweenRoads, length, curveType):
-        """[summary]
+        """The length of the curve will roughly be 'length'. It's useful to make long curves irrespective of angle between roads.
 
         Args:
             angleBetweenRoads ([type]): clockwise angle between two roads (simple presentation)
@@ -83,11 +83,27 @@ class AngleCurvatureMap:
             [type]: [description]
         """
 
+        # length adjustment
         if curveType == StandardCurveTypes.LongArc:
             length = length * 0.9
-        elif curveType == StandardCurveTypes.Simple:
+        elif curveType == StandardCurveTypes.Simple: # spirals cover more distance for a given angle.
             length = length * 0.5
 
         angleRad = np.pi - angleBetweenRoads
         return angleRad / length
+
+    
+    @staticmethod
+    def getLength(angleBetweenRoads, curvature, curveType):
+
+        angleRad = np.pi - angleBetweenRoads
+
+        length = angleRad / curvature
+
+        if curveType == StandardCurveTypes.LongArc:
+            length = length * 0.9
+        elif curveType == StandardCurveTypes.Simple: # spirals cover more distance for a given angle.
+            length = length * 0.5
+        
+        return length
 

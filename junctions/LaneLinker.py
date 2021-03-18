@@ -8,6 +8,9 @@ from junctions.RoadLinker import RoadLinker
 
 class LaneLinker:
 
+    def __init__(self):
+
+        self.name = 'LaneLinker'
 
     def createLaneLinks(self, road1: ExtendedRoad, road2: ExtendedRoad, ignoreMismatch=False):
         """ create_lane_links takes to roads and if they are connected, match their lanes 
@@ -71,7 +74,7 @@ class LaneLinker:
         
                 
         if roadCp == conCp:
-            logging.warn(f"switching lane sides for {connecting.id} and {road.id}")
+            logging.debug(f"{self.name}: switching lane sides for {connecting.id} and {road.id}")
 
         if connecting_lanesec != None:
             laneSectionForConnection = connecting.lanes.lanesections[connecting_lanesec]
@@ -91,7 +94,7 @@ class LaneLinker:
                         connectionLanes[i].add_link(linktype,linkid)
                 elif ignoreMismatch:
                     # raise NotImplementedError()
-                    logging.warn(f"number of left lanes are not the same for {connecting.id} and {road.id}")
+                    # logging.warn(f"number of left lanes are not the same for {connecting.id} and {road.id}")
                     self.connectMinLanesOnOneSide(connectionLanes, roadLanes, linktype, None)
 
                 else:
@@ -110,7 +113,7 @@ class LaneLinker:
                         connectionLanes[i].add_link(linktype,linkid)
                 elif ignoreMismatch:
                     # raise NotImplementedError()
-                    logging.warn(f"number of left lanes are not the same for {connecting.id} and {road.id}")
+                    # logging.warn(f"number of left lanes are not the same for {connecting.id} and {road.id}")
                     self.connectMinLanesOnOneSide(connectionLanes, roadLanes, linktype, None)
                 else:
                     raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of right lanes.')
@@ -202,7 +205,7 @@ class LaneLinker:
         
                 
         if roadCp == conCp:
-            logging.warn(f"switching lane sides for {pre_road.id} and {suc_road.id}")
+            logging.debug(f"{self.name}: switching lane sides for {pre_road.id} and {suc_road.id}")
 
 
         pre_linktype, pre_sign, pre_connecting_lanesec =  self._get_related_lanesection(pre_road,suc_road)
@@ -226,7 +229,7 @@ class LaneLinker:
 
         elif ignoreMismatch:
             
-            logging.warn(f"number of left lanes are not the same for {pre_road.id} and {suc_road.id}")
+            # logging.warn(f"number of left lanes are not the same for {pre_road.id} and {suc_road.id}")
             self.connectMinLanesOnOneSide(preLanes, sucLanes, pre_linktype, suc_linktype)
             
 
@@ -246,7 +249,7 @@ class LaneLinker:
 
         elif ignoreMismatch:
 
-            logging.warn(f"number of left lanes are not the same for {pre_road.id} and {suc_road.id}")
+            # logging.warn(f"number of left lanes are not the same for {pre_road.id} and {suc_road.id}")
             
             self.connectMinLanesOnOneSide(preLanes, sucLanes, pre_linktype, suc_linktype)
             

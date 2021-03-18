@@ -63,8 +63,8 @@ class ConnectionBuilder:
         #     y1 = 0.9 * y1
             width -= self.uTurnFirstLaneShift
 
-        print("start: ", x1, y1, h1)
-        print("end: ", x2, y2, h2)
+        logging.debug(f"{self.name}: createSingleLaneConnectionRoad: start: ", x1, y1, h1)
+        logging.debug(f"{self.name}: createSingleLaneConnectionRoad: end: ", x2, y2, h2)
 
         xCoeffs, yCoeffs = Geometry.getCoeffsForParamPoly(x1, y1, h1, x2, y2, h2, incomingCp, outgoingCp, vShiftForSamePoint=self.uTurnFirstLaneShift)
 
@@ -215,6 +215,6 @@ class ConnectionBuilder:
 
                 nextRoadId += 1
 
-                logging.info(f"{self.name}: created connection for link {link}")
+                logging.debug(f"{self.name}: created connection for link {link}")
 
             return newConnectionRoads

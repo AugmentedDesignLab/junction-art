@@ -830,3 +830,16 @@ class LaneBuilder:
 
         
         pass
+
+
+    def getClockwiseAdjacentLanes(self, firstRoad, firstCp, secondRoad, secondCP):
+
+        firstLanes = firstRoad.getLaneSectionByCP(firstCp).rightlanes
+        if firstCp == pyodrx.ContactPoint.end:
+            firstLanes = firstRoad.getLaneSectionByCP(firstCp).leftlanes
+        
+        secondLanes = secondRoad.getLaneSectionByCP(secondCP).leftlanes
+        if secondCP == pyodrx.ContactPoint.end:
+            secondLanes = secondRoad.getLaneSectionByCP(secondCP).rightlanes
+        
+        return firstLanes, secondLanes
