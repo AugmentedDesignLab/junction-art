@@ -163,10 +163,12 @@ class ConnectionBuilder:
 
         incomingLaneIds = []
 
-        cp = pyodrx.ContactPoint.start
+        cp = None
         for incomingRoad in outsideRoads:
             if firstRoadId == incomingRoad.id:
                 cp = cp1
+            else:
+                cp = pyodrx.ContactPoint.start
             incomingLaneIds = LaneConfiguration.getIncomingLaneIdsOnARoad(incomingRoad, cp, self.countryCode)
             outgoingLaneIds = LaneConfiguration.getOutgoingLaneIdsOnARoad(incomingRoad, cp, self.countryCode)
 
