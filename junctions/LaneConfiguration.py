@@ -131,6 +131,8 @@ class LaneConfiguration(ABC):
         """Assumes all roads are connected by start point except for the first one
         all the outgoing lanes from the incoming road
 
+        It returns a list of outgoing lanes enumerating clockwise starting from the incoming road.
+
         Args:
             incomingRoad ([type]): [description]
             allRoads ([type]): [description]
@@ -139,9 +141,12 @@ class LaneConfiguration(ABC):
         """
 
         # allRoads may have the incoming road, too.
-        outgoingLanes = []
+        # outgoingLanes = []
+        lanesBefore = []
+        lanesAfter = []
 
         firstRoadId = allRoads[0].id
+        beforeIncoming = True
 
         if countryCode == CountryCodes.US:
             for road in allRoads:
@@ -152,9 +157,15 @@ class LaneConfiguration(ABC):
                     else:
                         lanes = LaneConfiguration.getOutgoingLanesOnARoad(road, pyodrx.ContactPoint.start, countryCode)
                     
-                    outgoingLanes += LaneConfiguration.getUniqueLaneIds(road, lanes)
+                    if beforeIncoming:
+                        lanesBefore += LaneConfiguration.getUniqueLaneIds(road, lanes)
+                    else:
+                        lanesAfter += LaneConfiguration.getUniqueLaneIds(road, lanes)
+                    
+                else:
+                    beforeIncoming = False
 
-            return outgoingLanes
+            return lanesAfter + lanesBefore
 
         raise NotImplementedError()
 

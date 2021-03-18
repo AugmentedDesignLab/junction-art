@@ -144,7 +144,7 @@ class ConnectionBuilder:
             except Exception as e:
                 logging.warn(f"{self.name}: {e}")
                 raise e
-            break
+            # break
             
 
         return newConnectionRoads     

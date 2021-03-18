@@ -174,9 +174,9 @@ class test_LaneConfiguration(unittest.TestCase):
     def test_getOutgoingLanesFromARoad(self):
         
         roads = []
-        roads.append(self.straightRoadBuilder.create(0, length = 10, n_lanes=2))
-        roads.append(self.straightRoadBuilder.create(1, length = 10, n_lanes=1))
-        roads.append(self.straightRoadBuilder.create(2, length = 10, n_lanes=2))
+        roads.append(self.straightRoadBuilder.create(0, length = 10, n_lanes_left=2, n_lanes_right=2))
+        roads.append(self.straightRoadBuilder.create(1, length = 10, n_lanes_left=1, n_lanes_right=1))
+        roads.append(self.straightRoadBuilder.create(2, length = 10, n_lanes_left=2, n_lanes_right=2))
 
         inLanes = LaneConfiguration.getIncomingLaneIdsOnARoad(roads[0], pyodrx.ContactPoint.end, CountryCodes.US)
         outLanes = LaneConfiguration.getOutgoingLanesIdsFromARoad(roads[0], roads, cp1=pyodrx.ContactPoint.end, countryCode=CountryCodes.US)
@@ -186,6 +186,16 @@ class test_LaneConfiguration(unittest.TestCase):
         assert outLanes[1] == '2:-1'
         assert outLanes[2] == '2:-2'
 
+
+        inLanes = LaneConfiguration.getIncomingLaneIdsOnARoad(roads[1], pyodrx.ContactPoint.start, CountryCodes.US)
+        outLanes = LaneConfiguration.getOutgoingLanesIdsFromARoad(roads[1], roads, cp1=pyodrx.ContactPoint.end, countryCode=CountryCodes.US)
+        print(inLanes)
+        print(outLanes)
+        assert inLanes[0] == '1:1'
+        assert outLanes[0] == '2:-1'
+        assert outLanes[1] == '2:-2'
+        assert outLanes[2] == '0:1'
+        assert outLanes[3] == '0:2'
 
         inLanes = LaneConfiguration.getIncomingLaneIdsOnARoad(roads[2], pyodrx.ContactPoint.start, CountryCodes.US)
         outLanes = LaneConfiguration.getOutgoingLanesIdsFromARoad(roads[2], roads, cp1=pyodrx.ContactPoint.end, countryCode=CountryCodes.US)
