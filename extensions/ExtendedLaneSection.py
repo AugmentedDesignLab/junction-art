@@ -62,7 +62,8 @@ class ExtendedLaneSection(pyodrx.LaneSection):
             existingLane._set_lane_id(existingLane.lane_id - 1)
 
 
-        self.rightlanes.append(leftLane)
+        # self.rightlanes.append(leftLane)
+        self.rightlanes.insert(0, leftLane)
 
 
     def prependLaneToLeftLanes(self, rightLane):
@@ -79,7 +80,8 @@ class ExtendedLaneSection(pyodrx.LaneSection):
             existingLane._set_lane_id(existingLane.lane_id + 1)
 
 
-        self.leftlanes.append(rightLane)
+        # self.leftlanes.append(rightLane)
+        self.leftlanes.insert(0, rightLane)
 
 
     def laneWidths(self, lane, laneLength):

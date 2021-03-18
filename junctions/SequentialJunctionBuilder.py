@@ -164,7 +164,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
                                             cp1=pyodrx.ContactPoint.start, 
                                             randomState=None,
                                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY, 
-                                            uTurnLanes=1):
+                                            uTurnLanes=1,
+                                            restrictedLanes=False):
         """All the incoming roads, except for the first, will have their start endpoint connected to the junction.
 
         Args:
@@ -199,13 +200,18 @@ class SequentialJunctionBuilder(JunctionBuilder):
             print(f"{key} has {len(harvestedStraightRoads[key])} number of roads")
 
         
-        randomStraightRoads = [self.getRandomStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide) for i in range(maxNumberOfRoadsPerJunction)]
+        randomStraightRoads = [self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide) for i in range(maxNumberOfRoadsPerJunction)]
 
         outsideRoads = [] # all the incoming/outgoing roads in this junction
         geoConnectionRoads = [] # connections roads which are for geometric positions, having no lanes
         laneConnectionRoads = [] # connection roads that have lanes.
         roads = []
-        roads.append(self.getRandomStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide)) # first road
+
+        if restrictedLanes:
+            roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.start)) # first road
+        else:
+            roads.append(self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide)) # first road
+
         roads[0].id = 0
         outsideRoads.append(roads[0])
 
@@ -225,7 +231,12 @@ class SequentialJunctionBuilder(JunctionBuilder):
             nextRoadId += 1
 
             # 1. create a road
-            newRoad = self.getRandomStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
+            # newRoad = self.getRandomHarvestedStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
+            if restrictedLanes:
+                newRoad = self.createRandomStraightRoad(newRoadId, maxLanePerSide, minLanePerSide, skipEndpoint=pyodrx.ContactPoint.end) 
+            else:
+                newRoad = self.getRandomHarvestedStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
+
             outsideRoads.append(newRoad)
 
             # 2. create a new connection road
@@ -272,7 +283,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # roads.append(lastConnection)
 
         # odr.add_road(lastConnection)
-
+        
         print(f"roads before internal connections {len(roads)}")
 
         if internalConnections:
@@ -300,6 +311,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         print(f"roads after internal connections {len(roads)}")
 
         odr.resetAndReadjust(byPredecessor=True)
+        
         
         return odr
 
@@ -373,14 +385,14 @@ class SequentialJunctionBuilder(JunctionBuilder):
         pass
 
 
-    def getRandomStraightRoad(self, roadId, harvestedStraightRoads, maxLanePerSide=2, minLanePerSide=0):
+    def getRandomHarvestedStraightRoad(self, roadId, harvestedStraightRoads, maxLanePerSide=2, minLanePerSide=0):
 
         laneRange = np.arange(minLanePerSide, maxLanePerSide + 1)
         n_lanes_left = np.random.choice(laneRange)
         n_lanes_right = np.random.choice(laneRange)
 
         if (n_lanes_left == 0) and (n_lanes_right == 0):
-            return self.getRandomStraightRoad(roadId, harvestedStraightRoads, maxLanePerSide)
+            return self.getRandomHarvestedStraightRoad(roadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
 
         odrs = harvestedStraightRoads[f"{n_lanes_left}-{n_lanes_right}"]
         print(f"{n_lanes_left}-{n_lanes_right}")
@@ -394,6 +406,18 @@ class SequentialJunctionBuilder(JunctionBuilder):
             return road
         
         raise Exception("No road found")
+
+    def createRandomStraightRoad(self, roadId,  maxLanePerSide=2, minLanePerSide=0, withMedianRestricted=True, skipEndpoint=None):
+
+        return self.straightRoadBuilder.createRandom(roadId, 
+                                                        length=self.straightRoadLen,
+                                                        junction=-1,
+                                                        lane_offset=self.laneWidth,
+                                                        maxLanePerSide=maxLanePerSide,
+                                                        minLanePerSide=minLanePerSide,
+                                                        medianType='partial',
+                                                        medianWidth=self.laneWidth,
+                                                        skipEndpoint=skipEndpoint)
 
 
     

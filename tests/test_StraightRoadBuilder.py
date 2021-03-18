@@ -303,3 +303,26 @@ class test_StraightRoadBuilder(unittest.TestCase):
         xmlPath = f"output/test_createStraightSingleSide.xodr"
         odr.write_xml(xmlPath)
 
+
+    def test_createRandom(self):
+
+        random_seed=20
+        np.random.seed(random_seed)
+
+        road = self.straightRoadBuilder.createRandom(1, medianType='partial', skipEndpoint=pyodrx.ContactPoint.start)
+
+        odrName = "test_createRandom-start"
+        odr = extensions.createOdrByPredecessor(odrName, [road], [])
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/{odrName}.xodr"
+        odr.write_xml(xmlPath)
+
+        road = self.straightRoadBuilder.createRandom(1, medianType='partial', skipEndpoint=pyodrx.ContactPoint.end)
+
+        odrName = "test_createRandom-end"
+        odr = extensions.createOdrByPredecessor(odrName, [road], [])
+        extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
+
+        xmlPath = f"output/{odrName}.xodr"
+        odr.write_xml(xmlPath)

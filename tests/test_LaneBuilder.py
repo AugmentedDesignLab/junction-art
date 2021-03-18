@@ -105,13 +105,13 @@ class test_LaneBuilder(unittest.TestCase):
         road = self.straightRoadBuilder.create(1, n_lanes_left=1, n_lanes_right=1, length=20, force3Section=False)
 
         try:
-            self.laneBuilder.addMedianIslandsTo3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.start, width=3)
+            self.laneBuilder.addMedianIslandsTo2Of3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.start, width=3)
             assert False
         except:
             assert True
 
         road = self.straightRoadBuilder.create(1, n_lanes_left=1, n_lanes_right=1, length=20, force3Section=True)
-        self.laneBuilder.addMedianIslandsTo3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.start, width=3)
+        self.laneBuilder.addMedianIslandsTo2Of3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.start, width=3)
 
         assert len(road.lanes.lanesections[0].leftlanes) == 1
         assert len(road.lanes.lanesections[0].rightlanes) == 1
@@ -121,7 +121,7 @@ class test_LaneBuilder(unittest.TestCase):
         assert len(road.lanes.lanesections[2].rightlanes) == 2
 
         road = self.straightRoadBuilder.create(1, n_lanes_left=1, n_lanes_right=1, length=20, force3Section=True)
-        self.laneBuilder.addMedianIslandsTo3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.end, width=3)
+        self.laneBuilder.addMedianIslandsTo2Of3Sections(road, 20, skipEndpoint=pyodrx.ContactPoint.end, width=3)
 
         assert len(road.lanes.lanesections[0].leftlanes) == 2
         assert len(road.lanes.lanesections[0].rightlanes) == 2

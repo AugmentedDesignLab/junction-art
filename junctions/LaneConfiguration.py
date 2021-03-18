@@ -63,15 +63,40 @@ class LaneConfiguration(ABC):
     # methods for lane link configurations in an intersection
 
     @staticmethod
+    def filterOutNonDrivingLanes(lanes):
+        filtered = []
+        drivingTypes = [
+            pyodrx.LaneType.driving,
+            pyodrx.LaneType.bus,
+            pyodrx.LaneType.biking
+        ]
+        for lane in lanes:
+            if lane.lane_type in drivingTypes:
+                filtered.append(lane)
+        return filtered
+
+    @staticmethod
     def getIncomingLanesOnARoad(road, cp, countryCode):
 
         laneSection = road.getLaneSectionByCP(cp)
         if countryCode == CountryCodes.US:
             if cp == pyodrx.ContactPoint.start:
-                return laneSection.leftlanes
-            return laneSection.rightlanes
+                return LaneConfiguration.filterOutNonDrivingLanes(laneSection.leftlanes)
+            return LaneConfiguration.filterOutNonDrivingLanes(laneSection.rightlanes)
         
         raise NotImplementedError()
+
+    @staticmethod
+    def getOutgoingLanesOnARoad(road, cp, countryCode):
+
+        laneSection = road.getLaneSectionByCP(cp)
+        if countryCode == CountryCodes.US:
+            if cp == pyodrx.ContactPoint.end:
+                return LaneConfiguration.filterOutNonDrivingLanes(laneSection.leftlanes)
+            return LaneConfiguration.filterOutNonDrivingLanes(laneSection.rightlanes)
+        
+        raise NotImplementedError()
+        
 
     @staticmethod
     def getIncomingLaneIdsOnARoad(road, cp, countryCode):
@@ -81,16 +106,6 @@ class LaneConfiguration(ABC):
     def getOutgoingLaneIdsOnARoad(road, cp, countryCode):
         return LaneConfiguration.getUniqueLaneIds(road, LaneConfiguration.getOutgoingLanesOnARoad(road, cp, countryCode))
 
-    @staticmethod
-    def getOutgoingLanesOnARoad(road, cp, countryCode):
-
-        laneSection = road.getLaneSectionByCP(cp)
-        if countryCode == CountryCodes.US:
-            if cp == pyodrx.ContactPoint.end:
-                return laneSection.leftlanes
-            return laneSection.rightlanes
-        
-        raise NotImplementedError()
 
     
     @staticmethod

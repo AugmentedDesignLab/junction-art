@@ -778,7 +778,7 @@ class LaneBuilder:
 
         pass
     
-    def addMedianIslandsTo3Sections(self, 
+    def addMedianIslandsTo2Of3Sections(self, 
                 road, 
                 roadLength, 
                 skipEndpoint, 
@@ -812,16 +812,20 @@ class LaneBuilder:
         turnOffSet, finalOffset, curveLaneLength = self.getOffsetsAndTurnLaneCurveLength(roadLength) 
 
         if skipEndpoint == pyodrx.ContactPoint.start:
-            increasingLaneL = self.createLinearSplitLane(None, maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
-            increasingLaneR = self.createLinearSplitLane(None, maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
-            midSection.prependLaneToLeftLanes(increasingLaneL)
-            midSection.prependLaneToRightLanes(increasingLaneR)
+            if len(midSection.leftlanes) > 0:
+                increasingLaneL = self.createLinearSplitLane(None, maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
+                midSection.prependLaneToLeftLanes(increasingLaneL)
+            if len(midSection.rightlanes) > 0:
+                increasingLaneR = self.createLinearSplitLane(None, maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
+                midSection.prependLaneToRightLanes(increasingLaneR)
             self.addMedianIslandsToSection(road, finalSection, width, laneType=laneType)
         else:
-            decreasingLaneL = self.createLinearMergeLane(maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
-            decreasingLaneR = self.createLinearMergeLane(maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
-            midSection.prependLaneToLeftLanes(decreasingLaneL)
-            midSection.prependLaneToRightLanes(decreasingLaneR)
+            if len(midSection.leftlanes) > 0:
+                decreasingLaneL = self.createLinearMergeLane(maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
+                midSection.prependLaneToLeftLanes(decreasingLaneL)
+            if len(midSection.rightlanes) > 0:
+                decreasingLaneR = self.createLinearMergeLane(maxWidth=width/2, laneLength=curveLaneLength, laneType=laneType)
+                midSection.prependLaneToRightLanes(decreasingLaneR)
             self.addMedianIslandsToSection(road, firstSection, width, laneType=laneType)
 
         
