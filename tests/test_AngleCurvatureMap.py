@@ -69,6 +69,7 @@ class test_AngleCurvatureMap(unittest.TestCase):
         # assert round(road.planview.get_total_length(), 0) == length       
         # extensions.view_road(odr, os.path.join('..', self.esminipath))
 
+
         angle = 0.5
         while angle < np.pi:
 
@@ -144,3 +145,47 @@ class test_AngleCurvatureMap(unittest.TestCase):
             print(geom.length)
         
         extensions.view_road(odr, os.path.join('..', self.esminipath))
+
+    
+    def test_getLength(self):
+
+        angleBetweenEndpoints = 1.5708
+        curvature = 0.333333
+        curveType = StandardCurveTypes.Simple
+        currentLength = AngleCurvatureMap.getLength(angleBetweenEndpoints, curvature, curveType)
+
+        print(f"test length: {currentLength}")
+
+        numberofLanes = 5
+        laneOffset = 3
+        
+        angle = angleBetweenEndpoints
+        length = currentLength
+        
+        maxCurve = AngleCurvatureMap.getCurvatureForAngleBetweenRoadAndLength(angle, numberofLanes * laneOffset, curveType=curveType)
+        curve = AngleCurvatureMap.getCurvatureForAngleBetweenRoadAndLength(angle, length, curveType=curveType) 
+
+        # curve = 0.066666667
+
+        print(f"max curve {maxCurve}, current curve {curve}")
+
+        roads = []
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(0, length=10, junction=-1, n_lanes_left=numberofLanes, n_lanes_right=numberofLanes))
+        # roads.append(self.curveRoadBuilder.createSimpleCurveWithLongArc(1, angleBetweenEndpoints = angle, curvature=curve, isJunction=True, n_lanes=numberofLanes))
+        roads.append(self.curveRoadBuilder.createSimple(1, angleBetweenEndpoints = angle, curvature=curve, isJunction=True, n_lanes=numberofLanes))
+        roads.append(self.straightRoadBuilder.createWithDifferentLanes(2, length=10, junction=-1, n_lanes_left=numberofLanes, n_lanes_right=numberofLanes))
+        
+        RoadLinker.createExtendedPredSuc(predRoad=roads[0], predCp=pyodrx.ContactPoint.end, sucRoad=roads[1], sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=roads[1], predCp=pyodrx.ContactPoint.end, sucRoad=roads[2], sucCP=pyodrx.ContactPoint.start)
+
+        odrName = "test_createSingleLaneConnectionRoad"
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        # extensions.printRoadPositions(odr)
+
+        road = roads[1]
+        print(f"{road.id} has length {road.planview.get_total_length()}")
+
+        # for geom in road.planview._adjusted_geometries:
+        #     print(geom.length)
+
+        assert round(road.planview.get_total_length(), 0) == round(length,0)

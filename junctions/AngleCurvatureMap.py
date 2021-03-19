@@ -103,9 +103,9 @@ class AngleCurvatureMap:
         length = angleRad / curvature
 
         if curveType == StandardCurveTypes.LongArc:
-            length = length * 0.9
+            length = length * 1.1
         elif curveType == StandardCurveTypes.Simple: # spirals cover more distance for a given angle.
-            length = length * 0.5
+            length = length * 2
         
         return length
 
