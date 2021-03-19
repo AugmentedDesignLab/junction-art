@@ -27,13 +27,19 @@ Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Develo
 2. any lane
 3. any link
 
-# JunctionHarvester
+# API
+
+## SequentialJunctionBuilder
+
+Detailed documentation: [docs/Sequential-RoadBuilder.md](docs/Sequential-RoadBuilder.md)
+
+## JunctionHarvester
 This is the class that harvests junctions. 
 
-# Common use-cases:
+## Common use-cases:
 
-## 2 roads 2 lanes: harvest2ways2Lanes
+### 2 roads 2 lanes: harvest2ways2Lanes
 
-## 3 roads from 2 roads: harvest3WayJunctionsFrom2Ways
+### 3 roads from 2 roads: harvest3WayJunctionsFrom2Ways
 
 

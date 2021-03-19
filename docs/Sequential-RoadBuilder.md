@@ -48,3 +48,7 @@ minConnectionLength=25
 maxLanePerSide=3
 probLongConnection=0.01
 minConnectionLength=35
+
+## Examples:
+
+Tests: test/test_SequentialJunctionBuilder.py
