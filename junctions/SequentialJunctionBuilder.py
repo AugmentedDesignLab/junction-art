@@ -36,6 +36,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
                         random_seed=random_seed
                         )
         self.name = 'SequentialJunctionBuilder'
+        self.probMinAngle = self.config.get('probability_min_angle')
+        self.probLongConnection = self.config.get('probability_long_connection')
     
 
     def drawLikeAPainter2L(self, odrId, maxNumberOfRoadsPerJunction, save=True, internalConnections=True, cp1=pyodrx.ContactPoint.end):
@@ -113,19 +115,21 @@ class SequentialJunctionBuilder(JunctionBuilder):
         return odr
 
 
-    def createGeoConnectionRoad(self, action, newConnectionId, availableAngle, maxAnglePerConnection, maxLaneWidth):
+    def createGeoConnectionRoad(self, action, newConnectionId, availableAngle, maxAnglePerConnection, maxLaneWidth, equalAngles=False):
 
         newConnection = None
-        newConnection, availableAngle = self.createGeoConnectionCurve(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.LongArc, maxLaneWidth=maxLaneWidth)
+        newConnection, availableAngle = self.createGeoConnectionCurve(availableAngle, maxAnglePerConnection, newConnectionId, curveType= StandardCurveTypes.Simple, maxLaneWidth=maxLaneWidth, equalAngles=equalAngles)
         return newConnection, availableAngle
 
 
-    def createGeoConnectionCurve(self, availableAngle, maxAnglePerConnection, newConnectionId, curveType, maxLaneWidth):
+    def createGeoConnectionCurve(self, availableAngle, maxAnglePerConnection, newConnectionId, curveType, maxLaneWidth, equalAngles=False):
+        
+        angleBetweenEndpoints = maxAnglePerConnection
+        if equalAngles is False:
+            angleBetweenEndpoints = self.getSomeAngle(availableAngle, maxAnglePerConnection)
 
-        angleBetweenEndpoints = self.getSomeAngle(availableAngle, maxAnglePerConnection)
         availableAngle -= angleBetweenEndpoints
-        # curvature = StandardCurvature.getRandomValue()
-        # curvature = AngleCurvatureMap.getCurvatureForJunction(angleBetweenEndpoints)
+        
         curvature = AngleCurvatureMap.getMaxCurvatureAgainstMaxRoadWidth(angleBetweenEndpoints, maxLaneWidth=maxLaneWidth)
 
         currentLength = AngleCurvatureMap.getLength(angleBetweenEndpoints, curvature, curveType)
@@ -139,9 +143,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             logging.info(f"{self.name}: extending curve length")
 
         logging.debug(f"{self.name}: Curvature for angle {math.degrees(angleBetweenEndpoints)} is {curvature}")
-        # if curvature < StandardCurvature.Medium.value:
-        #     curvature = StandardCurvature.Medium.value
-
+        
         newConnection = self.curveBuilder.create(newConnectionId, angleBetweenEndpoints, isJunction=True, curvature=curvature, curveType=curveType)
         return newConnection, availableAngle
 
@@ -149,7 +151,12 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
     def getSomeAngle(self, availableAngle, maxAnglePerConnection):
 
-        angle = (availableAngle * np.random.choice(10)) / 9
+        if np.random.choice([True, False], p=[self.probMinAngle, 1-self.probMinAngle]):
+            modifier = np.random.uniform(-0.1, 0.1)
+            return self.minAngle + (self.minAngle * modifier)
+
+        angle = np.random.uniform(self.minAngle, availableAngle)
+        # angle = (availableAngle * np.random.choice(10)) / 9
 
         
         if angle < self.minAngle:
@@ -185,7 +192,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
                                             randomState=None,
                                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY, 
                                             uTurnLanes=1,
-                                            restrictedLanes=False):
+                                            restrictedLanes=False,
+                                            equalAngles=False):
         """All the incoming roads, except for the first, will have their start endpoint connected to the junction.
 
         Args:
@@ -238,8 +246,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
         roads[0].id = 0
         outsideRoads.append(roads[0])
 
-
         availableAngle = 1.8 * np.pi # 360 degrees
+        if equalAngles:
+            availableAngle = np.pi * 2
         maxAnglePerConnection = availableAngle / maxNumberOfRoadsPerJunction
         action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
         nextRoadId = 1
@@ -270,7 +279,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
             prevLanes, nextLanes = self.laneBuilder.getClockwiseAdjacentLanes(roads[-1], prevCp, newRoad, pyodrx.ContactPoint.start)
             maxLaneWidth = max(len(prevLanes), len(nextLanes)) * self.laneWidth
-            newConnection, availableAngle = self.createGeoConnectionRoad(action, newConnectionId, availableAngle, maxAnglePerConnection, maxLaneWidth=maxLaneWidth)
+            newConnection, availableAngle = self.createGeoConnectionRoad(action, newConnectionId, availableAngle, maxAnglePerConnection, maxLaneWidth=maxLaneWidth, equalAngles=equalAngles)
             geoConnectionRoads.append(newConnection)
             
             # 5 add new roads

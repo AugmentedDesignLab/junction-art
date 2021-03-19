@@ -67,6 +67,8 @@ class AngleCurvatureMap:
             laneOffset: offset of each lane
         """
         radius = maxLaneWidth 
+        if radius < 3:
+            radius = 3
         curve = 1/radius
         return curve
 
