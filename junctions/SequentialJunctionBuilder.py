@@ -25,7 +25,10 @@ class SequentialJunctionBuilder(JunctionBuilder):
                 minAngle = np.pi/6, 
                 maxAngle = 1.8 * np.pi, 
                 country=CountryCodes.US, 
-                random_seed=39
+                random_seed=39,
+                maxConnectionLength=None,
+                probMinAngle=None,
+                probLongConnection=None
                 ):
             
         super().__init__(roadBuilder=roadBuilder,
@@ -38,6 +41,13 @@ class SequentialJunctionBuilder(JunctionBuilder):
         self.name = 'SequentialJunctionBuilder'
         self.probMinAngle = self.config.get('probability_min_angle')
         self.probLongConnection = self.config.get('probability_long_connection')
+
+        if maxConnectionLength is not None:
+            self.maxConnectionLength = maxConnectionLength
+        if probMinAngle is not None:
+            self.probMinAngle = probMinAngle
+        if probLongConnection is not None:
+            self.probLongConnection = probLongConnection
     
 
     def drawLikeAPainter2L(self, odrId, maxNumberOfRoadsPerJunction, save=True, internalConnections=True, cp1=pyodrx.ContactPoint.end):
@@ -228,7 +238,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             logging.debug(f"{self.name}: {key} has {len(harvestedStraightRoads[key])} number of roads")
 
         
-        randomStraightRoads = [self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide) for i in range(maxNumberOfRoadsPerJunction)]
+        # randomStraightRoads = [self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide) for i in range(maxNumberOfRoadsPerJunction)]
 
         outsideRoads = [] # all the incoming/outgoing roads in this junction
         geoConnectionRoads = [] # connections roads which are for geometric positions, having no lanes

@@ -15,7 +15,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         self.configuration = Configuration()
         outputDir= os.path.join(os.getcwd(), 'output')
         lastId = 0
-        self.builder = SequentialJunctionBuilder(minAngle=np.pi/10, straightRoadLen=20, random_seed=20)
+        self.builder = SequentialJunctionBuilder(minAngle=np.pi/10, straightRoadLen=20, random_seed=0)
         
         self.randomState =self.configuration.get("random_state")
 
@@ -177,4 +177,122 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
         xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
         odr.write_xml(xmlPath)
+        
+        maxNumberOfRoadsPerJunction = 3
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                            equalAngles=True)
 
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+        
+        maxNumberOfRoadsPerJunction = 5
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                            equalAngles=True)
+
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+
+        maxNumberOfRoadsPerJunction = 6
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                            equalAngles=True)
+
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+
+    
+    def test_6PlusLanes(self):
+
+
+        maxNumberOfRoadsPerJunction = 7
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+
+        maxNumberOfRoadsPerJunction = 8
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+        
+        maxNumberOfRoadsPerJunction = 8
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+
+        maxNumberOfRoadsPerJunction = 8
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
+
+        maxNumberOfRoadsPerJunction = 9
+        path = self.configuration.get("harvested_straight_roads")
+        odr = self.builder.createWithRandomLaneConfigurations(path, 
+                            0, 
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=2, minLanePerSide=0, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+
+        extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
+        odr.write_xml(xmlPath)
