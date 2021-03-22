@@ -19,7 +19,10 @@ class JunctionBuilder:
 
     def __init__(self, roadBuilder = None,
                 straightRoadLen = 10,
-                minAngle = np.pi/6, maxAngle = 1.8 * np.pi, country=CountryCodes.US, random_seed=39):
+                minAngle = np.pi/6, 
+                maxAngle = 1.8 * np.pi, 
+                country=CountryCodes.US, 
+                random_seed=39):
 
         self.config = Configuration()
         self.roadBuilder = roadBuilder

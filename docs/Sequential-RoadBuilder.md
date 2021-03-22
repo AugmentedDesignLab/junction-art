@@ -2,12 +2,12 @@
 
 These parameters change the overall shape and configuration for intersections. Some parameters need to be adjusted for specific purposes. User should create different builders for different purposes.
 
-    minAngle=np.pi/10, #Minimum clockwise angle between two consecutive incident roads.
+    minAngle=np.pi/10, #Minimum clockwise angle between two consecutive incident roads. If the randomly chosen angle is less than minAngle, it will be clamped to minAngle.
     straightRoadLen=10, #length of the incident roads. should be kept to 1 meter.
     probLongConnection=0.3, # probability of a long connection road in the first 180 degree.
     probMinAngle=0.5, #probability of two consecutive incident roads having the minimum angle
     maxConnectionLength=50, #maximum length of a connection road inside the intersection
-    minConnectionLength=12, #minimum length of a connection road inside the intersection. To be used in case of equal angle intersections or specifi purposes.
+    minConnectionLength=12, #minimum length of a connection road inside the intersection. To be used in case of equal angle intersections or specific purposes.
     random_seed=1 #For reproduction
 
 The most advanced method: **createWithRandomLaneConfigurations**
@@ -52,3 +52,5 @@ minConnectionLength=35
 ## Examples:
 
 Tests: test/test_SequentialJunctionBuilder.py
+
+**Equal angle coupled with long connection roads can yield nice clusters.

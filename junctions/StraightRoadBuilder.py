@@ -71,12 +71,18 @@ class StraightRoadBuilder:
         if (n_lanes_left == 0) and (n_lanes_right == 0):
             return self.createRandom(
                                         roadId, 
+                                        randomState=randomState,
                                         length=length, 
                                         junction=junction, 
                                         lane_offset=lane_offset, 
                                         maxLanePerSide=maxLanePerSide, 
                                         minLanePerSide=minLanePerSide, 
-                                        randomState=randomState
+                                        turns=turns,
+                                        merges=merges,
+                                        medianType=medianType,
+                                        medianWidth=3,
+                                        skipEndpoint=skipEndpoint,
+                                        force3Section=force3Section
                                         )
 
         numLeftTurnsOnLeft = 0
