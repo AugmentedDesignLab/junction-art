@@ -15,14 +15,15 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         self.configuration = Configuration()
         outputDir= os.path.join(os.getcwd(), 'output')
         lastId = 0
-        self.seed = 124
+        self.seed = 2
         self.builder = SequentialJunctionBuilder(
-                                                    minAngle=np.pi/20, 
+                                                    minAngle=np.pi/4, 
+                                                    maxAngle=np.pi * .75,
                                                     straightRoadLen=10, 
-                                                    probLongConnection=0.3,
-                                                    probMinAngle=0.2,
+                                                    probLongConnection=0.5,
+                                                    probMinAngle=0.5,
                                                     probRestrictedLane=0.2,
-                                                    maxConnectionLength=50,
+                                                    maxConnectionLength=30,
                                                     minConnectionLength=12,
                                                     random_seed=self.seed)
         
@@ -325,7 +326,8 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
                                 minLanePerSide=minLanePerSide, 
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
-                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                uTurnLanes=0)
 
             # xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
             xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
@@ -337,8 +339,8 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
     def test_4WayJunctions(self):
 
         maxNumberOfRoadsPerJunction = 4
-        maxLanePerSide = 3
-        minLanePerSide = 0
+        maxLanePerSide = 1
+        minLanePerSide = 1
         
         for sl in range(5):
             path = self.configuration.get("harvested_straight_roads")

@@ -23,7 +23,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
     def __init__(self, roadBuilder = None,
                 straightRoadLen = 10,
                 minAngle = np.pi/6, 
-                maxAngle = 1.8 * np.pi, 
+                maxAngle = None, 
                 country=CountryCodes.US, 
                 random_seed=39,
                 minConnectionLength=None,
@@ -177,19 +177,29 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
     def getSomeAngle(self, availableAngle, maxAnglePerConnection):
 
+        if availableAngle <= 0:
+            raise Exception(f"{self.name}: getSomeAngle: no available angle")
+
         if np.random.choice([True, False], p=[self.probMinAngle, 1-self.probMinAngle]):
             modifier = np.random.uniform(-0.1, 0.1)
             return self.minAngle + (self.minAngle * modifier)
+
+        if self.minAngle >= availableAngle:
+            return availableAngle
 
         angle = np.random.uniform(self.minAngle, availableAngle)
         # angle = (availableAngle * np.random.choice(10)) / 9
 
         
-        if angle < self.minAngle:
-            angle = self.minAngle
 
-        if angle > maxAnglePerConnection:
+        if self.maxAngle is not None:
+
+            if angle > self.maxAngle:
+                angle = self.maxAngle
+        elif angle > maxAnglePerConnection:
             angle = maxAnglePerConnection
+
+        
         return angle
 
     

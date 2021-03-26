@@ -20,7 +20,7 @@ class JunctionBuilder:
     def __init__(self, roadBuilder = None,
                 straightRoadLen = 10,
                 minAngle = np.pi/6, 
-                maxAngle = 1.8 * np.pi, 
+                maxAngle = None, 
                 country=CountryCodes.US, 
                 random_seed=39):
 
@@ -37,6 +37,10 @@ class JunctionBuilder:
 
         self.minAngle = minAngle
         self.maxAngle = maxAngle
+
+        if self.maxAngle == np.pi:
+            self.maxAngle = 0.99 * np.pi
+
         self.laneWidth = self.config.get("default_lane_width")
         self.minConnectionLength = self.config.get("min_connection_length")
         self.maxConnectionLength = self.config.get("max_connection_length")
