@@ -1,0 +1,26 @@
+.card .card-header .card-title {
+    margin-top: 0px;
+}
+.open .form-control {
+    border-bottom-color: #6ea58b;
+}
+
+#intersection-toolbox {
+    font-size: 0.9em;
+}
+#intersection-toolbox .form-control {
+    font-size: 0.9em;
+}
+.card-header .actions {
+    text-align: right;
+}
+
+body {
+    height: 100%;
+}
+
+/* Scale canvas with resize attribute to full size */
+canvas[resize] {
+    width: 100%;
+    height: 100%;
+}
