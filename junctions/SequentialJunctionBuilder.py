@@ -367,6 +367,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         
         logging.debug(f"{self.name}: roads before internal connections {len(roads)}")
 
+        # Permanent connection roads
         if internalConnections:
             internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId, outsideRoads, cp1, internalLinkStrategy)
             nextRoadId += len(internalConnections)

@@ -3,9 +3,8 @@ test: This is nothing
 test2:
   test22: this is something
 
-esminipath: "F:\\myProjects\\av\\esmini"
-rootPath: "F:\\myProjects\\av"
-
+esminipath: "C:\\muktadir\\esmini"
+rootPath: "C:\\muktadir\\junction-art"
 
 countryCode: "US"
 
@@ -14,6 +13,13 @@ default_max_lane_width: 4
 
 max_left_turn_angle: 120
 min_right_turn_angle: 240
+
+
+min_connection_length: 9
+max_connection_length: 50
+probability_min_angle: 0.2
+probability_long_connection: 0.6
+probability_restricted_lane: 1
 
 random_state: 39
 
@@ -25,3 +31,6 @@ random_max_min_angle_between_roads: 30
 random_max_max_angle_between_roads: 120
 
 harvested_straight_roads: "./output/harvest-straight-US.dill"
+
+uturn_firstlane_shift: 0.5
+

@@ -1,0 +1,126 @@
+{% extends "master.jinja" %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-10">
+            <div class="card ">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-9 col-md-7">
+                            <h5 class="card-title">Map</h5>
+                        </div>
+                        <div class="col-3 col-md-5">
+                            <div class="actions">
+                                <select id="inputState" class="form-control">
+                                    <option selected>Choose map type</option>
+                                    <option>Random Placement</option>
+                                    <option>Urban residential style</option>
+                                    <option>Downtown style</option>
+                                    <option>Old town style</option>
+                                </select>
+                                <button class="btn btn-inline btn-default ">Generate</button>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body ">
+                    <canvas id="map" resize>
+                    </canvas>
+                </div>
+                <div class="card-footer ">
+                    <div class="legend">
+                    <i class="fa fa-circle text-primary"></i> Intersections
+                    <i class="fa fa-circle text-warning"></i> Other segments
+                    <i class="fa fa-circle text-gray"></i> roads
+                    </div>
+                    <hr>
+                    <div class="stats">
+                    # of elements
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# Right side bar #}
+        <div class="col-md-2">
+            <div class="card ">
+                <div class="card-header ">
+                    <h5 class="card-title">Map</h5>
+                    <p class="card-category">Last Campaign Performance</p>
+                </div>
+                <div class="card-body ">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block leftCol %}
+<div class="accordion open" id="intersection-toolbox">
+    <div class="card-header" id="headingOne">
+      <div class="mb-0">
+        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Intersection
+        </button>
+      </div>
+    </div>
+
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#intersection-toolbox">
+      <div class="card-body">
+        <div>
+            <div class="form-group">
+                <input type="text" class="form-control" id="inputAddress" placeholder="Seed" title="Random seed for reproducibility">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                <input type="email" class="form-control" id="inputEmail4" placeholder="min angle" title="in degrees">
+                </div>
+                <div class="form-group col-md-4">
+                <input type="password" class="form-control" id="inputPassword4" placeholder="Prob" title="0 to 1">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                <input type="email" class="form-control" id="inputEmail4" placeholder="max connection" title="Maximum length of a connection road in meters">
+                </div>
+                <div class="form-group col-md-4">
+                <input type="password" class="form-control" id="inputPassword4" placeholder="Prob" title="0 to 1">
+                </div>
+            </div>
+            <div class="form-group"  title="Check if you want all the incident roads are equi-distant from each other.">
+                <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" value="">
+                    Equal angles
+                    <span class="form-check-sign">
+                        <span class="check"></span>
+                    </span>
+                </label>
+                </div>
+            </div>
+        </div>
+        <div class='mt-2'>
+            <button class="btn btn-default ">3-Way</button>
+            <button class="btn btn-default ">4-Way</button>
+            <button class="btn btn-default ">5-Way</button>
+            <button class="btn btn-default ">T</button>
+            <div class="form-group">
+                <input type="text" class="form-control" id="inputEmail4" placeholder="# roads">
+            </div>
+            <button class="btn btn-default ">n-Way</button>
+        </div>
+      </div>
+    </div>
+  
+</div>
+
+{% endblock %}
+
+
+{% block jsBlock %}
+<script src="{{ url_for('static', filename='js/paper-full.min.js') }}">
+</script>
+<script  src="{{ url_for('static', filename='js/map.js') }}" >
+</script>
+{% endblock %}
