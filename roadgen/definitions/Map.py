@@ -26,8 +26,12 @@ class Map:
     
     def constraint(self):
 
-        constraints = self.createOverlapConstraints()
-        constraints += self.createPolygonConstraints()
-        
+        # constraints = self.createOverlapConstraints()
+        # constraints += self.createPolygonConstraints()
+        pass
+
+
+    def constraintForAdjacentPolygons(self, poly1, poly2):
+
 
     
