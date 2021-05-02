@@ -8,3 +8,9 @@ class IncidentPoint(Point):
         self.nIncoming = nIncoming
         self.nOutgoing = nOutgoing
         self.nHeading = nHeading
+
+
+    
+    def constraint(self):
+        csCombined = super().constraint()
+        return csCombined
