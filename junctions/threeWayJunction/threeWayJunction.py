@@ -63,7 +63,6 @@ class ThreeWayJunction(SequentialJunctionBuilder):
             raise Exception("Come up with a better angle")
 
         outsideRoad = []
-        geoConnectionRoads = []
         roads = []
 
         if cp1 == pyodrx.ContactPoint.end:
@@ -85,20 +84,59 @@ class ThreeWayJunction(SequentialJunctionBuilder):
         secondConnectionRoad = self.createConnectionRoadWithAngle(roadId=1, 
                                                                 angleBetweenRoads=angleBetweenRoads,
                                                                 maxLaneWidth=maxLaneWidth)
-        
-        
-        firstRoad.addExtendedSuccessor(secondConnectionRoad, 0, pyodrx.ContactPoint.start)
-        secondConnectionRoad.addExtendedPredecessor(firstRoad, 0, cp1)
-
-        RoadLinker.createExtendedPredSuc(predRoad=secondConnectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=secondRoad, sucCP=pyodrx.ContactPoint.start)
-
-
+        # firstRoad.addExtendedSuccessor(secondConnectionRoad, 0, pyodrx.ContactPoint.start)
+        # secondConnectionRoad.addExtendedPredecessor(firstRoad, 0, cp1)
+        RoadLinker.createExtendedPredSuc(predRoad=firstRoad,
+                                        predCp=cp1,
+                                        sucRoad=secondConnectionRoad,
+                                        sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=secondConnectionRoad, 
+                                        predCp=pyodrx.ContactPoint.end, 
+                                        sucRoad=secondRoad, 
+                                        sucCP=pyodrx.ContactPoint.start)
         roads.append(secondConnectionRoad)
         roads.append(secondRoad)
-
-
         odrName = 'ThreeWay' + 'givenAngle' + str(odrId)
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
+
+
+        # third road
+        thirdRoad = self.createRandomStraightRoad(4, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.end)
+        outsideRoad.append(thirdRoad)
+        roadLen = roads[1].length()
+        thirdConnectionRoad = self.straightRoadBuilder.create(roadId=3, 
+                                                            length=roadLen)
+        RoadLinker.createExtendedPredSuc(predRoad=firstRoad,
+                                        predCp=cp1,
+                                        sucRoad=thirdConnectionRoad,
+                                        sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=thirdConnectionRoad, 
+                                        predCp=pyodrx.ContactPoint.end, 
+                                        sucRoad=thirdRoad, 
+                                        sucCP=pyodrx.ContactPoint.start)
+        roads.append(thirdConnectionRoad)
+        roads.append(thirdRoad)
+        odr.add_road(thirdConnectionRoad)
+        odr.add_road(thirdRoad)
+        odr.resetAndReadjust(byPredecessor=True)
+
+        # last connection
+        connectioRoadSecondAndThird = self.createConnectionFor2Roads(nextRoadId=5,
+                                                                    road1=secondRoad,
+                                                                    road2=thirdRoad,
+                                                                    junction=None,
+                                                                    cp1=pyodrx.ContactPoint.start,
+                                                                    cp2=pyodrx.ContactPoint.start)
+        roads.append(connectioRoadSecondAndThird)
+        odr.add_road(connectioRoadSecondAndThird)
+        self.fixNumOutgoingLanes(outsideRoad, cp1)
+
+        if internalConnections:
+            internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(6, outsideRoad, cp1, internalLinkStrategy)
+            roads += internalConnections
+            odr.updateRoads(roads)
+
+        odr.resetAndReadjust(byPredecessor=True)
         return odr
 
 
