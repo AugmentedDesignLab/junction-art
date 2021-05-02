@@ -88,11 +88,10 @@ class ThreeWayJunction(SequentialJunctionBuilder):
         
         
         firstRoad.addExtendedSuccessor(secondConnectionRoad, 0, pyodrx.ContactPoint.start)
-        secondConnectionRoad.addExtendedPredecessor(firstRoad, 0, pyodrx.ContactPoint.end)
+        secondConnectionRoad.addExtendedPredecessor(firstRoad, 0, cp1)
 
-        RoadLinker.createExtendedPredSuc(predCp=secondConnectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=secondRoad, sucCP=pyodrx.ContactPoint.start)
-        # secondConnectionRoad.addExtendedSuccessor(secondRoad, 0, pyodrx.ContactPoint.start)
-        # secondRoad.addExtendedPredecessor(secondConnectionRoad, 0, pyodrx.ContactPoint.end)
+        RoadLinker.createExtendedPredSuc(predRoad=secondConnectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=secondRoad, sucCP=pyodrx.ContactPoint.start)
+
 
         roads.append(secondConnectionRoad)
         roads.append(secondRoad)

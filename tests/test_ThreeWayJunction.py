@@ -37,6 +37,6 @@ class test_ThreeWayJunction(unittest.TestCase):
                                                     cp1=pyodrx.ContactPoint.end)
         extensions.printRoadPositions(odr)
         extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
-        extensions.view_road_odrviewer(odr, os.path.join('..',self.configuration.get("esminipath")))
+        # extensions.view_road_odrviewer(odr, os.path.join('..',self.configuration.get("esminipath")))
         xmlPath = f"output/test_ThreeWayJunctionWithAngle.xodr"
         odr.write_xml(xmlPath)
