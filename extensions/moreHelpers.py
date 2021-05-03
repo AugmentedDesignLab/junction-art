@@ -78,6 +78,28 @@ def view_road(opendrive,esminipath = 'esmini'):
 
     pass
 
+def view_road_odrviewer(opendrive,esminipath = 'esmini'):
+    """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
+        Parameters
+        ----------
+            opendrive (OpenDrive): the pyodrx road to run
+
+            esminipath (str): the path to esmini 
+                Default: pyoscx
+
+        
+
+    """
+    _scenariopath = os.path.join(esminipath,'bin')
+    opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
+
+    xodrPath =  os.path.join(esminipath,'bin','pythonroad.xodr')
+    odrViewer = os.path.join(esminipath,'bin','odrviewer.exe')
+    print(f"{odrViewer} --odr {xodrPath}")
+    os.system(f"{odrViewer} --odr {xodrPath}")
+    # viewRoadFromXODRFile(xodrPath, esminipath)
+
+    pass
 
 
 def viewRoadFromXODRFile(xodrPath, esminipath = 'esmini'):
