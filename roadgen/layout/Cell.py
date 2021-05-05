@@ -22,6 +22,7 @@ class Cell:
         return self._entropy
         
     def updateEntropy(self, entropy):
+        """ entropy is only updated if the cell is empty """
         if self.element is None:
             self._entropy = entropy
 

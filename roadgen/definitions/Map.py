@@ -1,37 +1,34 @@
-from z3 import * 
+# from z3 import * 
 
-from roadgen.definitions.Polygon import Polygon
+# from roadgen.definitions.Polygon import Polygon
 
-class Map:
+# class Map:
 
-    def __init__(self):
-        self._polygons = []
-        self._polyCounter = 0
+#     def __init__(self):
+#         self._polygons = []
+#         self._polyCounter = 0
     
 
-    def createPolyId(self):
-        self._polyCounter += 1
-        return f'pol{self._polyCounter}'
+#     def createPolyId(self):
+#         self._polyCounter += 1
+#         return f'pol{self._polyCounter}'
 
     
-    def createPolygon(self, points, id=None):
+#     def createPolygon(self, points, id=None):
 
-        if id is None:
-            id = self.createPolyId()
+#         if id is None:
+#             id = self.createPolyId()
         
-        poly = Polygon(id, points)
-        self._polygons.append(poly)
-
-
+#         poly = Polygon(id, points)
+#         self._polygons.append(poly)
     
-    def constraint(self):
+#     def constraint(self):
 
-        # constraints = self.createOverlapConstraints()
-        # constraints += self.createPolygonConstraints()
-        pass
-
-
-    def constraintForAdjacentPolygons(self, poly1, poly2):
+#         # constraints = self.createOverlapConstraints()
+#         # constraints += self.createPolygonConstraints()
+#         pass
 
 
-    
+#     def constraintForAdjacentPolygons(self, poly1, poly2):
+
+#         pass

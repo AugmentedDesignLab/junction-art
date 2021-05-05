@@ -9,6 +9,7 @@ class Grid:
         self.nRows = int(self.size[0] / self.cellSize[0])
         self.nCols = int(self.size[1] / self.cellSize[1])
         self.cells = []
+        self.entropyDicEmptyCells = {}
         self.createCells()
     
 
@@ -23,8 +24,9 @@ class Grid:
         self.updateAllEntropy()
         pass
 
+    #region ################ Entropy methods ##################
 
-    def getCellsWithLowestEntropy(self):
+    def getEmptyCellsWithLowestEntropy(self):
         """For each blank cell around a cell, an entropy of 1 is given. A cell which has 0 entropy has no blank cells around.
         """
 
@@ -34,17 +36,30 @@ class Grid:
         #         cell = self.cells[i][j]
         #         self.updateEntropyFor(cell)
 
+        for entropy in self.entropyDicEmptyCells:
+            return self.entropyDicEmptyCells[entropy] # the first element
+
+
     def setCellElement(self, cell, element):
         cell.setElement(element)
         self.updateAllEntropy() # TODO write a better algo. Do not need to update the whole grid.
 
 
     def updateAllEntropy(self):
+
+        self.entropyDicEmptyCells = {} # reset
+
         for i in range(self.nRows):
             for j in range(self.nCols):
                 cell = self.cells[i][j]
-                self.updateEntropyFor(cell)
+                entropy = self.updateEntropyFor(cell)
 
+                if entropy < 10: # no full cell.
+                    if entropy not in self.entropyDicEmptyCells:
+                        self.entropyDicEmptyCells[entropy] = []
+                    self.entropyDicEmptyCells[entropy].append(cell)
+
+        self.entropyDicEmptyCells = dict(sorted((self.entropyDicEmptyCells.items())))
 
     def updateEntropyFor(self, cell):
         (i, j) = cell.cell_position
@@ -99,9 +114,13 @@ class Grid:
             pass
         
         cell.updateEntropy(entropy)
+        
+        return entropy
 
+    #endregion 
     
-    #### relative cell stats ###########
+    #region ######## relative cell stats ###########
+
     def isLeftBoundary(self, cell):
         (i, j) = cell.cell_position
         if i == 0:
@@ -196,4 +215,54 @@ class Grid:
         (i, j) = cell.cell_position
         return self.isEmpty(i+1, j-1)
 
-    #### END relative cell stats ###########
+    #endregion #### END relative cell stats ###########
+
+    #region elements
+
+    
+    def left(self, cell):
+        if self.isLeftBoundary(cell):
+            raise BoundaryException("Left")
+
+        (i, j) = cell.cell_position
+        return self.cells[i-1][j]
+    
+    def right(self, cell):
+        if self.isRightBoundary(cell):
+            raise BoundaryException("Right")
+
+        (i, j) = cell.cell_position
+        return self.cells[i+1][j]
+    
+    def top(self, cell):
+        if self.isTopBoundary(cell):
+            raise BoundaryException("Top")
+
+        (i, j) = cell.cell_position
+        return self.cells[i+1][j+1]
+    
+    def bot(self, cell):
+        if self.isBotBoundary(cell):
+            raise BoundaryException("Bot")
+
+        (i, j) = cell.cell_position
+        return self.cells[i-1][j-1]
+
+
+    def leftElement(self, cell):
+        neighbourCell = self.left(cell)
+        return neighbourCell.element
+
+    def rightElement(self, cell):
+        neighbourCell = self.right(cell)
+        return neighbourCell.element
+
+    def topElement(self, cell):
+        neighbourCell = self.top(cell)
+        return neighbourCell.element
+        
+    def botElement(self, cell):
+        neighbourCell = self.bot(cell)
+        return neighbourCell.element
+    
+    #endregion
