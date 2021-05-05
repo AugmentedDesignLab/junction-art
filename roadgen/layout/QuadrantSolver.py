@@ -24,10 +24,10 @@ class QuadrantSolver:
         neighborBot = self.getNeighbourQuadrantOnBot(grid, cell)
         neighborRight = self.getNeighbourQuadrantOnRight(grid, cell)
 
-        reducedCandidates = set([])
+        reducedCandidates = []
         for candidate in candidates:
             if self.isCompatibleWithNeighbours(neighborTop, neighborLeft, neighborBot, neighborRight, candidate):
-                reducedCandidates.add(candidate)
+                reducedCandidates.append(candidate)
 
         return reducedCandidates
 
@@ -48,6 +48,9 @@ class QuadrantSolver:
     def isCompatible(self, quad1, quad2):
 
         """ And(Implies(nIncoming == 0, nOutgoing == 0), Implies(nOutgoing == 0, nIncoming == 0)) """
+
+        if quad1 is None or quad2 is None: # means we hit a boundary or a blank space. An obstacle will have 0 incoming and outgoing.
+            return True
 
         if quad1.nIncoming == 0 and quad2.nOutgoing != 0:
             return False

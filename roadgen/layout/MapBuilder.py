@@ -32,13 +32,15 @@ class MapBuilder:
 
             # 3. choose one candidate for this cell, set an empty space if no candidate
             if len(validCandidates) == 0:
-                self.grid.setElement(cell, EmptySpace())
+                self.grid.setCellElement(cell, EmptySpace())
             else:
                 chosenIntersection = np.random.choice(validCandidates)
-                self.grid.setElement(cell, chosenIntersection)
+                self.grid.setCellElement(cell, chosenIntersection)
                 # 5. remove candidate from candidates set
                 self.candidates.remove(chosenIntersection)
 
-
+        
+        # self.grid.printCellElements()
+        self.grid.plot()
 
 

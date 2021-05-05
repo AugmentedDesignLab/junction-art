@@ -1,5 +1,8 @@
 from roadgen.layout.Cell import Cell
 from roadgen.layout.BoundaryException import BoundaryException
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
+import matplotlib
 
 class Grid:
 
@@ -8,9 +11,12 @@ class Grid:
         self.cellSize = cellSize
         self.nRows = int(self.size[0] / self.cellSize[0])
         self.nCols = int(self.size[1] / self.cellSize[1])
+        self.cellXScale = self.size[1] / self.nCols
+        self.cellYScale = self.size[0] / self.nRows
         self.cells = []
         self.entropyDicEmptyCells = {}
         self.createCells()
+        
     
 
     def createCells(self):
@@ -23,6 +29,17 @@ class Grid:
         
         self.updateAllEntropy()
         pass
+
+    def cellGenerator(self):
+        for i in range(self.nRows):
+            for j in range(self.nCols):
+                yield self.cells[i][j]
+
+    
+    def getAbsCellPosition(self, cell):
+        (i, j) = cell.cell_position
+        return (self.cellXScale * j, self.cellYScale * i)
+
 
     #region ################ Entropy methods ##################
 
@@ -38,11 +55,6 @@ class Grid:
 
         for entropy in self.entropyDicEmptyCells:
             return self.entropyDicEmptyCells[entropy] # the first element
-
-
-    def setCellElement(self, cell, element):
-        cell.setElement(element)
-        self.updateAllEntropy() # TODO write a better algo. Do not need to update the whole grid.
 
 
     def updateAllEntropy(self):
@@ -220,6 +232,11 @@ class Grid:
     #region elements
 
     
+    def setCellElement(self, cell, element):
+        cell.setElement(element)
+        self.updateAllEntropy() # TODO write a better algo. Do not need to update the whole grid.
+
+
     def left(self, cell):
         if self.isLeftBoundary(cell):
             raise BoundaryException("Left")
@@ -250,19 +267,73 @@ class Grid:
 
 
     def leftElement(self, cell):
-        neighbourCell = self.left(cell)
-        return neighbourCell.element
+        try:
+            neighbourCell = self.left(cell)
+            return neighbourCell.element
+        except BoundaryException:
+            return None
 
     def rightElement(self, cell):
-        neighbourCell = self.right(cell)
-        return neighbourCell.element
+        try:
+            neighbourCell = self.right(cell)
+            return neighbourCell.element
+        except BoundaryException:
+            return None
 
     def topElement(self, cell):
-        neighbourCell = self.top(cell)
-        return neighbourCell.element
+        try:
+            neighbourCell = self.top(cell)
+            return neighbourCell.element
+        except BoundaryException:
+            return None
         
     def botElement(self, cell):
-        neighbourCell = self.bot(cell)
-        return neighbourCell.element
+        try:
+            neighbourCell = self.bot(cell)
+            return neighbourCell.element
+        except BoundaryException:
+            return None
     
+    #endregion
+
+    #region prints
+
+    def printCellElements(self):
+        for cell in self.cellGenerator():
+            print(f"Cell ({cell.cell_position})")
+            print(f"{cell.element}")
+
+    
+    def plot(self):
+
+        fig,ax=plt.subplots()
+
+        ax.set_xlim(0, self.size[0])
+        ax.set_ylim(0, self.size[1])
+
+        xLocator = MultipleLocator(self.cellSize[0])
+        yLocator = MultipleLocator(self.cellSize[1])
+
+        ax.xaxis.set_major_locator(xLocator)
+        ax.yaxis.set_major_locator(yLocator)
+        ax.grid(which='major', axis='both', linestyle='--')
+        cellIdArgs = dict(ha='left', va='bottom', fontsize=6, color='C1')
+        for cell in self.cellGenerator():
+            (x, y) = self.getAbsCellPosition(cell)
+            # plt.text(x, y, f"{cell.cell_position}", cellIdArgs)
+
+            contentX = x + 3
+            contentY = y + self.cellSize[0] - 3
+            clipBox = matplotlib.transforms.Bbox.from_bounds(x, y, 50, 50)
+            bbox = dict(x=x, y=y)
+            cellContentArgs = dict(ha='left', va='top', fontsize=6, color='C1', 
+                # bbox=bbox, 
+                clip_on=True,
+                clip_box=clipBox, 
+                wrap=True)
+            plt.text(contentX, contentY, f"{cell.cell_position}\n{cell.element}", **cellContentArgs)
+
+
+        plt.show()
+
     #endregion
