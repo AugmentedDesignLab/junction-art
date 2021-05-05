@@ -41,6 +41,56 @@ class test_ThreeWayJunction(unittest.TestCase):
         odr.write_xml(xmlPath)
 
     def test_ThreeWayJunctionWithRamdomAngle(self):
+
+        angleBetweenRoads = ((7/18) * np.random.random() + (1/9)) * np.pi
+        odr = self.builder.ThreeWayJunctionWithAngle(odrId=1,
+                                                    angleBetweenRoads=angleBetweenRoads,
+                                                    maxLanePerSide=4,
+                                                    minLanePerSide=2,
+                                                    cp1=pyodrx.ContactPoint.end)
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
+        extensions.view_road_odrviewer(odr, os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_ThreeWayJunctionWithAngle.xodr"
+        odr.write_xml(xmlPath)
+
+
+        angleBetweenRoads = ((7/18) * np.random.random() + (1/9)) * np.pi
+        odr = self.builder.ThreeWayJunctionWithAngle(odrId=1,
+                                                    angleBetweenRoads=angleBetweenRoads,
+                                                    maxLanePerSide=4,
+                                                    minLanePerSide=2,
+                                                    cp1=pyodrx.ContactPoint.end)
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
+        # extensions.view_road_odrviewer(odr, os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_ThreeWayJunctionWithAngle.xodr"
+        odr.write_xml(xmlPath)
+
+        angleBetweenRoads = ((7/18) * np.random.random() + (1/9)) * np.pi
+        odr = self.builder.ThreeWayJunctionWithAngle(odrId=1,
+                                                    angleBetweenRoads=angleBetweenRoads,
+                                                    maxLanePerSide=4,
+                                                    minLanePerSide=2,
+                                                    cp1=pyodrx.ContactPoint.end)
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
+        # extensions.view_road_odrviewer(odr, os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_ThreeWayJunctionWithAngle.xodr"
+        odr.write_xml(xmlPath)
+
+        angleBetweenRoads = ((7/18) * np.random.random() + (1/9)) * np.pi
+        odr = self.builder.ThreeWayJunctionWithAngle(odrId=1,
+                                                    angleBetweenRoads=angleBetweenRoads,
+                                                    maxLanePerSide=4,
+                                                    minLanePerSide=2,
+                                                    cp1=pyodrx.ContactPoint.end)
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
+        # extensions.view_road_odrviewer(odr, os.path.join('..',self.configuration.get("esminipath")))
+        xmlPath = f"output/test_ThreeWayJunctionWithAngle.xodr"
+        odr.write_xml(xmlPath)
+
         angleBetweenRoads = ((7/18) * np.random.random() + (1/9)) * np.pi
         odr = self.builder.ThreeWayJunctionWithAngle(odrId=1,
                                                     angleBetweenRoads=angleBetweenRoads,
