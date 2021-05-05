@@ -18,7 +18,7 @@ from junctions.LaneConfiguration import LaneConfiguration
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 import logging
 
-class ThreeWayJunction(SequentialJunctionBuilder):
+class ThreeWayJunctionBuilder(SequentialJunctionBuilder):
     
 
     def __init__(self, roadBuilder = None,

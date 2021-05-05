@@ -1,6 +1,6 @@
 import unittest
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
-from junctions.threeWayJunction import threeWayJunction
+from junctions.threeWayJunction import ThreeWayJunctionBuilder
 import extensions, os
 import numpy as np
 from library.Configuration import Configuration
@@ -17,7 +17,7 @@ class test_ThreeWayJunction(unittest.TestCase):
         outputDir= os.path.join(os.getcwd(), 'output')
         lastId = 0
         self.seed = 2
-        self.builder = threeWayJunction.ThreeWayJunction(
+        self.builder = ThreeWayJunctionBuilder(
                                                         minAngle=np.pi/9, 
                                                         maxAngle=np.pi * .25,
                                                         straightRoadLen=20
