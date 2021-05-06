@@ -9,30 +9,37 @@ class test_MapBuilder(unittest.TestCase):
 
     def setUp(self):
         
-        grid = Grid(size=(1000, 1000), cellSize=(100, 100))
-        intersections = self.createIntersections()
-        self.mapBuilder = MapBuilder(grid, intersections)
+        grid = Grid(size=(1000, 1000), cellSize=(200, 200))
+        intersections = self.createIntersections(30)
+        self.mapBuilder = MapBuilder(grid, intersections, random_seed=40)
+        pass
 
 
-    def createIntersections(self):
+    def createIntersections(self, n=4):
+        np.random.seed(40)
         intersections = []
 
-        intersections.append(self.createRandomIntersection())
-
+        for _ in range(n):
+            intersections.append(self.createRandomIntersection())
+        
         return intersections
     
 
     def createRandomIntersection(self):
 
         # random top
-        top = LogicalQuadrant(np.random.choice([0, 1, 2]), np.random.choice([0, 1, 2]))
-        left = LogicalQuadrant(np.random.choice([0, 1, 2]), np.random.choice([0, 1, 2]))
-        bot = LogicalQuadrant(np.random.choice([0, 1, 2]), np.random.choice([0, 1, 2]))
-        right = LogicalQuadrant(np.random.choice([0, 1, 2]), np.random.choice([0, 1, 2]))
+        top = LogicalQuadrant(np.random.choice([0, 0, 1, 2]), np.random.choice([0, 0, 1, 2]))
+        left = LogicalQuadrant(np.random.choice([0, 0, 1, 2]), np.random.choice([0, 0, 1, 2]))
+        bot = LogicalQuadrant(np.random.choice([0, 0, 1, 2]), np.random.choice([0, 0, 1, 2]))
+        right = LogicalQuadrant(np.random.choice([0, 0, 1, 2]), np.random.choice([0, 0, 1, 2]))
         # random bot...
         return LogicalIntersection(top=top, left=left, bot=bot, right=right)
-        
+
 
     def test_Builder(self):
 
-        self.mapBuilder.run(1)
+        nextCells = self.mapBuilder.grid.getEmptyCellsWithLowestEntropy()
+        assert len(nextCells) == self.mapBuilder.grid.nCells()
+        self.mapBuilder.run(100)
+
+    

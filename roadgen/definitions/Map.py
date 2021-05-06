@@ -31,4 +31,4 @@
 
 #     def constraintForAdjacentPolygons(self, poly1, poly2):
 
-#         pass
+#  pass

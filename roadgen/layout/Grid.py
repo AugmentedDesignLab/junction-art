@@ -41,6 +41,14 @@ class Grid:
         return (self.cellXScale * j, self.cellYScale * i)
 
 
+    def nCells(self):
+        return self.nRows * self.nCols
+
+    
+    def nEmptyCells(self):
+        return len(self.entropyDicEmptyCells.values())
+
+
     #region ################ Entropy methods ##################
 
     def getEmptyCellsWithLowestEntropy(self):
@@ -64,9 +72,10 @@ class Grid:
         for i in range(self.nRows):
             for j in range(self.nCols):
                 cell = self.cells[i][j]
-                entropy = self.updateEntropyFor(cell)
+                self.updateEntropyFor(cell)
 
-                if entropy < 10: # no full cell.
+                if cell.isEmpty():
+                    entropy = cell.getEntropy()
                     if entropy not in self.entropyDicEmptyCells:
                         self.entropyDicEmptyCells[entropy] = []
                     self.entropyDicEmptyCells[entropy].append(cell)
@@ -81,53 +90,60 @@ class Grid:
             if self.emptyLeft(cell):
                 entropy += 1
         except BoundaryException:
+            entropy += 1
             pass
 
         try:
             if self.emptyRight(cell):
                 entropy += 1
         except BoundaryException:
+            entropy += 1
             pass
 
         try:
             if self.emptyTop(cell):
                 entropy += 1
         except BoundaryException:
+            entropy += 1
             pass
 
         try:
             if self.emptyBot(cell):
                 entropy += 1
         except BoundaryException:
+            entropy += 1
             pass
 
         try:
             if self.emptyLeftTop(cell):
                 entropy += 1
         except BoundaryException:
+            entropy += 1
             pass
 
         try:
             if self.emptyLeftBot(cell):
                 entropy += 1
         except BoundaryException:
+            entropy += 1
             pass
 
         try:
             if self.emptyRightTop(cell):
                 entropy += 1
         except BoundaryException:
+            entropy += 1
             pass
 
         try:
             if self.emptyRightBot(cell):
                 entropy += 1
         except BoundaryException:
+            entropy += 1
             pass
         
         cell.updateEntropy(entropy)
         
-        return entropy
 
     #endregion 
     
@@ -135,25 +151,25 @@ class Grid:
 
     def isLeftBoundary(self, cell):
         (i, j) = cell.cell_position
-        if i == 0:
+        if j == 0:
             return True
         return False
 
     def isRightBoundary(self, cell):
         (i, j) = cell.cell_position
-        if i == self.nCols - 1:
+        if j == self.nCols - 1:
             return True
         return False
 
     def isTopBoundary(self, cell):
         (i, j) = cell.cell_position
-        if j == self.nRows - 1:
+        if i == self.nRows - 1:
             return True
         return False
 
     def isBotBoundary(self, cell):
         (i, j) = cell.cell_position
-        if j == 0:
+        if i == 0:
             return True
         return False
 
@@ -167,28 +183,28 @@ class Grid:
             raise BoundaryException("Left")
 
         (i, j) = cell.cell_position
-        return self.isEmpty(i-1, j)
+        return self.isEmpty(i, j-1)
 
     def emptyRight(self, cell):
         if self.isRightBoundary(cell):
             raise BoundaryException("Right")
 
         (i, j) = cell.cell_position
-        return self.isEmpty(i+1, j)
+        return self.isEmpty(i, j+1)
 
     def emptyTop(self, cell):
         if self.isTopBoundary(cell):
             raise BoundaryException("Top")
 
         (i, j) = cell.cell_position
-        return self.isEmpty(i, j+1)
+        return self.isEmpty(i+1, j)
 
     def emptyBot(self, cell):
         if self.isBotBoundary(cell):
             raise BoundaryException("Bot")
 
         (i, j) = cell.cell_position
-        return self.isEmpty(i, j-1)
+        return self.isEmpty(i-1, j)
         
     def emptyLeftTop(self, cell):
         if self.isLeftBoundary(cell):
@@ -197,7 +213,7 @@ class Grid:
             raise BoundaryException("Top")
 
         (i, j) = cell.cell_position
-        return self.isEmpty(i-1, j+1)
+        return self.isEmpty(i+1, j-1)
 
     def emptyLeftBot(self, cell):
         if self.isLeftBoundary(cell):
@@ -225,7 +241,7 @@ class Grid:
             raise BoundaryException("Bot")
 
         (i, j) = cell.cell_position
-        return self.isEmpty(i+1, j-1)
+        return self.isEmpty(i-1, j+1)
 
     #endregion #### END relative cell stats ###########
 
@@ -242,28 +258,28 @@ class Grid:
             raise BoundaryException("Left")
 
         (i, j) = cell.cell_position
-        return self.cells[i-1][j]
+        return self.cells[i][j-1]
     
     def right(self, cell):
         if self.isRightBoundary(cell):
             raise BoundaryException("Right")
 
         (i, j) = cell.cell_position
-        return self.cells[i+1][j]
+        return self.cells[i][j+1]
     
     def top(self, cell):
         if self.isTopBoundary(cell):
             raise BoundaryException("Top")
 
         (i, j) = cell.cell_position
-        return self.cells[i+1][j+1]
+        return self.cells[i+1][j]
     
     def bot(self, cell):
         if self.isBotBoundary(cell):
             raise BoundaryException("Bot")
 
         (i, j) = cell.cell_position
-        return self.cells[i-1][j-1]
+        return self.cells[i-1][j]
 
 
     def leftElement(self, cell):
@@ -326,14 +342,16 @@ class Grid:
             contentY = y + self.cellSize[0] - 3
             clipBox = matplotlib.transforms.Bbox.from_bounds(x, y, 50, 50)
             bbox = dict(x=x, y=y)
-            cellContentArgs = dict(ha='left', va='top', fontsize=6, color='C1', 
+            cellContentArgs = dict(ha='left', va='top', fontsize=7, color='C1', 
                 # bbox=bbox, 
                 clip_on=True,
                 clip_box=clipBox, 
                 wrap=True)
             plt.text(contentX, contentY, f"{cell.cell_position}\n{cell.element}", **cellContentArgs)
 
-
+        ax.set_title("Cell placements")
+        ax.set_xlabel("x in meters")
+        ax.set_ylabel("y in meters")
         plt.show()
 
     #endregion

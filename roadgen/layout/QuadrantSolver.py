@@ -1,7 +1,7 @@
 from z3 import *
 
 from roadgen.definitions.LogicalIntersection import LogicalIntersection
-
+import logging
 
 
 class QuadrantSolver:
@@ -10,7 +10,9 @@ class QuadrantSolver:
     """ solves without rotating intersections """
 
 
-    def __init__(self):
+    def __init__(self, debug=True):
+        self.debug = debug
+        self.name = "QuadrantSolver"
         pass
 
 
@@ -35,6 +37,9 @@ class QuadrantSolver:
 
     def isCompatibleWithNeighbours(self, neighborTop, neighborLeft, neighborBot, neighborRight, candidate):
 
+        # if self.debug:
+        #     logging.info(f"{self.name}: neighborTop: {neighborTop}, neighborLeft: {neighborLeft}, neighborBot: {neighborBot}, neighborRight: {neighborRight}, candidate: {candidate}")
+
         return (
 
             self.isCompatible(neighborTop, candidate.top)
@@ -56,6 +61,12 @@ class QuadrantSolver:
             return False
 
         if quad1.nOutgoing == 0 and quad2.nIncoming != 0:
+            return False
+
+        if quad2.nIncoming == 0 and quad1.nOutgoing != 0:
+            return False
+
+        if quad2.nOutgoing == 0 and quad1.nIncoming != 0:
             return False
 
         return True
