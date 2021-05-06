@@ -1,6 +1,6 @@
 from z3 import *
 
-from roadgen.definitions.LogicalIntersection import LogicalIntersection
+from roadgen.definitions.DirectionIntersection import DirectionIntersection
 import logging
 
 
@@ -82,25 +82,25 @@ class QuadrantSolver:
 
     def getNeighbourQuadrantOnTop(self, grid, cell):
         neighbor = grid.topElement(cell)
-        if (neighbor is None) or (not isinstance(neighbor, LogicalIntersection)):
+        if (neighbor is None) or (not isinstance(neighbor, DirectionIntersection)):
             return None
         return neighbor.bot
 
     def getNeighbourQuadrantOnLeft(self, grid, cell):
         neighbor = grid.leftElement(cell)
-        if (neighbor is None) or (not isinstance(neighbor, LogicalIntersection)):
+        if (neighbor is None) or (not isinstance(neighbor, DirectionIntersection)):
             return None
         return neighbor.right
 
     def getNeighbourQuadrantOnBot(self, grid, cell):
         neighbor = grid.botElement(cell)
-        if (neighbor is None) or (not isinstance(neighbor, LogicalIntersection)):
+        if (neighbor is None) or (not isinstance(neighbor, DirectionIntersection)):
             return None
         return neighbor.top
 
     def getNeighbourQuadrantOnRight(self, grid, cell):
         neighbor = grid.rightElement(cell)
-        if (neighbor is None) or (not isinstance(neighbor, LogicalIntersection)):
+        if (neighbor is None) or (not isinstance(neighbor, DirectionIntersection)):
             return None
         return neighbor.left
 

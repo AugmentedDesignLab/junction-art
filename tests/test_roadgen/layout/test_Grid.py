@@ -15,15 +15,15 @@ class test_Grid(unittest.TestCase):
                 print(cell.cell_position, " entropy: ", cell.getEntropy())
                 if i == 0 or i == 9:
                     if (j == 0 or j ==9):
-                        assert cell.getEntropy() == 3
+                        assert cell.getEntropy() == 8
                     else:
-                        assert cell.getEntropy() == 5
+                        assert cell.getEntropy() == 8
 
                 if j == 0 or j == 9:
                     if i == 0 or i == 9:
-                        assert cell.getEntropy() == 3
+                        assert cell.getEntropy() == 8
                     else:
-                        assert cell.getEntropy() == 5
+                        assert cell.getEntropy() == 8
 
     
     def test_Entropy(self):
@@ -34,12 +34,12 @@ class test_Grid(unittest.TestCase):
 
         assert grid.cells[0][0].getEntropy() == 10
 
-        assert grid.cells[0][1].getEntropy() == 4
+        assert grid.cells[0][1].getEntropy() == 7
         assert grid.cells[1][1].getEntropy() == 7
-        assert grid.cells[1][0].getEntropy() == 4
+        assert grid.cells[1][0].getEntropy() == 7
 
         
-        assert grid.cells[0][2].getEntropy() == 5
+        assert grid.cells[0][2].getEntropy() == 8
 
 
 
@@ -47,27 +47,27 @@ class test_Grid(unittest.TestCase):
         cell = grid.cells[0][9]
         grid.setCellElement(cell, "hi")
 
-        assert grid.cells[0][8].getEntropy() == 4
+        assert grid.cells[0][8].getEntropy() == 7
         assert grid.cells[1][8].getEntropy() == 7
-        assert grid.cells[1][9].getEntropy() == 4
+        assert grid.cells[1][9].getEntropy() == 7
 
         # case 9, 0
         cell = grid.cells[9][0]
         grid.setCellElement(cell, "hi")
 
-        assert grid.cells[9][1].getEntropy() == 4
+        assert grid.cells[9][1].getEntropy() == 7
         assert grid.cells[8][1].getEntropy() == 7
-        assert grid.cells[8][0].getEntropy() == 4
+        assert grid.cells[8][0].getEntropy() == 7
 
         # case 9, 9
         cell = grid.cells[9][9]
         grid.setCellElement(cell, "hi")
 
-        assert grid.cells[9][8].getEntropy() == 4
+        assert grid.cells[9][8].getEntropy() == 7
         assert grid.cells[8][8].getEntropy() == 7
-        assert grid.cells[8][9].getEntropy() == 4
+        assert grid.cells[8][9].getEntropy() == 7
 
-        # case 5, 5
+        # case 8, 8
         cell = grid.cells[5][5]
         grid.setCellElement(cell, "hi")
         assert grid.cells[4][6].getEntropy() == 7
