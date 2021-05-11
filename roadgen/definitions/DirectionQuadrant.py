@@ -18,6 +18,13 @@ class DirectionQuadrant:
 
 
     def __init__(self, nIncoming, nOutgoing, anglePresence=(False, True, False)):
+        """[summary]
+
+        Args:
+            nIncoming ([type]): [description]
+            nOutgoing ([type]): [description]
+            anglePresence (tuple, optional): Not implemented. Want to divide the quadrant into 3 parts. directions parallel, directions going left, directions going right.. Defaults to (False, True, False).
+        """
 
         # self.nIncoming = IntVal(nIncoming) # conver to bit vectors
 

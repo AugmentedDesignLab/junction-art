@@ -32,6 +32,21 @@ class Intersection:
         return ips
 
 
+    def getIncidentPointsTranslatedToCenter(self):
+        """First incident point is translated to center (0,0)
+        """
+        transX = -self.incidentPoints[0][0]
+        transY = self.incidentPoints[0][1]
+
+        translatedIPs = []
+
+        for ip in self.incidentPoints:
+            x = ip[0] + transX
+            y = ip[1] + transY
+            translatedIPs.append((x, y, ip[2]))
+        
+        return translatedIPs
+
 
     def getWH(self, mode='incident-point', padding=5):
         """returns width and height. Assumes incidents road has almost 0 length for simplicity
@@ -43,6 +58,19 @@ class Intersection:
 
         # corner case. in case of a 3-way, all the incident points can be so close to each other that some connection road may have an extreme point. So, we add a safe padding.
 
+        (minX, minY), (maxX, maxY) = self.getBBox(translateToCenter=False, mode=mode, padding=padding)
+        
+        return maxX - minX, maxY - minY
+
+    
+
+    def getBBox(self, translateToCenter=True, mode='incident-point', padding=5):
+
+        incidentPoints = self.incidentPoints
+        if translateToCenter:
+            incidentPoints = self.getIncidentPointsTranslatedToCenter()
+
+        
         minX = 99999999
         maxX = -99999999
         minY = 99999999
@@ -59,7 +87,17 @@ class Intersection:
                 if ip[1] > maxY:
                     maxY = ip[1]
         
-        return maxX - minX, maxY - minY
+        minX -= padding
+        minY -= padding
+
+        maxX += padding
+        maxY += padding
+        
+        return (minX, minY), (maxX, maxY)
+        
+
+
+
 
             
 

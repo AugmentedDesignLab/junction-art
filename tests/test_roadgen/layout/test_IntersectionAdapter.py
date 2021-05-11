@@ -1,5 +1,5 @@
-from junctions.Intersection import Intersection
 import unittest
+from junctions.Intersection import Intersection
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 import extensions, os
 import numpy as np
@@ -7,10 +7,12 @@ from library.Configuration import Configuration
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 import pyodrx
 import logging
+
+from roadgen.layout.IntersectionAdapter import IntersectionAdapter
 logging.basicConfig(level=logging.INFO)
 
 
-class test_Intersection(unittest.TestCase):
+class test_IntersectionAdapter(unittest.TestCase):
 
     def setUp(self):
         
@@ -30,6 +32,8 @@ class test_Intersection(unittest.TestCase):
                                                     random_seed=self.seed)
         
         self.randomState =self.configuration.get("random_state")
+
+        self.adapter = IntersectionAdapter()
 
         pass
     
@@ -60,6 +64,37 @@ class test_Intersection(unittest.TestCase):
         print(incidentPoints)
         print(translatedPoints)
 
-        extensions.printRoadPositions(odr)
+        # extensions.printRoadPositions(odr)
+
+        directionIntersection = self.adapter.intersectionTo4DirectionIntersection(intersection)
+        print(directionIntersection)
 
         extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
+
+    
+    def test_intersectionToDirectionIntersection(self):
+        
+        maxNumberOfRoadsPerJunction = 5
+        maxLanePerSide = 3
+        minLanePerSide = 0
+        
+        for sl in range(5):
+            
+            intersection = self.builder.createWithRandomLaneConfigurations("", 
+                                0, 
+                                maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                                maxLanePerSide=maxLanePerSide, 
+                                minLanePerSide=minLanePerSide, 
+                                internalConnections=True, 
+                                cp1=pyodrx.ContactPoint.end,
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
+            odr = intersection.odr
+            # xmlPath = f"output/test_intersectionToDirectionIntersection-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
+            xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
+            odr.write_xml(xmlPath)
+            
+            directionIntersection = self.adapter.intersectionTo4DirectionIntersection(intersection)
+            print(directionIntersection)
+            # extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+            extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
