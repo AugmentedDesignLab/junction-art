@@ -15,6 +15,7 @@ from junctions.AngleCurvatureMap import AngleCurvatureMap
 from extensions.CountryCodes import CountryCodes
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.LaneConfiguration import LaneConfiguration
+from junctions.Intersection import Intersection
 import logging
 
 
@@ -228,7 +229,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
                                             randomState=None,
                                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY, 
                                             uTurnLanes=1,
-                                            equalAngles=False):
+                                            equalAngles=False,
+                                            getAsOdr=True):
         """All the incoming roads, except for the first, will have their start endpoint connected to the junction.
 
         Args:
@@ -248,6 +250,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             [type]: [description]
         """
 
+
         if maxNumberOfRoadsPerJunction < 2:
             raise Exception("Please add more than 1 roads")
 
@@ -264,6 +267,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         if randomState is not None:
             np.random.set_state(randomState)
 
+        incidentContactPoints = []
         outsideRoads = [] # all the incoming/outgoing roads in this junction
         geoConnectionRoads = [] # connections roads which are for geometric positions, having no lanes
         laneConnectionRoads = [] # connection roads that have lanes.
@@ -273,6 +277,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
             roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.start)) # first road
         else:
             roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.end)) # first road
+        
+
         # if restrictedLanes:
         #     if cp1 == pyodrx.ContactPoint.end:
         #         roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.start)) # first road
@@ -283,6 +289,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
         roads[0].id = 0
         outsideRoads.append(roads[0])
+        incidentContactPoints.append(cp1)
 
         availableAngle = 1.8 * np.pi # 360 degrees
         if equalAngles:
@@ -290,12 +297,14 @@ class SequentialJunctionBuilder(JunctionBuilder):
         maxAnglePerConnection = availableAngle / maxNumberOfRoadsPerJunction
         action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
         nextRoadId = 1
+        otherContactPoints = pyodrx.ContactPoint.start
         while (action != "end"):
 
             logging.debug(f"{self.name}: availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
 
             # 0. road id generation
             previousRoadId = nextRoadId - 1
+            prevIncidentRoad = roads[-1]
             newConnectionId = nextRoadId
             nextRoadId += 1
             newRoadId = nextRoadId
@@ -310,13 +319,14 @@ class SequentialJunctionBuilder(JunctionBuilder):
             #     newRoad = self.getRandomHarvestedStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
 
             outsideRoads.append(newRoad)
+            incidentContactPoints.append(otherContactPoints)
 
             # 2. create a new connection road
-            prevCp = pyodrx.ContactPoint.start
+            prevCp = otherContactPoints
             if len(roads) == 1: # first road
                 prevCp = cp1
 
-            prevLanes, nextLanes = self.laneBuilder.getClockwiseAdjacentLanes(roads[-1], prevCp, newRoad, pyodrx.ContactPoint.start)
+            prevLanes, nextLanes = self.laneBuilder.getClockwiseAdjacentLanes(prevIncidentRoad, prevCp, newRoad, otherContactPoints)
             # maxLaneWidth = ((len(prevLanes) + len(nextLanes)) * self.laneWidth) / 2
             maxLaneWidth = max(len(prevLanes), len(nextLanes)) * self.laneWidth
             if len(prevLanes) == 0 or len(nextLanes) == 0:
@@ -328,17 +338,11 @@ class SequentialJunctionBuilder(JunctionBuilder):
             # 5 add new roads
             roads.append(newConnection)
             roads.append(newRoad)
-
-            roads[previousRoadId].addExtendedSuccessor(newConnection, 0, pyodrx.ContactPoint.start)
-
-            if newConnection.id == 1:
-                newConnection.addExtendedPredecessor(roads[previousRoadId], 0 , cp1)
-            else:
-                newConnection.addExtendedPredecessor(roads[previousRoadId], 0 , pyodrx.ContactPoint.start)
             
-            RoadLinker.createExtendedPredSuc(predRoad=newConnection, predCp=pyodrx.ContactPoint.end, sucRoad=newRoad, sucCP=pyodrx.ContactPoint.start)
+            RoadLinker.createExtendedPredSuc(predRoad=prevIncidentRoad, predCp=prevCp, sucRoad=newConnection, sucCP=pyodrx.ContactPoint.start)
+            RoadLinker.createExtendedPredSuc(predRoad=newConnection, predCp=pyodrx.ContactPoint.end, sucRoad=newRoad, sucCP=otherContactPoints)
 
-            self.laneBuilder.createLanesForConnectionRoad(newConnection, roads[previousRoadId], newRoad)
+            self.laneBuilder.createLanesForConnectionRoad(newConnection, prevIncidentRoad, newRoad)
 
             # 6 get next action
             action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
@@ -356,14 +360,6 @@ class SequentialJunctionBuilder(JunctionBuilder):
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(odrId)
         odr = extensions.createOdrByPredecessor(odrName, roads, [junction])
 
-        # The last connection and resetting odr
-
-        # lastConnection = self.createLastConnectionForLastAndFirstRoad(nextRoadId, roads, junction, cp1=cp1)
-        # nextRoadId += 1
-        # self.laneBuilder.createLanesForConnectionRoad(lastConnection, roads[-1], roads[0])
-        # roads.append(lastConnection)
-
-        # odr.add_road(lastConnection)
         
         logging.debug(f"{self.name}: roads before internal connections {len(roads)}")
 
@@ -393,9 +389,12 @@ class SequentialJunctionBuilder(JunctionBuilder):
         logging.debug(f"{self.name}: roads after internal connections {len(roads)}")
 
         odr.resetAndReadjust(byPredecessor=True)
-        
-        
-        return odr
+
+        if getAsOdr:
+            return odr
+
+        intersection = Intersection(outsideRoads, incidentContactPoints, geoConnectionRoads=geoConnectionRoads, odr=odr)
+        return intersection
 
 
     def fixNumOutgoingLanes(self, roads, cp1): 

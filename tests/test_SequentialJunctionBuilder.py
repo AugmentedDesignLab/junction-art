@@ -245,8 +245,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
                             maxLanePerSide=2, minLanePerSide=0, 
                             internalConnections=True, 
                             cp1=pyodrx.ContactPoint.end,
-                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
-                            restrictedLanes=1)
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
 
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
         xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}.xodr"
@@ -275,7 +274,6 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
                             internalConnections=True, 
                             cp1=pyodrx.ContactPoint.end,
                             internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
-                            restrictedLanes=1,
                             equalAngles=True)
 
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
