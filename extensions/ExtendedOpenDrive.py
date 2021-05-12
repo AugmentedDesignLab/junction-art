@@ -32,6 +32,12 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         else:
             self.adjust_roads_and_lanes()
 
+    def adjust(self, byPredecessor = False):
+        if byPredecessor:
+            self.adjust_roads_and_lanesByPredecessor()
+        else:
+            self.adjust_roads_and_lanes()
+
     def write_xml(self,filename=None,prettyprint = True):
         """ writeXml writes the open scenario xml file
 

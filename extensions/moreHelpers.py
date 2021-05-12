@@ -1,3 +1,4 @@
+from pyodrx.opendrive import Road
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 
@@ -7,6 +8,7 @@ import sys
 import csv
 import math
 import matplotlib.pyplot as plt
+from numpy.lib.function_base import append
 from .ExtendedOpenDrive import ExtendedOpenDrive
 from junctions.LaneLinker import LaneLinker
 from junctions.RoadLinker import RoadLinker
@@ -14,6 +16,7 @@ from junctions.Geometry import Geometry
 from extensions.ExtendedRoad import ExtendedRoad
 import dill
 import logging
+import numpy as np
 
     
 def createOdr(name, roads, junctions):
@@ -344,3 +347,13 @@ def getObjectsFromDill(path):
         objects = dill.load(f)
 
     return objects
+
+
+def rotateOpenDrive(odr, startX=0, startY=0, heading=np.pi/6):
+    if odr is None:
+        raise Exception(f"No odr is given")
+    odr.reset()
+    firstRoad = odr.roads['0']
+    firstRoad.planview.set_start_point(x_start=startX,y_start=startY,h_start=heading)
+    odr.adjust_roads_and_lanesByPredecessor()
+    return odr

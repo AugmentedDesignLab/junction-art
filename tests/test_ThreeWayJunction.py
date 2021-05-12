@@ -18,10 +18,10 @@ class test_ThreeWayJunction(unittest.TestCase):
         lastId = 0
         self.seed = 2
         self.builder = ThreeWayJunctionBuilder(
-                                                        minAngle=np.pi/9, 
-                                                        maxAngle=np.pi * .25,
-                                                        straightRoadLen=20
-                                                        )
+                                                minAngle=np.pi/9, 
+                                                maxAngle=np.pi * .25,
+                                                straightRoadLen=20
+                                                )
 
         self.randomState =self.configuration.get("random_state")
 
@@ -40,7 +40,7 @@ class test_ThreeWayJunction(unittest.TestCase):
         xmlPath = f"output/test_ThreeWayJunctionWithAngle.xodr"
         odr.write_xml(xmlPath)
 
-    def test_ThreeWayJunctionWithRamdomAngle(self):
+    def test_ThreeWayJunctionWithRandomAngle(self):
 
         angleBetweenRoads = ((7/18) * np.random.random() + (1/9)) * np.pi
         odr = self.builder.ThreeWayJunctionWithAngle(odrId=1,
