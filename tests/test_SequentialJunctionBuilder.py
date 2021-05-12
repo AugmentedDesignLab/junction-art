@@ -19,7 +19,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         self.builder = SequentialJunctionBuilder(
                                                     minAngle=np.pi/4, 
                                                     maxAngle=np.pi * .75,
-                                                    straightRoadLen=10, 
+                                                    straightRoadLen=5, 
                                                     probLongConnection=0.5,
                                                     probMinAngle=0.5,
                                                     probRestrictedLane=0.2,
