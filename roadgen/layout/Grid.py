@@ -333,7 +333,7 @@ class Grid:
         ax.xaxis.set_major_locator(xLocator)
         ax.yaxis.set_major_locator(yLocator)
         ax.grid(which='major', axis='both', linestyle='--')
-        cellIdArgs = dict(ha='left', va='bottom', fontsize=6, color='C1')
+        cellIdArgs = dict(ha='left', va='bottom', fontsize=7, color='C1')
         for cell in self.cellGenerator():
             (x, y) = self.getAbsCellPosition(cell)
             # plt.text(x, y, f"{cell.cell_position}", cellIdArgs)
@@ -342,7 +342,7 @@ class Grid:
             contentY = y + self.cellSize[0] - 3
             clipBox = matplotlib.transforms.Bbox.from_bounds(x, y, 50, 50)
             bbox = dict(x=x, y=y)
-            cellContentArgs = dict(ha='left', va='top', fontsize=8, color='C1', 
+            cellContentArgs = dict(ha='left', va='top', fontsize=7, color='C1', 
                 # bbox=bbox, 
                 clip_on=True,
                 clip_box=clipBox, 

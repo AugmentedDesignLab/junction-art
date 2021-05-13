@@ -10,8 +10,8 @@ class test_MapBuilder(unittest.TestCase):
 
     def setUp(self):
         
-        grid = Grid(size=(1000, 1000), cellSize=(200, 200))
-        intersections = self.createIntersections(30)
+        grid = Grid(size=(500, 500), cellSize=(100, 100))
+        intersections = self.createIntersections(0)
         self.mapBuilder = MapBuilder(grid, intersections, random_seed=40)
         pass
 
