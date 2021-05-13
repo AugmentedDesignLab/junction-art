@@ -12,11 +12,11 @@ logging.basicConfig(level=logging.INFO, filename=logfile)
 
 class MapBuilder:
 
-    def __init__(self, grid, intersections, random_seed=39, debug=True):
+    def __init__(self, grid, directionIntersections, random_seed=39, debug=True):
         self.grid = grid
         # self.polygons = polygons
-        self.intersections = intersections
-        self.candidates = set(intersections)
+        self.directionIntersections = directionIntersections
+        self.candidates = set(directionIntersections)
         self.qSolver = QuadrantSolver()
         self.debug = debug
         self.name = "MapBuilder"
@@ -25,6 +25,13 @@ class MapBuilder:
             f.truncate()
             
         np.random.seed(random_seed)
+    
+
+    def setDirectionIntersections(self, directionIntersections):
+        self.directionIntersections = directionIntersections
+        self.candidates = set(directionIntersections)
+        pass
+
 
     def run(self, maxTries=100):
         # do
@@ -67,5 +74,9 @@ class MapBuilder:
         
         # self.grid.printCellElements()
         self.grid.plot()
+
+    
+    def getPositions(self):
+        return None
 
 

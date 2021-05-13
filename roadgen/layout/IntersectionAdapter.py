@@ -4,6 +4,7 @@ from roadgen.definitions.DirectionQuadrant import DirectionQuadrantType
 from roadgen.definitions.DirectionQuadrant import DirectionQuadrant
 from extensions.CountryCodes import CountryCodes
 from junctions.LaneConfiguration import LaneConfiguration
+from junctions.Intersection import Intersection
 
 class IntersectionAdapter:
 
@@ -12,7 +13,7 @@ class IntersectionAdapter:
         pass
 
 
-    def intersectionTo4DirectionIntersection(self, intersection):
+    def intersectionTo4DirectionIntersection(self, intersection: Intersection) -> DirectionIntersection:
 
         #1. TODO if not adjusted, adjust
 
