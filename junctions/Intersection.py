@@ -3,8 +3,9 @@ import numpy as np
 
 class Intersection:
 
-    def __init__(self, incidentRoads, incidentCPs, geoConnectionRoads=None, odr=None):
+    def __init__(self, id, incidentRoads, incidentCPs, geoConnectionRoads=None, odr=None):
 
+        self.id = id
         self.incidentRoads = incidentRoads
         self.incidentCPs = incidentCPs
         self.geoConnectionRoads = geoConnectionRoads

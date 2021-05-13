@@ -220,8 +220,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
     
     def createWithRandomLaneConfigurations(self, 
                                             straightRoadsPath, 
-                                            odrId, 
+                                            id, 
                                             maxNumberOfRoadsPerJunction, 
+                                            firstRoadId=0,
                                             maxLanePerSide=2, 
                                             minLanePerSide=0, 
                                             internalConnections=True, 
@@ -287,7 +288,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # else:
         #     roads.append(self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide)) # first road
 
-        roads[0].id = 0
+        roads[0].id = firstRoadId
         outsideRoads.append(roads[0])
         incidentContactPoints.append(cp1)
 
@@ -296,7 +297,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             availableAngle = np.pi * 2
         maxAnglePerConnection = availableAngle / maxNumberOfRoadsPerJunction
         action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
-        nextRoadId = 1
+        nextRoadId = firstRoadId + 1
         otherContactPoints = pyodrx.ContactPoint.start
         while (action != "end"):
 
@@ -357,7 +358,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # junction = self.createJunctionForASeriesOfRoads(roads)
         junction = pyodrx.Junction("singleConnectionsJunction", 0)
 
-        odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(odrId)
+        odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(id)
         odr = extensions.createOdrByPredecessor(odrName, roads, [junction])
 
         
@@ -393,7 +394,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         if getAsOdr:
             return odr
 
-        intersection = Intersection(outsideRoads, incidentContactPoints, geoConnectionRoads=geoConnectionRoads, odr=odr)
+        intersection = Intersection(id, outsideRoads, incidentContactPoints, geoConnectionRoads=geoConnectionRoads, odr=odr)
         return intersection
 
 

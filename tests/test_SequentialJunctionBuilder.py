@@ -343,7 +343,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         for sl in range(5):
             path = self.configuration.get("harvested_straight_roads")
             odr = self.builder.createWithRandomLaneConfigurations(path, 
-                                0, 
+                                sl, 
                                 maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
                                 maxLanePerSide=maxLanePerSide, 
                                 minLanePerSide=minLanePerSide, 
