@@ -13,7 +13,7 @@ import logging
 
 class HDMapBuilder:
 
-    def __init__(self, nIntersections, p=[0.2, 0.7, 0.1, 0.1], startId=0, seed=0, debug=True) -> None:
+    def __init__(self, nIntersections, p=[0.2, 0.7, 0.1, 0.1], startId=0, seed=0, mapSize=(500, 500), cellSize=(100, 100), debug=True) -> None:
 
         self.nIntersections = nIntersections
         self.p = p # probability distribution of 3-way, 4, 5, 6
@@ -33,7 +33,7 @@ class HDMapBuilder:
                                                     random_seed=self.seed)
         self.intersectionAdapter = IntersectionAdapter()
         
-        self.grid = Grid(size=(500, 500), cellSize=(100, 100))
+        self.grid = Grid(size=mapSize, cellSize=cellSize)
 
         self.mapBuilder = MapBuilder(self.grid, [], random_seed=40)
 
