@@ -310,6 +310,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
             nextRoadId += 1
             newRoadId = nextRoadId
             nextRoadId += 1
+            prevCp = otherContactPoints
+            if len(roads) == 1: # first road
+                prevCp = cp1
 
             # 1. create a road
             # newRoad = self.getRandomHarvestedStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
@@ -323,9 +326,6 @@ class SequentialJunctionBuilder(JunctionBuilder):
             incidentContactPoints.append(otherContactPoints)
 
             # 2. create a new connection road
-            prevCp = otherContactPoints
-            if len(roads) == 1: # first road
-                prevCp = cp1
 
             prevLanes, nextLanes = self.laneBuilder.getClockwiseAdjacentLanes(prevIncidentRoad, prevCp, newRoad, otherContactPoints)
             # maxLaneWidth = ((len(prevLanes) + len(nextLanes)) * self.laneWidth) / 2

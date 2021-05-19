@@ -6,8 +6,6 @@ from roadgen.layout.QuadrantSolver import QuadrantSolver
 from roadgen.definitions.EmptySpace import EmptySpace
 import logging
 
-logfile = 'map-builder.log'
-logging.basicConfig(level=logging.INFO, filename=logfile)
 
 
 class MapBuilder:
@@ -21,8 +19,6 @@ class MapBuilder:
         self.debug = debug
         self.name = "MapBuilder"
 
-        with open(logfile, 'w') as f:
-            f.truncate()
             
         np.random.seed(random_seed)
     
@@ -33,7 +29,7 @@ class MapBuilder:
         pass
 
 
-    def run(self, maxTries=100):
+    def run(self, maxTries=100, plot=True):
         # do
 
         for i in range(maxTries):
@@ -73,7 +69,8 @@ class MapBuilder:
 
         
         # self.grid.printCellElements()
-        self.grid.plot()
+        if plot:
+            self.grid.plot()
 
     
     def getPositions(self):

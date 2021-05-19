@@ -16,6 +16,11 @@ class Intersection:
     def setOdr(self, odr):
         self.odr = odr
 
+
+    def getLastRoadId(self):
+        firstRoadId = self.incidentRoads[0].id
+        return firstRoadId + len(self.odr.roads)
+        
     
     def getIncidentPoints(self):
 

@@ -342,7 +342,7 @@ class Grid:
             contentY = y + self.cellSize[0] - 3
             clipBox = matplotlib.transforms.Bbox.from_bounds(x, y, 50, 50)
             bbox = dict(x=x, y=y)
-            cellContentArgs = dict(ha='left', va='top', fontsize=7, color='C1', 
+            cellContentArgs = dict(ha='left', va='top', fontsize=8, color='C1', 
                 # bbox=bbox, 
                 clip_on=True,
                 clip_box=clipBox, 
