@@ -32,9 +32,16 @@ class DirectionQuadrant:
         self.nIncoming = nIncoming
         self.nOutgoing = nOutgoing
         self.anglePresence = anglePresence # clockwise. 
+        self.roads = {} # road to cp map
 
     
 
     def __str__(self):
 
         return f"(in: {self.nIncoming}, out: {self.nOutgoing})"
+
+    
+    def hasRoads(self):
+        if len(self.roads) == 0:
+            return False
+        return True

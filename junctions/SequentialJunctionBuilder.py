@@ -109,7 +109,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         
         # 3. create connections and junction
 
-        junction = self.createJunctionForASeriesOfRoads(roads)
+        junction = self.createJunctionForASeriesOfRoads(roads, odrId)
 
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(odrId)
         odr = extensions.createOdrByPredecessor(odrName, roads, [junction])
@@ -356,7 +356,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # 3. create connections and junction
         # TODO this is not correct anymore.
         # junction = self.createJunctionForASeriesOfRoads(roads)
-        junction = pyodrx.Junction("singleConnectionsJunction", 0)
+        junction = pyodrx.Junction("singleConnectionsJunction", id)
+        # junction = pyodrx.Junction("singleConnectionsJunction", firstRoadId)
 
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(id)
         odr = extensions.createOdrByPredecessor(odrName, roads, [junction])

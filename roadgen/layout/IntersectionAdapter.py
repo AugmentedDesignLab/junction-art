@@ -1,3 +1,5 @@
+from pyodrx.enumerations import ContactPoint
+import pyodrx
 from roadgen.definitions.DirectionIntersection import DirectionIntersection
 import numpy as np
 from roadgen.definitions.DirectionQuadrant import DirectionQuadrantType
@@ -39,23 +41,30 @@ class IntersectionAdapter:
         right = DirectionQuadrant(nIncoming=0, nOutgoing=0)
 
         for _, (ip, road, cp) in enumerate(zip(translatedIPs, intersection.incidentRoads, intersection.incidentCPs)):
+            # TODO, this might lead to problems are we are taking incident points CPs which may have different number of lanes than the other CPs. We need to keep it fixed or get the other cp.
 
-            nIncoming = len(LaneConfiguration.getIncomingLanesOnARoad(road, cp, self.countryCode))
-            nOutgoing = len(LaneConfiguration.getOutgoingLanesOnARoad(road, cp, self.countryCode))
+            otherCP = pyodrx.ContactPoint.start if (cp == pyodrx.ContactPoint.end) else pyodrx.ContactPoint.end
+
+            nIncoming = len(LaneConfiguration.getIncomingLanesOnARoad(road, otherCP, self.countryCode))
+            nOutgoing = len(LaneConfiguration.getOutgoingLanesOnARoad(road, otherCP, self.countryCode))
 
             quadrantType = self.getQuadrant(centerX, centerY, ip)
             if quadrantType == DirectionQuadrantType.TOP:
                 top.nIncoming += nIncoming
                 top.nOutgoing += nOutgoing
+                top.roads[road] = otherCP
             if quadrantType == DirectionQuadrantType.LEFT:
                 left.nIncoming += nIncoming
                 left.nOutgoing += nOutgoing
+                left.roads[road] = otherCP
             if quadrantType == DirectionQuadrantType.BOT:
                 bot.nIncoming += nIncoming
                 bot.nOutgoing += nOutgoing
+                bot.roads[road] = otherCP
             if quadrantType == DirectionQuadrantType.RIGHT:
                 right.nIncoming += nIncoming
                 right.nOutgoing += nOutgoing
+                right.roads[road] = otherCP
             
         return DirectionIntersection(top=top, left=left, bot=bot, right=right)
 
@@ -80,19 +89,5 @@ class IntersectionAdapter:
 
         return DirectionQuadrantType.RIGHT
 
-        # if y <= centerY:
-        #     # if a point is under horiziontal center line
-        #     ## if heading is between 225 and 315, the incident point is at bot
-        #     ## if heading < 225,left
-        #     ## else right
-        #     if h < np.pi * 1.25:
-        #         return DirectionQuadrantType.LEFT
-            
 
 
-        # else:
-        #     # if a point is under horiziontal center line
-        #     ## if heading is between 225 and 315, the incident point is at bot
-        #     ## if heading < 225,left
-        #     ## else right
-            # pass

@@ -50,7 +50,7 @@ class JunctionBuilder:
         np.random.seed(random_seed)
         pass
 
-    def createJunctionForASeriesOfRoads(self, roads):
+    def createJunctionForASeriesOfRoads(self, roads, id = 0):
         """[summary]
 
         Args:
@@ -62,7 +62,7 @@ class JunctionBuilder:
 
         # TODO it does not support all lanes.
         # ID is wrong
-        junction = pyodrx.Junction("spiderJunction", 0)
+        junction = pyodrx.Junction("spiderJunction", id)
 
         connectionId = 1
 

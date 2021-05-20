@@ -315,6 +315,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
             else:
                 raise Exception(f"predecessor contact point not defined for road {road_id}")
             
+            # adjust reference line offset
             if main_road.predecessorOffset != 0:
 
                 if main_road.isConnection is False:

@@ -11,6 +11,8 @@ class Intersection:
         self.geoConnectionRoads = geoConnectionRoads
         self.odr = odr
         self.incidentPoints = self.getIncidentPoints()
+        self.connectedIncidentPoints = [] # list of indices
+        
 
     
     def setOdr(self, odr):
