@@ -348,12 +348,3 @@ def getObjectsFromDill(path):
 
     return objects
 
-
-def rotateOpenDrive(odr, startX=0, startY=0, heading=np.pi/6):
-    if odr is None:
-        raise Exception(f"No odr is given")
-    odr.reset()
-    firstRoad = odr.roads['0']
-    firstRoad.planview.set_start_point(x_start=startX,y_start=startY,h_start=heading)
-    odr.adjust_roads_and_lanesByPredecessor()
-    return odr
