@@ -63,3 +63,24 @@ class test_OpenDriveHelper(unittest.TestCase):
         extensions.printRoadPositions(new_odr)
         extensions.view_road(new_odr, os.path.join('..', self.configuration.get("esminipath")))
 
+
+    def test_joinOpenDriveFile(self):
+        angleBetweenRoads = np.pi/4
+        odrBase = self.threeWayJunctionBuilder.ThreeWayJunctionWithAngle(odrId=1,
+                                                                         angleBetweenRoads=angleBetweenRoads,
+                                                                         maxLanePerSide=1,
+                                                                         minLanePerSide=1,
+                                                                         cp1=pyodrx.ContactPoint.end
+                                                                        )
+
+        odrTarget = self.threeWayJunctionBuilder.ThreeWayJunctionWithAngle(odrId=1,
+                                                                           angleBetweenRoads=angleBetweenRoads,
+                                                                           maxLanePerSide=1,
+                                                                           minLanePerSide=1,
+                                                                           cp1=pyodrx.ContactPoint.end
+                                                                           )
+
+        openDriveHelper = OpenDriveHelper(odr=odrBase)
+        openDriveHelper.joinOpenDriveFile(odrTarget)
+
+        

@@ -54,13 +54,13 @@ class OpenDriveHelper():
         # self.printKeyAndRoadIDFromDictWithPredSucc(self.odr.roads)
         oldRoadDict = self.odr.roads.copy()
         oldKeyNewKeyDict = self.createOldKeyNewKeyDict(startRoadID)
-        self.modify_odrRoadDict(oldKeyNewKeyDict, oldRoadDict)
+        self.update_odrRoadDict(oldKeyNewKeyDict, oldRoadDict)
         self.odr.adjust_roads_and_lanesByPredecessor()
         # self.printKeyAndRoadIDFromDictWithPredSucc(self.odr.roads)
         return self.odr
 
     # modify original odr with the roads with new id 
-    def modify_odrRoadDict(self, oldKeyNewKeyDict, oldRoadDict):
+    def update_odrRoadDict(self, oldKeyNewKeyDict, oldRoadDict):
         self.odr.roads = {}
         self.odr.roads['-1'] = None # odr can not be empty otherwise it checks if the pred is already in the dictionary
         for oldKey, newKey in oldKeyNewKeyDict.items():
@@ -85,5 +85,13 @@ class OpenDriveHelper():
             oldKeyNewKeyDict[oldKey] = newKey
         return oldKeyNewKeyDict
     
-
-    
+# joining 
+    def joinOpenDriveFile(self, targetODR):
+        minRoadID, maxRoadID = self.getMinMaxRoadIDFromODR()
+        targetODR = self.updateOpenDriveRoadIDStartFrom(maxRoadID+1)
+        roadWithOutPred = None
+        for road_id, road in targetODR.roads.items():
+            if len(road.extendedPredecessors) == 0:
+                roadWithOutPred = road
+                print("RoadWithOutPred ", roadWithOutPred.id)
+        return self.odr
