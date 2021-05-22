@@ -1,3 +1,4 @@
+from extensions.ExtendedPredecessor import ExtendedPredecessor
 import pyodrx
 from extensions.ExtendedOpenDrive import ExtendedOpenDrive
 from junctions.LaneLinker import LaneLinker
@@ -77,4 +78,69 @@ class ODRHelper:
 
         pass
 
-    
+    @staticmethod
+    def createOldRoadIDNewRoadID_Dict(oldRoads: List[ExtendedRoad], newRoadIDForFirstRoad):
+        oldRoadIDNewRoadID_Dict = {}
+        for road in oldRoads:
+            oldRoadID = road.id
+            newRoadID = int(oldRoadID) + newRoadIDForFirstRoad
+            oldRoadIDNewRoadID_Dict[oldRoadID] = newRoadID
+        return oldRoadIDNewRoadID_Dict
+
+    @staticmethod
+    def updateODRRoadDict(odr: ExtendedOpenDrive, oldRoadIDNewRoadID_Dict, oldRoads: List[ExtendedRoad]):
+        odr.roads = {}
+        odr.roads['-1'] = None
+        for oldRoad in oldRoads:
+            newShallowRoad = oldRoad.shallowCopy()
+            # print("old key new key", oldRoad.id, oldRoadIDNewRoadID_Dict[oldRoad.id])
+            newShallowRoad.id = oldRoadIDNewRoadID_Dict[oldRoad.id]
+            newShallowRoadWithPredecessor = ODRHelper.copyPredecessors(oldRoad=oldRoad,
+                                                                       shallowCopyRoad=newShallowRoad,
+                                                                       oldRoadIDNewRoadID_Dict=oldRoadIDNewRoadID_Dict
+                                                                       )
+            newShallowRoadWithPredSucc = ODRHelper.copySuccessors(oldRoad=oldRoad,
+                                                                  shallowCopyRoad= newShallowRoadWithPredecessor,
+                                                                  oldRoadIDNewRoadID_Dict=oldRoadIDNewRoadID_Dict
+                                                                  )
+            odr.add_road(road=newShallowRoadWithPredSucc)
+        
+        del odr.roads['-1']
+
+        pass
+
+    @staticmethod
+    def copyPredecessors(oldRoad: ExtendedRoad, shallowCopyRoad, oldRoadIDNewRoadID_Dict):
+        for predecessorRoadID, extendedPredecessor in oldRoad.extendedPredecessors.items():
+            shallowCopyExtendedPred = extendedPredecessor.road.shallowCopy()
+            shallowCopyExtendedPred.id = oldRoadIDNewRoadID_Dict[predecessorRoadID]
+            contactPoint = extendedPredecessor.cp
+            angleWithRoad = extendedPredecessor.angleWithRoad
+            shallowCopyRoad.addExtendedPredecessor(shallowCopyExtendedPred, angleWithRoad, contactPoint)
+        return shallowCopyRoad
+
+    @staticmethod
+    def copySuccessors(oldRoad: ExtendedRoad, shallowCopyRoad, oldRoadIDNewRoadID_Dict):
+        for successorRoadID, extendedSuccessor in oldRoad.extendedSuccessors.items():
+            shallowCopyExtendedSucc = extendedSuccessor.road.shallowCopy()
+            shallowCopyExtendedSucc.id = oldRoadIDNewRoadID_Dict[successorRoadID]
+            contactPoint = extendedSuccessor.cp
+            angleWithRoad = extendedSuccessor.angleWithRoad
+            shallowCopyRoad.addExtendedSuccessor(shallowCopyExtendedSucc, angleWithRoad, contactPoint)
+        return shallowCopyRoad
+
+
+
+
+    @staticmethod
+    def updateRoadIDStartFrom(odr: ExtendedOpenDrive, startRoadID=0):
+        oldRoads = list(odr.roads.values())
+        oldRoadIDNewRoadID_Dict = ODRHelper.createOldRoadIDNewRoadID_Dict(oldRoads=oldRoads, newRoadIDForFirstRoad=startRoadID)
+        ODRHelper.updateODRRoadDict(odr=odr, 
+                                    oldRoadIDNewRoadID_Dict=oldRoadIDNewRoadID_Dict,
+                                    oldRoads=oldRoads)
+
+        
+        # print(odr.roads)
+        odr.adjust_roads_and_lanesByPredecessor()
+        return odr
