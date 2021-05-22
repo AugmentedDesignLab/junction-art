@@ -1,0 +1,158 @@
+from junctions.LaneSides import LaneSides
+from roadgen.definitions.DirectionIntersection import DirectionIntersection
+from roadgen.layout.MapBuilder import MapBuilder
+from roadgen.layout.Grid import Grid
+from roadgen.layout.IntersectionAdapter import IntersectionAdapter
+from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+from library.Configuration import Configuration
+from junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctions.ODRHelper import ODRHelper
+from roadgen.layout.Network import Network
+import pyodrx
+import numpy as np
+import logging
+
+
+class HDMapBuilder:
+
+    def __init__(self, nIntersections, p=[0.2, 0.7, 0.1, 0.1], startId=0, seed=0, mapSize=(500, 500), cellSize=(100, 100), debug=True) -> None:
+
+        self.nIntersections = nIntersections
+        self.p = p # probability distribution of 3-way, 4, 5, 6
+        self.intersections = {} # DirectionIntersection -> intersection
+        self.placedIntersections = {}
+        self.nextIntersectionId = startId
+        
+        self.seed = seed
+        self.builder = SequentialJunctionBuilder(
+                                                    minAngle=np.pi/6, 
+                                                    maxAngle=np.pi * .75,
+                                                    straightRoadLen=5, 
+                                                    probLongConnection=0.3,
+                                                    probMinAngle=0.3,
+                                                    probRestrictedLane=0.2,
+                                                    maxConnectionLength=30,
+                                                    minConnectionLength=12,
+                                                    random_seed=self.seed)
+        self.intersectionAdapter = IntersectionAdapter()
+        
+        self.grid = Grid(size=mapSize, cellSize=cellSize)
+
+        self.mapBuilder = MapBuilder(self.grid, [], random_seed=40)
+
+        self.network = None
+
+        self.debug = debug
+
+        self.name = "HDMapBuilder"
+
+        self.nextRoadId = 0
+
+        pass
+
+
+    def createIntersections(self):
+
+        minLanePerSide = 1
+        maxLanePerSide = 2
+        self.nextRoadId = 0
+        for sl in range(self.nIntersections):
+            maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5])
+            intersection = self.builder.createWithRandomLaneConfigurations("", 
+                                sl, 
+                                firstRoadId=self.nextRoadId,
+                                maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                                maxLanePerSide=maxLanePerSide, 
+                                minLanePerSide=minLanePerSide, 
+                                internalConnections=True, 
+                                cp1=pyodrx.ContactPoint.end,
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
+            self.nextRoadId = intersection.getLastRoadId() + 100
+            directionIntersection = self.intersectionAdapter.intersectionTo4DirectionIntersection(intersection)
+            self.intersections[directionIntersection] = intersection
+
+    
+    def connectIntersectionsByCellAdjacency(self):
+        
+        self.network = Network(self.placedIntersections)
+        for cell in self.grid.cellGenerator():
+            if isinstance(cell.element, DirectionIntersection):
+                couldConnect = False
+                DI1 = cell.element
+                # We need to check right and top only as left and bottoms are traversed before.
+                if DI1.top.hasRoads():
+                    DI2 = self.grid.topElement(cell)
+                    if DI2 is not None and isinstance(DI2, DirectionIntersection):
+                        if DI2.bot.hasRoads():
+                            # We have a connection
+                            quad1 = DI1.top
+                            quad2 = DI2.bot
+                            self.connectDirectionQuadrants(DI1, DI2, quad1, quad2)
+                            couldConnect = True
+                if DI1.right.hasRoads():
+                    DI2 = self.grid.rightElement(cell)
+                    if DI2 is not None and isinstance(DI2, DirectionIntersection):
+                        if DI2.left.hasRoads():
+                            # We have a connection
+                            quad1 = DI1.right
+                            quad2 = DI2.left
+                            self.connectDirectionQuadrants(DI1, DI2, quad1, quad2)
+                            couldConnect = True
+                # if couldConnect == False:
+                #     self.network.clusters.append(set([self.placedIntersections[DI1]]))
+
+
+    def connectDirectionQuadrants(self, DI1, DI2, quad1, quad2):
+        intersection1 = self.placedIntersections[DI1]
+        intersection2 = self.placedIntersections[DI2]
+        road1 = list(quad1.roads.keys())[0]
+        cp1 = list(quad1.roads.values())[0]
+        road2 = list(quad2.roads.keys())[0]
+        cp2 = list(quad2.roads.values())[0]
+
+        self.network.connect(self.nextRoadId, intersection1, road1, cp1, intersection2, road2, cp2, LaneSides.BOTH)
+        self.nextRoadId += 1
+
+
+    
+    def adjustIntersectionPositions(self):
+        odrList = []
+        for cell in self.grid.cellGenerator():
+            if isinstance(cell.element, DirectionIntersection):
+                directionIntersection = cell.element
+                x, y = self.grid.getAbsCellPosition(cell)
+                intersection = self.intersections[directionIntersection]
+                if self.debug:
+                    logging.info(f"Transforming {intersection.id} to ({x}, {y})")
+                ODRHelper.transform(intersection.odr, startX=x, startY=y)
+                self.placedIntersections[directionIntersection] = intersection
+
+                odrList.append(intersection.odr)
+        return odrList
+
+    
+    def buildMap(self, name, plot=True):
+
+        # 1 create intersections and direction intersections.
+        if self.debug:
+            logging.info(f"{self.name}: Building new HDMap")
+        self.createIntersections()
+        self.mapBuilder.setDirectionIntersections(list(self.intersections.keys()))
+        self.mapBuilder.run(self.nIntersections * 2, plot=plot)
+
+        # now each cell in the grid has reference to the direction intersection 
+        if self.debug:
+            logging.info(f"{self.name}: adjustIntersectionPositions")
+        odrList = self.adjustIntersectionPositions()
+
+        self.connectIntersectionsByCellAdjacency()
+
+        combinedOdr = ODRHelper.combine(odrList, name)
+        ODRHelper.addAdjustedRoads(combinedOdr, self.network.connectionRoads)
+
+        if self.debug:
+            logging.info(f"{self.name}: buildMap: number of clusters: {len(self.network.clusters)}")
+            self.network.logClusters()
+        return combinedOdr
+

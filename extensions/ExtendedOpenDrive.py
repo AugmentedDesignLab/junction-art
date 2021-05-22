@@ -71,6 +71,12 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         pass
     
 
+    def addFirstRoad(self, road):
+        # if len(self.roads) != 0:
+        #     raise Exception("ODR already has a first road")
+        self.roads[str(road.id)] = road
+        
+
     def addRoads(self, roads):
         for road in roads:
             if self.hasRoad(road.id) is False:
@@ -309,6 +315,7 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
             else:
                 raise Exception(f"predecessor contact point not defined for road {road_id}")
             
+            # adjust reference line offset
             if main_road.predecessorOffset != 0:
 
                 if main_road.isConnection is False:

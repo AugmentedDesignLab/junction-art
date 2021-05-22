@@ -6,27 +6,30 @@ from roadgen.layout.QuadrantSolver import QuadrantSolver
 from roadgen.definitions.EmptySpace import EmptySpace
 import logging
 
-logfile = 'map-builder.log'
-logging.basicConfig(level=logging.INFO, filename=logfile)
 
 
 class MapBuilder:
 
-    def __init__(self, grid, intersections, random_seed=39, debug=True):
+    def __init__(self, grid, directionIntersections, random_seed=39, debug=True):
         self.grid = grid
         # self.polygons = polygons
-        self.intersections = intersections
-        self.candidates = set(intersections)
+        self.directionIntersections = directionIntersections
+        self.candidates = set(directionIntersections)
         self.qSolver = QuadrantSolver()
         self.debug = debug
         self.name = "MapBuilder"
 
-        with open(logfile, 'w') as f:
-            f.truncate()
             
         np.random.seed(random_seed)
+    
 
-    def run(self, maxTries=100):
+    def setDirectionIntersections(self, directionIntersections):
+        self.directionIntersections = directionIntersections
+        self.candidates = set(directionIntersections)
+        pass
+
+
+    def run(self, maxTries=100, plot=True):
         # do
 
         for i in range(maxTries):
@@ -66,6 +69,11 @@ class MapBuilder:
 
         
         # self.grid.printCellElements()
-        self.grid.plot()
+        if plot:
+            self.grid.plot()
+
+    
+    def getPositions(self):
+        return None
 
 
