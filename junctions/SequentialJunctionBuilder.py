@@ -161,7 +161,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
                 currentLength = np.random.uniform(currentLength, self.maxConnectionLength)
                 curvature = AngleCurvatureMap.getCurvatureForAngleBetweenRoadAndLength(angleBetweenEndpoints, currentLength, curveType)
                 logging.info(f"{self.name}: extending curve length")
-
+        # print(f"curve length: {currentLength}") 
         if currentLength < self.minConnectionLength:
             # raise Exception(f"{self.name}: createGeoConnectionCurve current length {currentLength} is less than min length {self.minConnectionLength}")
             currentLength = self.minConnectionLength

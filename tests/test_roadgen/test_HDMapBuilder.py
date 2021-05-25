@@ -20,7 +20,7 @@ class test_HDMapBuilder(unittest.TestCase):
     
     def test_buildMap(self):
         name='first_hd_map'
-        odr = self.hdMapBuilder.buildMap(name, plot=True)
+        odr = self.hdMapBuilder.buildMap(name, plot=False)
         xmlPath = f"output/test_HDMapBuilder-{name}.xodr"
         odr.write_xml(xmlPath)
         extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))

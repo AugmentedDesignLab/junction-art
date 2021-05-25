@@ -4,6 +4,7 @@ from roadgen.layout.MapBuilder import MapBuilder
 from roadgen.layout.Grid import Grid
 from roadgen.layout.IntersectionAdapter import IntersectionAdapter
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+from junctions.IntersectionValidator import IntersectionValidator
 from library.Configuration import Configuration
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.ODRHelper import ODRHelper
@@ -34,6 +35,7 @@ class HDMapBuilder:
                                                     maxConnectionLength=30,
                                                     minConnectionLength=12,
                                                     random_seed=self.seed)
+        self.validator = IntersectionValidator()
         self.intersectionAdapter = IntersectionAdapter()
         
         self.grid = Grid(size=mapSize, cellSize=cellSize)
@@ -58,21 +60,31 @@ class HDMapBuilder:
         self.nextRoadId = 0
         for sl in range(self.nIntersections):
             maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5])
-            intersection = self.builder.createWithRandomLaneConfigurations("", 
-                                sl, 
-                                firstRoadId=self.nextRoadId,
-                                maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
-                                maxLanePerSide=maxLanePerSide, 
-                                minLanePerSide=minLanePerSide, 
-                                internalConnections=True, 
-                                cp1=pyodrx.ContactPoint.end,
-                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
-                                getAsOdr=False)
+            intersection = self.createValidIntersection(id, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
+            
             self.nextRoadId = intersection.getLastRoadId() + 100
             directionIntersection = self.intersectionAdapter.intersectionTo4DirectionIntersection(intersection)
             self.intersections[directionIntersection] = intersection
 
     
+    def createValidIntersection(self, id, firstRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide):
+        intersection = self.builder.createWithRandomLaneConfigurations("", 
+                            id, 
+                            firstRoadId=firstRoadId,
+                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                            maxLanePerSide=maxLanePerSide, 
+                            minLanePerSide=minLanePerSide, 
+                            internalConnections=True, 
+                            cp1=pyodrx.ContactPoint.end,
+                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                            getAsOdr=False)
+
+        while (self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength) == False):
+            intersection = self.createValidIntersection(id, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
+
+        return intersection
+
+
     def connectIntersectionsByCellAdjacency(self):
         
         self.network = Network(self.placedIntersections)

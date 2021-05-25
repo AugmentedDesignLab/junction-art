@@ -61,7 +61,7 @@ def createOdrByPredecessor(name, roads, junctions):
 
 
 
-def view_road(opendrive,esminipath = 'esmini'):
+def view_road(opendrive,esminipath = 'esmini', returnPlt=False):
     """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
         Parameters
         ----------
@@ -77,9 +77,8 @@ def view_road(opendrive,esminipath = 'esmini'):
     opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
 
     xodrPath =  os.path.join(esminipath,'bin','pythonroad.xodr')
-    viewRoadFromXODRFile(xodrPath, esminipath)
+    return viewRoadFromXODRFile(xodrPath, esminipath, returnPlt=returnPlt)
 
-    pass
 
 def view_road_odrviewer(opendrive,esminipath = 'esmini'):
     """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
@@ -105,7 +104,7 @@ def view_road_odrviewer(opendrive,esminipath = 'esmini'):
     pass
 
 
-def viewRoadFromXODRFile(xodrPath, esminipath = 'esmini'):
+def viewRoadFromXODRFile(xodrPath, esminipath = 'esmini', returnPlt=False):
 
     xodrPath = xodrPath.replace("\\", "/")
 
@@ -117,10 +116,15 @@ def viewRoadFromXODRFile(xodrPath, esminipath = 'esmini'):
 
     os.system(f"{ordPlotPath} {xodrPath}")
     
-    plotRoadFromCSV('track.csv')
+    plt = None
+    if returnPlt:
+        plt = plotRoadFromCSV('track.csv', show=False)
+    else:
+        plotRoadFromCSV('track.csv')
+
     os.remove('track.csv')
 
-    pass
+    return plt
 
 
 

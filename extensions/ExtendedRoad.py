@@ -507,8 +507,21 @@ class ExtendedRoad(pyodrx.Road):
         return self.lanes.getEndPointWidths(self.length())
     
 
-    ### Lane related functions
+    #region Lane related functions
     
+    def getBorderDistanceLeft(self, cp):
+        ls = self.getLaneSectionByCP(cp)
+        lastLaneNo = len(ls.leftlanes)
+        return self.getBorderDistanceOfLane(lastLaneNo, cp)
+
+
+    def getBorderDistanceRight(self, cp):
+        ls = self.getLaneSectionByCP(cp)
+        lastLaneNo = -len(ls.rightlanes)
+        return self.getBorderDistanceOfLane(lastLaneNo, cp)
+
+
+
     def getBorderDistanceOfLane(self, laneNo, cp):
         """returns distance of outer border to the center lane.
 
@@ -601,3 +614,4 @@ class ExtendedRoad(pyodrx.Road):
         return x, y, h
 
 
+    #endregion
