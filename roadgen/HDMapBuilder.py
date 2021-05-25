@@ -85,6 +85,8 @@ class HDMapBuilder:
     
     def createValidIntersection(self, id, firstRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide, rotate=False):
 
+        isEqualAngle = np.random.choice([False, True], p=[0.5, 0.5])
+
         if maxNumberOfRoadsPerJunction < 5:
             intersection = self.builder.createWithRandomLaneConfigurations("", 
                                 id, 
@@ -95,6 +97,7 @@ class HDMapBuilder:
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
                                 internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                equalAngles=isEqualAngle,
                                 getAsOdr=False)
         else:
             intersection = self.moreThan4Builder.createWithRandomLaneConfigurations("", 
@@ -106,6 +109,7 @@ class HDMapBuilder:
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
                                 internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                equalAngles=isEqualAngle,
                                 getAsOdr=False)
 
         while (self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength) == False):

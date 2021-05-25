@@ -4,13 +4,14 @@ import numpy as np
 
 from roadgen.layout.QuadrantSolver import QuadrantSolver
 from roadgen.definitions.EmptySpace import EmptySpace
+from roadgen.layout.Grid import Grid
 import logging
 
 
 
 class MapBuilder:
 
-    def __init__(self, grid, directionIntersections, random_seed=39, debug=True):
+    def __init__(self, grid: Grid, directionIntersections, random_seed=39, debug=True):
         self.grid = grid
         # self.polygons = polygons
         self.directionIntersections = directionIntersections
