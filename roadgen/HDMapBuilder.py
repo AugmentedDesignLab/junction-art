@@ -22,6 +22,7 @@ class HDMapBuilder:
         self.p = p # probability distribution of 3-way, 4, 5, 6
         self.intersections = {} # DirectionIntersection -> intersection
         self.placedIntersections = {}
+        self.rotation = {}
         self.nextIntersectionId = startId
         
         self.seed = seed
@@ -30,8 +31,8 @@ class HDMapBuilder:
                                                     maxAngle=np.pi * .75,
                                                     straightRoadLen=5, 
                                                     probLongConnection=0.3,
-                                                    probMinAngle=0.3,
-                                                    probRestrictedLane=0.2,
+                                                    probMinAngle=0.1,
+                                                    probRestrictedLane=0,
                                                     maxConnectionLength=30,
                                                     minConnectionLength=12,
                                                     random_seed=self.seed)
@@ -55,10 +56,12 @@ class HDMapBuilder:
 
     def createIntersections(self):
 
+        print(f"{self.name}: createIntersections")
         minLanePerSide = 1
         maxLanePerSide = 2
         self.nextRoadId = 0
         for sl in range(self.nIntersections):
+            print(f"{self.name}: creating {sl + 1}")
             maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5])
             intersection = self.createValidIntersection(id, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
             
@@ -67,7 +70,7 @@ class HDMapBuilder:
             self.intersections[directionIntersection] = intersection
 
     
-    def createValidIntersection(self, id, firstRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide):
+    def createValidIntersection(self, id, firstRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide, rotate=False):
         intersection = self.builder.createWithRandomLaneConfigurations("", 
                             id, 
                             firstRoadId=firstRoadId,
@@ -82,6 +85,9 @@ class HDMapBuilder:
         while (self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength) == False):
             intersection = self.createValidIntersection(id, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
 
+        if rotate:
+            self.rotation[intersection] = np.random.uniform(0, np.pi * 2)
+            ODRHelper.transform(intersection.odr, startX=0, startY=0, heading=self.rotation[intersection])
         return intersection
 
 
@@ -137,7 +143,12 @@ class HDMapBuilder:
                 intersection = self.intersections[directionIntersection]
                 if self.debug:
                     logging.info(f"Transforming {intersection.id} to ({x}, {y})")
-                ODRHelper.transform(intersection.odr, startX=x, startY=y)
+
+                rotation = 0
+                if intersection in self.rotation:
+                    rotation = self.rotation[intersection]
+
+                ODRHelper.transform(intersection.odr, startX=x, startY=y, heading=rotation)
                 self.placedIntersections[directionIntersection] = intersection
 
                 odrList.append(intersection.odr)

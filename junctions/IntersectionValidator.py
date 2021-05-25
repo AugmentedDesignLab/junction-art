@@ -44,6 +44,7 @@ class IntersectionValidator:
             distance = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
             if distance < minConnectionLength:
+                print("invalid distance")
                 return False
 
         return True
@@ -59,9 +60,10 @@ class IntersectionValidator:
         firstRoad = intersection.incidentRoads[0]
         x, y, h = firstRoad.getPosition(intersection.incidentCPs[0])
 
-        h = math.ceil((h + np.pi * 2) % np.pi)
-        if h != 3 and h != 0:
-            raise Exception(f"{self.name}: validateDirectionAndPositionAgreement: cannot validated rotated intersection h = {h}")
+        h = h % (np.pi * 2)
+        # h = math.ceil((h + np.pi * 2) % np.pi)
+        # if h != 3 and h != 0:
+        #     raise Exception(f"{self.name}: validateDirectionAndPositionAgreement: cannot validated rotated intersection h = {h}")
         
 
         # get the last incident roads position and heading
@@ -79,11 +81,23 @@ class IntersectionValidator:
             borderDistanceLast = lastIncidentRoad.getBorderDistanceLeft(lastIP)
 
         if (lastX - borderDistanceLast) < x:
+            print("invalid X pos")
             return False
 
+
+        borderDistanceFirst = firstRoad.getBorderDistanceRight(intersection.incidentCPs[0])
+        if intersection.incidentCPs[0] == pyodrx.ContactPoint.end:
+            borderDistanceFirst = lastIncidentRoad.getBorderDistanceLeft(intersection.incidentCPs[0])
+
         # validate Y
-        if lastH > np.pi and lastH < ((4/3) * np.pi):
-            return lastY < y
+        minH = h + np.pi
+        maxH = (h + (3/2) * np.pi)
+        if lastH > minH and lastH < maxH:
+            if lastY >= (y - borderDistanceFirst):
+                print("invalid Y pos")
+                return False
+        
+        return True
         
 
 

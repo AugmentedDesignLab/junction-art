@@ -188,7 +188,13 @@ class SequentialJunctionBuilder(JunctionBuilder):
         if self.minAngle >= availableAngle:
             return availableAngle
 
-        angle = np.random.uniform(self.minAngle, availableAngle)
+        maxAngle = (maxAnglePerConnection + availableAngle) / 2
+        if maxAngle > availableAngle:
+            maxAngle = availableAngle
+
+        angle = np.random.uniform(self.minAngle, maxAnglePerConnection * 1.3)
+        # angle = np.random.uniform(self.minAngle, maxAngle)
+        # angle = np.random.uniform(self.minAngle, availableAngle)
         # angle = (availableAngle * np.random.choice(10)) / 9
 
         
