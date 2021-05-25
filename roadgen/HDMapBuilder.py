@@ -36,6 +36,19 @@ class HDMapBuilder:
                                                     maxConnectionLength=30,
                                                     minConnectionLength=12,
                                                     random_seed=self.seed)
+
+        self.moreThan4Builder = SequentialJunctionBuilder(
+                                                    minAngle=np.pi/10, 
+                                                    maxAngle=np.pi * .75,
+                                                    straightRoadLen=5, 
+                                                    probLongConnection=0.5,
+                                                    probMinAngle=0.5,
+                                                    probRestrictedLane=0,
+                                                    maxConnectionLength=50,
+                                                    minConnectionLength=20,
+                                                    random_seed=self.seed)
+
+
         self.validator = IntersectionValidator()
         self.intersectionAdapter = IntersectionAdapter()
         
@@ -63,7 +76,7 @@ class HDMapBuilder:
         for sl in range(self.nIntersections):
             print(f"{self.name}: creating {sl + 1}")
             maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5])
-            intersection = self.createValidIntersection(id, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
+            intersection = self.createValidIntersection(sl, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
             
             self.nextRoadId = intersection.getLastRoadId() + 100
             directionIntersection = self.intersectionAdapter.intersectionTo4DirectionIntersection(intersection)
@@ -71,16 +84,29 @@ class HDMapBuilder:
 
     
     def createValidIntersection(self, id, firstRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide, rotate=False):
-        intersection = self.builder.createWithRandomLaneConfigurations("", 
-                            id, 
-                            firstRoadId=firstRoadId,
-                            maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
-                            maxLanePerSide=maxLanePerSide, 
-                            minLanePerSide=minLanePerSide, 
-                            internalConnections=True, 
-                            cp1=pyodrx.ContactPoint.end,
-                            internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
-                            getAsOdr=False)
+
+        if maxNumberOfRoadsPerJunction < 5:
+            intersection = self.builder.createWithRandomLaneConfigurations("", 
+                                id, 
+                                firstRoadId=firstRoadId,
+                                maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                                maxLanePerSide=maxLanePerSide, 
+                                minLanePerSide=minLanePerSide, 
+                                internalConnections=True, 
+                                cp1=pyodrx.ContactPoint.end,
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
+        else:
+            intersection = self.moreThan4Builder.createWithRandomLaneConfigurations("", 
+                                id, 
+                                firstRoadId=firstRoadId,
+                                maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                                maxLanePerSide=maxLanePerSide, 
+                                minLanePerSide=minLanePerSide, 
+                                internalConnections=True, 
+                                cp1=pyodrx.ContactPoint.end,
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
 
         while (self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength) == False):
             intersection = self.createValidIntersection(id, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
