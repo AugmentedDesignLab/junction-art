@@ -1,5 +1,6 @@
 from roadgen.layout.Cell import Cell
 from roadgen.definitions.EmptySpace import EmptySpace
+from roadgen.layout.PerlinNoise import PerlinNoiseFactory
 from roadgen.layout.BoundaryException import BoundaryException
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
@@ -16,8 +17,11 @@ class Grid:
         self.cellYScale = self.size[0] / self.nRows
         self.cells = []
         self.entropyDicEmptyCells = {}
+        self.cellNoises = {}
+        self.noiseFactory = PerlinNoiseFactory(2)
         self.createCells()
         self.cellPlacementOrder = []
+
         
     
 
@@ -28,8 +32,12 @@ class Grid:
             for j in range(self.nCols):
                 cell = Cell(self.cellSize, cell_position=(i, j))
                 self.cells[i].append(cell)
+                # self.cellNoises[cell] = self.noiseFactory(i/self.nRows, j/self.nCols)
+                self.cellNoises[cell] = abs(self.noiseFactory(i/self.nRows, j/self.nCols)) *  cell.size[0]
         
         self.updateAllEntropy()
+
+        print(self.cellNoises)
         pass
 
     def cellGenerator(self):

@@ -29,7 +29,7 @@ class HDMapBuilder:
         self.builder = SequentialJunctionBuilder(
                                                     minAngle=np.pi/6, 
                                                     maxAngle=np.pi * .75,
-                                                    straightRoadLen=5, 
+                                                    straightRoadLen=1, 
                                                     probLongConnection=0.3,
                                                     probMinAngle=0.1,
                                                     probRestrictedLane=0,
@@ -40,7 +40,7 @@ class HDMapBuilder:
         self.moreThan4Builder = SequentialJunctionBuilder(
                                                     minAngle=np.pi/10, 
                                                     maxAngle=np.pi * .75,
-                                                    straightRoadLen=5, 
+                                                    straightRoadLen=1, 
                                                     probLongConnection=0.5,
                                                     probMinAngle=0.5,
                                                     probRestrictedLane=0,
@@ -75,7 +75,7 @@ class HDMapBuilder:
         self.nextRoadId = 0
         for sl in range(self.nIntersections):
             print(f"{self.name}: creating {sl + 1}")
-            maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5])
+            maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5], p=[0.2, 0.775, 0.025])
             intersection = self.createValidIntersection(sl, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
             
             self.nextRoadId = intersection.getLastRoadId() + 100
@@ -85,7 +85,7 @@ class HDMapBuilder:
     
     def createValidIntersection(self, id, firstRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide, rotate=False):
 
-        isEqualAngle = np.random.choice([False, True], p=[0.5, 0.5])
+        isEqualAngle = np.random.choice([False, True], p=[0.3, 0.7])
 
         if maxNumberOfRoadsPerJunction < 5:
             intersection = self.builder.createWithRandomLaneConfigurations("", 
@@ -116,7 +116,7 @@ class HDMapBuilder:
             intersection = self.createValidIntersection(id, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
 
         if rotate:
-            self.rotation[intersection] = np.random.uniform(0, np.pi * 2)
+            self.rotation[intersection] = np.random.uniform(0, np.pi/10)
             ODRHelper.transform(intersection.odr, startX=0, startY=0, heading=self.rotation[intersection])
         return intersection
 
@@ -170,6 +170,15 @@ class HDMapBuilder:
             if isinstance(cell.element, DirectionIntersection):
                 directionIntersection = cell.element
                 x, y = self.grid.getAbsCellPosition(cell)
+                introduceNoise = np.random.choice([False, True], p=[0.1, 0.9])
+                if introduceNoise:
+                    # x = np.random.uniform(x, x + (cell.size[0] / 2))
+                    # y = np.random.uniform(y, y + (cell.size[1] / 2))
+                    # x = x + self.grid.cellNoises[cell] * cell.size[0]
+                    # y = y + self.grid.cellNoises[cell] * cell.size[1]
+                    x = x + self.grid.cellNoises[cell]
+                    y = y + self.grid.cellNoises[cell]
+
                 intersection = self.intersections[directionIntersection]
                 if self.debug:
                     logging.info(f"Transforming {intersection.id} to ({x}, {y})")
