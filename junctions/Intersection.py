@@ -1,5 +1,6 @@
 import pyodrx
 import numpy as np
+from junctions.ODRHelper import ODRHelper
 
 class Intersection:
 
@@ -13,6 +14,10 @@ class Intersection:
         self.incidentPoints = self.getIncidentPoints()
         self.connectedIncidentPoints = [] # list of indices
         
+
+    def transform(self, startX, startY, heading):
+        ODRHelper.transform(self.odr, startX=startX, startY=startY, heading=heading)
+        self.incidentPoints = self.getIncidentPoints()
 
     
     def setOdr(self, odr):

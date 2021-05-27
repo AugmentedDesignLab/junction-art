@@ -1,14 +1,17 @@
 from junctions.Intersection import Intersection
 import pyodrx
 import numpy as np
-import math
+import math, os
 import logging
+import extensions
+from library.Configuration import Configuration
 
 class IntersectionValidator:
 
     def __init__(self, debug=True) -> None:
         self.name = "IntersectionValidator"
         self.debug = debug
+        self.configuration = Configuration()
         pass
 
     
@@ -22,10 +25,16 @@ class IntersectionValidator:
             valid = self.validateMinDistanceBetweenIncidentPoints(intersection, minDistance)
         
         if valid == False:
+            # extensions.view_road(intersection.odr, os.path.join('..',self.configuration.get("esminipath")))
+            # exit()
             return False
         
         if self.validateDirectionAndPositionAgreement(intersection) == False:
+            # extensions.view_road(intersection.odr, os.path.join('..',self.configuration.get("esminipath")))
+            # exit()
             return False
+        
+
         
         return True
 
@@ -41,10 +50,10 @@ class IntersectionValidator:
             x1, y1, h1 = road1.getPosition(cp1)
             x2, y2, h2 = road2.getPosition(cp2)
 
-            distance = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+            distance = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) * 1.2 # 1.2 offset for param poly.
 
             if distance < minConnectionLength:
-                print("invalid distance")
+                print(f"invalid distance {distance} < {minConnectionLength}")
                 return False
 
         return True

@@ -37,7 +37,7 @@ class Grid:
         
         self.updateAllEntropy()
 
-        print(self.cellNoises)
+        # print(self.cellNoises)
         pass
 
     def cellGenerator(self):

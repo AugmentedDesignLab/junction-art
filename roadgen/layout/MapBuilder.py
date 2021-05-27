@@ -50,7 +50,7 @@ class MapBuilder:
                 logging.info(f"{self.name}: chosen cell {cell.cell_position}")
 
             # 2 get possible candidates for this cell
-            validCandidates = self.qSolver.solve(self.grid, cell, self.candidates)
+            validCandidates, scores = self.qSolver.solve(self.grid, cell, self.candidates)
 
             if self.debug:
                 logging.info(f"{self.name}: number of valid candidates{len(validCandidates)}")
@@ -60,7 +60,9 @@ class MapBuilder:
             if len(validCandidates) == 0:
                 self.grid.setCellElement(cell, EmptySpace())
             else:
-                chosenIntersection = np.random.choice(validCandidates)
+                # chosenIntersection = np.random.choice(validCandidates)
+                maxIndex = np.argmax(scores)
+                chosenIntersection = validCandidates[maxIndex]
                 if self.debug:
                     logging.info(f"{self.name}: chosen intersection {chosenIntersection}")
 
