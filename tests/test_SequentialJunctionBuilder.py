@@ -4,6 +4,7 @@ import extensions, os
 import numpy as np
 from library.Configuration import Configuration
 from junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctions.IntersectionValidator import IntersectionValidator
 import pyodrx
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -17,17 +18,18 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         lastId = 0
         self.seed = 2
         self.builder = SequentialJunctionBuilder(
-                                                    minAngle=np.pi/4, 
+                                                    minAngle=np.pi/10, 
                                                     maxAngle=np.pi * .75,
                                                     straightRoadLen=5, 
                                                     probLongConnection=0.5,
                                                     probMinAngle=0.5,
                                                     probRestrictedLane=0.2,
-                                                    maxConnectionLength=30,
-                                                    minConnectionLength=12,
+                                                    maxConnectionLength=50,
+                                                    minConnectionLength=20,
                                                     random_seed=self.seed)
         
         self.randomState =self.configuration.get("random_state")
+        self.validator = IntersectionValidator()
 
         pass
 
@@ -342,20 +344,30 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         
         for sl in range(5):
             path = self.configuration.get("harvested_straight_roads")
-            odr = self.builder.createWithRandomLaneConfigurations(path, 
+            intersection = self.builder.createWithRandomLaneConfigurations(path, 
                                 sl, 
                                 maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
                                 maxLanePerSide=maxLanePerSide, 
                                 minLanePerSide=minLanePerSide, 
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
-                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
 
+
+            odr = intersection.odr
             # xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
             xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
             odr.write_xml(xmlPath)
-            
-            extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+            isValid = self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength)
+            # if isValid == False:
+            #     print(f"{sl} is an invalid intersection")
+            plt = extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")), returnPlt=True)
+            if isValid == False:
+                plt.title("Invalid")
+            else:
+                plt.title("Valid")
+            plt.show()
             extensions.saveRoadImageFromFile(xmlPath, self.configuration.get("esminipath"))
 
 
@@ -367,20 +379,30 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         
         for sl in range(5):
             path = self.configuration.get("harvested_straight_roads")
-            odr = self.builder.createWithRandomLaneConfigurations(path, 
-                                0, 
+            intersection = self.builder.createWithRandomLaneConfigurations(path, 
+                                sl, 
                                 maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
                                 maxLanePerSide=maxLanePerSide, 
                                 minLanePerSide=minLanePerSide, 
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
-                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
 
+
+            odr = intersection.odr
             # xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
             xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
             odr.write_xml(xmlPath)
-            
-            # extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+            isValid = self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength)
+            # if isValid == False:
+            #     print(f"{sl} is an invalid intersection")
+            plt = extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")), returnPlt=True)
+            if isValid == False:
+                plt.title("Invalid")
+            else:
+                plt.title("Valid")
+            plt.show()
             extensions.saveRoadImageFromFile(xmlPath, self.configuration.get("esminipath"))
 
     def test_6WayJunctions(self):
@@ -391,20 +413,31 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         
         for sl in range(5):
             path = self.configuration.get("harvested_straight_roads")
-            odr = self.builder.createWithRandomLaneConfigurations(path, 
-                                0, 
+            intersection = self.builder.createWithRandomLaneConfigurations(path, 
+                                sl, 
                                 maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
                                 maxLanePerSide=maxLanePerSide, 
                                 minLanePerSide=minLanePerSide, 
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
-                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
 
+
+            odr = intersection.odr
             # xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
             xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
             odr.write_xml(xmlPath)
-            
-            # extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+            extensions.printRoadPositions(odr)
+            isValid = self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength)
+            # if isValid == False:
+            #     print(f"{sl} is an invalid intersection")
+            plt = extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")), returnPlt=True)
+            if isValid == False:
+                plt.title(f"Invalid - {xmlPath}")
+            else:
+                plt.title(f"Valid - {xmlPath}")
+            plt.show()
             extensions.saveRoadImageFromFile(xmlPath, self.configuration.get("esminipath"))
 
 
@@ -414,22 +447,33 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         maxLanePerSide = 2
         minLanePerSide = 0
         
-        for sl in range(20):
+        for sl in range(5):
             path = self.configuration.get("harvested_straight_roads")
-            odr = self.builder.createWithRandomLaneConfigurations(path, 
-                                0, 
+            intersection = self.builder.createWithRandomLaneConfigurations(path, 
+                                sl, 
                                 maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
                                 maxLanePerSide=maxLanePerSide, 
                                 minLanePerSide=minLanePerSide, 
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
-                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY)
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
 
+
+            odr = intersection.odr
             # xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
             xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
             odr.write_xml(xmlPath)
-            
-            # extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+            extensions.printRoadPositions(odr)
+            isValid = self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength)
+            # if isValid == False:
+            #     print(f"{sl} is an invalid intersection")
+            plt = extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")), returnPlt=True)
+            if isValid == False:
+                plt.title(f"Invalid - {xmlPath}")
+            else:
+                plt.title(f"Valid - {xmlPath}")
+            plt.show()
             extensions.saveRoadImageFromFile(xmlPath, self.configuration.get("esminipath"))
 
     def test_7WayJunctionsEQA(self):
@@ -438,23 +482,34 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         maxLanePerSide = 2
         minLanePerSide = 0
         
-        for sl in range(20):
+        for sl in range(5):
             path = self.configuration.get("harvested_straight_roads")
-            odr = self.builder.createWithRandomLaneConfigurations(path, 
-                                0, 
+            intersection = self.builder.createWithRandomLaneConfigurations(path, 
+                                sl, 
                                 maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
                                 maxLanePerSide=maxLanePerSide, 
                                 minLanePerSide=minLanePerSide, 
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
                                 internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
-                                equalAngles=True)
+                                equalAngles=True,
+                                getAsOdr=False)
 
+
+            odr = intersection.odr
             # xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
             xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
             odr.write_xml(xmlPath)
-            
-            # extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
+            extensions.printRoadPositions(odr)
+            isValid = self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength)
+            # if isValid == False:
+            #     print(f"{sl} is an invalid intersection")
+            plt = extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")), returnPlt=True)
+            if isValid == False:
+                plt.title(f"Invalid - {xmlPath}")
+            else:
+                plt.title(f"Valid - {xmlPath}")
+            plt.show()
             extensions.saveRoadImageFromFile(xmlPath, self.configuration.get("esminipath"))
 
             

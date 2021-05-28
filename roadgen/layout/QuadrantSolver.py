@@ -27,11 +27,17 @@ class QuadrantSolver:
         neighborRight = self.getNeighbourQuadrantOnRight(grid, cell)
 
         reducedCandidates = []
+        scores = []
+        # for candidate in candidates:
+        #     if self.isCompatibleWithNeighbours(neighborTop, neighborLeft, neighborBot, neighborRight, candidate):
+        #         reducedCandidates.append(candidate)
         for candidate in candidates:
-            if self.isCompatibleWithNeighbours(neighborTop, neighborLeft, neighborBot, neighborRight, candidate):
+            score = self.getCompatibilityScore(neighborTop, neighborLeft, neighborBot, neighborRight, None, None, None, None, candidate)
+            if score > 0:
                 reducedCandidates.append(candidate)
+                scores.append(score)
 
-        return reducedCandidates
+        return reducedCandidates, scores
 
 
 
@@ -48,6 +54,18 @@ class QuadrantSolver:
             and self.isCompatible(neighborRight, candidate.right)
         )
 
+    def getCompatibilityScore(self, neighborTop, neighborLeft, neighborBot, neighborRight, neighborLeftTop, neighborLeftBot, neighborRightTop, neighborRightBot, candidate):
+        
+
+        score = 0
+
+        score = (score + 1) if self.isCompatible(neighborTop, candidate.top) else (score - 0.5)
+        score = (score + 1) if self.isCompatible(neighborLeft, candidate.left) else (score - 0.5)
+        score = (score + 1) if self.isCompatible(neighborBot, candidate.bot) else (score - 0.5)
+        score = (score + 1) if self.isCompatible(neighborRight, candidate.right) else (score - 0.5)
+
+
+        return score
 
 
     def isCompatible(self, quad1, quad2):

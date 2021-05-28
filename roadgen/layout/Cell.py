@@ -32,6 +32,7 @@ class Cell:
         return False
 
 
+
     def setElement(self, element):
         """ element is either a road segment or an obstacle. Don't call this method. """
         if self.element is not None:

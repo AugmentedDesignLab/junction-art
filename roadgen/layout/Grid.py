@@ -1,4 +1,6 @@
 from roadgen.layout.Cell import Cell
+from roadgen.definitions.EmptySpace import EmptySpace
+from roadgen.layout.PerlinNoise import PerlinNoiseFactory
 from roadgen.layout.BoundaryException import BoundaryException
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
@@ -15,7 +17,11 @@ class Grid:
         self.cellYScale = self.size[0] / self.nRows
         self.cells = []
         self.entropyDicEmptyCells = {}
+        self.cellNoises = {}
+        self.noiseFactory = PerlinNoiseFactory(2)
         self.createCells()
+        self.cellPlacementOrder = []
+
         
     
 
@@ -26,8 +32,12 @@ class Grid:
             for j in range(self.nCols):
                 cell = Cell(self.cellSize, cell_position=(i, j))
                 self.cells[i].append(cell)
+                # self.cellNoises[cell] = self.noiseFactory(i/self.nRows, j/self.nCols)
+                self.cellNoises[cell] = abs(self.noiseFactory(i/self.nRows, j/self.nCols)) *  cell.size[0]
         
         self.updateAllEntropy()
+
+        # print(self.cellNoises)
         pass
 
     def cellGenerator(self):
@@ -82,61 +92,62 @@ class Grid:
 
         self.entropyDicEmptyCells = dict(sorted((self.entropyDicEmptyCells.items())))
 
-    def updateEntropyFor(self, cell):
+    def updateEntropyFor(self, cell: Cell):
         (i, j) = cell.cell_position
         cell = self.cells[i][j]
         entropy = 0
         try:
-            if self.emptyLeft(cell):
+            if self.emptyLeft(cell) or self.hasEmptySpaceOnLeft(cell):
+                entropy += 1
+            
+        except BoundaryException:
+            entropy += 1
+            pass
+
+        try:
+            if self.emptyRight(cell) or self.hasEmptySpaceOnRight(cell):
                 entropy += 1
         except BoundaryException:
             entropy += 1
             pass
 
         try:
-            if self.emptyRight(cell):
+            if self.emptyTop(cell) or self.hasEmptySpaceOnTop(cell):
                 entropy += 1
         except BoundaryException:
             entropy += 1
             pass
 
         try:
-            if self.emptyTop(cell):
+            if self.emptyBot(cell) or self.hasEmptySpaceOnBot(cell):
                 entropy += 1
         except BoundaryException:
             entropy += 1
             pass
 
         try:
-            if self.emptyBot(cell):
+            if self.emptyLeftTop(cell) or self.hasEmptySpaceOnLeftTop(cell):
                 entropy += 1
         except BoundaryException:
             entropy += 1
             pass
 
         try:
-            if self.emptyLeftTop(cell):
+            if self.emptyLeftBot(cell) or self.hasEmptySpaceOnLeftBot(cell):
                 entropy += 1
         except BoundaryException:
             entropy += 1
             pass
 
         try:
-            if self.emptyLeftBot(cell):
+            if self.emptyRightTop(cell) or self.hasEmptySpaceOnRightTop(cell):
                 entropy += 1
         except BoundaryException:
             entropy += 1
             pass
 
         try:
-            if self.emptyRightTop(cell):
-                entropy += 1
-        except BoundaryException:
-            entropy += 1
-            pass
-
-        try:
-            if self.emptyRightBot(cell):
+            if self.emptyRightBot(cell) or self.hasEmptySpaceOnRightBot(cell):
                 entropy += 1
         except BoundaryException:
             entropy += 1
@@ -243,12 +254,54 @@ class Grid:
         (i, j) = cell.cell_position
         return self.isEmpty(i-1, j+1)
 
+    
+    def hasEmptySpaceOnLeft(self, cell):
+        if isinstance(self.leftElement(cell), EmptySpace):
+            return True
+        return False
+    
+    def hasEmptySpaceOnRight(self, cell):
+        if isinstance(self.rightElement(cell), EmptySpace):
+            return True
+        return False
+    
+    def hasEmptySpaceOnTop(self, cell):
+        if isinstance(self.topElement(cell), EmptySpace):
+            return True
+        return False
+    
+    def hasEmptySpaceOnBot(self, cell):
+        if isinstance(self.botElement(cell), EmptySpace):
+            return True
+        return False
+
+    def hasEmptySpaceOnLeftTop(self, cell):
+        if isinstance(self.leftTopElement(cell), EmptySpace):
+            return True
+        return False
+    
+    def hasEmptySpaceOnLeftBot(self, cell):
+        if isinstance(self.leftBotElement(cell), EmptySpace):
+            return True
+        return False
+    
+    def hasEmptySpaceOnRightTop(self, cell):
+        if isinstance(self.rightTopElement(cell), EmptySpace):
+            return True
+        return False
+
+    def hasEmptySpaceOnRightBot(self, cell):
+        if isinstance(self.rightBotElement(cell), EmptySpace):
+            return True
+        return False
+
     #endregion #### END relative cell stats ###########
 
     #region elements
 
     
     def setCellElement(self, cell, element):
+        self.cellPlacementOrder.append(cell)
         cell.setElement(element)
         self.updateAllEntropy() # TODO write a better algo. Do not need to update the whole grid.
 
@@ -281,6 +334,42 @@ class Grid:
         (i, j) = cell.cell_position
         return self.cells[i-1][j]
 
+    def leftTop(self, cell):
+        if self.isLeftBoundary(cell):
+            raise BoundaryException("Left")
+        if self.isTopBoundary(cell):
+            raise BoundaryException("Top")
+
+        (i, j) = cell.cell_position
+        return self.cells[i+1][j-1]
+
+    def leftBot(self, cell):
+        if self.isLeftBoundary(cell):
+            raise BoundaryException("Left")
+        if self.isBotBoundary(cell):
+            raise BoundaryException("Bot")
+
+        (i, j) = cell.cell_position
+        return self.cells[i-1][j-1]
+
+    def rightTop(self, cell):
+        if self.isRightBoundary(cell):
+            raise BoundaryException("Right")
+        if self.isTopBoundary(cell):
+            raise BoundaryException("Top")
+
+        (i, j) = cell.cell_position
+        return self.cells[i+1][j+1]
+
+    def rightBot(self, cell):
+        if self.isRightBoundary(cell):
+            raise BoundaryException("Right")
+        if self.isBotBoundary(cell):
+            raise BoundaryException("Bot")
+
+        (i, j) = cell.cell_position
+        return self.cells[i-1][j+1]
+
 
     def leftElement(self, cell):
         try:
@@ -309,7 +398,37 @@ class Grid:
             return neighbourCell.element
         except BoundaryException:
             return None
+
+    def leftTopElement(self, cell):
+        try:
+            neighbourCell = self.leftTop(cell)
+            return neighbourCell.element
+        except BoundaryException:
+            return None
+
+    def leftBotElement(self, cell):
+        try:
+            neighbourCell = self.leftBot(cell)
+            return neighbourCell.element
+        except BoundaryException:
+            return None
     
+    def rightTopElement(self, cell):
+        try:
+            neighbourCell = self.rightTop(cell)
+            return neighbourCell.element
+        except BoundaryException:
+            return None
+
+    
+    def rightBotElement(self, cell):
+        try:
+            neighbourCell = self.rightBot(cell)
+            return neighbourCell.element
+        except BoundaryException:
+            return None
+
+
     #endregion
 
     #region prints
@@ -336,6 +455,7 @@ class Grid:
         cellIdArgs = dict(ha='left', va='bottom', fontsize=7, color='C1')
         for cell in self.cellGenerator():
             (x, y) = self.getAbsCellPosition(cell)
+            placementOrder = self.cellPlacementOrder.index(cell)
             # plt.text(x, y, f"{cell.cell_position}", cellIdArgs)
 
             contentX = x + 3
@@ -347,7 +467,7 @@ class Grid:
                 clip_on=True,
                 clip_box=clipBox, 
                 wrap=True)
-            plt.text(contentX, contentY, f"{cell.cell_position}\n{cell.element}", **cellContentArgs)
+            plt.text(contentX, contentY, f"{cell.cell_position}: order: {placementOrder}\n{cell.element}", **cellContentArgs)
 
         ax.set_title("Cell placements")
         ax.set_xlabel("x in meters")

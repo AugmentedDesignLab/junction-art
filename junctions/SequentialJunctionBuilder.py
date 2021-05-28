@@ -161,7 +161,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
                 currentLength = np.random.uniform(currentLength, self.maxConnectionLength)
                 curvature = AngleCurvatureMap.getCurvatureForAngleBetweenRoadAndLength(angleBetweenEndpoints, currentLength, curveType)
                 logging.info(f"{self.name}: extending curve length")
-
+        # print(f"curve length: {currentLength}") 
         if currentLength < self.minConnectionLength:
             # raise Exception(f"{self.name}: createGeoConnectionCurve current length {currentLength} is less than min length {self.minConnectionLength}")
             currentLength = self.minConnectionLength
@@ -178,6 +178,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
     def getSomeAngle(self, availableAngle, maxAnglePerConnection):
 
+        # print(f"minAngle: {math.degrees(self.minAngle)}, available Angle: {math.degrees(availableAngle)}")
+
         if availableAngle <= 0:
             raise Exception(f"{self.name}: getSomeAngle: no available angle")
 
@@ -188,7 +190,13 @@ class SequentialJunctionBuilder(JunctionBuilder):
         if self.minAngle >= availableAngle:
             return availableAngle
 
+        # maxAngle = (maxAnglePerConnection + availableAngle) / 2
+        # if maxAngle > availableAngle:
+        #     maxAngle = availableAngle
+
         angle = np.random.uniform(self.minAngle, availableAngle)
+        # angle = np.random.uniform(self.minAngle, maxAngle)
+        # angle = np.random.uniform(self.minAngle, availableAngle)
         # angle = (availableAngle * np.random.choice(10)) / 9
 
         
@@ -299,6 +307,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
         nextRoadId = firstRoadId + 1
         otherContactPoints = pyodrx.ContactPoint.start
+        nIncidentAdded = 1
         while (action != "end"):
 
             logging.debug(f"{self.name}: availableAngle {math.degrees(availableAngle)}, number of roads: {len(roads) / 2}")
@@ -333,8 +342,14 @@ class SequentialJunctionBuilder(JunctionBuilder):
             if len(prevLanes) == 0 or len(nextLanes) == 0:
                 maxLaneWidth = ((len(prevLanes) + len(nextLanes)) * self.laneWidth) / 2
 
+            availableAngle -= (maxNumberOfRoadsPerJunction - nIncidentAdded - 1) * self.minAngle
+            # print(f"Before connection road: minAngle: remaining roads:{maxNumberOfRoadsPerJunction - nIncidentAdded - 1}, {math.degrees(self.minAngle)}, available Angle: {math.degrees(availableAngle)}")
+
             newConnection, availableAngle = self.createGeoConnectionRoad(action, newConnectionId, availableAngle, maxAnglePerConnection, maxLaneWidth=maxLaneWidth, equalAngles=equalAngles)
             geoConnectionRoads.append(newConnection)
+
+            availableAngle += (maxNumberOfRoadsPerJunction - nIncidentAdded - 1) * self.minAngle
+            # print(f"after connection road: minAngle: {math.degrees(self.minAngle)}, available Angle: {math.degrees(availableAngle)}")
             
             # 5 add new roads
             roads.append(newConnection)
@@ -347,6 +362,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
             # 6 get next action
             action = self.actionAfterDrawingOne(roads, availableAngle, maxNumberOfRoadsPerJunction)
+            nIncidentAdded += 1
             pass
         
         # 3.0 fix outgoing lane numbers

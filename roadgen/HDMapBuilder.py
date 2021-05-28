@@ -4,6 +4,7 @@ from roadgen.layout.MapBuilder import MapBuilder
 from roadgen.layout.Grid import Grid
 from roadgen.layout.IntersectionAdapter import IntersectionAdapter
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+from junctions.IntersectionValidator import IntersectionValidator
 from library.Configuration import Configuration
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.ODRHelper import ODRHelper
@@ -21,19 +22,34 @@ class HDMapBuilder:
         self.p = p # probability distribution of 3-way, 4, 5, 6
         self.intersections = {} # DirectionIntersection -> intersection
         self.placedIntersections = {}
+        self.rotation = {}
         self.nextIntersectionId = startId
         
         self.seed = seed
         self.builder = SequentialJunctionBuilder(
                                                     minAngle=np.pi/6, 
                                                     maxAngle=np.pi * .75,
-                                                    straightRoadLen=5, 
+                                                    straightRoadLen=1, 
                                                     probLongConnection=0.3,
-                                                    probMinAngle=0.3,
-                                                    probRestrictedLane=0.2,
+                                                    probMinAngle=0.1,
+                                                    probRestrictedLane=0,
                                                     maxConnectionLength=30,
                                                     minConnectionLength=12,
                                                     random_seed=self.seed)
+
+        self.moreThan4Builder = SequentialJunctionBuilder(
+                                                    minAngle=np.pi/10, 
+                                                    maxAngle=np.pi * .75,
+                                                    straightRoadLen=1, 
+                                                    probLongConnection=0.5,
+                                                    probMinAngle=0.5,
+                                                    probRestrictedLane=0,
+                                                    maxConnectionLength=50,
+                                                    minConnectionLength=20,
+                                                    random_seed=self.seed)
+
+
+        self.validator = IntersectionValidator()
         self.intersectionAdapter = IntersectionAdapter()
         
         self.grid = Grid(size=mapSize, cellSize=cellSize)
@@ -53,26 +69,62 @@ class HDMapBuilder:
 
     def createIntersections(self):
 
+        print(f"{self.name}: createIntersections")
         minLanePerSide = 1
         maxLanePerSide = 2
         self.nextRoadId = 0
         for sl in range(self.nIntersections):
-            maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5])
+            print(f"{self.name}: creating {sl + 1}")
+            maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5], p=[0.6, 0.375, 0.025])
+            intersection = self.createValidIntersection(sl, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
+            
+            self.nextRoadId = intersection.getLastRoadId() + 100
+            directionIntersection = self.intersectionAdapter.intersectionTo4DirectionIntersection(intersection)
+            self.intersections[directionIntersection] = intersection
+
+    
+    def createValidIntersection(self, id, firstRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide, rotate=False):
+
+        isEqualAngle = np.random.choice([False, True], p=[0.3, 0.7])
+        minConnectionLength = self.builder.minConnectionLength
+
+        if maxNumberOfRoadsPerJunction < 5:
             intersection = self.builder.createWithRandomLaneConfigurations("", 
-                                sl, 
-                                firstRoadId=self.nextRoadId,
+                                id, 
+                                firstRoadId=firstRoadId,
                                 maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
                                 maxLanePerSide=maxLanePerSide, 
                                 minLanePerSide=minLanePerSide, 
                                 internalConnections=True, 
                                 cp1=pyodrx.ContactPoint.end,
                                 internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                equalAngles=isEqualAngle,
                                 getAsOdr=False)
-            self.nextRoadId = intersection.getLastRoadId() + 100
-            directionIntersection = self.intersectionAdapter.intersectionTo4DirectionIntersection(intersection)
-            self.intersections[directionIntersection] = intersection
+        else:
+            minConnectionLength = self.moreThan4Builder.minConnectionLength
+            intersection = self.moreThan4Builder.createWithRandomLaneConfigurations("", 
+                                id, 
+                                firstRoadId=firstRoadId,
+                                maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                                maxLanePerSide=maxLanePerSide, 
+                                minLanePerSide=minLanePerSide, 
+                                internalConnections=True, 
+                                cp1=pyodrx.ContactPoint.end,
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                equalAngles=isEqualAngle,
+                                getAsOdr=False)
 
-    
+        while (self.validator.validateIncidentPoints(intersection, minConnectionLength) == False):
+            intersection = self.createValidIntersection(id, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
+
+        if rotate:
+            # self.rotation[intersection] = np.random.uniform(0, np.pi/10)
+            self.rotation[intersection] = np.random.choice([np.pi/2, np.pi, np.pi * 1.5])
+            intersection.transform(startX=0, startY=0, heading=self.rotation[intersection])
+            
+        return intersection
+
+
     def connectIntersectionsByCellAdjacency(self):
         
         self.network = Network(self.placedIntersections)
@@ -122,10 +174,26 @@ class HDMapBuilder:
             if isinstance(cell.element, DirectionIntersection):
                 directionIntersection = cell.element
                 x, y = self.grid.getAbsCellPosition(cell)
+                # introduceNoise = np.random.choice([False, True], p=[0.1, 0.9])
+                introduceNoise = True
+                if introduceNoise:
+                    # x = np.random.uniform(x, x + (cell.size[0] / 2))
+                    # y = np.random.uniform(y, y + (cell.size[1] / 2))
+                    # x = x + self.grid.cellNoises[cell] * cell.size[0]
+                    # y = y + self.grid.cellNoises[cell] * cell.size[1]
+                    x = x + self.grid.cellNoises[cell]
+                    y = y + self.grid.cellNoises[cell]
+
                 intersection = self.intersections[directionIntersection]
                 if self.debug:
-                    logging.info(f"Transforming {intersection.id} to ({x}, {y})")
-                ODRHelper.transform(intersection.odr, startX=x, startY=y)
+                    logging.info(f"Translating {intersection.id} to ({x}, {y})")
+
+                rotation = 0
+                if intersection in self.rotation:
+                    rotation = self.rotation[intersection]
+
+                intersection.transform(startX=x, startY=y, heading=rotation)
+                # ODRHelper.transform(intersection.odr, startX=x, startY=y, heading=rotation)
                 self.placedIntersections[directionIntersection] = intersection
 
                 odrList.append(intersection.odr)
