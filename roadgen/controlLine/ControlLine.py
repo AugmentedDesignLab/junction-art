@@ -60,7 +60,7 @@ class ControlLine:
         return point in self.controlPoints
 
 
-    def createControlPoints(self, maxNumOfControlPoints, minDistance, maxDistance):
+    def createControlPoints(self, maxNumOfControlPoints, minDistance, maxDistance, p=[0.8, 0.1, 0.1]):
         """improve later
 
         Args:
@@ -69,10 +69,14 @@ class ControlLine:
             MaxDistance ([type]): [description]
         """
 
+        x = self.start[0]
+        y = self.start[1]
         for i in range(maxNumOfControlPoints):
-            distance = np.random.uniform(minDistance, maxDistance)
-            x = self.start[0] + distance * i * math.cos(self.theta)
-            y = self.start[1] + distance * i * math.sin(self.theta) * self.slopeSign
+            # distance = np.random.uniform(minDistance, maxDistance)
+            distance = np.random.choice([75, 75, 100], p=p)
+            # distance = 50
+            x = x + distance * math.cos(self.theta)
+            y = y + distance * math.sin(self.theta) * self.slopeSign
 
             if (x > self.end[0] + 0.01): # floating error
                 break

@@ -4,12 +4,13 @@ from roadgen.controlLine.ControlPoint import ControlPoint
 from typing import List, Tuple, Dict
 from enum import Enum, auto
 import matplotlib.pyplot as plt
+import numpy as np
 import logging
 
 class ConnectionStrategy(Enum):
     NO_ORPHANS_BOTH = auto()
     NO_ORPHANS_FIRST = auto()
-    NO_ORPHANS_LAST = auto()
+    NO_ORPHANS_SECOND = auto()
     MIN = auto()
     pass
 
@@ -54,6 +55,111 @@ class ControlLineGrid:
         while nearestDisconnectedPoints is not None:
             self.createConnection(line1, line2, nearestDisconnectedPoints[0], nearestDisconnectedPoints[1])
             nearestDisconnectedPoints = self.nearestDisconnectedPoints(line1, line2)
+
+    
+    def connectControlLinesWithRectsAndTriangles(self, pair: Tuple[ControlLine]):
+        line1 = pair[0]
+        line2 = pair[1]
+
+    
+    def connectControlLinesWithExistingControlPoints(self, pair: Tuple[ControlLine], maxPerPoint=2, ConnectionStrategy=ConnectionStrategy.MIN, connectionDensity=0.9):
+        line1 = pair[0]
+        line2 = pair[1]
+
+        # 1 choose a set of points from each of the lines that must be connected. The points must be ordered.
+        points1 = []
+        points2 = []
+        if (ConnectionStrategy == ConnectionStrategy.NO_ORPHANS_FIRST) or  (ConnectionStrategy == ConnectionStrategy.NO_ORPHANS_BOTH):
+            points1 = self.getPointsWithStrategy(line1, connectionDensity=connectionDensity, noOrphans=True)
+        else:
+            points1 = self.getPointsWithStrategy(line1, connectionDensity=connectionDensity, noOrphans=False)
+            
+        if (ConnectionStrategy == ConnectionStrategy.NO_ORPHANS_SECOND) or  (ConnectionStrategy == ConnectionStrategy.NO_ORPHANS_BOTH):
+            points2 = self.getPointsWithStrategy(line2, connectionDensity=connectionDensity, noOrphans=True)
+        else:
+            points2 = self.getPointsWithStrategy(line2, connectionDensity=connectionDensity, noOrphans=False)
+
+
+        allPoints = points1 + points2
+        connectionCountPerPoint = {}
+        for point in allPoints:
+            connectionCountPerPoint[point] = 0
+        
+
+        # 2 how do we connect this two sets of points.
+        
+        minimalSet = None
+        maximalSet = None
+        minimalLine = None
+        maximalLine = None
+
+        if len(points1) > len(points2):
+            minimalSet = points2
+            maximalSet = points1
+            minimalLine = line2
+            maximalLine = line1
+        else:
+            minimalSet = points1
+            maximalSet = points2
+            minimalLine = line1
+            maximalLine = line2
+        
+        pairs = []
+        for point1 in minimalSet:
+            # nToConnect = np.random.choice(range(maxPerPoint)) + 1
+            nToConnect = np.random.choice([1, 2], p=[0.8, 0.2])
+            # nToConnect = 1
+            for _ in range(nToConnect):
+                if len(maximalSet) > 0:
+                    point2 = maximalSet.pop(0)
+                    pairs.append((point1, point2))
+                    connectionCountPerPoint[point1] += 1
+                    connectionCountPerPoint[point2] += 1
+                # else:
+                #     raise Exception("ran out of options")
+            if nToConnect > 1:
+                maximalSet.insert(0, point2) # push back the last point 
+
+        
+        if len(maximalSet) > 0:
+            # for point2 in maximalSet:
+            #     pairs.append((point1, point2))
+            point2 = maximalSet[-1]
+            pairs.append((point1, point2))
+            connectionCountPerPoint[point1] += 1
+            connectionCountPerPoint[point2] += 1
+        
+
+        # 3 now we have the pair
+        for point1, point2 in pairs:
+            keep = np.random.choice([True, False], p=[0.65, 0.35])
+            # keep = True
+            if keep:
+                print(f"{self.name}: connectRandom: created pair {(point1.position, point2.position)}")
+                self.createConnection(minimalLine, maximalLine, point1, point2)
+
+        print(connectionCountPerPoint)
+
+
+    def getPointsWithStrategy(self, line, connectionDensity=0.8, noOrphans=True):
+        points = []
+        if noOrphans:
+            for point in line.getOrderedControlPoints():
+                if point.isOrphan():
+                    points.append(point)
+                else:
+                    if np.random.choice([False, True], p=[1 - connectionDensity, connectionDensity]):
+                        points.append(point)
+        else:
+            for point in line.getOrderedControlPoints():
+                if np.random.choice([False, True], p=[1 - connectionDensity, connectionDensity]):
+                    points.append(point)
+        
+        if len(points) == 0:
+            points.append(line.getOrderedControlPoints()[0])
+
+        return points
+
     
     def nearestDisconnectedPoints(self, line1: ControlLine, line2:ControlLine):
 

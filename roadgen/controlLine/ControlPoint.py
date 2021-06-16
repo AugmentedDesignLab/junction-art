@@ -33,6 +33,11 @@ class ControlPoint:
     
     def isConnected(self):
         return len(self.adjacentPoints) > 0
+        
+    
+    def isOrphan(self):
+        return len(self.adjacentPoints) == 0
+
     
     def nConnections(self):
         return len(self.adjacentPoints)
