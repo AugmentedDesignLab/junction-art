@@ -75,7 +75,7 @@ class HDMapBuilder:
         self.nextRoadId = 0
         for sl in range(self.nIntersections):
             print(f"{self.name}: creating {sl + 1}")
-            maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5], p=[0.6, 0.375, 0.025])
+            maxNumberOfRoadsPerJunction = np.random.choice([3, 4, 5], p=[0.5, 0.475, 0.025])
             intersection = self.createValidIntersection(sl, self.nextRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide)
             
             self.nextRoadId = intersection.getLastRoadId() + 100
@@ -85,7 +85,7 @@ class HDMapBuilder:
     
     def createValidIntersection(self, id, firstRoadId, maxNumberOfRoadsPerJunction, minLanePerSide, maxLanePerSide, rotate=False):
 
-        isEqualAngle = np.random.choice([False, True], p=[0.3, 0.7])
+        isEqualAngle = np.random.choice([False, True], p=[0.5, 0.5])
         minConnectionLength = self.builder.minConnectionLength
 
         if maxNumberOfRoadsPerJunction < 5:
@@ -181,8 +181,13 @@ class HDMapBuilder:
                     # y = np.random.uniform(y, y + (cell.size[1] / 2))
                     # x = x + self.grid.cellNoises[cell] * cell.size[0]
                     # y = y + self.grid.cellNoises[cell] * cell.size[1]
-                    x = x + self.grid.cellNoises[cell]
-                    y = y + self.grid.cellNoises[cell]
+
+                    xfactor = np.random.uniform(0, 1)
+                    yFactor = np.random.uniform(0, 1)
+                    # xfactor = 1
+                    # yFactor = 1
+                    x = x + self.grid.cellNoises[cell] * xfactor
+                    y = y + self.grid.cellNoises[cell] * yFactor
 
                 intersection = self.intersections[directionIntersection]
                 if self.debug:

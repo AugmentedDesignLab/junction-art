@@ -17,10 +17,13 @@ class Grid:
         self.cellYScale = self.size[0] / self.nRows
         self.cells = []
         self.entropyDicEmptyCells = {}
+        self.minNoise = 0
+        self.maxNoise = cellSize[0]/ 4
         self.cellNoises = {}
         self.noiseFactory = PerlinNoiseFactory(2)
         self.createCells()
         self.cellPlacementOrder = []
+
 
         
     
@@ -32,13 +35,19 @@ class Grid:
             for j in range(self.nCols):
                 cell = Cell(self.cellSize, cell_position=(i, j))
                 self.cells[i].append(cell)
-                # self.cellNoises[cell] = self.noiseFactory(i/self.nRows, j/self.nCols)
-                self.cellNoises[cell] = abs(self.noiseFactory(i/self.nRows, j/self.nCols)) *  cell.size[0]
-        
+                self.computeCellNoise(i, j, cell)
         self.updateAllEntropy()
 
         # print(self.cellNoises)
         pass
+
+
+    def computeCellNoise(self, row, col, cell):
+        # self.cellNoises[cell] = self.noiseFactory(i/self.nRows, j/self.nCols)
+        # self.cellNoises[cell] = self.noiseFactory(i/self.nRows, j/self.nCols) *  cell.size[0] * 5
+        noise = abs(self.noiseFactory(row / self.nRows, col / self.nCols)) *  self.nRows * self.nCols / 10
+        self.cellNoises[cell] = noise
+
 
     def cellGenerator(self):
         for i in range(self.nRows):
