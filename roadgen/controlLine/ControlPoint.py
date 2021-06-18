@@ -23,6 +23,10 @@ class ControlPoint:
         )
 
     
+    def addAdjacents(self, points):
+        for point in points:
+            self.addAdjacent(point)
+
     def addAdjacent(self, anotherPoint):
         if anotherPoint not in self.adjacentPoints:
             self.adjacentPoints.append(anotherPoint)

@@ -9,6 +9,7 @@ Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Develo
 4. scipy, numpy, matplotlib, pytest, unittest
 5. methodtools.
 6. flask and jinja2 (for web-ui)
+7. scikit-spatial
 
 # Configuration
 

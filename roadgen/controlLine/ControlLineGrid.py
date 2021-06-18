@@ -6,6 +6,7 @@ from enum import Enum, auto
 import matplotlib.pyplot as plt
 import numpy as np
 import logging
+import traceback
 
 class ConnectionStrategy(Enum):
     NO_ORPHANS_BOTH = auto()
@@ -58,8 +59,154 @@ class ControlLineGrid:
 
     
     def connectControlLinesWithRectsAndTriangles(self, pair: Tuple[ControlLine]):
+
+        # copy lines without control points
+        # merge lines after done.
+
+
+        
+        if self.debug:
+            logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: Connecting new pairs")
+
+        snapDistance = 20 # in meters
+        minSeperation = 50
+        maxSeparation = 200
+
+        mdp = {
+            'orthogonal': {
+                'parallel': 0.4,
+                'random': 0.4,
+                'commonEnd': 0.2
+            },
+            'parallel': {
+                'orthogonal': 0.3,
+                'parallel': 0.4,
+                'random': 0.2,
+                'commonEnd': 0.1
+            },
+            'random': {
+                'orthogonal': 0.2,
+                'parallel': 0.3,
+                'random': 0.3,
+                'commonEnd': 0.2
+            },
+            'commonEnd': {
+                'orthogonal': 0.3,
+                'parallel': 0.4,
+                'random': 0.2,
+                'commonEnd': 0.1
+            },
+            'none': {
+                'orthogonal': 0.3,
+                'random': 0.7
+            },
+        }
+
         line1 = pair[0]
         line2 = pair[1]
+        line1Copy = ControlLine(id=pair[0].id, start=pair[0].start, end=pair[0].end)
+        line2Copy = ControlLine(id=pair[1].id, start=pair[1].start, end=pair[1].end)
+
+        prevType = 'none'
+        # nextType = np.random.choice(list(mdp[prevType].keys()), p=list(mdp[prevType].values()))
+
+        # if nextType == 'orthogonal':
+        #     projectionOn1 = line1.getProjection(line2.start)
+        #     projectionOn2 = line2.getProjection(line1.start)
+        #     if projectionOn2 is None and projectionOn1 is None:
+        #         raise Exception(f"{self.name}: connectControlLinesWithRectsAndTriangles cannot create the first line as orthogonal")
+            
+        #     if projectionOn1 is None:
+        #         point1 = line1.createControlPoint(line1.start)
+        #         point2 = line2.createControlPoint(projectionOn2)
+        #     else:
+        #         point1 = line1.createControlPoint(projectionOn1)
+        #         point2 = line2.createControlPoint(line2.start)
+        
+        # elif nextType == 'random':
+        #     separation1 = np.random.uniform(minSeperation, maxSeparation)
+        #     separation2 = np.random.uniform(minSeperation, maxSeparation)
+        #     point1 = line1.createNextControlPoint(separation1)
+        #     point2 = line2.createNextControlPoint(separation2)
+
+        nextType = 'random'
+        point1 = line1Copy.createControlPoint(line1.start)
+        point2 = line2Copy.createControlPoint(line2.start)
+        # now we have the first pair (point1, point2)
+
+        self.createConnection(line1, line2, line1.createControlPoint(line1.start), line2.createControlPoint(line2.start))
+
+
+
+        # we are gonna try until we reach the end
+
+        while(True):
+            prevPoint1 = line1Copy.getLastPoint()
+            prevPoint2 = line2Copy.getLastPoint()
+            prevType = nextType
+            try:
+                separation1 = np.random.uniform(minSeperation, maxSeparation)
+                separation2 = np.random.uniform(minSeperation, maxSeparation)
+                candidate1 = line1Copy.createNextControlPoint(separation1)
+
+                nextType = np.random.choice(list(mdp[prevType].keys()), p=list(mdp[prevType].values()))
+                if self.debug:
+                    logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: nextType: {nextType}")
+
+                if nextType == 'orthogonal':
+
+                    projectionOn2 = line2Copy.getProjection(candidate1.position)
+                    if projectionOn2 is None:
+                        line1Copy.deleteControlPoint(candidate1)
+                        # we could not get a projection. just break for now. 
+                        raise Exception(f"Projection out of boundary for candidate 1 at {candidate1.position}")
+                    
+                    if line2Copy.isProjectionInsideControlPoints(projectionOn2):
+                        line1Copy.deleteControlPoint(candidate1)
+                        if self.debug:
+                            logging.info(f"Projection {projectionOn2} is inside existing control points")
+                        continue
+                    
+                    # candidate2 = line2Copy.createNextControlPoint(separation2)
+                    point1 = candidate1
+                    point2 = line2Copy.createControlPoint(projectionOn2)
+                    # line2Copy.deleteControlPoint(candidate2)
+
+                elif nextType == 'parallel':
+                    point1 = candidate1
+                    point2 = line2Copy.createNextControlPoint(separation1)
+                    pass
+                elif nextType == 'random':
+                    point1 = candidate1
+                    point2 = line2Copy.createNextControlPoint(separation2)
+                    pass
+                elif nextType == 'commonEnd':
+
+                    # randomly choose and end
+                    if np.random.choice([True, False], p=[0.5, 0.5]):
+                        point1 = candidate1
+                        point2 = prevPoint2
+                    else:
+                        line1Copy.deleteControlPoint(candidate1)
+                        point1 = prevPoint1
+                        point2 = line2Copy.createNextControlPoint(separation2)
+
+                    pass
+                
+                # we need to snap before creating connection
+                pointOnLine1 = line1.createControlPoint(point1.position)
+                pointOnLine2 = line2.createControlPoint(point2.position)
+
+                pointOnLine1 = line1.mergeWithNearestSiblingIfClose(pointOnLine1, minSeparation=snapDistance)
+                pointOnLine2 = line2.mergeWithNearestSiblingIfClose(pointOnLine2, minSeparation=snapDistance)
+
+                self.createConnection(line1, line2, pointOnLine1, pointOnLine2)
+
+            except Exception as e:
+                if self.debug:
+                    logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: ends due to {e}")
+                    traceback.print_exc()
+                break
 
     
     def connectControlLinesWithExistingControlPoints(self, pair: Tuple[ControlLine], maxPerPoint=2, ConnectionStrategy=ConnectionStrategy.MIN, connectionDensity=0.9):
