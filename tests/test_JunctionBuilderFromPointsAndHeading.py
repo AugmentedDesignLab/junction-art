@@ -1,4 +1,5 @@
 
+import pyodrx
 from extensions.CountryCodes import CountryCodes
 import unittest
 from library.Configuration import Configuration
@@ -65,4 +66,20 @@ class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):
         ]
 
         
+        pass
+
+    def test_createIntersectionFromPointsWithRoadDefinition(self):
+
+        roadDefinition = [
+            {'x': -30, 'y': 30, 'heading': math.radians(135), 'leftLane': 3, 'rightLane': 1, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.start},
+            {'x':   0, 'y': 30, 'heading': math.radians(90),  'leftLane': 1, 'rightLane': 1, 'medianType': 'None'},
+            {'x':   0, 'y':  0, 'heading': math.radians(270), 'leftLane': 1, 'rightLane': 1, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.start},
+            {'x':   -40, 'y': -30, 'heading': math.radians(150),  'leftLane': 5, 'rightLane': 2, 'medianType': 'None'},
+        ]
+
+        odr = self.builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
+                                                                          roadDefinition=roadDefinition,
+                                                                          straightRoadLen=40)
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
         pass

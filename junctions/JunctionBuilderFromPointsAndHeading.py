@@ -1,3 +1,5 @@
+import junctions
+from junctions.LaneSides import LaneSides
 import pyodrx
 import extensions
 from junctions.StraightRoadBuilder import StraightRoadBuilder
@@ -79,10 +81,7 @@ class JunctionBuilderFromPointsAndHeading():
                                   startX=points[0][0],
                                   startY=points[0][1],
                                   heading=points[0][2])
-        # for road in roads:
-        #     print(road.getAdjustedStartPosition())
-        #     print(road.getAdjustedEndPosition())
-        
+
         return odr
 
     def createSuccPredStraightAndParamPloyRoads(self, outSideRoadsShallowCopy, paramPolyRoads, roads):
@@ -152,6 +151,134 @@ class JunctionBuilderFromPointsAndHeading():
         return straightRoadList
         
 
+    def createIntersectionFromPointsWithRoadDefinition(self,
+                                                       odrID,
+                                                       roadDefinition,
+                                                       straightRoadLen=20):
+
+        for road in roadDefinition:
+            print(road)
+        
+        if roadDefinition is None or len(roadDefinition) < 3:
+            raise Exception("Provide definition for more then two roads")
+
+        outsideRoads = []
+        outSideRoadsShallowCopy = []
+        paramPolyRoads = []
+        roads = []
+
+        # create straight road
+        outsideRoads = self.createStraightRoadsFromRoadDefinition(roadDefinition=roadDefinition,
+                                                                  straighRoadLength=straightRoadLen)
+
+        
+        # create parampoly connection road
+        paramPolyRoads = self.createParamPolyConnectionRoads(outsideRoads=outsideRoads)
+
+        for outsideRoad in outsideRoads:
+            outSideRoadsShallowCopy.append(outsideRoad.shallowCopy())
+
+        roads = self.createSuccPredAndAppendRoadsInOrder(outSideRoadsShallowCopy=outSideRoadsShallowCopy,
+                                                         paramPolyRoads=paramPolyRoads)
+
+        self.fixNumOutgoingLanes(outSideRoadsShallowCopy, pyodrx.ContactPoint.start)
+
+        odrName = "odr_from_points" + str(odrID)
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+
+        nextRoadID = len(roads)
+        internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId=nextRoadID,
+                                                                                    outsideRoads=outSideRoadsShallowCopy,
+                                                                                    cp1=pyodrx.ContactPoint.start,
+                                                                                    strategy=LaneConfigurationStrategies.SPLIT_ANY)
+        roads += internalConnections
+        odr.updateRoads(roads)
+        odr.resetAndReadjust(byPredecessor=True)
+        finalTransformedODR = ODRHelper.transform(odr=odr,
+                                                  startX=roadDefinition[0]['x'],
+                                                  startY=roadDefinition[0]['y'],
+                                                  heading=roadDefinition[0]['heading'])
+        # for road in roads:
+        #     print(road.getAdjustedStartPosition())
+        #     print(road.getAdjustedEndPosition())
+
+        return finalTransformedODR
+
+    
+    def createSuccPredAndAppendRoadsInOrder(self, outSideRoadsShallowCopy, paramPolyRoads):
+        numberOfShallowRoads = len(outSideRoadsShallowCopy)
+        orderedRoadsList = []
+        for i in range(0, numberOfShallowRoads):
+            RoadLinker.createExtendedPredSuc(predRoad=outSideRoadsShallowCopy[i], predCp=pyodrx.ContactPoint.start,
+                                              sucRoad=paramPolyRoads[i],           sucCP=pyodrx.ContactPoint.start)
+            if i != numberOfShallowRoads - 1:
+                RoadLinker.createExtendedPredSuc(predRoad=paramPolyRoads[i],           predCp=pyodrx.ContactPoint.end,
+                                                  sucRoad=outSideRoadsShallowCopy[i+1], sucCP=pyodrx.ContactPoint.start)
+            orderedRoadsList.append(outSideRoadsShallowCopy[i])
+            orderedRoadsList.append(paramPolyRoads[i])
+        return orderedRoadsList
+
+    def createParamPolyConnectionRoads(self, outsideRoads):
+        roadID = 1
+        paramPolyRoadList = []
+        numberOfStraightRoad = len(outsideRoads)
+        for i in range(0, numberOfStraightRoad):
+            road1 = outsideRoads[i]
+            if i == numberOfStraightRoad-1:
+                road2 = outsideRoads[0]
+            else:
+                road2 = outsideRoads[i+1]
+            
+            paramPolyRoad = self.junctionBuilder.createConnectionFor2Roads(nextRoadId=roadID,
+                                                                            road1=road1,
+                                                                            road2=road2,
+                                                                            junction=None,
+                                                                            cp1=pyodrx.ContactPoint.start,
+                                                                            cp2=pyodrx.ContactPoint.start)
+            paramPolyRoadList.append(paramPolyRoad)
+            roadID += 2
+        return paramPolyRoadList
+
+
+    def createStraightRoadsFromRoadDefinition(self, roadDefinition, straighRoadLength):
+        roadID = 0
+        straightRoadList = []
+        for road in roadDefinition:
+            if road['medianType'] == 'partial':
+                straightRoad = self.straightRoadBuilder.createWithMedianRestrictedLane(roadId=roadID,
+                                                                                       n_lanes_left=road['leftLane'],
+                                                                                       n_lanes_right=road['rightLane'],
+                                                                                       length=straighRoadLength,
+                                                                                       medianType=road['medianType'],
+                                                                                       medianWidth=3,
+                                                                                       skipEndpoint=road['skipEndpoint'])
+            else:
+                straightRoad = self.straightRoadBuilder.create(roadId=roadID,
+                                                               n_lanes_right=road['rightLane'],
+                                                               n_lanes_left=road['leftLane'],
+                                                               length=straighRoadLength,
+                                                               )
+
+            odrName = "tempODR_StraightRoad" + str(roadID)
+            odrStraightRoad = extensions.createOdrByPredecessor(odrName, [straightRoad], [])
+            newStartX, newStartY, newHeading = road['x'], road['y'], road['heading']
+            odrAfterTransform = ODRHelper.transform(odrStraightRoad, newStartX, newStartY, newHeading)
+            straightRoadList.append(straightRoad)
+            roadID += 2
+
+        return straightRoadList
+                
+
+
+
+
+
+
+
+
+
+
+
 
     def fixNumOutgoingLanes(self, roads, cp1): 
         """Assumes all roads except the first road have start point in the intersection.
@@ -216,7 +343,5 @@ class JunctionBuilderFromPointsAndHeading():
                         self.laneBuilder.addIncomingLanes(roads[0], cp1, 1, self.countryCode, laneWidth=self.laneWidth)
                     else:
                         self.laneBuilder.addIncomingLanes(roadDic[firstIncomingRoadId], pyodrx.ContactPoint.start, 1, self.countryCode, laneWidth=self.laneWidth)
-
-
 
         pass
