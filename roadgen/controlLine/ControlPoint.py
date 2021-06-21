@@ -14,12 +14,19 @@ class ControlPoint:
         self.color = color
         self.position = position
         self.adjacentPoints = []
+        self.intersection = None
 
 
     def __str__(self) -> str:
+
+        adjacentStr = ""
+        for point in self.adjacentPoints:
+            adjacentStr += f"{point.position}, "
+
         return (
             f"\n\tposition: {self.position}"
             f"\n\tcolor: {self.color}"
+            f"\n\tadjacentPoints: {adjacentStr}"
         )
 
     

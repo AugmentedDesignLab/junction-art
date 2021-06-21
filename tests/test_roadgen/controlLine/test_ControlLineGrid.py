@@ -51,11 +51,11 @@ class test_ControlLineGrid(unittest.TestCase):
         
         line1 = ControlLine(1, (0,0), (1000, 0))
 
-        line2 = ControlLine(1, (0,50), (1000, 30))
+        line2 = ControlLine(2, (0,50), (1000, 30))
 
-        line3 = ControlLine(1, (0,100), (1000, 120))
+        line3 = ControlLine(3, (0,100), (1000, 120))
 
-        line4 = ControlLine(1, (0,150), (1000, 220))
+        line4 = ControlLine(4, (0,150), (500, 1000))
 
         pairs = [(line1, line2), (line2, line3), (line3, line4)]
         grid = ControlLineGrid(controlLinePairs=pairs, debug=True)
@@ -71,5 +71,10 @@ class test_ControlLineGrid(unittest.TestCase):
         # print(line1)
         # print(line2)
         # print(line3)
+
+        grid.connectControlPointsOnALine(line1)
+
+        print(line1)
+        print(line2)
 
         grid.plot()

@@ -57,6 +57,15 @@ class ControlLineGrid:
             self.createConnection(line1, line2, nearestDisconnectedPoints[0], nearestDisconnectedPoints[1])
             nearestDisconnectedPoints = self.nearestDisconnectedPoints(line1, line2)
 
+
+    def connectControlPointsOnALine(self, line: ControlLine):
+
+        prevPoint = None
+        for point in line.getOrderedControlPoints():
+            if prevPoint is not None:
+                self.createConnection(line, line, prevPoint, point)
+            prevPoint = point
+            
     
     def connectControlLinesWithRectsAndTriangles(self, pair: Tuple[ControlLine]):
 
@@ -70,7 +79,7 @@ class ControlLineGrid:
 
         snapDistance = 20 # in meters
         minSeperation = 50
-        maxSeparation = 200
+        maxSeparation = 150
 
         mdp = {
             'orthogonal': {
@@ -80,8 +89,8 @@ class ControlLineGrid:
             },
             'parallel': {
                 'orthogonal': 0.3,
-                'parallel': 0.4,
-                'random': 0.2,
+                'parallel': 0.3,
+                'random': 0.3,
                 'commonEnd': 0.1
             },
             'random': {
@@ -134,15 +143,17 @@ class ControlLineGrid:
         point2 = line2Copy.createControlPoint(line2.start)
         # now we have the first pair (point1, point2)
 
-        self.createConnection(line1, line2, line1.createControlPoint(line1.start), line2.createControlPoint(line2.start))
+        pointOnLine1 = line1.createControlPoint(line1.start)
+        pointOnLine2 = line2.createControlPoint(line2.start)
+        pointOnLine1 = line1.mergeWithNearestSiblingIfClose(pointOnLine1, minSeparation=snapDistance)
+        pointOnLine2 = line2.mergeWithNearestSiblingIfClose(pointOnLine2, minSeparation=snapDistance)
+        self.createConnection(line1, line2, pointOnLine1, pointOnLine2)
 
 
 
         # we are gonna try until we reach the end
 
         while(True):
-            prevPoint1 = line1Copy.getLastPoint()
-            prevPoint2 = line2Copy.getLastPoint()
             prevType = nextType
             try:
                 separation1 = np.random.uniform(minSeperation, maxSeparation)
@@ -185,10 +196,10 @@ class ControlLineGrid:
                     # randomly choose and end
                     if np.random.choice([True, False], p=[0.5, 0.5]):
                         point1 = candidate1
-                        point2 = prevPoint2
+                        point2 = line2Copy.getLastPoint()
                     else:
                         line1Copy.deleteControlPoint(candidate1)
-                        point1 = prevPoint1
+                        point1 = line1Copy.getLastPoint()
                         point2 = line2Copy.createNextControlPoint(separation2)
 
                     pass
@@ -199,6 +210,9 @@ class ControlLineGrid:
 
                 pointOnLine1 = line1.mergeWithNearestSiblingIfClose(pointOnLine1, minSeparation=snapDistance)
                 pointOnLine2 = line2.mergeWithNearestSiblingIfClose(pointOnLine2, minSeparation=snapDistance)
+
+                # TODO validate distance from previous connection
+                
 
                 self.createConnection(line1, line2, pointOnLine1, pointOnLine2)
 

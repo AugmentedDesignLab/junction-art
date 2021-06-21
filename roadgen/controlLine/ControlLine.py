@@ -40,6 +40,18 @@ class ControlLine:
         for point in self.controlPoints:
             pointStr += point.__str__()
 
+        
+        pointToLineMapStr = "Point to Line Map:"
+        for point in self.pointToLineMap:
+            lines = self.pointToLineMap[point]
+            lineStr = ""
+            for line in lines:
+                lineStr += f"{line.id},"
+            pointToLineMapStr += f"\n\t Point {id(point)} {point.position}: {lineStr}"
+
+
+
+
         return (
             f"\nid: {self.id}"
             f"\nstart: {self.start}"
@@ -47,6 +59,7 @@ class ControlLine:
             f"\nlength: {self.len}"
             f"\ntheta: {math.degrees(self.theta)}"
             f"\npoints: {pointStr}"
+            f"\npointToLineMapStr: {pointToLineMapStr}"
         )
     
     def getTheta(self):
@@ -155,7 +168,7 @@ class ControlLine:
 
         sortedPoints = self.getOrderedControlPoints()
         if len(sortedPoints) < 2:
-            return None
+            return None, 0
 
         if point == sortedPoints[0]:
             return sortedPoints[1], point.distanceFrom(sortedPoints[1])
