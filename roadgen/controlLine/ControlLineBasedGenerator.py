@@ -1,0 +1,141 @@
+from junctions.Intersection import Intersection
+from roadgen.controlLine.ControlLineGrid import ControlLineGrid
+from roadgen.controlLine.ControlLine import ControlLine
+from roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
+from junctions.LaneSides import LaneSides
+from junctions.RoadBuilder import RoadBuilder
+from extensions.ExtendedRoad import ExtendedRoad
+from junctions.ODRHelper import ODRHelper
+from junctions.RoadLinker import RoadLinker
+from junctions.LaneBuilder import LaneBuilder
+import logging, math, pyodrx
+
+class ControlLineBasedGenerator:
+
+
+    def __init__(self, mapSize, debug=False) -> None:
+        self.name = "ControlLineBasedGenerator"
+        self.mapSize = mapSize
+        self.debug = debug
+        self.lines = None
+        self.pairs = None
+        self.grid = None
+        self.roadBuilder = RoadBuilder()
+        self.laneBuilder = LaneBuilder()
+        self.connectionRoads = []
+        self.controlPointIntersectionMap = {} # controlpoint -> its intersection
+        self.nextRoadId = 0
+        self.odrList = []
+        pass
+
+
+
+    
+    def createGridWithHorizontalControlLines(self, nLines):
+
+        line1 = ControlLine(1, (0,0), (1000, 0))
+
+        line2 = ControlLine(2, (0,50), (1000, 30))
+
+        line3 = ControlLine(3, (0,100), (1000, 120))
+
+        line4 = ControlLine(4, (0,150), (500, 1000))
+        
+        pairs = [(line1, line2), (line2, line3), (line3, line4)]
+        self.pairs = pairs
+        grid = ControlLineGrid(controlLinePairs=pairs, debug=True)
+        grid.connectControlLinesWithRectsAndTriangles(pairs[0])
+        grid.connectControlLinesWithRectsAndTriangles(pairs[1])
+        grid.connectControlLinesWithRectsAndTriangles(pairs[2])
+
+        
+        grid.connectControlPointsOnALine(line1)
+        grid.connectControlPointsOnALine(line2)
+        grid.connectControlPointsOnALine(line3)
+        grid.connectControlPointsOnALine(line4)
+
+        self.grid = grid
+        pass
+
+    
+    def generateWithHorizontalControlines(self, name, nLines):
+
+        self.createGridWithHorizontalControlLines(nLines)
+
+        # create intersections for each control point
+
+        # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
+
+        for (line1, line2, point1, point2) in self.grid.connections:
+            if point1 not in self.controlPointIntersectionMap:
+                point1.intersection = ControlPointIntersectionAdapter.createIntersection(point1, self.nextRoadId)
+                self.nextRoadId = point1.intersection.getLastRoadId() + 100
+                point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
+                self.controlPointIntersectionMap[point1] = point1.intersection
+                self.odrList.append(point1.intersection.odr)
+            if point2 not in self.controlPointIntersectionMap:
+                point2.intersection = ControlPointIntersectionAdapter.createIntersection(point2, self.nextRoadId)
+                self.nextRoadId = point2.intersection.getLastRoadId() + 100
+                point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
+                self.controlPointIntersectionMap[point2] = point2.intersection
+                self.odrList.append(point2.intersection.odr)
+        
+        # now we have the intersections
+        for (line1, line2, point1, point2) in self.grid.connections:
+            
+            point1IncidentIndex = point1.adjPointToOutsideIndex[point2]
+            point2IncidentIndex = point2.adjPointToOutsideIndex[point1]
+
+            road1 = point1.intersection.incidentRoads[point1IncidentIndex]
+            cp1 =  self.reverseCP(point1.intersection.incidentCPs[point1IncidentIndex])
+            road2 = point2.intersection.incidentRoads[point2IncidentIndex]
+            cp2 = self.reverseCP(point2.intersection.incidentCPs[point2IncidentIndex])
+
+            self.connect(self.nextRoadId, intersection1=point1.intersection, road1=road1, cp1=cp1,
+                                          intersection2=point2. intersection, road2=road2, cp2=cp2, 
+                                          laneSides=LaneSides.BOTH)
+
+            # now we connect these incident roads.
+
+            # we need to process point1 only
+            # for adjP in point1.adjacentPointsCWOrder:
+            #     point1IncidentIndex = point1.adjPointToOutsideIndex[adjP]
+            #     point2IncidentIndex = ad
+            
+
+        
+        combinedOdr = ODRHelper.combine(self.odrList, name)
+        ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
+        return combinedOdr
+        
+
+    def reverseCP(self, cp):
+         return pyodrx.ContactPoint.start if (cp == pyodrx.ContactPoint.end) else pyodrx.ContactPoint.end
+
+
+
+
+    def connect(self, connectionRoadId, intersection1:Intersection, road1: ExtendedRoad, cp1, intersection2:Intersection, road2: ExtendedRoad, cp2, laneSides):
+
+
+        if self.debug:
+            logging.info(f"{self.name}: connecting intersections ({intersection1.id}, {intersection2.id})")
+
+
+        connectionRoad = self.roadBuilder.getConnectionRoadBetween(connectionRoadId, road1, road2, cp1, cp2, isJunction=False, laneSides=laneSides)
+        RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=connectionRoad, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
+
+        self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
+
+        x, y, h = road1.getPosition(cp1)
+        ODRHelper.transformRoad(connectionRoad, x, y, h)
+        connectionRoad.planview.adjust_geometires()
+
+        # x2, y2, h2 = road2.getPosition(cp2)
+        # print(x, y, h)
+        # print(x2, y2, h2)
+        
+
+
+        self.connectionRoads.append(connectionRoad)

@@ -7,8 +7,9 @@ import logging
 
 class ControlPointIntersectionAdapter:
 
+    
     @staticmethod
-    def createIntersection(point: ControlPoint):
+    def createIntersection(point: ControlPoint, firstIncidentId):
 
         ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
@@ -27,7 +28,21 @@ class ControlPointIntersectionAdapter:
             logging.debug(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
             
 
-    
+    @staticmethod
+    def getAdjacentPointOutsideRoadIndexMap(point: ControlPoint, intersection: Intersection):
+        map = {}
+        # orderedAdjacentPoints = list(point.adjacentPointsCWOrder.values())
+        # index = orderedAdjacentPoints.index(adjP)
+
+        index = 0
+        for adjP in point.adjacentPointsCWOrder:
+            # map[adjP] = intersection.incidentRoads[index]
+            map[adjP] = index
+            index += 1
+        
+        return map
+        
+
 
     @staticmethod
     def getHeading(centerPos, pointPos):

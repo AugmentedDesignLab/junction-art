@@ -5,6 +5,10 @@ from roadgen.controlLine.ControlPoint import ControlPoint
 
 class test_ControlPointIntersectionAdapter(unittest.TestCase):
 
+
+    def setUp(self) -> None:
+        self.adapter = ControlPointIntersectionAdapter()
+
     def test_getHeading(self):
         angle = round(math.degrees(ControlPointIntersectionAdapter.getHeading([0,0], [1,1])))
         assert angle == 45

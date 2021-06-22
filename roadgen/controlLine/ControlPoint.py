@@ -16,6 +16,7 @@ class ControlPoint:
         self.adjacentPoints = []
         self.intersection = None
         self.adjacentPointsCWOrder = {}
+        self.adjPointToOutsideIndex = {}
 
 
     def __str__(self) -> str:
