@@ -2,9 +2,16 @@ import unittest, math
 
 from roadgen.controlLine.ControlLine import ControlLine
 from roadgen.controlLine.ControlLineGrid import ControlLineGrid
+import logging
+logfile = 'ControlLineGrid.log'
+logging.basicConfig(level=logging.INFO, filename=logfile)
 
 class test_ControlLineGrid(unittest.TestCase):
 
+    def setUp(self) -> None:
+        with open(logfile, 'w') as f:
+            f.truncate()
+        pass
 
     def test_nearest(self):
 
@@ -35,5 +42,39 @@ class test_ControlLineGrid(unittest.TestCase):
         # print(line1)
         # print(line2)
         # print(line3)
+
+        grid.plot()
+
+        
+    def test_connectControlLinesWithRectsAndTriangles(self):
+
+        
+        line1 = ControlLine(1, (0,0), (1000, 0))
+
+        line2 = ControlLine(2, (0,50), (1000, 30))
+
+        line3 = ControlLine(3, (0,100), (1000, 120))
+
+        line4 = ControlLine(4, (0,150), (500, 1000))
+
+        pairs = [(line1, line2), (line2, line3), (line3, line4)]
+        grid = ControlLineGrid(controlLinePairs=pairs, debug=True)
+
+        # grid.nearestDisconnectedPoints(line1, line2)
+
+        # grid.connect(pairs[0])
+        grid.connectControlLinesWithRectsAndTriangles(pairs[0])
+        grid.connectControlLinesWithRectsAndTriangles(pairs[1])
+        grid.connectControlLinesWithRectsAndTriangles(pairs[2])
+        # grid.printConnectionBetween(line1, line2)
+        # grid.printConnectionBetween(line2, line3)
+        # print(line1)
+        # print(line2)
+        # print(line3)
+
+        grid.connectControlPointsOnALine(line1)
+
+        print(line1)
+        print(line2)
 
         grid.plot()
