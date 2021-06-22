@@ -26,6 +26,7 @@ class ControlPointIntersectionAdapter:
     @staticmethod
     def getHeading(centerPos, pointPos):
 
+        pointPos = [pointPos[0], pointPos[1]]
         # translate point to center
         pointPos[0] = pointPos[0] - centerPos[0]
         pointPos[1] = pointPos[1] - centerPos[1]
@@ -41,5 +42,19 @@ class ControlPointIntersectionAdapter:
             return absAngle
         else:
             return 2 * np.pi - absAngle
+
+    
+    @staticmethod
+    def orderAjacentCW(point: ControlPoint):
+        headingDic = {}
+        for adjP in point.adjacentPoints:
+            heading = ControlPointIntersectionAdapter.getHeading(point.position, adjP.position)
+            headingDic[heading] = adjP
+
+        for key in sorted(headingDic):
+            point.adjacentPointsCWOrder[key] = headingDic[key]
+        pass
+        
+
 
 

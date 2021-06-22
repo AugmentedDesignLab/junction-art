@@ -15,6 +15,7 @@ class ControlPoint:
         self.position = position
         self.adjacentPoints = []
         self.intersection = None
+        self.adjacentPointsCWOrder = {}
 
 
     def __str__(self) -> str:
@@ -28,6 +29,12 @@ class ControlPoint:
             f"\n\tcolor: {self.color}"
             f"\n\tadjacentPoints: {adjacentStr}"
         )
+
+    
+    def printAdjacentPointsCW(self):
+
+        for heading in self.adjacentPointsCWOrder:
+            print(f"\n{round(math.degrees(heading), 2)}: {self.adjacentPointsCWOrder[heading].position}")
 
     
     def addAdjacents(self, points):
