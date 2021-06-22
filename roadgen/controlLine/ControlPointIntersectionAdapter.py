@@ -3,23 +3,29 @@ from roadgen.controlLine.ControlPoint import ControlPoint
 from roadgen.controlLine.ControlLine import ControlLine
 import math, logging
 import numpy as np
-
+import logging
 
 class ControlPointIntersectionAdapter:
 
     @staticmethod
     def createIntersection(point: ControlPoint):
 
+        ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
 
-        for adjPoint in point.adjacentPoints:
+        for heading, adjPoint in point.adjacentPointsCWOrder.items():
             # # we get a point between point and adjPoint which is close to the point.
             # len = math.sqrt((point.position[0] - adjPoint.position[0]) ** 2 + (point.position[1] - adjPoint.position[1]) ** 2)
             # xDiff = adjPoint.position[0] - point.position[0]
             # theta = math.acos(xDiff / len)
-
-            line = ControlLine(None, point.position, adjPoint.position)
-            incidentPoint = line.createNextControlPoint(distance)
+            if point.position[0] <= adjPoint.position[0]:
+                line = ControlLine(None, point.position, adjPoint.position)
+                incidentPoint = line.createNextControlPoint(distance)
+            else:
+                line = ControlLine(None, adjPoint.position, point.position)
+                incidentPoint = line.createNextControlPoint(line.len - distance)
+            logging.debug(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
+            
 
     
 

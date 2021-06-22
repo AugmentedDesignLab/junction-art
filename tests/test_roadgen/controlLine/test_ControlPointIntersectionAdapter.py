@@ -56,3 +56,21 @@ class test_ControlPointIntersectionAdapter(unittest.TestCase):
 
         ControlPointIntersectionAdapter.orderAjacentCW(point)
         print(point.printAdjacentPointsCW())
+
+    
+
+    def test_createIntersection(self):
+        cx = 0
+        cy = 0
+        point = ControlPoint(position=(cx, cy))
+        point.addAdjacents(points=[
+            ControlPoint(position=(cx+100, cy+100)),
+            ControlPoint(position=(cx, cy-100)),
+            ControlPoint(position=(cx, cy+100)),
+            ControlPoint(position=(cx-100, cy+100)),
+            ControlPoint(position=(cx-100, cy-100)),
+            ControlPoint(position=(cx-100, cy)),
+            ControlPoint(position=(cx+100, cy-100))
+        ])
+
+        ControlPointIntersectionAdapter.createIntersection(point)

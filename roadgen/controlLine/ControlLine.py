@@ -15,8 +15,8 @@ class ControlLine:
         self.start = start
         self.end = end
 
-        if self.start[0] >= self.end[0]:
-            raise Exception(f"{self.name}:Controlines start must have lower x than end")
+        if self.start[0] > self.end[0]:
+            raise Exception(f"{self.name}:Controlines start {self.start} must have lower x than end {self.end}")
 
         self.controlPoints = []
 
