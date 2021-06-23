@@ -285,6 +285,14 @@ class ControlLine:
     
 
     def isProjectionInsideControlPoints(self, projection):
+        """Checks if a projection is between existing control points.
+
+        Args:
+            projection ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         lastCp = self.getLastPoint()
         if lastCp.position[0] > projection[0]:
             return True

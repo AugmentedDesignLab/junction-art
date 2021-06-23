@@ -11,6 +11,7 @@ from junctions.LaneBuilder import LaneBuilder
 from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
 from extensions.CountryCodes import CountryCodes
 import logging, math, pyodrx
+import numpy as np
 
 class ControlLineBasedGenerator:
 
@@ -34,9 +35,77 @@ class ControlLineBasedGenerator:
         pass
 
 
-
     
     def createGridWithHorizontalControlLines(self, nLines):
+
+        self.lines = []
+        self.pairs = []
+
+        minSeperationBetweenEndpoints = 100
+        maxSeperationBetweenEndpoints = 200
+
+        bigSeperationAdditional = 200
+
+
+        for i in range(nLines):
+
+            start = (0,0)
+            end = (self.mapSize[0], 0)
+
+            if i > 0:
+                prevLine = self.lines[-1]
+                startY = prevLine.start[1] + np.random.uniform(minSeperationBetweenEndpoints, maxSeperationBetweenEndpoints)
+                # endY = prevLine.end[1] + np.random.uniform(minSeperationBetweenEndpoints, maxSeperationBetweenEndpoints)
+                endY = startY + np.random.uniform(-0.3, 0.3) * startY
+                
+                # big seperation
+                if np.random.choice([True, False], p=[0.25, 0.75]):
+                    startY += bigSeperationAdditional
+                    endY += bigSeperationAdditional
+
+                startX = 0
+                endX = self.mapSize[0]
+                # randomly shorten lines
+                if np.random.choice([True, False], p=[0.25, 0.75]):
+                    #
+                    endpoints = np.random.choice(['start', 'end', 'both'], p=[0.3, 0.3, 0.4])
+                    if endpoints == 'start':
+                        startX += endX * 0.2
+                    if endpoints == 'end':
+                        endX -= endX * 0.2
+                    if endpoints == 'both':
+                        startX += endX * 0.2
+                        endX -= endX * 0.2
+
+
+
+
+                start = (startX, startY)
+                end = (endX, endY)
+
+
+            line = ControlLine(i+1, start, end)
+
+            logging.info(f"{self.name}: created line {line.start}, {line.end}")
+
+            self.lines.append(line)
+            if i > 0:
+                self.pairs.append((self.lines[-2], self.lines[-1]))
+
+        self.grid = ControlLineGrid(controlLinePairs=self.pairs, debug=True)
+
+        for pair in self.pairs:
+            self.grid.connectControlLinesWithRectsAndTriangles(pair)
+
+        for line in self.lines:
+            self.grid.connectControlPointsOnALine(line)
+
+        self.grid.plot()
+
+        pass
+
+    
+    def createTestGridWithHorizontalControlLines(self, nLines):
 
         line1 = ControlLine(1, (0,0), (1000, 0))
 

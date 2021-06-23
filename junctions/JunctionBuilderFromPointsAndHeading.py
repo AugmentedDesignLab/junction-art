@@ -159,8 +159,8 @@ class JunctionBuilderFromPointsAndHeading():
                                                        straightRoadLen=20,
                                                        getAsOdr=False):
 
-        for road in roadDefinition:
-            print(road)
+        # for road in roadDefinition:
+        #     print(road)
         
         if roadDefinition is None or len(roadDefinition) < 2:
             raise Exception("Provide definition for more then two roads")
@@ -280,7 +280,7 @@ class JunctionBuilderFromPointsAndHeading():
             odrStraightRoad = extensions.createOdrByPredecessor(odrName, [straightRoad], [])
             newStartX, newStartY, newHeading = road['x'], road['y'], road['heading']
             odrAfterTransform = ODRHelper.transform(odrStraightRoad, newStartX, newStartY, newHeading)
-            extensions.printRoadPositions(odrAfterTransform)
+            # extensions.printRoadPositions(odrAfterTransform)
             straightRoadList.append(straightRoad)
             roadID += 1
 
