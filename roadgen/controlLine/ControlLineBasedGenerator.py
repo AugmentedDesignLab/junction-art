@@ -39,21 +39,24 @@ class ControlLineBasedGenerator:
 
         line1 = ControlLine(1, (0,0), (1000, 0))
 
-        line2 = ControlLine(2, (0,50), (1000, 30))
+        line2 = ControlLine(2, (0,100), (1000, 130))
 
-        line3 = ControlLine(3, (0,100), (1000, 120))
+        line3 = ControlLine(3, (0,250), (1000, 220))
 
-        line4 = ControlLine(4, (0,150), (500, 1000))
+        line4 = ControlLine(4, (100, 500), (600, 550))
+        line5 = ControlLine(5, (0,600), (700, 620))
+        line6 = ControlLine(6, (0,700), (1000, 700))
+        line7 = ControlLine(7, (0,770), (1000, 800))
         
-        # pairs = [(line1, line2), (line2, line3), (line3, line4)]
-        # self.lines= [line1, line2, line3, line4]
-        pairs = [(line1, line2)]
-        self.lines= [line1, line2]
+        pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7)]
+        self.lines= [line1, line2, line3, line4, line5, line6, line7]
+        # pairs = [(line1, line2)]
+        # self.lines= [line1, line2]
         self.pairs = pairs
         grid = ControlLineGrid(controlLinePairs=pairs, debug=True)
-        grid.connectControlLinesWithRectsAndTriangles(pairs[0])
-        # grid.connectControlLinesWithRectsAndTriangles(pairs[1])
-        # grid.connectControlLinesWithRectsAndTriangles(pairs[2])
+
+        for pair in self.pairs:
+            grid.connectControlLinesWithRectsAndTriangles(pair)
 
         
 
@@ -78,12 +81,14 @@ class ControlLineBasedGenerator:
             if len(point1.adjacentPoints) < 3:
                 # raise Exception(f"why less than 3 for point {point1.position}")
                 print(f"why less than 3 for point {point1.position}")
+                print(point1)
                 # # skipping for now
                 # continue
 
             if len(point2.adjacentPoints) < 3:
                 # raise Exception(f"why less than 3 for point {point1.position}")
-                print(f"why less than 3 for point {point1.position}")
+                print(f"why less than 3 for point {point2.position}")
+                print(point2)
                 # skipping for now
                 # continue
 
@@ -105,15 +110,17 @@ class ControlLineBasedGenerator:
         for (line1, line2, point1, point2) in self.grid.connections:
             if len(point1.adjacentPoints) < 3:
                 # raise Exception(f"why less than 3 for point {point1.position}")
-                print(f"why less than 3 for point {point1.position}")
+                # print(f"why less than 3 for point {point1.position}")
                 # skipping for now
                 continue
 
             if len(point2.adjacentPoints) < 3:
                 # raise Exception(f"why less than 3 for point {point1.position}")
-                print(f"why less than 3 for point {point1.position}")
+                # print(f"why less than 3 for point {point1.position}")
                 # skipping for now
                 continue
+
+            print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
             
             point1IncidentIndex = point1.adjPointToOutsideIndex[point2]
             point2IncidentIndex = point2.adjPointToOutsideIndex[point1]
@@ -126,6 +133,7 @@ class ControlLineBasedGenerator:
             self.connect(self.nextRoadId, intersection1=point1.intersection, road1=road1, cp1=cp1,
                                           intersection2=point2. intersection, road2=road2, cp2=cp2, 
                                           laneSides=LaneSides.BOTH)
+            self.nextRoadId += 1
 
             # now we connect these incident roads.
 

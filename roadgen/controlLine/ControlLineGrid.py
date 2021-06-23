@@ -78,8 +78,8 @@ class ControlLineGrid:
             logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: Connecting new pairs")
 
         snapDistance = 50 # in meters
-        minSeperation = 300
-        maxSeparation = 400
+        minSeperation = 80
+        maxSeparation = 150
 
         mdp = {
             'orthogonal': {
@@ -94,15 +94,15 @@ class ControlLineGrid:
                 'commonEnd': 0.1
             },
             'random': {
-                'orthogonal': 0.2,
-                'parallel': 0.4,
+                'orthogonal': 0.3,
+                'parallel': 0.3,
                 'random': 0.3,
                 'commonEnd': 0.1
             },
             'commonEnd': {
                 'orthogonal': 0.3,
-                'parallel': 0.4,
-                'random': 0.2,
+                'parallel': 0.2,
+                'random': 0.4,
                 'commonEnd': 0.1
             },
             'none': {

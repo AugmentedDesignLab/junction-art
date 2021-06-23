@@ -210,7 +210,7 @@ class JunctionBuilderFromPointsAndHeading():
         incidentContactPoints = []
 
         for _ in outSideRoadsShallowCopy:
-            incidentContactPoints.append(pyodrx.ContactPoint.end)
+            incidentContactPoints.append(pyodrx.ContactPoint.start)
 
         if getAsOdr:
             return odr
