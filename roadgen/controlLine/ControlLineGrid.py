@@ -77,9 +77,14 @@ class ControlLineGrid:
         if self.debug:
             logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: Connecting new pairs")
 
-        snapDistance = 50 # in meters
+        snapDistance = 40 # in meters
         minSeperation = 80
         maxSeparation = 150
+
+        # change seperation per pair
+        changeInSeperation = np.random.uniform(0.0, 1.1)
+        minSeperation += minSeperation * changeInSeperation
+        maxSeparation += maxSeparation * changeInSeperation
 
         mdp = {
             'orthogonal': {
@@ -100,10 +105,10 @@ class ControlLineGrid:
                 'commonEnd': 0.1
             },
             'commonEnd': {
-                'orthogonal': 0.3,
+                'orthogonal': 0.4,
                 'parallel': 0.2,
                 'random': 0.4,
-                'commonEnd': 0.1
+                'commonEnd': 0
             },
             'none': {
                 'orthogonal': 0.3,
