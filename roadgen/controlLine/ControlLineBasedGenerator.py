@@ -78,28 +78,28 @@ class ControlLineBasedGenerator:
 
         for (line1, line2, point1, point2) in self.grid.connections:
 
-            if len(point1.adjacentPoints) < 3:
-                # raise Exception(f"why less than 3 for point {point1.position}")
-                print(f"why less than 3 for point {point1.position}")
-                print(point1)
-                # # skipping for now
-                # continue
+            # if len(point1.adjacentPoints) < 3:
+            #     # raise Exception(f"why less than 3 for point {point1.position}")
+            #     print(f"why less than 3 for point {point1.position}")
+            #     print(point1)
+            #     # # skipping for now
+            #     # continue
 
-            if len(point2.adjacentPoints) < 3:
-                # raise Exception(f"why less than 3 for point {point1.position}")
-                print(f"why less than 3 for point {point2.position}")
-                print(point2)
-                # skipping for now
-                # continue
+            # if len(point2.adjacentPoints) < 3:
+            #     # raise Exception(f"why less than 3 for point {point1.position}")
+            #     print(f"why less than 3 for point {point2.position}")
+            #     print(point2)
+            #     # skipping for now
+            #     # continue
 
             
-            if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) > 2:
+            if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
                 point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.intersectionBuilder, point1, self.nextRoadId)
                 self.nextRoadId = point1.intersection.getLastRoadId() + 100
                 point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
                 self.controlPointIntersectionMap[point1] = point1.intersection
                 self.odrList.append(point1.intersection.odr)
-            if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) > 2:
+            if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
                 point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.intersectionBuilder, point2, self.nextRoadId)
                 self.nextRoadId = point2.intersection.getLastRoadId() + 100
                 point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)

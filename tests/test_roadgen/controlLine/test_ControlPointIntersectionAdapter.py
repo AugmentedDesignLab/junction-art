@@ -76,6 +76,23 @@ class test_ControlPointIntersectionAdapter(unittest.TestCase):
         point = ControlPoint(position=(cx, cy))
         point.addAdjacents(points=[
             ControlPoint(position=(cx+100, cy+100)),
+            # ControlPoint(position=(cx, cy+100)),
+            # ControlPoint(position=(cx-100, cy+100)),
+            # ControlPoint(position=(cx-100, cy-100)),
+            # ControlPoint(position=(cx-100, cy)),
+            ControlPoint(position=(cx+100, cy-100))
+        ])
+
+        intersection = ControlPointIntersectionAdapter.createIntersection(self.builder, point, firstIncidentId=0)
+        odr = intersection.odr
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+
+        cx = 0
+        cy = 0
+        point = ControlPoint(position=(cx, cy))
+        point.addAdjacents(points=[
+            ControlPoint(position=(cx+100, cy+100)),
             ControlPoint(position=(cx-50, cy-100)),
             # ControlPoint(position=(cx, cy+100)),
             # ControlPoint(position=(cx-100, cy+100)),

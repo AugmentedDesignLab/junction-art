@@ -19,6 +19,8 @@ class ControlPointIntersectionAdapter:
         laneWidth = 3
         roadDefs = []
 
+        nIncidentPoints = len(point.adjacentPointsCWOrder)
+
         for heading, adjPoint in point.adjacentPointsCWOrder.items():
             # # we get a point between point and adjPoint which is close to the point.
             # len = math.sqrt((point.position[0] - adjPoint.position[0]) ** 2 + (point.position[1] - adjPoint.position[1]) ** 2)
@@ -31,18 +33,28 @@ class ControlPointIntersectionAdapter:
                 line = ControlLine(None, adjPoint.position, point.position)
                 incidentPoint = line.createNextControlPoint(line.len - distance)
             logging.debug(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
+            
+            skipEndpoint = None
+            medianType = None
+            if nIncidentPoints >= 3:
+                if np.random.choice([True, False], p=[0.3, 0.7]):
+                    medianType='partial'
+                    skipEndpoint = pyodrx.ContactPoint.end
+                # else:
+                #     medianType='full'
+
 
             roadDef = {
                 'x': incidentPoint.position[0], 'y': incidentPoint.position[1], 'heading': heading, 
                 'leftLane': 1, 'rightLane': 1, 
-                'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.end
+                'medianType': medianType, 'skipEndpoint': skipEndpoint
             }
             roadDefs.append(roadDef)
 
         intersection = builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
                                                                 roadDefinition=roadDefs,
                                                                 firstRoadId=firstIncidentId,
-                                                                straightRoadLen=5, getAsOdr = False)
+                                                                straightRoadLen=10, getAsOdr = False)
         return intersection
 
             

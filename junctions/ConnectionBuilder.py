@@ -137,6 +137,8 @@ class ConnectionBuilder:
             try:
                 linkConfig = LaneConfiguration.getIntersectionLinks1ToMany(incomingLaneIds, outgoingLaneIds, strategy=strategy)
 
+                print(linkConfig)
+
                 # for each link, create a new connection road
                 connectionRoadsForConfig = self.createRoadsForLinkConfig(nextRoadId, roadDic, firstRoadId, incomingRoad, cp1, linkConfig)
                 nextRoadId += len(connectionRoadsForConfig)
