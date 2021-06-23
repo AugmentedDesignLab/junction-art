@@ -155,6 +155,7 @@ class JunctionBuilderFromPointsAndHeading():
     def createIntersectionFromPointsWithRoadDefinition(self,
                                                        odrID,
                                                        roadDefinition,
+                                                       firstRoadId,
                                                        straightRoadLen=20,
                                                        getAsOdr=False):
 
@@ -169,13 +170,15 @@ class JunctionBuilderFromPointsAndHeading():
         paramPolyRoads = []
         roads = []
 
+        nextRoadId = firstRoadId
+
         # create straight road
-        outsideRoads = self.createStraightRoadsFromRoadDefinition(roadDefinition=roadDefinition,
+        outsideRoads, nextRoadId = self.createStraightRoadsFromRoadDefinition(nextRoadId=nextRoadId, roadDefinition=roadDefinition,
                                                                   straighRoadLength=straightRoadLen)
 
         
         # create parampoly connection road
-        paramPolyRoads = self.createParamPolyConnectionRoads(outsideRoads=outsideRoads)
+        paramPolyRoads, nextRoadId = self.createParamPolyConnectionRoads(nextRoadId=nextRoadId, outsideRoads=outsideRoads)
 
         for outsideRoad in outsideRoads:
             outSideRoadsShallowCopy.append(outsideRoad.shallowCopy())
@@ -188,8 +191,7 @@ class JunctionBuilderFromPointsAndHeading():
         odrName = "odr_from_points" + str(odrID)
         odr = extensions.createOdrByPredecessor(odrName, roads, [])
 
-        nextRoadID = len(roads)
-        internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId=nextRoadID,
+        internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId=nextRoadId,
                                                                                     outsideRoads=outSideRoadsShallowCopy,
                                                                                     cp1=pyodrx.ContactPoint.start,
                                                                                     strategy=LaneConfigurationStrategies.SPLIT_ANY)
@@ -213,7 +215,7 @@ class JunctionBuilderFromPointsAndHeading():
         if getAsOdr:
             return odr
 
-        intersection = Intersection(id, outSideRoadsShallowCopy, incidentContactPoints, geoConnectionRoads=paramPolyRoads, odr=finalTransformedODR)
+        intersection = Intersection(odrID, outSideRoadsShallowCopy, incidentContactPoints, geoConnectionRoads=paramPolyRoads, odr=finalTransformedODR)
         return intersection
 
     
@@ -230,8 +232,8 @@ class JunctionBuilderFromPointsAndHeading():
             orderedRoadsList.append(paramPolyRoads[i])
         return orderedRoadsList
 
-    def createParamPolyConnectionRoads(self, outsideRoads):
-        roadID = 1
+    def createParamPolyConnectionRoads(self,nextRoadId,  outsideRoads):
+        roadID = nextRoadId
         paramPolyRoadList = []
         numberOfStraightRoad = len(outsideRoads)
         for i in range(0, numberOfStraightRoad):
@@ -248,12 +250,12 @@ class JunctionBuilderFromPointsAndHeading():
                                                                             cp1=pyodrx.ContactPoint.start,
                                                                             cp2=pyodrx.ContactPoint.start)
             paramPolyRoadList.append(paramPolyRoad)
-            roadID += 2
-        return paramPolyRoadList
+            roadID += 1
+        return paramPolyRoadList, nextRoadId
 
 
-    def createStraightRoadsFromRoadDefinition(self, roadDefinition, straighRoadLength):
-        roadID = 0
+    def createStraightRoadsFromRoadDefinition(self, nextRoadId, roadDefinition, straighRoadLength):
+        roadID = nextRoadId
         straightRoadList = []
         for road in roadDefinition:
             if road['medianType'] == 'partial':
@@ -277,9 +279,9 @@ class JunctionBuilderFromPointsAndHeading():
             odrAfterTransform = ODRHelper.transform(odrStraightRoad, newStartX, newStartY, newHeading)
             extensions.printRoadPositions(odrAfterTransform)
             straightRoadList.append(straightRoad)
-            roadID += 2
+            roadID += 1
 
-        return straightRoadList
+        return straightRoadList, roadID
                 
 
 

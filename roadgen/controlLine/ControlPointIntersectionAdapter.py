@@ -41,6 +41,7 @@ class ControlPointIntersectionAdapter:
 
         intersection = builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
                                                                 roadDefinition=roadDefs,
+                                                                firstRoadId=firstIncidentId,
                                                                 straightRoadLen=5, getAsOdr = False)
         return intersection
 
@@ -53,7 +54,7 @@ class ControlPointIntersectionAdapter:
         # index = orderedAdjacentPoints.index(adjP)
 
         index = 0
-        for adjP in point.adjacentPointsCWOrder:
+        for adjP in point.adjacentPointsCWOrder.values():
             # map[adjP] = intersection.incidentRoads[index]
             map[adjP] = index
             index += 1

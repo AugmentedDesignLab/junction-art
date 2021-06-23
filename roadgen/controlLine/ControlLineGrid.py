@@ -77,9 +77,9 @@ class ControlLineGrid:
         if self.debug:
             logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: Connecting new pairs")
 
-        snapDistance = 20 # in meters
-        minSeperation = 80
-        maxSeparation = 150
+        snapDistance = 50 # in meters
+        minSeperation = 300
+        maxSeparation = 400
 
         mdp = {
             'orthogonal': {

@@ -10,18 +10,46 @@ RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoa
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 0 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 1 on road 0 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -1 on road 0 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 1 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 1 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 1 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 1 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 1 on road 1 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -1 on road 1 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 2 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 2 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 2 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 2 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 1 on road 2 is not defined
 RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -1 on road 2 is not defined
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 4 is not defined
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 4 is not defined
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 4 is not defined
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 4 is not defined
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 1 on road 4 is not defined
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -1 on road 4 is not defined
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 109 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 109 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 109 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 109 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 1 on road 109 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -1 on road 109 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 110 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 110 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 110 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 110 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 1 on road 110 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -1 on road 110 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 111 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 111 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 111 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 111 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 1 on road 111 is not defined
+RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -1 on road 111 is not defined
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (30.01) to road length (30.00)
 RoadManager.cpp / 4288 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries
 RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 0 only 5.00 m long
 
@@ -29,16 +57,34 @@ RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Posit
 
 RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 0 only 5.00 m long
 
-RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 2 only 5.00 m long
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 1 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 1 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 1 only 5.00 m long
 
 RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 2 only 5.00 m long
 
 RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 2 only 5.00 m long
 
-RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 4 only 5.00 m long
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 2 only 5.00 m long
 
-RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 4 only 5.00 m long
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 109 only 5.00 m long
 
-RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 4 only 5.00 m long
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 109 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 109 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 110 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 110 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 110 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 111 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 111 only 5.00 m long
+
+RoadManager.cpp / 4999 / roadmanager::Position::SetLongitudinalTrackPos(): Position::Set Warning: s (5.01) too large, track 111 only 5.00 m long
 
 RoadManager.cpp / 4290 / roadmanager::OpenDrive::SetRoadOSI(): OSI road features done

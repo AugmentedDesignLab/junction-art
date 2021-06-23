@@ -28,7 +28,7 @@ class ControlLineBasedGenerator:
         self.controlPointIntersectionMap = {} # controlpoint -> its intersection
         self.nextRoadId = 0
         self.odrList = []
-        self.builder = JunctionBuilderFromPointsAndHeading(country=country,
+        self.intersectionBuilder = JunctionBuilderFromPointsAndHeading(country=country,
                                                             laneWidth=3)
         pass
 
@@ -45,18 +45,21 @@ class ControlLineBasedGenerator:
 
         line4 = ControlLine(4, (0,150), (500, 1000))
         
-        pairs = [(line1, line2), (line2, line3), (line3, line4)]
+        # pairs = [(line1, line2), (line2, line3), (line3, line4)]
+        # self.lines= [line1, line2, line3, line4]
+        pairs = [(line1, line2)]
+        self.lines= [line1, line2]
         self.pairs = pairs
         grid = ControlLineGrid(controlLinePairs=pairs, debug=True)
         grid.connectControlLinesWithRectsAndTriangles(pairs[0])
-        grid.connectControlLinesWithRectsAndTriangles(pairs[1])
-        grid.connectControlLinesWithRectsAndTriangles(pairs[2])
+        # grid.connectControlLinesWithRectsAndTriangles(pairs[1])
+        # grid.connectControlLinesWithRectsAndTriangles(pairs[2])
 
         
-        grid.connectControlPointsOnALine(line1)
-        grid.connectControlPointsOnALine(line2)
-        grid.connectControlPointsOnALine(line3)
-        grid.connectControlPointsOnALine(line4)
+
+
+        for line in self.lines:
+            grid.connectControlPointsOnALine(line)
 
         self.grid = grid
         pass
@@ -71,14 +74,28 @@ class ControlLineBasedGenerator:
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
 
         for (line1, line2, point1, point2) in self.grid.connections:
-            if point1 not in self.controlPointIntersectionMap:
-                point1.intersection = ControlPointIntersectionAdapter.createIntersection(point1, self.nextRoadId)
+
+            if len(point1.adjacentPoints) < 3:
+                # raise Exception(f"why less than 3 for point {point1.position}")
+                print(f"why less than 3 for point {point1.position}")
+                # # skipping for now
+                # continue
+
+            if len(point2.adjacentPoints) < 3:
+                # raise Exception(f"why less than 3 for point {point1.position}")
+                print(f"why less than 3 for point {point1.position}")
+                # skipping for now
+                # continue
+
+            
+            if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) > 2:
+                point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.intersectionBuilder, point1, self.nextRoadId)
                 self.nextRoadId = point1.intersection.getLastRoadId() + 100
                 point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
                 self.controlPointIntersectionMap[point1] = point1.intersection
                 self.odrList.append(point1.intersection.odr)
-            if point2 not in self.controlPointIntersectionMap:
-                point2.intersection = ControlPointIntersectionAdapter.createIntersection(point2, self.nextRoadId)
+            if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) > 2:
+                point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.intersectionBuilder, point2, self.nextRoadId)
                 self.nextRoadId = point2.intersection.getLastRoadId() + 100
                 point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
                 self.controlPointIntersectionMap[point2] = point2.intersection
@@ -86,6 +103,17 @@ class ControlLineBasedGenerator:
         
         # now we have the intersections
         for (line1, line2, point1, point2) in self.grid.connections:
+            if len(point1.adjacentPoints) < 3:
+                # raise Exception(f"why less than 3 for point {point1.position}")
+                print(f"why less than 3 for point {point1.position}")
+                # skipping for now
+                continue
+
+            if len(point2.adjacentPoints) < 3:
+                # raise Exception(f"why less than 3 for point {point1.position}")
+                print(f"why less than 3 for point {point1.position}")
+                # skipping for now
+                continue
             
             point1IncidentIndex = point1.adjPointToOutsideIndex[point2]
             point2IncidentIndex = point2.adjPointToOutsideIndex[point1]
@@ -102,7 +130,7 @@ class ControlLineBasedGenerator:
             # now we connect these incident roads.
 
             # we need to process point1 only
-            # for adjP in point1.adjacentPointsCWOrder:
+            # for adjP in point1.adjacentPointsCWOrder.values():
             #     point1IncidentIndex = point1.adjPointToOutsideIndex[adjP]
             #     point2IncidentIndex = ad
             
