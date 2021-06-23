@@ -51,13 +51,15 @@ class test_ControlLineGrid(unittest.TestCase):
         
         line1 = ControlLine(1, (0,0), (1000, 0))
 
-        line2 = ControlLine(2, (0,50), (1000, 30))
+        line2 = ControlLine(2, (0,100), (1000, 80))
 
-        line3 = ControlLine(3, (0,100), (1000, 120))
+        line3 = ControlLine(3, (0,180), (1000, 220))
 
-        line4 = ControlLine(4, (0,150), (500, 1000))
+        line4 = ControlLine(4, (0,300), (1000, 350))
 
-        pairs = [(line1, line2), (line2, line3), (line3, line4)]
+        line5 = ControlLine(5, (0,500), (500, 450))
+
+        pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5)]
         grid = ControlLineGrid(controlLinePairs=pairs, debug=True)
 
         # grid.nearestDisconnectedPoints(line1, line2)
@@ -66,6 +68,7 @@ class test_ControlLineGrid(unittest.TestCase):
         grid.connectControlLinesWithRectsAndTriangles(pairs[0])
         grid.connectControlLinesWithRectsAndTriangles(pairs[1])
         grid.connectControlLinesWithRectsAndTriangles(pairs[2])
+        grid.connectControlLinesWithRectsAndTriangles(pairs[3])
         # grid.printConnectionBetween(line1, line2)
         # grid.printConnectionBetween(line2, line3)
         # print(line1)

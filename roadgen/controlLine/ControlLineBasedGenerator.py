@@ -8,12 +8,14 @@ from extensions.ExtendedRoad import ExtendedRoad
 from junctions.ODRHelper import ODRHelper
 from junctions.RoadLinker import RoadLinker
 from junctions.LaneBuilder import LaneBuilder
+from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
+from extensions.CountryCodes import CountryCodes
 import logging, math, pyodrx
 
 class ControlLineBasedGenerator:
 
 
-    def __init__(self, mapSize, debug=False) -> None:
+    def __init__(self, mapSize, debug=False, country=CountryCodes.US) -> None:
         self.name = "ControlLineBasedGenerator"
         self.mapSize = mapSize
         self.debug = debug
@@ -26,6 +28,8 @@ class ControlLineBasedGenerator:
         self.controlPointIntersectionMap = {} # controlpoint -> its intersection
         self.nextRoadId = 0
         self.odrList = []
+        self.builder = JunctionBuilderFromPointsAndHeading(country=country,
+                                                            laneWidth=3)
         pass
 
 
@@ -107,7 +111,7 @@ class ControlLineBasedGenerator:
         combinedOdr = ODRHelper.combine(self.odrList, name)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
-        
+
 
     def reverseCP(self, cp):
          return pyodrx.ContactPoint.start if (cp == pyodrx.ContactPoint.end) else pyodrx.ContactPoint.end

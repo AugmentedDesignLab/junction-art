@@ -1,13 +1,20 @@
 import unittest, math
 from roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
 from roadgen.controlLine.ControlPoint import ControlPoint
+from library.Configuration import Configuration
+from extensions.CountryCodes import CountryCodes
+from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
+import extensions, os
 
 
 class test_ControlPointIntersectionAdapter(unittest.TestCase):
 
 
     def setUp(self) -> None:
+        self.configuration = Configuration()
         self.adapter = ControlPointIntersectionAdapter()
+        self.builder = JunctionBuilderFromPointsAndHeading(country=CountryCodes.US,
+                                                            laneWidth=3)
 
     def test_getHeading(self):
         angle = round(math.degrees(ControlPointIntersectionAdapter.getHeading([0,0], [1,1])))
@@ -69,12 +76,15 @@ class test_ControlPointIntersectionAdapter(unittest.TestCase):
         point = ControlPoint(position=(cx, cy))
         point.addAdjacents(points=[
             ControlPoint(position=(cx+100, cy+100)),
-            ControlPoint(position=(cx, cy-100)),
-            ControlPoint(position=(cx, cy+100)),
-            ControlPoint(position=(cx-100, cy+100)),
-            ControlPoint(position=(cx-100, cy-100)),
-            ControlPoint(position=(cx-100, cy)),
+            ControlPoint(position=(cx-50, cy-100)),
+            # ControlPoint(position=(cx, cy+100)),
+            # ControlPoint(position=(cx-100, cy+100)),
+            # ControlPoint(position=(cx-100, cy-100)),
+            # ControlPoint(position=(cx-100, cy)),
             ControlPoint(position=(cx+100, cy-100))
         ])
 
-        ControlPointIntersectionAdapter.createIntersection(point)
+        intersection = ControlPointIntersectionAdapter.createIntersection(self.builder, point, firstIncidentId=0)
+        odr = intersection.odr
+        extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 

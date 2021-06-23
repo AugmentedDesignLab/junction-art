@@ -1,7 +1,9 @@
+from extensions.moreHelpers import laneWidths
 from junctions.Intersection import Intersection
 from roadgen.controlLine.ControlPoint import ControlPoint
 from roadgen.controlLine.ControlLine import ControlLine
-import math, logging
+from extensions.CountryCodes import CountryCodes
+import math, logging, pyodrx
 import numpy as np
 import logging
 
@@ -9,10 +11,13 @@ class ControlPointIntersectionAdapter:
 
     
     @staticmethod
-    def createIntersection(point: ControlPoint, firstIncidentId):
+    def createIntersection(builder, point: ControlPoint, firstIncidentId):
 
         ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
+        country = CountryCodes.US
+        laneWidth = 3
+        roadDefs = []
 
         for heading, adjPoint in point.adjacentPointsCWOrder.items():
             # # we get a point between point and adjPoint which is close to the point.
@@ -26,6 +31,19 @@ class ControlPointIntersectionAdapter:
                 line = ControlLine(None, adjPoint.position, point.position)
                 incidentPoint = line.createNextControlPoint(line.len - distance)
             logging.debug(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
+
+            roadDef = {
+                'x': incidentPoint.position[0], 'y': incidentPoint.position[1], 'heading': heading, 
+                'leftLane': 1, 'rightLane': 1, 
+                'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.end
+            }
+            roadDefs.append(roadDef)
+
+        intersection = builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
+                                                                roadDefinition=roadDefs,
+                                                                straightRoadLen=5, getAsOdr = False)
+        return intersection
+
             
 
     @staticmethod

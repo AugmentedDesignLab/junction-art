@@ -13,6 +13,7 @@ from junctions.LaneConfiguration import LaneConfiguration
 from extensions.CountryCodes import CountryCodes
 from junctions.ConnectionBuilder import ConnectionBuilder
 from junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctions.Intersection import Intersection
 
 
 class JunctionBuilderFromPointsAndHeading():
@@ -154,7 +155,8 @@ class JunctionBuilderFromPointsAndHeading():
     def createIntersectionFromPointsWithRoadDefinition(self,
                                                        odrID,
                                                        roadDefinition,
-                                                       straightRoadLen=20):
+                                                       straightRoadLen=20,
+                                                       getAsOdr=False):
 
         for road in roadDefinition:
             print(road)
@@ -202,7 +204,17 @@ class JunctionBuilderFromPointsAndHeading():
         #     print(road.getAdjustedStartPosition())
         #     print(road.getAdjustedEndPosition())
 
-        return finalTransformedODR
+        # return finalTransformedODR
+        incidentContactPoints = []
+
+        for _ in outSideRoadsShallowCopy:
+            incidentContactPoints.append(pyodrx.ContactPoint.end)
+
+        if getAsOdr:
+            return odr
+
+        intersection = Intersection(id, outSideRoadsShallowCopy, incidentContactPoints, geoConnectionRoads=paramPolyRoads, odr=finalTransformedODR)
+        return intersection
 
     
     def createSuccPredAndAppendRoadsInOrder(self, outSideRoadsShallowCopy, paramPolyRoads):
@@ -263,6 +275,7 @@ class JunctionBuilderFromPointsAndHeading():
             odrStraightRoad = extensions.createOdrByPredecessor(odrName, [straightRoad], [])
             newStartX, newStartY, newHeading = road['x'], road['y'], road['heading']
             odrAfterTransform = ODRHelper.transform(odrStraightRoad, newStartX, newStartY, newHeading)
+            extensions.printRoadPositions(odrAfterTransform)
             straightRoadList.append(straightRoad)
             roadID += 2
 
