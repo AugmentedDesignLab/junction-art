@@ -27,6 +27,7 @@ class ControlLineBasedGenerator:
         self.connectionRoads = []
         self.controlPointIntersectionMap = {} # controlpoint -> its intersection
         self.nextRoadId = 0
+        self.nextIntersectionId = 0
         self.odrList = []
         self.intersectionBuilder = JunctionBuilderFromPointsAndHeading(country=country,
                                                             laneWidth=3)
@@ -94,31 +95,36 @@ class ControlLineBasedGenerator:
 
             
             if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
-                point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.intersectionBuilder, point1, self.nextRoadId)
+                point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point1, self.nextRoadId)
                 self.nextRoadId = point1.intersection.getLastRoadId() + 100
+                self.nextIntersectionId += 1
+
                 point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
                 self.controlPointIntersectionMap[point1] = point1.intersection
                 self.odrList.append(point1.intersection.odr)
+
             if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
-                point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.intersectionBuilder, point2, self.nextRoadId)
+                point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point2, self.nextRoadId)
                 self.nextRoadId = point2.intersection.getLastRoadId() + 100
+                self.nextIntersectionId += 1
+
                 point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
                 self.controlPointIntersectionMap[point2] = point2.intersection
                 self.odrList.append(point2.intersection.odr)
         
         # now we have the intersections
         for (line1, line2, point1, point2) in self.grid.connections:
-            if len(point1.adjacentPoints) < 3:
-                # raise Exception(f"why less than 3 for point {point1.position}")
-                # print(f"why less than 3 for point {point1.position}")
-                # skipping for now
-                continue
+            # if len(point1.adjacentPoints) < 3:
+            #     # raise Exception(f"why less than 3 for point {point1.position}")
+            #     # print(f"why less than 3 for point {point1.position}")
+            #     # skipping for now
+            #     continue
 
-            if len(point2.adjacentPoints) < 3:
-                # raise Exception(f"why less than 3 for point {point1.position}")
-                # print(f"why less than 3 for point {point1.position}")
-                # skipping for now
-                continue
+            # if len(point2.adjacentPoints) < 3:
+            #     # raise Exception(f"why less than 3 for point {point1.position}")
+            #     # print(f"why less than 3 for point {point1.position}")
+            #     # skipping for now
+            #     continue
 
             print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
             

@@ -11,7 +11,7 @@ class ControlPointIntersectionAdapter:
 
     
     @staticmethod
-    def createIntersection(builder, point: ControlPoint, firstIncidentId):
+    def createIntersection(id, builder, point: ControlPoint, firstIncidentId):
 
         ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
@@ -32,7 +32,7 @@ class ControlPointIntersectionAdapter:
             else:
                 line = ControlLine(None, adjPoint.position, point.position)
                 incidentPoint = line.createNextControlPoint(line.len - distance)
-            logging.debug(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
+            logging.info(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
             
             skipEndpoint = None
             medianType = None
