@@ -6,6 +6,7 @@ from extensions.CountryCodes import CountryCodes
 from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
 from roadgen.controlLine.ControlLineBasedGenerator import ControlLineBasedGenerator
 import extensions, os, logging
+import numpy as np
 logfile = 'ControlLineBasedGenerator.log'
 logging.basicConfig(level=logging.INFO, filename=logfile)
 
@@ -22,8 +23,23 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
 
     def test_generateWithHorizontalControlines(self):
 
-        generator = ControlLineBasedGenerator((1500, 1500), debug=True)
-        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 7)
+        generator = ControlLineBasedGenerator((800, 800), debug=True, seed=2, randomizeDistance=True)
+        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 5)
+        # generator.grid.plot()
+        # extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+
+    def test_generateWithHorizontalControlinesCurvy(self):
+
+        generator = ControlLineBasedGenerator((800, 800), debug=True, seed=2, randomizeDistance=True, randomizeHeading=True)
+        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 5)
+        # generator.grid.plot()
+        # extensions.printRoadPositions(odr)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+
+    def test_generateWithHorizontalControlinesBig(self):
+        generator = ControlLineBasedGenerator((2000, 2000), debug=True, seed=1)
+        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 10)
         # generator.grid.plot()
         # extensions.printRoadPositions(odr)
         extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 

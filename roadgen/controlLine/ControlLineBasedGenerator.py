@@ -16,9 +16,13 @@ import numpy as np
 class ControlLineBasedGenerator:
 
 
-    def __init__(self, mapSize, debug=False, country=CountryCodes.US) -> None:
+    def __init__(self, mapSize, debug=False,
+                    randomizeDistance = True, randomizeHeading=False,
+                    country=CountryCodes.US, seed=101) -> None:
         self.name = "ControlLineBasedGenerator"
         self.mapSize = mapSize
+        self.randomizeDistance = randomizeDistance
+        self.randomizeHeading = randomizeHeading
         self.debug = debug
         self.lines = None
         self.pairs = None
@@ -32,6 +36,8 @@ class ControlLineBasedGenerator:
         self.odrList = []
         self.intersectionBuilder = JunctionBuilderFromPointsAndHeading(country=country,
                                                             laneWidth=3)
+        
+        np.random.seed(seed)
         pass
 
 
@@ -41,7 +47,7 @@ class ControlLineBasedGenerator:
         self.lines = []
         self.pairs = []
 
-        minSeperationBetweenEndpoints = 100
+        minSeperationBetweenEndpoints = 80
         maxSeperationBetweenEndpoints = 200
 
         bigSeperationAdditional = 200
@@ -57,6 +63,14 @@ class ControlLineBasedGenerator:
                 startY = prevLine.start[1] + np.random.uniform(minSeperationBetweenEndpoints, maxSeperationBetweenEndpoints)
                 # endY = prevLine.end[1] + np.random.uniform(minSeperationBetweenEndpoints, maxSeperationBetweenEndpoints)
                 endY = startY + np.random.uniform(-0.3, 0.3) * startY
+                logging.info(f"{self.name}: endY before adjustment = {endY}")
+
+                # validate min distance.
+                
+                if endY < prevLine.end[1] + minSeperationBetweenEndpoints:
+                    # endY = prevLine.end[1] + np.random.uniform(minSeperationBetweenEndpoints, maxSeperationBetweenEndpoints) + minSeperationBetweenEndpoints
+                    endY = prevLine.end[1] + minSeperationBetweenEndpoints
+                    # endY = startY + np.random.uniform(0, 0.3) * startY
                 
                 # big seperation
                 if np.random.choice([True, False], p=[0.25, 0.75]):
@@ -66,7 +80,7 @@ class ControlLineBasedGenerator:
                 startX = 0
                 endX = self.mapSize[0]
                 # randomly shorten lines
-                if np.random.choice([True, False], p=[0.25, 0.75]):
+                if np.random.choice([True, False], p=[0.2, 0.8]):
                     #
                     endpoints = np.random.choice(['start', 'end', 'both'], p=[0.3, 0.3, 0.4])
                     if endpoints == 'start':
@@ -77,16 +91,25 @@ class ControlLineBasedGenerator:
                         startX += endX * 0.2
                         endX -= endX * 0.2
 
-
+                
 
 
                 start = (startX, startY)
                 end = (endX, endY)
 
+                endProjection = prevLine.line.project_point(end)
+                endDistance = np.linalg.norm(np.array(end) - np.array(endProjection))
+                
+                logging.info(f"{self.name}: endDistance = {endDistance}")
+                if endDistance < minSeperationBetweenEndpoints:
+                    # a hack
+                    end = (endX, endY + minSeperationBetweenEndpoints)
+
+
 
             line = ControlLine(i+1, start, end)
 
-            logging.info(f"{self.name}: created line {line.start}, {line.end}")
+            logging.info(f"{self.name}: created line #{line.id} at {line.start}, {line.end}")
 
             self.lines.append(line)
             if i > 0:
@@ -164,7 +187,9 @@ class ControlLineBasedGenerator:
 
             
             if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
-                point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point1, self.nextRoadId)
+                point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point1, self.nextRoadId,
+                                                                                            randomizeDistance=self.randomizeDistance,
+                                                                                            randomizeHeading=self.randomizeHeading)
                 self.nextRoadId = point1.intersection.getLastRoadId() + 100
                 self.nextIntersectionId += 1
 
@@ -173,7 +198,9 @@ class ControlLineBasedGenerator:
                 self.odrList.append(point1.intersection.odr)
 
             if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
-                point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point2, self.nextRoadId)
+                point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point2, self.nextRoadId,
+                                                                                            randomizeDistance=self.randomizeDistance,
+                                                                                            randomizeHeading=self.randomizeHeading)
                 self.nextRoadId = point2.intersection.getLastRoadId() + 100
                 self.nextIntersectionId += 1
 

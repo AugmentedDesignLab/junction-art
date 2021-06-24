@@ -77,14 +77,15 @@ class ControlLineGrid:
         if self.debug:
             logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: Connecting new pairs")
 
-        snapDistance = 40 # in meters
-        minSeperation = 80
+        snapDistance = 60 # in meters
+        minSeperation = 100
         maxSeparation = 150
 
         # change seperation per pair
         changeInSeperation = np.random.uniform(0.0, 1.1)
         minSeperation += minSeperation * changeInSeperation
         maxSeparation += maxSeparation * changeInSeperation
+
 
         mdp = {
             'orthogonal': {
@@ -93,14 +94,14 @@ class ControlLineGrid:
                 'commonEnd': 0.2
             },
             'parallel': {
-                'orthogonal': 0.3,
-                'parallel': 0.4,
+                'orthogonal': 0.4,
+                'parallel': 0.3,
                 'random': 0.2,
                 'commonEnd': 0.1
             },
             'random': {
-                'orthogonal': 0.3,
-                'parallel': 0.3,
+                'orthogonal': 0.1,
+                'parallel': 0.5,
                 'random': 0.3,
                 'commonEnd': 0.1
             },
@@ -124,17 +125,33 @@ class ControlLineGrid:
         prevType = 'none'
         
         nextType = 'random'
-        # if abs()
-        point1 = line1Copy.createControlPoint(line1.start)
-        point2 = line2Copy.createControlPoint(line2.start)
+        # Create the first connection
+        projectionOn1 = line1Copy.getProjection(line2.start)
+        if projectionOn1 is not None:
+            # line 2 starts inside line 1
+            point1 = line1Copy.createControlPoint(projectionOn1)
+            point2 = line2Copy.createControlPoint(line2.start)
+        else:
+            projectionOn2 = line2Copy.getProjection(line1.start)
+            if projectionOn2 is None:
+                # floating point error
+                point1 = line1Copy.createControlPoint(line1.start)
+                point2 = line2Copy.createControlPoint(line2.start)
+            else:
+                point1 = line1Copy.createControlPoint(line1.start)
+                point2 = line2Copy.createControlPoint(projectionOn2)
+
+        # point1 = line1Copy.createControlPoint(line1.start)
+        # point2 = line2Copy.createControlPoint(line2.start)
         # now we have the first pair (point1, point2)
 
-        pointOnLine1 = line1.createControlPoint(line1Copy.start)
-        pointOnLine2 = line2.createControlPoint(line2Copy.start)
+        pointOnLine1 = line1.createControlPoint(point1.position)
+        pointOnLine2 = line2.createControlPoint(point2.position)
         pointOnLine1 = line1.mergeWithNearestSiblingIfClose(pointOnLine1, minSeparation=snapDistance)
         pointOnLine2 = line2.mergeWithNearestSiblingIfClose(pointOnLine2, minSeparation=snapDistance)
         self.createConnection(line1, line2, pointOnLine1, pointOnLine2)
 
+        commonEndToggler = 2 # toggles between 1 and 2
 
 
         # we are gonna try until we reach the end
@@ -205,12 +222,14 @@ class ControlLineGrid:
                 elif nextType == 'commonEnd':
 
                     # randomly choose and end
-                    if np.random.choice([True, False], p=[0.5, 0.5]):
+                    if commonEndToggler ==  2:
                         point1 = line1Copy.createNextControlPoint(separation1)
                         point2 = line2Copy.getLastPoint()
+                        commonEndToggler = 1
                     else:
                         point1 = line1Copy.getLastPoint()
                         point2 = line2Copy.createNextControlPoint(separation2)
+                        commonEndToggler = 2
 
                     pass
                 
@@ -426,10 +445,11 @@ class ControlLineGrid:
 
 
         for line in self.lines:
-            plt.plot([line.start[0], line.end[0]], [line.start[1], line.end[1]])
+            plt.plot([line.start[0], line.end[0]], [line.start[1], line.end[1]], '-', linewidth=1.5)
         
-        for connection in self.connections:
-            point1 = connection[2]
-            point2 = connection[3]
-            plt.plot([point1.position[0], point2.position[0]], [point1.position[1], point2.position[1]])
+        for (line1, line2, point1, point2) in self.connections:
+            if line1 == line2:
+                continue
+            plt.plot([point1.position[0], point2.position[0]], [point1.position[1], point2.position[1]], ':', color='gray', linewidth=1.5)
+        plt.grid(color = 'green', linestyle = '--', linewidth = 0.5)
         plt.show()

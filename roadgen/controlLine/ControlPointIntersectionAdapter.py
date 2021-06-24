@@ -11,7 +11,7 @@ class ControlPointIntersectionAdapter:
 
     
     @staticmethod
-    def createIntersection(id, builder, point: ControlPoint, firstIncidentId):
+    def createIntersection(id, builder, point: ControlPoint, firstIncidentId, randomizeDistance = False, randomizeHeading=False):
 
         ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
@@ -26,12 +26,18 @@ class ControlPointIntersectionAdapter:
             # len = math.sqrt((point.position[0] - adjPoint.position[0]) ** 2 + (point.position[1] - adjPoint.position[1]) ** 2)
             # xDiff = adjPoint.position[0] - point.position[0]
             # theta = math.acos(xDiff / len)
+            randomDistance = distance
+            if randomDistance:
+                randomDistance = distance * np.random.uniform(0.5, 1.1)
+            if randomizeHeading:
+                heading = heading * np.random.uniform(0.95, 1.05)
+
             if point.position[0] <= adjPoint.position[0]:
                 line = ControlLine(None, point.position, adjPoint.position)
-                incidentPoint = line.createNextControlPoint(distance)
+                incidentPoint = line.createNextControlPoint(randomDistance)
             else:
                 line = ControlLine(None, adjPoint.position, point.position)
-                incidentPoint = line.createNextControlPoint(line.len - distance)
+                incidentPoint = line.createNextControlPoint(line.len - randomDistance)
             logging.info(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
             
             skipEndpoint = None
