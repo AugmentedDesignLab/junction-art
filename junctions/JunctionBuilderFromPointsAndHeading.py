@@ -186,7 +186,7 @@ class JunctionBuilderFromPointsAndHeading():
         roads = self.createSuccPredAndAppendRoadsInOrder(outSideRoadsShallowCopy=outSideRoadsShallowCopy,
                                                          paramPolyRoads=geoConnectionRoads)
 
-        self.fixNumOutgoingLanes(outSideRoadsShallowCopy, pyodrx.ContactPoint.start)
+        # self.fixNumOutgoingLanes(outSideRoadsShallowCopy, pyodrx.ContactPoint.start)
 
         odrName = "odr_from_points" + str(odrID)
         odr = extensions.createOdrByPredecessor(odrName, roads, [])

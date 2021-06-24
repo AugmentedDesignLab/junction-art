@@ -90,8 +90,8 @@ class ControlLineGrid:
         mdp = {
             'orthogonal': {
                 'parallel': 0.4,
-                'random': 0.4,
-                'commonEnd': 0.2
+                'random': 0.3,
+                'commonEnd': 0.3
             },
             'parallel': {
                 'orthogonal': 0.4,

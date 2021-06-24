@@ -11,7 +11,11 @@ class ControlPointIntersectionAdapter:
 
     
     @staticmethod
-    def createIntersection(id, builder, point: ControlPoint, firstIncidentId, randomizeDistance = False, randomizeHeading=False):
+    def createIntersection(id, builder, point: ControlPoint, firstIncidentId, 
+                            randomizeDistance = False, 
+                            randomizeHeading=False,
+                            laneConfigurations = None
+                            ):
 
         ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
@@ -49,15 +53,20 @@ class ControlPointIntersectionAdapter:
                 # else:
                 #     medianType='full'
 
+            n_left =  1
+            n_right = 1
+
+            if laneConfigurations is not None:
+                (n_left, n_right) = laneConfigurations[point][adjPoint]
 
             roadDef = {
                 'x': incidentPoint.position[0], 'y': incidentPoint.position[1], 'heading': heading, 
-                'leftLane': 1, 'rightLane': 1, 
+                'leftLane': n_left, 'rightLane': n_right, 
                 'medianType': medianType, 'skipEndpoint': skipEndpoint
             }
             roadDefs.append(roadDef)
 
-        intersection = builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
+        intersection = builder.createIntersectionFromPointsWithRoadDefinition(odrID=id,
                                                                 roadDefinition=roadDefs,
                                                                 firstRoadId=firstIncidentId,
                                                                 straightRoadLen=10, getAsOdr = False)
