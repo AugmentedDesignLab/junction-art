@@ -298,21 +298,41 @@ class ControlLineBasedGenerator:
     def fixLaneConfigurationsForAPoint(self, cp, point: ControlPoint):
         print(point)
         for adjPoint in point.adjacentPoints:
-            nIncoming, nOutgoing = self.getIncomingAndOutgoing(cp, point=point, adjPoint=adjPoint)
-            if nIncoming > nOutgoing:
-                nNewOutgoing = nIncoming - nOutgoing
+            # 1. nIncoming on the adjacent point must not be greater than cumulative nOutgoing of other adjacent points
+            nIncoming, nOutgoingOthers = self.getIncomingAndOutgoingForIncidentPoint(cp, point=point, adjPoint=adjPoint)
+            if nIncoming > nOutgoingOthers:
+                nNewOutgoing = nIncoming - nOutgoingOthers
                 self.increaseOutGoing(cp, point, adjPoint, nNewOutgoing)
+            
+            # TODO 2. if nOutgoing on the adjacent  is not 0, cumulative nIncoming of other adjacent points cannot be 0
+            nOutgoing = self.getNumOutgoning(cp, self.laneConfigurations[point][adjPoint])
+            if nOutgoing > 0:
+                #
+                nOutgoing, nIncomingOthers = self.getOutgoingAndIncomingForIncidentPoint(cp, point=point, adjPoint=adjPoint)
+                if nIncomingOthers == 0:
+                    self.addOneIncoming(cp, point, adjPoint)
+                pass
 
 
-
-    def getIncomingAndOutgoing(self, cp, point, adjPoint):
+    def getIncomingAndOutgoingForIncidentPoint(self, cp, point, adjPoint):
 
         nIncoming = self.getNumIncoming(cp, self.laneConfigurations[point][adjPoint])
-        nOutgoing = 0
+        nOutgoingOthers = 0
         for otherPoint in point.adjacentPoints:
             if otherPoint != adjPoint:
-                nOutgoing +=self.getNumOutgoning(cp, self.laneConfigurations[point][otherPoint])
-        return nIncoming, nOutgoing    
+                nOutgoingOthers +=self.getNumOutgoning(cp, self.laneConfigurations[point][otherPoint])
+        return nIncoming, nOutgoingOthers    
+
+
+
+    def getOutgoingAndIncomingForIncidentPoint(self, cp, point, adjPoint):
+
+        nOutgoing = self.getNumOutgoning(cp, self.laneConfigurations[point][adjPoint])
+        nIncomingOthers = 0
+        for otherPoint in point.adjacentPoints:
+            if otherPoint != adjPoint:
+                nIncomingOthers +=self.getNumIncoming(cp, self.laneConfigurations[point][otherPoint])
+        return nOutgoing, nIncomingOthers    
 
 
     def getNumIncoming(self, cp, laneTuple):
@@ -338,6 +358,32 @@ class ControlLineBasedGenerator:
         else:
             raise Exception(f"{self.name}: getNumOutgoning: getNumIncoming non US not implemented")
             
+    
+    def addOneIncoming(self, cp, point, adjPoint):
+        if self.debug:
+            logging.info(f"{self.name}: addOneIncoming: increasing incoming lanes by 1 for intersection point {point.position} for incoming point {adjPoint.position}")
+
+        otherAdjPoints = []
+        for otherPoint in point.adjacentPoints:
+            if otherPoint != adjPoint:
+                otherAdjPoints.append(otherPoint)
+
+        anotherAdjPoint = np.random.choice(otherAdjPoints)
+        n_left, n_right = self.laneConfigurations[point][anotherAdjPoint]
+
+        if self.country == CountryCodes.US:
+            # increase n_right, as right is outgoing for START
+            if cp == pyodrx.ContactPoint.start:
+                n_left += 1
+            else:
+                n_right += 1
+            
+            self.updateLaneConfigurations(point, anotherAdjPoint, n_left, n_right)
+
+            self.fixLaneConfigurationsForAPoint(cp, anotherAdjPoint)
+        else:
+            raise Exception(f"{self.name}: increaseOutGoing: getNumIncoming non US not implemented")
+        pass
 
     def increaseOutGoing(self, cp, point, adjPoint, nNewOutgoing):
 
