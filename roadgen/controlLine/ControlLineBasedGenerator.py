@@ -1,3 +1,4 @@
+from roadgen.controlLine.ControlPoint import ControlPoint
 from junctions.Intersection import Intersection
 from roadgen.controlLine.ControlLineGrid import ControlLineGrid
 from roadgen.controlLine.ControlLine import ControlLine
@@ -17,12 +18,15 @@ class ControlLineBasedGenerator:
 
 
     def __init__(self, mapSize, debug=False,
+                    randomizeLanes=True,
                     randomizeDistance = True, randomizeHeading=False,
                     country=CountryCodes.US, seed=101) -> None:
         self.name = "ControlLineBasedGenerator"
         self.mapSize = mapSize
+        self.randomizeLanes = randomizeLanes
         self.randomizeDistance = randomizeDistance
         self.randomizeHeading = randomizeHeading
+        self.country = country
         self.debug = debug
         self.lines = None
         self.pairs = None
@@ -36,7 +40,7 @@ class ControlLineBasedGenerator:
         self.odrList = []
         self.intersectionBuilder = JunctionBuilderFromPointsAndHeading(country=country,
                                                             laneWidth=3)
-        self.laneConfigurations = {}
+        self.laneConfigurations = None
 
         self.nLaneDistributionOnASide = [0.2, 0.5, 0.2, 0.1] # 0, 1, 2, 3
         
@@ -171,7 +175,10 @@ class ControlLineBasedGenerator:
         self.createGridWithHorizontalControlLines(nLines)
 
         # 2. define lanes for each connection
-        self.createLaneConfigurationsForConnections()
+        if self.randomizeLanes:
+            self.createLaneConfigurationsForConnections()
+        else:
+            self.laneConfigurations = None
 
         # 3. create intersections for each control point
 
@@ -248,6 +255,8 @@ class ControlLineBasedGenerator:
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
 
+
+    #region lane configurations for each control point
     def createLaneConfigurationsForConnections(self):
 
         self.laneConfigurations = {}
@@ -271,7 +280,91 @@ class ControlLineBasedGenerator:
                 # we need to update both
                 print(f"{self.name}: createLaneConfigurationsForConnections: Lines ({line1.id, line2.id}, ({point1.position, point2.position}), lanes {point1_n_left, point1_n_right})")
                 self.updateLaneConfigurations(point1, point2, point1_n_left, point1_n_right)
+        
+        self.fixLaneConfigurations(pyodrx.ContactPoint.start)
 
+
+    def fixLaneConfigurations(self, cp):
+        """Assumes all the incident points are START
+        """
+
+        # for each adjacent point, the number of incoming lanes must be less than or equal to number of outgoing lanes
+
+        # all the points are connected by START
+        for point in self.laneConfigurations:
+            self.fixLaneConfigurationsForAPoint(cp, point)
+    
+
+    def fixLaneConfigurationsForAPoint(self, cp, point: ControlPoint):
+        print(point)
+        for adjPoint in point.adjacentPoints:
+            nIncoming, nOutgoing = self.getIncomingAndOutgoing(cp, point=point, adjPoint=adjPoint)
+            if nIncoming > nOutgoing:
+                nNewOutgoing = nIncoming - nOutgoing
+                self.increaseOutGoing(cp, point, adjPoint, nNewOutgoing)
+
+
+
+    def getIncomingAndOutgoing(self, cp, point, adjPoint):
+
+        nIncoming = self.getNumIncoming(cp, self.laneConfigurations[point][adjPoint])
+        nOutgoing = 0
+        for otherPoint in point.adjacentPoints:
+            if otherPoint != adjPoint:
+                nOutgoing +=self.getNumOutgoning(cp, self.laneConfigurations[point][otherPoint])
+        return nIncoming, nOutgoing    
+
+
+    def getNumIncoming(self, cp, laneTuple):
+
+        if self.country == CountryCodes.US:
+            if cp == pyodrx.ContactPoint.start:
+                #left is incoming lanes
+                return laneTuple[0]
+            else: # 
+                return laneTuple[1]
+        else:
+            raise Exception(f"{self.name}: getNumIncoming: getNumIncoming non US not implemented")
+            
+
+    def getNumOutgoning(self, cp, laneTuple):
+
+        if self.country == CountryCodes.US:
+            if cp == pyodrx.ContactPoint.start:
+                #right lanes is outgoing
+                return laneTuple[1]
+            else: # left
+                return laneTuple[0]
+        else:
+            raise Exception(f"{self.name}: getNumOutgoning: getNumIncoming non US not implemented")
+            
+
+    def increaseOutGoing(self, cp, point, adjPoint, nNewOutgoing):
+
+        if self.debug:
+            logging.info(f"{self.name}: increaseOutGoing: increasing outgoing lanes by {nNewOutgoing} for intersection point {point.position} for incoming point {adjPoint.position}")
+        otherAdjPoints = []
+        for otherPoint in point.adjacentPoints:
+            if otherPoint != adjPoint:
+                otherAdjPoints.append(otherPoint)
+        
+
+        for _ in range(nNewOutgoing):
+            # update one other adjacent point randomly. This will also change the other points incoming lanes. So, need to readjust that, too.
+            anotherAdjPoint = np.random.choice(otherAdjPoints)
+            n_left, n_right = self.laneConfigurations[point][anotherAdjPoint]
+            if self.country == CountryCodes.US:
+                # increase n_right, as right is outgoing for START
+                if cp == pyodrx.ContactPoint.start:
+                    n_right += 1
+                else:
+                    n_left += 1
+                
+                self.updateLaneConfigurations(point, anotherAdjPoint, n_left, n_right)
+
+                self.fixLaneConfigurationsForAPoint(cp, anotherAdjPoint)
+            else:
+                raise Exception(f"{self.name}: increaseOutGoing: getNumIncoming non US not implemented")
 
     def updateLaneConfigurations(self, point1, point2, point1_n_left, point1_n_right):
             # we are connecting at the same cp
@@ -282,6 +375,7 @@ class ControlLineBasedGenerator:
             print(f"{self.name}: createLaneConfigurationsForConnections:  ({point1.position, point2.position}), lanes point1 {point1_n_left, point1_n_right}), lanes point2 {point2_n_left, point2_n_right}")
 
 
+    #endregion
 
     def reverseCP(self, cp):
          return pyodrx.ContactPoint.start if (cp == pyodrx.ContactPoint.end) else pyodrx.ContactPoint.end

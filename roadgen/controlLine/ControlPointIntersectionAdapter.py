@@ -66,11 +66,16 @@ class ControlPointIntersectionAdapter:
             }
             roadDefs.append(roadDef)
 
-        intersection = builder.createIntersectionFromPointsWithRoadDefinition(odrID=id,
+        try:
+            intersection = builder.createIntersectionFromPointsWithRoadDefinition(odrID=id,
                                                                 roadDefinition=roadDefs,
                                                                 firstRoadId=firstIncidentId,
                                                                 straightRoadLen=10, getAsOdr = False)
-        return intersection
+            return intersection
+        except Exception as e:
+            logging.error(f"ControlPointIntersectionAdapter: point {point.position}: {roadDefs}")
+            logging.error(e)
+            raise e
 
             
 
