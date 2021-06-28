@@ -186,70 +186,16 @@ class ControlLineBasedGenerator:
             self.laneConfigurations = None
 
         # 3. create intersections for each control point
-
         self.createIntersectionsForControlPoints()
-        # for (line1, line2, point1, point2) in self.grid.connections:
 
-            
-        #     if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
-        #         print(f"{self.name}: Creating intersection for line {line1.id} p = {point1.position}")
-        #         point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point1, self.nextRoadId,
-        #                                                                                     randomizeDistance=self.randomizeDistance,
-        #                                                                                     randomizeHeading=self.randomizeHeading,
-        #                                                                                     laneConfigurations=self.laneConfigurations,
-        #                                                                                     debug=self.debug)
-        #         self.nextRoadId = point1.intersection.getLastRoadId() + 100
-        #         self.nextIntersectionId += 1
-
-        #         point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
-        #         self.controlPointIntersectionMap[point1] = point1.intersection
-        #         self.odrList.append(point1.intersection.odr)
-
-        #     if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
-        #         print(f"{self.name}: Creating intersection for line {line2.id} p = {point2.position}")
-        #         point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point2, self.nextRoadId,
-        #                                                                                     randomizeDistance=self.randomizeDistance,
-        #                                                                                     randomizeHeading=self.randomizeHeading,
-        #                                                                                     laneConfigurations=self.laneConfigurations,
-        #                                                                                     debug=self.debug)
-        #         self.nextRoadId = point2.intersection.getLastRoadId() + 100
-        #         self.nextIntersectionId += 1
-
-        #         point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
-        #         self.controlPointIntersectionMap[point2] = point2.intersection
-        #         self.odrList.append(point2.intersection.odr)
-        
         # now we have the intersections
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
-        for (line1, line2, point1, point2) in self.grid.connections:
-
-            print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
-            
-            point1IncidentIndex = point1.adjPointToOutsideIndex[point2]
-            point2IncidentIndex = point2.adjPointToOutsideIndex[point1]
-
-            road1 = point1.intersection.incidentRoads[point1IncidentIndex]
-            cp1 =  self.reverseCP(point1.intersection.incidentCPs[point1IncidentIndex])
-            road2 = point2.intersection.incidentRoads[point2IncidentIndex]
-            cp2 = self.reverseCP(point2.intersection.incidentCPs[point2IncidentIndex])
-
-            self.connect(self.nextRoadId, intersection1=point1.intersection, road1=road1, cp1=cp1,
-                                          intersection2=point2. intersection, road2=road2, cp2=cp2, 
-                                          laneSides=LaneSides.BOTH)
-            self.nextRoadId += 1
-
-            # now we connect these incident roads.
-
-            # we need to process point1 only
-            # for adjP in point1.adjacentPointsCWOrder.values():
-            #     point1IncidentIndex = point1.adjPointToOutsideIndex[adjP]
-            #     point2IncidentIndex = ad
-            
-
+        self.createConnectionRoadsBetweenIntersections()
         
         combinedOdr = ODRHelper.combine(self.odrList, name)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
+        
 
     def buildClockwiseAdjacentMapForControlPoints(self):
         for (line1, line2, point1, point2) in self.grid.connections:
@@ -257,6 +203,7 @@ class ControlLineBasedGenerator:
                 ControlPointIntersectionAdapter.orderAjacentCW(point1)
             if len(point2.adjacentPointsCWOrder) == 0:
                 ControlPointIntersectionAdapter.orderAjacentCW(point2)
+        pass
 
 
     def createIntersectionsForControlPoints(self):
@@ -292,6 +239,28 @@ class ControlLineBasedGenerator:
                 self.controlPointIntersectionMap[point2] = point2.intersection
                 self.odrList.append(point2.intersection.odr)
 
+        pass
+
+
+    def createConnectionRoadsBetweenIntersections(self):
+        # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
+        for (line1, line2, point1, point2) in self.grid.connections:
+
+            print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
+            
+            point1IncidentIndex = point1.adjPointToOutsideIndex[point2]
+            point2IncidentIndex = point2.adjPointToOutsideIndex[point1]
+
+            road1 = point1.intersection.incidentRoads[point1IncidentIndex]
+            cp1 =  self.reverseCP(point1.intersection.incidentCPs[point1IncidentIndex])
+            road2 = point2.intersection.incidentRoads[point2IncidentIndex]
+            cp2 = self.reverseCP(point2.intersection.incidentCPs[point2IncidentIndex])
+
+            self.connect(self.nextRoadId, intersection1=point1.intersection, road1=road1, cp1=cp1,
+                                          intersection2=point2. intersection, road2=road2, cp2=cp2, 
+                                          laneSides=LaneSides.BOTH)
+            self.nextRoadId += 1
+        pass
 
     #region lane configurations for each control point
     def createLaneConfigurationsForConnections(self):
