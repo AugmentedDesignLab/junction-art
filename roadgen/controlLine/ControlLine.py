@@ -70,7 +70,9 @@ class ControlLine:
     def getSlopeSign(self):
 
         if (self.end[0] - self.start[0]) == 0.0:
-            return 1
+            if self.end[1] > self.start[1]:
+                return 1
+            return -1
         slope = (self.end[1] - self.start[1]) / (self.end[0] - self.start[0])
         slopeSign = 1 if slope >= 0 else - 1
         return slopeSign
@@ -283,6 +285,14 @@ class ControlLine:
     
 
     def isProjectionInsideControlPoints(self, projection):
+        """Checks if a projection is between existing control points.
+
+        Args:
+            projection ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         lastCp = self.getLastPoint()
         if lastCp.position[0] > projection[0]:
             return True

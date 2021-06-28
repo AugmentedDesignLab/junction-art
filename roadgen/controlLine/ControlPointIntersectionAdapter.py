@@ -1,33 +1,107 @@
+from extensions.moreHelpers import laneWidths
 from junctions.Intersection import Intersection
 from roadgen.controlLine.ControlPoint import ControlPoint
 from roadgen.controlLine.ControlLine import ControlLine
-import math, logging
+from extensions.CountryCodes import CountryCodes
+import math, logging, pyodrx
 import numpy as np
 import logging
 
 class ControlPointIntersectionAdapter:
 
+    
     @staticmethod
-    def createIntersection(point: ControlPoint):
+    def createIntersection(id, builder, point: ControlPoint, firstIncidentId, 
+                            randomizeDistance = False, 
+                            randomizeHeading=False,
+                            laneConfigurations = None,
+                            debug=False
+                            ):
 
-        ControlPointIntersectionAdapter.orderAjacentCW(point)
+        # ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
+        country = CountryCodes.US
+        laneWidth = 3
+        roadDefs = []
+
+        nIncidentPoints = len(point.adjacentPointsCWOrder)
+
+        if nIncidentPoints == 0:
+            raise Exception(f"ControlPointIntersectionAdapter: createIntersection adjacentPointsCWOrder is empty")
 
         for heading, adjPoint in point.adjacentPointsCWOrder.items():
             # # we get a point between point and adjPoint which is close to the point.
             # len = math.sqrt((point.position[0] - adjPoint.position[0]) ** 2 + (point.position[1] - adjPoint.position[1]) ** 2)
             # xDiff = adjPoint.position[0] - point.position[0]
             # theta = math.acos(xDiff / len)
+            randomDistance = distance
+            if randomDistance:
+                randomDistance = distance * np.random.uniform(0.5, 1.1)
+            if randomizeHeading:
+                heading = heading * np.random.uniform(0.95, 1.05)
+
             if point.position[0] <= adjPoint.position[0]:
                 line = ControlLine(None, point.position, adjPoint.position)
-                incidentPoint = line.createNextControlPoint(distance)
+                incidentPoint = line.createNextControlPoint(randomDistance)
             else:
                 line = ControlLine(None, adjPoint.position, point.position)
-                incidentPoint = line.createNextControlPoint(line.len - distance)
-            logging.debug(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
+                incidentPoint = line.createNextControlPoint(line.len - randomDistance)
+            logging.info(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
+            
+            skipEndpoint = None
+            medianType = None
+            if nIncidentPoints >= 3:
+                if np.random.choice([True, False], p=[0.3, 0.7]):
+                    medianType='partial'
+                    skipEndpoint = pyodrx.ContactPoint.end
+                # else:
+                #     medianType='full'
+
+            n_left =  1
+            n_right = 1
+
+            if laneConfigurations is not None:
+                (n_left, n_right) = laneConfigurations[point][adjPoint]
+
+            roadDef = {
+                'x': incidentPoint.position[0], 'y': incidentPoint.position[1], 'heading': heading, 
+                'leftLane': n_left, 'rightLane': n_right, 
+                'medianType': medianType, 'skipEndpoint': skipEndpoint
+            }
+            roadDefs.append(roadDef)
+
+        try:
+            intersection = builder.createIntersectionFromPointsWithRoadDefinition(odrID=id,
+                                                                roadDefinition=roadDefs,
+                                                                firstRoadId=firstIncidentId,
+                                                                straightRoadLen=10, getAsOdr = False)
+            if debug:
+                logging.info(f"ControlPointIntersectionAdapter: createIntersection for point {point.position}")
+                logging.info(roadDefs)
+                logging.info(intersection)
+            return intersection
+        except Exception as e:
+            logging.error(f"ControlPointIntersectionAdapter: point {point.position}: {roadDefs}")
+            logging.error(e)
+            raise e
+
             
 
-    
+    @staticmethod
+    def getAdjacentPointOutsideRoadIndexMap(point: ControlPoint, intersection: Intersection):
+        map = {}
+        # orderedAdjacentPoints = list(point.adjacentPointsCWOrder.values())
+        # index = orderedAdjacentPoints.index(adjP)
+
+        index = 0
+        for adjP in point.adjacentPointsCWOrder.values():
+            # map[adjP] = intersection.incidentRoads[index]
+            map[adjP] = index
+            index += 1
+        
+        return map
+        
+
 
     @staticmethod
     def getHeading(centerPos, pointPos):
@@ -57,7 +131,7 @@ class ControlPointIntersectionAdapter:
             heading = ControlPointIntersectionAdapter.getHeading(point.position, adjP.position)
             headingDic[heading] = adjP
 
-        for key in sorted(headingDic):
+        for key in sorted(headingDic, reverse=True):
             point.adjacentPointsCWOrder[key] = headingDic[key]
         pass
         

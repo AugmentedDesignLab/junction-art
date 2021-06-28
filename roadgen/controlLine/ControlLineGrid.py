@@ -77,33 +77,39 @@ class ControlLineGrid:
         if self.debug:
             logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: Connecting new pairs")
 
-        snapDistance = 20 # in meters
-        minSeperation = 50
+        snapDistance = 60 # in meters
+        minSeperation = 100
         maxSeparation = 150
+
+        # change seperation per pair
+        changeInSeperation = np.random.uniform(0.0, 1.1)
+        minSeperation += minSeperation * changeInSeperation
+        maxSeparation += maxSeparation * changeInSeperation
+
 
         mdp = {
             'orthogonal': {
                 'parallel': 0.4,
-                'random': 0.4,
-                'commonEnd': 0.2
+                'random': 0.3,
+                'commonEnd': 0.3
             },
             'parallel': {
-                'orthogonal': 0.3,
+                'orthogonal': 0.4,
                 'parallel': 0.3,
-                'random': 0.3,
+                'random': 0.2,
                 'commonEnd': 0.1
             },
             'random': {
-                'orthogonal': 0.2,
-                'parallel': 0.3,
+                'orthogonal': 0.1,
+                'parallel': 0.5,
                 'random': 0.3,
-                'commonEnd': 0.2
+                'commonEnd': 0.1
             },
             'commonEnd': {
-                'orthogonal': 0.3,
-                'parallel': 0.4,
-                'random': 0.2,
-                'commonEnd': 0.1
+                'orthogonal': 0.4,
+                'parallel': 0.2,
+                'random': 0.4,
+                'commonEnd': 0
             },
             'none': {
                 'orthogonal': 0.3,
@@ -117,38 +123,35 @@ class ControlLineGrid:
         line2Copy = ControlLine(id=pair[1].id, start=pair[1].start, end=pair[1].end)
 
         prevType = 'none'
-        # nextType = np.random.choice(list(mdp[prevType].keys()), p=list(mdp[prevType].values()))
-
-        # if nextType == 'orthogonal':
-        #     projectionOn1 = line1.getProjection(line2.start)
-        #     projectionOn2 = line2.getProjection(line1.start)
-        #     if projectionOn2 is None and projectionOn1 is None:
-        #         raise Exception(f"{self.name}: connectControlLinesWithRectsAndTriangles cannot create the first line as orthogonal")
-            
-        #     if projectionOn1 is None:
-        #         point1 = line1.createControlPoint(line1.start)
-        #         point2 = line2.createControlPoint(projectionOn2)
-        #     else:
-        #         point1 = line1.createControlPoint(projectionOn1)
-        #         point2 = line2.createControlPoint(line2.start)
         
-        # elif nextType == 'random':
-        #     separation1 = np.random.uniform(minSeperation, maxSeparation)
-        #     separation2 = np.random.uniform(minSeperation, maxSeparation)
-        #     point1 = line1.createNextControlPoint(separation1)
-        #     point2 = line2.createNextControlPoint(separation2)
-
         nextType = 'random'
-        point1 = line1Copy.createControlPoint(line1.start)
-        point2 = line2Copy.createControlPoint(line2.start)
+        # Create the first connection
+        projectionOn1 = line1Copy.getProjection(line2.start)
+        if projectionOn1 is not None:
+            # line 2 starts inside line 1
+            point1 = line1Copy.createControlPoint(projectionOn1)
+            point2 = line2Copy.createControlPoint(line2.start)
+        else:
+            projectionOn2 = line2Copy.getProjection(line1.start)
+            if projectionOn2 is None:
+                # floating point error
+                point1 = line1Copy.createControlPoint(line1.start)
+                point2 = line2Copy.createControlPoint(line2.start)
+            else:
+                point1 = line1Copy.createControlPoint(line1.start)
+                point2 = line2Copy.createControlPoint(projectionOn2)
+
+        # point1 = line1Copy.createControlPoint(line1.start)
+        # point2 = line2Copy.createControlPoint(line2.start)
         # now we have the first pair (point1, point2)
 
-        pointOnLine1 = line1.createControlPoint(line1.start)
-        pointOnLine2 = line2.createControlPoint(line2.start)
+        pointOnLine1 = line1.createControlPoint(point1.position)
+        pointOnLine2 = line2.createControlPoint(point2.position)
         pointOnLine1 = line1.mergeWithNearestSiblingIfClose(pointOnLine1, minSeparation=snapDistance)
         pointOnLine2 = line2.mergeWithNearestSiblingIfClose(pointOnLine2, minSeparation=snapDistance)
         self.createConnection(line1, line2, pointOnLine1, pointOnLine2)
 
+        commonEndToggler = 2 # toggles between 1 and 2
 
 
         # we are gonna try until we reach the end
@@ -158,49 +161,37 @@ class ControlLineGrid:
             try:
                 separation1 = np.random.uniform(minSeperation, maxSeparation)
                 separation2 = np.random.uniform(minSeperation, maxSeparation)
-                candidate1 = line1Copy.createNextControlPoint(separation1)
+                # candidate1 = line1Copy.createNextControlPoint(separation1)
 
                 nextType = np.random.choice(list(mdp[prevType].keys()), p=list(mdp[prevType].values()))
                 if self.debug:
-                    logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: nextType: {nextType}")
+                    logging.info(f"{self.name}: Lines ({line1.id}, {line2.id}): connectControlLinesWithRectsAndTriangles: nextType: {nextType}")
 
                 if nextType == 'orthogonal':
-
-                    projectionOn2 = line2Copy.getProjection(candidate1.position)
-                    if projectionOn2 is None:
-                        line1Copy.deleteControlPoint(candidate1)
-                        # we could not get a projection. just break for now. 
-                        raise Exception(f"Projection out of boundary for candidate 1 at {candidate1.position}")
-                    
-                    if line2Copy.isProjectionInsideControlPoints(projectionOn2):
-                        line1Copy.deleteControlPoint(candidate1)
-                        if self.debug:
-                            logging.info(f"Projection {projectionOn2} is inside existing control points")
+                    try:
+                        point1, point2 = self.createOrthogonalPoints(line1=line1Copy, line2=line2Copy, separation1=separation1, separation2=separation2)
+                    except:
                         continue
-                    
-                    # candidate2 = line2Copy.createNextControlPoint(separation2)
-                    point1 = candidate1
-                    point2 = line2Copy.createControlPoint(projectionOn2)
-                    # line2Copy.deleteControlPoint(candidate2)
 
                 elif nextType == 'parallel':
-                    point1 = candidate1
+                    point1 = line1Copy.createNextControlPoint(separation1)
                     point2 = line2Copy.createNextControlPoint(separation1)
                     pass
                 elif nextType == 'random':
-                    point1 = candidate1
+                    point1 = line1Copy.createNextControlPoint(separation1)
                     point2 = line2Copy.createNextControlPoint(separation2)
                     pass
                 elif nextType == 'commonEnd':
 
                     # randomly choose and end
-                    if np.random.choice([True, False], p=[0.5, 0.5]):
-                        point1 = candidate1
+                    if commonEndToggler ==  2:
+                        point1 = line1Copy.createNextControlPoint(separation1)
                         point2 = line2Copy.getLastPoint()
+                        commonEndToggler = 1
                     else:
-                        line1Copy.deleteControlPoint(candidate1)
                         point1 = line1Copy.getLastPoint()
                         point2 = line2Copy.createNextControlPoint(separation2)
+                        commonEndToggler = 2
 
                     pass
                 
@@ -218,11 +209,55 @@ class ControlLineGrid:
 
             except Exception as e:
                 if self.debug:
-                    logging.info(f"{self.name}: connectControlLinesWithRectsAndTriangles: ends due to {e}")
+                    logging.info(f"{self.name}: Lines ({line1.id}, {line2.id}): connectControlLinesWithRectsAndTriangles: ends due to {e}")
                     traceback.print_exc()
                 break
 
     
+    def createOrthogonalPoints(self, line1, line2, separation1, separation2):
+        candidate1 = line1.createNextControlPoint(separation1)
+        # try projection on 2
+        projectionOn2failed = False
+        projectionOn2 = line2.getProjection(candidate1.position)
+        if projectionOn2 is None:
+            projectionOn2failed = True
+            # we could not get a projection. just break for now. 
+            if self.debug:
+                logging.info(f"{self.name}: createOrthogonalPoints: Lines ({line1.id}, {line2.id}): Projection out of boundary for candidate 1 at {candidate1.position}")
+        
+        elif line2.isProjectionInsideControlPoints(projectionOn2):
+            projectionOn2failed = True
+            if self.debug:
+                logging.info(f"{self.name}: createOrthogonalPoints: Lines ({line1.id}, {line2.id}): Projection {projectionOn2} is inside existing control points")
+            # continue
+        
+        # try projection on 1
+        if projectionOn2failed:
+            line1.deleteControlPoint(candidate1)
+
+            candidate2 = line2.createNextControlPoint(separation2)
+            projectionOn1 = line1.getProjection(candidate2.position)
+            if projectionOn1 is None:
+                line2.deleteControlPoint(candidate2)
+                if self.debug:
+                    logging.info(f"{self.name}: createOrthogonalPoints: Lines ({line1.id}, {line2.id}): Projection out of boundary for candidate 2 at {candidate2.position}")
+                raise Exception(f"{self.name}: createOrthogonalPoints")
+            elif line1.isProjectionInsideControlPoints(projectionOn1):
+                line2.deleteControlPoint(candidate2)
+                if self.debug:
+                    logging.info(f"{self.name}: createOrthogonalPoints: Lines ({line1.id}, {line2.id}): Projection {projectionOn1} is inside existing control points")
+                raise Exception(f"{self.name}: createOrthogonalPoints")
+
+            point1 = line1.createControlPoint(projectionOn1)
+            point2 = candidate2
+
+        else: # projection on 2 is valid
+            point1 = candidate1
+            point2 = line2.createControlPoint(projectionOn2)
+
+        return point1, point2
+
+
     def connectControlLinesWithExistingControlPoints(self, pair: Tuple[ControlLine], maxPerPoint=2, ConnectionStrategy=ConnectionStrategy.MIN, connectionDensity=0.9):
         line1 = pair[0]
         line2 = pair[1]
@@ -372,10 +407,11 @@ class ControlLineGrid:
 
 
         for line in self.lines:
-            plt.plot([line.start[0], line.end[0]], [line.start[1], line.end[1]])
+            plt.plot([line.start[0], line.end[0]], [line.start[1], line.end[1]], '-', linewidth=1.5)
         
-        for connection in self.connections:
-            point1 = connection[2]
-            point2 = connection[3]
-            plt.plot([point1.position[0], point2.position[0]], [point1.position[1], point2.position[1]])
+        for (line1, line2, point1, point2) in self.connections:
+            if line1 == line2:
+                continue
+            plt.plot([point1.position[0], point2.position[0]], [point1.position[1], point2.position[1]], ':', color='gray', linewidth=1.5)
+        plt.grid(color = 'green', linestyle = '--', linewidth = 0.5)
         plt.show()
