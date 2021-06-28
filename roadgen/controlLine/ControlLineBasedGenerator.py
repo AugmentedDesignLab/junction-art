@@ -174,6 +174,11 @@ class ControlLineBasedGenerator:
         # 1 grid creation
         self.createGridWithHorizontalControlLines(nLines)
 
+        # 1.1
+        # build clockwise adjacent points structure
+        
+        self.buildClockwiseAdjacentMapForControlPoints()
+
         # 2. define lanes for each connection
         if self.randomizeLanes:
             self.createLaneConfigurationsForConnections()
@@ -182,50 +187,41 @@ class ControlLineBasedGenerator:
 
         # 3. create intersections for each control point
 
-        # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
-
-        for (line1, line2, point1, point2) in self.grid.connections:
+        self.createIntersectionsForControlPoints()
+        # for (line1, line2, point1, point2) in self.grid.connections:
 
             
-            if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
-                print(f"{self.name}: Creating intersection for line {line1.id} p = {point1.position}")
-                point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point1, self.nextRoadId,
-                                                                                            randomizeDistance=self.randomizeDistance,
-                                                                                            randomizeHeading=self.randomizeHeading,
-                                                                                            laneConfigurations=self.laneConfigurations)
-                self.nextRoadId = point1.intersection.getLastRoadId() + 100
-                self.nextIntersectionId += 1
+        #     if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
+        #         print(f"{self.name}: Creating intersection for line {line1.id} p = {point1.position}")
+        #         point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point1, self.nextRoadId,
+        #                                                                                     randomizeDistance=self.randomizeDistance,
+        #                                                                                     randomizeHeading=self.randomizeHeading,
+        #                                                                                     laneConfigurations=self.laneConfigurations,
+        #                                                                                     debug=self.debug)
+        #         self.nextRoadId = point1.intersection.getLastRoadId() + 100
+        #         self.nextIntersectionId += 1
 
-                point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
-                self.controlPointIntersectionMap[point1] = point1.intersection
-                self.odrList.append(point1.intersection.odr)
+        #         point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
+        #         self.controlPointIntersectionMap[point1] = point1.intersection
+        #         self.odrList.append(point1.intersection.odr)
 
-            if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
-                print(f"{self.name}: Creating intersection for line {line2.id} p = {point2.position}")
-                point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point2, self.nextRoadId,
-                                                                                            randomizeDistance=self.randomizeDistance,
-                                                                                            randomizeHeading=self.randomizeHeading,
-                                                                                            laneConfigurations=self.laneConfigurations)
-                self.nextRoadId = point2.intersection.getLastRoadId() + 100
-                self.nextIntersectionId += 1
+        #     if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
+        #         print(f"{self.name}: Creating intersection for line {line2.id} p = {point2.position}")
+        #         point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point2, self.nextRoadId,
+        #                                                                                     randomizeDistance=self.randomizeDistance,
+        #                                                                                     randomizeHeading=self.randomizeHeading,
+        #                                                                                     laneConfigurations=self.laneConfigurations,
+        #                                                                                     debug=self.debug)
+        #         self.nextRoadId = point2.intersection.getLastRoadId() + 100
+        #         self.nextIntersectionId += 1
 
-                point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
-                self.controlPointIntersectionMap[point2] = point2.intersection
-                self.odrList.append(point2.intersection.odr)
+        #         point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
+        #         self.controlPointIntersectionMap[point2] = point2.intersection
+        #         self.odrList.append(point2.intersection.odr)
         
         # now we have the intersections
+        # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
         for (line1, line2, point1, point2) in self.grid.connections:
-            # if len(point1.adjacentPoints) < 3:
-            #     # raise Exception(f"why less than 3 for point {point1.position}")
-            #     # print(f"why less than 3 for point {point1.position}")
-            #     # skipping for now
-            #     continue
-
-            # if len(point2.adjacentPoints) < 3:
-            #     # raise Exception(f"why less than 3 for point {point1.position}")
-            #     # print(f"why less than 3 for point {point1.position}")
-            #     # skipping for now
-            #     continue
 
             print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
             
@@ -254,6 +250,47 @@ class ControlLineBasedGenerator:
         combinedOdr = ODRHelper.combine(self.odrList, name)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
+
+    def buildClockwiseAdjacentMapForControlPoints(self):
+        for (line1, line2, point1, point2) in self.grid.connections:
+            if len(point1.adjacentPointsCWOrder) == 0:
+                ControlPointIntersectionAdapter.orderAjacentCW(point1)
+            if len(point2.adjacentPointsCWOrder) == 0:
+                ControlPointIntersectionAdapter.orderAjacentCW(point2)
+
+
+    def createIntersectionsForControlPoints(self):
+        
+        for (line1, line2, point1, point2) in self.grid.connections:
+
+            
+            if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
+                print(f"{self.name}: Creating intersection for line {line1.id} p = {point1.position}")
+                point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point1, self.nextRoadId,
+                                                                                            randomizeDistance=self.randomizeDistance,
+                                                                                            randomizeHeading=self.randomizeHeading,
+                                                                                            laneConfigurations=self.laneConfigurations,
+                                                                                            debug=self.debug)
+                self.nextRoadId = point1.intersection.getLastRoadId() + 100
+                self.nextIntersectionId += 1
+
+                point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
+                self.controlPointIntersectionMap[point1] = point1.intersection
+                self.odrList.append(point1.intersection.odr)
+
+            if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
+                print(f"{self.name}: Creating intersection for line {line2.id} p = {point2.position}")
+                point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point2, self.nextRoadId,
+                                                                                            randomizeDistance=self.randomizeDistance,
+                                                                                            randomizeHeading=self.randomizeHeading,
+                                                                                            laneConfigurations=self.laneConfigurations,
+                                                                                            debug=self.debug)
+                self.nextRoadId = point2.intersection.getLastRoadId() + 100
+                self.nextIntersectionId += 1
+
+                point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
+                self.controlPointIntersectionMap[point2] = point2.intersection
+                self.odrList.append(point2.intersection.odr)
 
 
     #region lane configurations for each control point

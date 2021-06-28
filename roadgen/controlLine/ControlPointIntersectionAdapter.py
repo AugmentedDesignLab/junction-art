@@ -14,16 +14,20 @@ class ControlPointIntersectionAdapter:
     def createIntersection(id, builder, point: ControlPoint, firstIncidentId, 
                             randomizeDistance = False, 
                             randomizeHeading=False,
-                            laneConfigurations = None
+                            laneConfigurations = None,
+                            debug=False
                             ):
 
-        ControlPointIntersectionAdapter.orderAjacentCW(point)
+        # ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
         country = CountryCodes.US
         laneWidth = 3
         roadDefs = []
 
         nIncidentPoints = len(point.adjacentPointsCWOrder)
+
+        if nIncidentPoints == 0:
+            raise Exception(f"ControlPointIntersectionAdapter: createIntersection adjacentPointsCWOrder is empty")
 
         for heading, adjPoint in point.adjacentPointsCWOrder.items():
             # # we get a point between point and adjPoint which is close to the point.
@@ -71,6 +75,10 @@ class ControlPointIntersectionAdapter:
                                                                 roadDefinition=roadDefs,
                                                                 firstRoadId=firstIncidentId,
                                                                 straightRoadLen=10, getAsOdr = False)
+            if debug:
+                logging.info(f"ControlPointIntersectionAdapter: createIntersection for point {point.position}")
+                logging.info(roadDefs)
+                logging.info(intersection)
             return intersection
         except Exception as e:
             logging.error(f"ControlPointIntersectionAdapter: point {point.position}: {roadDefs}")
@@ -123,7 +131,7 @@ class ControlPointIntersectionAdapter:
             heading = ControlPointIntersectionAdapter.getHeading(point.position, adjP.position)
             headingDic[heading] = adjP
 
-        for key in sorted(headingDic):
+        for key in sorted(headingDic, reverse=True):
             point.adjacentPointsCWOrder[key] = headingDic[key]
         pass
         

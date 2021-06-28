@@ -15,7 +15,7 @@ class ControlPoint:
         self.position = position
         self.adjacentPoints = []
         self.intersection = None
-        self.adjacentPointsCWOrder = {}
+        self.adjacentPointsCWOrder = {} # clickwise, populated by create Intersection routine
         self.adjPointToOutsideIndex = {}
 
 

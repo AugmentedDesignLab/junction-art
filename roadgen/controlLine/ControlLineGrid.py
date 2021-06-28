@@ -168,44 +168,6 @@ class ControlLineGrid:
                     logging.info(f"{self.name}: Lines ({line1.id}, {line2.id}): connectControlLinesWithRectsAndTriangles: nextType: {nextType}")
 
                 if nextType == 'orthogonal':
-
-                    # # try projection on 2
-                    # projectionOn2failed = False
-                    # projectionOn2 = line2Copy.getProjection(candidate1.position)
-                    # if projectionOn2 is None:
-                    #     projectionOn2failed = True
-                    #     line1Copy.deleteControlPoint(candidate1)
-                    #     # we could not get a projection. just break for now. 
-                    #     if self.debug:
-                    #         logging.info(f"{self.name}: Lines ({line1.id}, {line2.id}): Projection out of boundary for candidate 1 at {candidate1.position}")
-                    
-                    # elif line2Copy.isProjectionInsideControlPoints(projectionOn2):
-                    #     projectionOn2failed = True
-                    #     line1Copy.deleteControlPoint(candidate1)
-                    #     if self.debug:
-                    #         logging.info(f"{self.name}: Lines ({line1.id}, {line2.id}): Projection {projectionOn2} is inside existing control points")
-                    #     # continue
-                    
-                    # # try projection on 1
-                    # if projectionOn2failed:
-                    #     candidate2 = line2Copy.createNextControlPoint(separation2)
-                    #     projectionOn1 = line1Copy.getProjection(candidate2.position)
-                    #     if projectionOn1 is None:
-                    #         line2Copy.deleteControlPoint(candidate2)
-                    #         if self.debug:
-                    #             logging.info(f"{self.name}: Lines ({line1.id}, {line2.id}): Projection out of boundary for candidate 2 at {candidate2.position}")
-                    #         continue
-                    #     elif line1Copy.isProjectionInsideControlPoints(projectionOn1):
-                    #         line2Copy.deleteControlPoint(candidate2)
-                    #         if self.debug:
-                    #             logging.info(f"{self.name}: Lines ({line1.id}, {line2.id}): Projection {projectionOn1} is inside existing control points")
-                    #         continue
-                    #     point1 = line1Copy.createControlPoint(projectionOn1)
-                    #     point2 = candidate2
-
-                    # else: # projection on 2 is valid
-                    #     point1 = candidate1
-                    #     point2 = line2Copy.createControlPoint(projectionOn2)
                     try:
                         point1, point2 = self.createOrthogonalPoints(line1=line1Copy, line2=line2Copy, separation1=separation1, separation2=separation2)
                     except:

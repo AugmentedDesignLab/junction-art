@@ -151,6 +151,62 @@ class JunctionBuilderFromPointsAndHeading():
 
         return straightRoadList
         
+    
+    def assertNoNegativeHeadings(self, roadDefinition):
+        for roadDef in roadDefinition:
+            if roadDef['heading'] < 0:
+                raise Exception(f"heading cannot be negative")
+
+    
+    def assertClockwiseOrder(self, roadDefinition):
+        
+        if len(roadDefinition) == 2:
+            return
+        
+        print(roadDefinition)
+
+        # 3. start with the second road and stop at first.
+        prevHeading = roadDefinition[1]['heading']
+        n = len(roadDefinition)
+
+        for i in range(2, n):
+            if roadDefinition[i]['heading'] > prevHeading:
+                raise Exception(f"Road definition is not in clockwise manner")
+            prevHeading = roadDefinition[i]['heading']
+
+        
+        
+
+
+
+    def validateRoadDefinition(self, roadDefinition):
+
+        # for road in roadDefinition:
+        #     print(road)
+        
+        if roadDefinition is None or len(roadDefinition) < 2:
+            raise Exception("Provide definition for more then two roads")
+
+        
+        roadDefinitionCopy = copy.deepcopy(roadDefinition)
+        
+        # validate if the points are clockwise (headings need to be decreasing in clockwise manner assuming first roads heading is 0)
+        # 1. subtract first road heading from all NO!!
+        firstHeading = roadDefinitionCopy[0]['heading']
+        for roadDef in roadDefinitionCopy:
+            roadDef['heading'] -= firstHeading
+
+        # for now, do not accept negative headings
+        # self.assertNoNegativeHeadings(roadDefinition)
+        # self.assertNoNegativeHeadings(roadDefinitionCopy)
+
+        # # 2 special case, last road and first road. If the heading of the last road is positive, it will be greater than 0, else it will be less than 0.
+        # if roadDefinitionCopy[-1]['heading']
+        # 3. start with the second road and stop at first.
+        self.assertClockwiseOrder(roadDefinitionCopy)
+            
+
+
 
     def createIntersectionFromPointsWithRoadDefinition(self,
                                                        odrID,
@@ -159,11 +215,7 @@ class JunctionBuilderFromPointsAndHeading():
                                                        straightRoadLen=20,
                                                        getAsOdr=False):
 
-        # for road in roadDefinition:
-        #     print(road)
-        
-        if roadDefinition is None or len(roadDefinition) < 2:
-            raise Exception("Provide definition for more then two roads")
+        self.validateRoadDefinition(roadDefinition)
 
         outsideRoads = []
         outSideRoadsShallowCopy = []
