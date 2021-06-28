@@ -12,5 +12,8 @@
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": false,
-    "python.pythonPath": "C:\\Users\\adhocmaster\\.conda\\envs\\opendrive\\python.exe"
+    "python.pythonPath": "C:\\Users\\adhocmaster\\.conda\\envs\\opendrive\\python.exe",
+    "editor.fontSize": 9,
+    "files.autoSave": "afterDelay",
+    "editor.fontFamily": "MonoLisa, 'Courier New', monospace"
 }

@@ -72,9 +72,9 @@ class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):
 
         roadDefinition = [
             {'x': -30, 'y': 30, 'heading': math.radians(135), 'leftLane': 3, 'rightLane': 2, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.start},
-            {'x':   0, 'y': 30, 'heading': math.radians(90),  'leftLane': 3, 'rightLane': 3, 'medianType': 'None'},
+            {'x':   0, 'y': 30, 'heading': math.radians(80),  'leftLane': 3, 'rightLane': 3, 'medianType': 'None'},
             {'x':   0, 'y':  0, 'heading': math.radians(270), 'leftLane': 1, 'rightLane': 1, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.start},
-            {'x':   -40, 'y': -30, 'heading': math.radians(150),  'leftLane': 2, 'rightLane': 2, 'medianType': 'None'},
+            {'x':   -40, 'y': -30, 'heading': math.radians(230),  'leftLane': 2, 'rightLane': 2, 'medianType': 'None'},
         ]
 
         odr = self.builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
