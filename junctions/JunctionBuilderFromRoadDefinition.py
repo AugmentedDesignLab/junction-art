@@ -129,13 +129,13 @@ class JunctionBuilderFromRoadDefinition(SequentialJunctionBuilder):
         for geoConnectionRoad in geoConnectionRoads:
             geoConnectionRoad.clearLanes()
         
-        internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId=nextRoadID,
-                                                                                    outsideRoads=outsideRoadsShallowCopy,
-                                                                                    cp1=pyodrx.ContactPoint.start,
-                                                                                    strategy=LaneConfigurationStrategies.SPLIT_ANY)
-        roads += internalConnections
-        odr.updateRoads(roads)
-        odr.resetAndReadjust(byPredecessor=True)
+        # internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(nextRoadId=nextRoadID,
+        #                                                                             outsideRoads=outsideRoadsShallowCopy,
+        #                                                                             cp1=pyodrx.ContactPoint.start,
+        #                                                                             strategy=LaneConfigurationStrategies.SPLIT_ANY)
+        # roads += internalConnections
+        # odr.updateRoads(roads)
+        # odr.resetAndReadjust(byPredecessor=True)
         finalTransformedODR = ODRHelper.transform(odr=odr,
                                                   startX=roadDefinition[0]['x'],
                                                   startY=roadDefinition[0]['y'],
