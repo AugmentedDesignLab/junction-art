@@ -47,6 +47,11 @@ class ExtendedRoad(pyodrx.Road):
         self.extendedSuccessors = {}
         self.startHeading = None
 
+        self.junctionId = None # populated by junctionDef
+        self.junctionRelation = None # successor if the junction is the successor, predecessor is otherwise.
+        self.junctionCP = None # populated by junction builder or connection builder.
+        self.linkConfig = None # populated by connection builder
+
         pass
 
     
@@ -615,3 +620,6 @@ class ExtendedRoad(pyodrx.Road):
 
 
     #endregion
+
+
+    #region junction

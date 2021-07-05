@@ -137,6 +137,8 @@ class ConnectionBuilder:
             try:
                 linkConfig = LaneConfiguration.getIntersectionLinks1ToMany(incomingLaneIds, outgoingLaneIds, strategy=strategy)
 
+                incomingRoad.linkConfig = linkConfig
+
                 print(f"road id is {incomingRoad.id}")
                 print(linkConfig)
 

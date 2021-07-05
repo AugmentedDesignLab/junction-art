@@ -16,6 +16,7 @@ from extensions.CountryCodes import CountryCodes
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.LaneConfiguration import LaneConfiguration
 from junctions.Intersection import Intersection
+from junctions.JunctionDef import JunctionDef
 import logging
 
 
@@ -296,7 +297,12 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # else:
         #     roads.append(self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide)) # first road
 
+        # junctionId = id
+        # firstRoadId += 1
+
         roads[0].id = firstRoadId
+        roads[0].junctionCP = cp1
+        roads[0].junctionRelation = 'successor'
         outsideRoads.append(roads[0])
         incidentContactPoints.append(cp1)
 
@@ -326,6 +332,8 @@ class SequentialJunctionBuilder(JunctionBuilder):
             # 1. create a road
             # newRoad = self.getRandomHarvestedStraightRoad(newRoadId, harvestedStraightRoads, maxLanePerSide, minLanePerSide)
             newRoad = self.createRandomStraightRoad(newRoadId, maxLanePerSide, minLanePerSide, skipEndpoint=pyodrx.ContactPoint.end) 
+            newRoad.junctionCP = otherContactPoints
+            newRoad.junctionRelation = 'predecessor'
             # if restrictedLanes:
             #     newRoad = self.createRandomStraightRoad(newRoadId, maxLanePerSide, minLanePerSide, skipEndpoint=pyodrx.ContactPoint.end) 
             # else:
@@ -372,14 +380,17 @@ class SequentialJunctionBuilder(JunctionBuilder):
         # 3. create connections and junction
         # TODO this is not correct anymore.
         # junction = self.createJunctionForASeriesOfRoads(roads)
-        junction = pyodrx.Junction("singleConnectionsJunction", id)
+        # junction = pyodrx.Junction("singleConnectionsJunction", junctionId)
         # junction = pyodrx.Junction("singleConnectionsJunction", firstRoadId)
 
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(id)
-        odr = extensions.createOdrByPredecessor(odrName, roads, [junction])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [])
 
         
         logging.debug(f"{self.name}: roads before internal connections {len(roads)}")
+
+
+        connectionRoads = []
 
         # Permanent connection roads
         if internalConnections:
@@ -393,20 +404,28 @@ class SequentialJunctionBuilder(JunctionBuilder):
                 geoRoad.clearLanes()
 
             # TODO create the junction
-            self.addInternalConnectionsToJunction(junction, internalConnections)
+            # self.addInternalConnectionsToJunction(junction, internalConnections)
+            connectionRoads += internalConnections
 
         # U-Turns
         if uTurnLanes == 1:
             uTurnConnections = self.connectionBuilder.createUTurnConnectionRoads(nextRoadId, outsideRoads, cp1)
-            nextRoadId += 1
+            nextRoadId += len(uTurnConnections)
             roads += uTurnConnections
             odr.updateRoads(roads)
-            self.addInternalConnectionsToJunction(junction, internalConnections)
+            # self.addInternalConnectionsToJunction(junction, internalConnections)
+            connectionRoads += uTurnConnections
+
+
+        # junction creation
+
+        junction = JunctionDef(nextRoadId).build(connectionRoads)
 
 
         logging.debug(f"{self.name}: roads after internal connections {len(roads)}")
 
         odr.resetAndReadjust(byPredecessor=True)
+        odr.add_junction(junction)
 
         if getAsOdr:
             return odr
