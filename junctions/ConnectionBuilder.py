@@ -91,7 +91,11 @@ class ConnectionBuilder:
         newConnection.isSingleLaneConnection = True
 
         RoadLinker.createExtendedPredSuc(predRoad=incomingRoad, predCp=incomingCp, sucRoad=newConnection, sucCP=pyodrx.ContactPoint.start)
+        # newConnection.addExtendedPredecessor(incomingRoad, 0, incomingCp)
+
         RoadLinker.createExtendedPredSuc(predRoad=newConnection, predCp=pyodrx.ContactPoint.end, sucRoad=outgoingRoad, sucCP=outgoingCp)
+        
+        # predRoad.addExtendedSuccessor(sucRoad, 0, sucCP)
 
         return newConnection
 

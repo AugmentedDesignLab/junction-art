@@ -72,6 +72,7 @@ class JunctionDef:
         #     incidentRoad.junctionId = self.id
 
         for connectionRoad in connectionRoads:
+            connectionRoad.junctionId = self.id
             # we need to create the incoming lane links.
             if self.countryCode == CountryCodes.US:
                 if connectionRoad.isSingleLaneConnection:

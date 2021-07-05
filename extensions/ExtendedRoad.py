@@ -55,7 +55,39 @@ class ExtendedRoad(pyodrx.Road):
         pass
 
     
+    def get_attributes(self):
+        """ returns the attributes as a dict of the Road
+
+        """
+        retdict = {}
+        if self.name:
+            retdict['name'] = self.name
+        if self.rule:
+            retdict['rule'] = self.rule
+        retdict['id'] = str(self.id)
+        if self.isConnection:
+            retdict['junction'] = str(self.junctionId)
+        else:
+            retdict['junction'] = '-1'
+        retdict['length'] = str(self.planview.get_total_length())
+        return retdict
+
     def get_element(self):
+
+        """Changes successor or predecessor links to junction if available
+
+        Returns:
+            [type]: [description]
+        """
+
+        if self.junctionId is not None and self.isConnection == False:
+            if self.junctionRelation == 'successor':
+                self.updateSuccessor(pyodrx.ElementType.junction, self.junctionId, self.junctionCP)
+                self._removePredecessor()
+            else:
+                self.updatePredecessor(pyodrx.ElementType.junction, self.junctionId, self.junctionCP)
+                self._removeSuccessor()
+
         element = super().get_element()
         element.append(self.signals.get_element())
         return element
@@ -118,7 +150,7 @@ class ExtendedRoad(pyodrx.Road):
     def length(self):
         return self.planview.getTotalLength()
 
-    
+    #region successor, predecessor
     def updatePredecessor(self, element_type,element_id,contact_point=None):
         """ updatePredecessor adds a predecessor link to the road
         
@@ -131,15 +163,66 @@ class ExtendedRoad(pyodrx.Road):
             contact_point (ContactPoint): the contact point of the predecessor on the predecessor
 
         """
-        self.predecessor = None
+        self._removePredecessor()
         element_id = int(element_id)
         self.add_predecessor(element_type, element_id, contact_point)
         pass
 
 
+    def _removePredecessor(self):
+        self.predecessor = None
+        for link in self.links.links:
+            if link.link_type == 'predecessor':
+                self.links.links.remove(link)
+                break
+
+
+    def updateSuccessor(self, element_type,element_id,contact_point=None):
+        """ updateSuccessor adds a successor link to the road
+        
+        Parameters
+        ----------
+            element_type (ElementType): type of element the linked road
+
+            element_id (str/int): name of the linked road
+
+            contact_point (ContactPoint): the contact point of the Successor on the Successor
+
+        """
+        self._removeSuccessor()
+                
+        element_id = int(element_id)
+        self.add_successor(element_type, element_id, contact_point)
+        pass
+
+
+    def _removeSuccessor(self):
+        self.successor = None
+        for link in self.links.links:
+            if link.link_type == 'successor':
+                self.links.links.remove(link)
+                break
+
+
+    def hasPredecessor(self):
+        if self.predecessor is not None:
+            return True
+        return False
+
+    def hasSuccessor(self):
+        if self.successor is not None:
+            return True
+        return False
+
+    def isPredecessorOf(self, road):
+        return ( road.hasPredecessor() and road.predecessor.element_id == self.id )
+
+    def isSuccessorOf(self, road):
+        return ( road.hasSuccessor() and road.successor.element_id == self.id )
+
     def getElementType(self):
-        if self.isConnection:
-            return pyodrx.ElementType.junction
+        # if self.isConnection:
+        #     return pyodrx.ElementType.junction
         return pyodrx.ElementType.road
 
 
@@ -184,6 +267,7 @@ class ExtendedRoad(pyodrx.Road):
             return True
         return False
 
+    #endregion
     
     def isConnectionFor(self, road1, road2):
 
@@ -201,39 +285,6 @@ class ExtendedRoad(pyodrx.Road):
         self.predecessorOffset = predecessorOffset
 
 
-    def updateSuccessor(self, element_type,element_id,contact_point=None):
-        """ updateSuccessor adds a successor link to the road
-        
-        Parameters
-        ----------
-            element_type (ElementType): type of element the linked road
-
-            element_id (str/int): name of the linked road
-
-            contact_point (ContactPoint): the contact point of the Successor on the Successor
-
-        """
-        self.successor = None
-        element_id = int(element_id)
-        self.add_successor(element_type, element_id, contact_point)
-        pass
-
-
-    def hasPredecessor(self):
-        if self.predecessor is not None:
-            return True
-        return False
-
-    def hasSuccessor(self):
-        if self.successor is not None:
-            return True
-        return False
-
-    def isPredecessorOf(self, road):
-        return ( road.hasPredecessor() and road.predecessor.element_id == self.id )
-
-    def isSuccessorOf(self, road):
-        return ( road.hasSuccessor() and road.successor.element_id == self.id )
 
 
     def isJunction(self):
