@@ -7,6 +7,7 @@ from junctions.LaneSides import LaneSides
 from junctions.RoadBuilder import RoadBuilder
 from extensions.ExtendedRoad import ExtendedRoad
 from junctions.ODRHelper import ODRHelper
+from junctions.LaneLinker import LaneLinker
 from junctions.RoadLinker import RoadLinker
 from junctions.LaneBuilder import LaneBuilder
 from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
@@ -31,6 +32,7 @@ class ControlLineBasedGenerator:
         self.lines = None
         self.pairs = None
         self.grid = None
+        self.laneLinker = LaneLinker(countryCode=country)
         self.roadBuilder = RoadBuilder()
         self.laneBuilder = LaneBuilder()
         self.connectionRoads = []
@@ -192,7 +194,7 @@ class ControlLineBasedGenerator:
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
         self.createConnectionRoadsBetweenIntersections()
         
-        combinedOdr = ODRHelper.combine(self.odrList, name)
+        combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
         
@@ -424,7 +426,7 @@ class ControlLineBasedGenerator:
             point2_n_right = point1_n_left
             self.laneConfigurations[point1][point2] = (point1_n_left, point1_n_right)
             self.laneConfigurations[point2][point1] = (point2_n_left, point2_n_right)
-            print(f"{self.name}: createLaneConfigurationsForConnections:  ({point1.position, point2.position}), lanes point1 {point1_n_left, point1_n_right}), lanes point2 {point2_n_left, point2_n_right}")
+            # print(f"{self.name}: createLaneConfigurationsForConnections:  ({point1.position, point2.position}), lanes point1 {point1_n_left, point1_n_right}), lanes point2 {point2_n_left, point2_n_right}")
 
 
     #endregion
@@ -447,6 +449,8 @@ class ControlLineBasedGenerator:
         RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
 
         self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
+        self.laneLinker.createLaneLinks(road1, connectionRoad)
+        self.laneLinker.createLaneLinks(road2, connectionRoad)
 
         x, y, h = road1.getPosition(cp1)
         ODRHelper.transformRoad(connectionRoad, x, y, h)

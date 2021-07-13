@@ -14,6 +14,7 @@ from extensions.CountryCodes import CountryCodes
 from junctions.ConnectionBuilder import ConnectionBuilder
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.Intersection import Intersection
+from junctions.JunctionDef import JunctionDef
 
 
 class JunctionBuilderFromPointsAndHeading():
@@ -241,7 +242,7 @@ class JunctionBuilderFromPointsAndHeading():
         # self.fixNumOutgoingLanes(outSideRoadsShallowCopy, pyodrx.ContactPoint.start)
 
         odrName = "odr_from_points" + str(odrID)
-        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [], countryCode=self.countryCode)
 
         # We need link configurations only if the number of incident roads are greater than 2.
         # if len(roadDefinition) > 2:
@@ -251,12 +252,27 @@ class JunctionBuilderFromPointsAndHeading():
                                                                                     outsideRoads=outSideRoadsShallowCopy,
                                                                                     cp1=pyodrx.ContactPoint.start,
                                                                                     strategy=LaneConfigurationStrategies.SPLIT_ANY)
+        
+        nextRoadId += len(internalConnections)
         roads += internalConnections
         odr.updateRoads(roads)
-        # else:
-        #     self.laneBuilder.createLanesForConnectionRoad(geoConnectionRoads[0], outsideRoads[0], outsideRoads[1])
+        connectionRoads = internalConnections
+        
+        # U-turns
+        uTurnConnections = self.connectionBuilder.createUTurnConnectionRoads(nextRoadId, outSideRoadsShallowCopy, pyodrx.ContactPoint.start)
+        nextRoadId += len(uTurnConnections)
+        roads += uTurnConnections
+        odr.updateRoads(roads)
+        # self.addInternalConnectionsToJunction(junction, internalConnections)
+        connectionRoads += uTurnConnections
 
+        # U-turns ends
+
+        # junction creation
+        junction = JunctionDef(nextRoadId).build(connectionRoads)
+        
         odr.resetAndReadjust(byPredecessor=True)
+        odr.add_junction(junction)
         finalTransformedODR = ODRHelper.transform(odr=odr,
                                                   startX=roadDefinition[0]['x'],
                                                   startY=roadDefinition[0]['y'],
@@ -327,9 +343,13 @@ class JunctionBuilderFromPointsAndHeading():
                                                                n_lanes_left=road['leftLane'],
                                                                length=straighRoadLength,
                                                                )
+            
+            
+            straightRoad.junctionCP = pyodrx.ContactPoint.start
+            straightRoad.junctionRelation = 'predecessor'
 
             odrName = "tempODR_StraightRoad" + str(roadID)
-            odrStraightRoad = extensions.createOdrByPredecessor(odrName, [straightRoad], [])
+            odrStraightRoad = extensions.createOdrByPredecessor(odrName, [straightRoad], [], countryCode=self.countryCode)
             newStartX, newStartY, newHeading = road['x'], road['y'], road['heading']
             odrAfterTransform = ODRHelper.transform(odrStraightRoad, newStartX, newStartY, newHeading)
             # extensions.printRoadPositions(odrAfterTransform)
@@ -338,16 +358,6 @@ class JunctionBuilderFromPointsAndHeading():
 
         return straightRoadList, roadID
                 
-
-
-
-
-
-
-
-
-
-
 
 
     def fixNumOutgoingLanes(self, roads, cp1): 

@@ -81,6 +81,9 @@ class JunctionDef:
                     predecessorRoad = list(connectionRoad.extendedPredecessors.values())[0].road
                     predecessorRoad.junctionId = self.id
                     self.addSingleLaneConnectionUS(predecessorRoad, connectionRoad)
+
+                    successRoad = list(connectionRoad.extendedSuccessors.values())[0].road
+                    successRoad.junctionId = self.id
                 else:
                     raise Exception(f"{self.name}: build: only single lane is implemented")
             else:
