@@ -135,7 +135,7 @@ class HDMapBuilder:
 
     def connectIntersectionsByCellAdjacency(self):
         
-        self.network = Network(self.placedIntersections)
+        self.network = Network(self.placedIntersections, countryCode=self.countryCode)
         for cell in self.grid.cellGenerator():
             if isinstance(cell.element, DirectionIntersection):
                 couldConnect = False

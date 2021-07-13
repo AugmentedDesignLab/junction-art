@@ -61,7 +61,8 @@ class LaneLinker:
         Returns:
             [type]: [description]
         """
-        return road1.isPredecessorOf(road2) and road2.isSuccessorOf(road1)
+        # return road1.isPredecessorOf(road2) and road2.isSuccessorOf(road1)
+        return road1.isExtendedPredecessorOf(road2) and road2.isExtendedSuccessorOf(road1)
 
     
 
@@ -201,7 +202,55 @@ class LaneLinker:
                     raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of right lanes.')
 
 
-    def _get_related_lanesection(self, road,connected_road):
+    def _getRelatedLanesection(self, road:ExtendedRoad, connected_road: ExtendedRoad):
+        """ _get_related_lanesection takes to roads, and gives the correct lane section to use
+            the type of link and if the sign of lanes should be switched
+
+            This function is very poorly written.
+
+            Parameters
+            ----------
+                road (Road): the road that you want the information about
+
+                connected_road (Road): the connected road
+
+            Returns
+            -------
+                linktype (str): the linktype of road to connected road (successor or predecessor)
+
+                sign (int): +1 or -1 depending on if the sign should change in the linking
+
+                road_lanesection_id (int): what lanesection in the road that should be used to link
+        """
+        linktype = None
+        sign = None
+        road_lanesection_id = None
+
+        if connected_road.isExtendedSuccessorOf(road):
+            linktype = 'successor'
+            successorCP = RoadLinker.getSuccessorCP(road, connected_road)
+            if successorCP == pyodrx.ContactPoint.start:
+                sign = 1
+            else:
+                sign = -1
+            road_lanesection_id = -1
+
+        elif connected_road.isExtendedPredecessorOf(road):
+            linktype = 'predecessor'
+            predecessorCP = RoadLinker.getPredecessorCP(road, connected_road)
+            if predecessorCP == pyodrx.ContactPoint.start:
+                sign = -1
+            else:
+                sign = 1
+            road_lanesection_id = 0
+            # TODO return here?
+
+        if connected_road.road_type != -1:
+            # treat connecting road in junction differently ? Why is it different?
+            sign, road_lanesection_id = self.getRelatedLaneSectionGivenSecondIsAConnection(road, connected_road, road_lanesection_id, sign)
+        return linktype, sign, road_lanesection_id
+
+    def _get_related_lanesection(self, road, connected_road):
         """ _get_related_lanesection takes to roads, and gives the correct lane section to use
             the type of link and if the sign of lanes should be switched
 
@@ -249,7 +298,6 @@ class LaneLinker:
             sign, road_lanesection_id = self.getRelatedLaneSectionGivenSecondIsAConnection(road, connected_road, road_lanesection_id, sign)
         return linktype, sign, road_lanesection_id
 
-
     def getRelatedLaneSectionGivenSecondIsAConnection(self, road, connected_road, road_lanesection_id, sign):
         if connected_road.predecessor.element_id == road.id:
             if connected_road.predecessor.link_type == pyodrx.ContactPoint.start: # TODO wtf is link type here.
@@ -290,8 +338,10 @@ class LaneLinker:
             logging.debug(f"{self.name}: switching lane sides for {pre_road.id} and {suc_road.id}")
 
 
-        pre_linktype, pre_sign, pre_connecting_lanesec =  self._get_related_lanesection(pre_road,suc_road)
-        suc_linktype, suc_sign, suc_connecting_lanesec =  self._get_related_lanesection(suc_road,pre_road)
+        # pre_linktype, pre_sign, pre_connecting_lanesec =  self._get_related_lanesection(pre_road,suc_road)
+        # suc_linktype, suc_sign, suc_connecting_lanesec =  self._get_related_lanesection(suc_road,pre_road)
+        pre_linktype, pre_sign, pre_connecting_lanesec =  self._getRelatedLanesection(pre_road,suc_road)
+        suc_linktype, suc_sign, suc_connecting_lanesec =  self._getRelatedLanesection(suc_road,pre_road)
         preLaneSection = pre_road.lanes.lanesections[pre_connecting_lanesec]
         # TODO it may be wrong. shouldn't it be suc_connecting_lanesec
         # sucLaneSection = suc_road.lanes.lanesections[-1] 

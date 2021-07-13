@@ -12,7 +12,7 @@ class test_HDMapBuilder(unittest.TestCase):
 
     def setUp(self) -> None:
         self.configuration = Configuration()
-        self.hdMapBuilder = HDMapBuilder(25, mapSize=(180, 180), cellSize=(60, 60))
+        self.hdMapBuilder = HDMapBuilder(10, mapSize=(120, 120), cellSize=(60, 60))
         with open(logfile, 'w') as f:
             f.truncate()
         pass
