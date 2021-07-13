@@ -35,8 +35,15 @@ class LaneLinker:
             elif self.areConsecutive(road2, road1): 
                 self._create_links_roads(road2,road1)
 
+        elif road1.isSingleLaneConnection:
+            self._createLinksForSingleLaneConnectionRoad(connecting=road1)
+
+        elif road2.isSingleLaneConnection:
+            self._createLinksForSingleLaneConnectionRoad(connecting=road2)
+
         elif road1.road_type != -1:
             self._create_links_connecting_road(road1,road2)
+
         elif road2.road_type != -1:
             self._create_links_connecting_road(road2,road1)
 
@@ -101,6 +108,24 @@ class LaneLinker:
         except:
             return
         pass
+    
+
+    def _createLinksForSingleLaneConnectionRoad(self, connecting: ExtendedRoad):
+
+        if self.countryCode != CountryCodes.US:
+            raise Exception("_createLinksForUturns is only US")
+        connecting.clearLaneLinks()
+        # links at the end
+        laneSectionForConnection = connecting.lanes.lanesections[0] # end of connecting
+        # At the end of the uturn, traffic is going from median right lane.
+        connectionLane = laneSectionForConnection.rightlanes[0]
+
+        for link in connecting.predefinedLaneLinks: #('predecessor', incomingLaneId, connectionLaneId) ('successor', outgoingLaneId, connectionLaneId)
+            if link[2] == connectionLane.lane_id:
+                connectionLane.add_link(link[0], link[1])
+            
+        pass
+
 
         
     def _create_links_connecting_road(self, connecting: ExtendedRoad, road: ExtendedRoad, ignoreMismatch=True):
@@ -143,6 +168,7 @@ class LaneLinker:
                     roadLanes = laneSectionForRoad.rightlanes
 
 
+
                 if len(connectionLanes) == len(roadLanes):
                     for i in range(len(roadLanes)):
                         linkid = roadLanes[i].lane_id
@@ -154,6 +180,7 @@ class LaneLinker:
 
                 else:
                     raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of left lanes.')
+
             if laneSectionForConnection.rightlanes:
                 # do right lanes
                 connectionLanes = laneSectionForConnection.rightlanes

@@ -52,6 +52,8 @@ class ExtendedRoad(pyodrx.Road):
         self.junctionCP = None # populated by junction builder or connection builder.
         self.linkConfig = None # populated by connection builder
 
+        self.predefinedLaneLinks = []
+
         pass
 
     def isUturn(self):
