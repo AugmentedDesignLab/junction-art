@@ -40,31 +40,26 @@ class RoadLinker:
         if road1IsSuc is not None:
             road1Cp =  road1IsSuc.cp # road1's cp is connected to road2's start
 
-        
-        
-        # if road1IsPred is not None:
-        #     return road1IsPred.cp, pyodrx.ContactPoint.start # road1's cp is connected to road2's start
-
-        # # if road2 is a pred, then road2's cp and start
-        # road2IsPred = road1.getExtendedPredecessorByRoadId(road2.id)
-
-        # if road2IsPred is not None:
-        #     return pyodrx.ContactPoint.start, road2IsPred.cp # road1's start is connected to road2's cp
-
-        
-        # road2IsSuc = road1.getExtendedSuccessorByRoadId(road2.id)
-        # if road2IsSuc is not None:
-        #     return pyodrx.ContactPoint.end, road2IsSuc.cp # road1's end is connected to road2's cp
-        
-        # road1IsSuc = road2.getExtendedSuccessorByRoadId(road1.id)
-        # if road1IsSuc is not None:
-        #     return road1IsSuc.cp, pyodrx.ContactPoint.end # road1's cp is connected to road2's start
 
         if road1Cp is None or road2Cp is None:
             raise Exception(f"contact points not available for {road1.id} and {road2.id}")
 
         return road1Cp, road2Cp
 
+
+    @staticmethod
+    def getSuccessorCP(fromRoad: ExtendedRoad, toRoad: ExtendedRoad):
+        road2IsSuc = fromRoad.getExtendedSuccessorByRoadId(toRoad.id)
+        if road2IsSuc is None:
+            raise Exception(f"toRoad {toRoad.id} is not a successor of fromRoad {fromRoad.id}")
+        return road2IsSuc.cp # fromRoad's end is connected to toRoad's cp
+
+    @staticmethod
+    def getPredecessorCP(fromRoad: ExtendedRoad, toRoad: ExtendedRoad):
+        road2IsPred = fromRoad.getExtendedPredecessorByRoadId(toRoad.id)
+        if road2IsPred is None:
+            raise Exception(f"toRoad {toRoad.id} is not a predecessor of fromRoad {fromRoad.id}")
+        return road2IsPred.cp # fromRoad's end is connected to toRoad's cp
 
 
     @staticmethod

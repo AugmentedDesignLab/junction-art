@@ -9,6 +9,7 @@ from library.Configuration import Configuration
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.ODRHelper import ODRHelper
 from roadgen.layout.Network import Network
+from extensions.CountryCodes import CountryCodes
 import pyodrx
 import numpy as np
 import logging
@@ -16,7 +17,12 @@ import logging
 
 class HDMapBuilder:
 
-    def __init__(self, nIntersections, p=[0.2, 0.7, 0.1, 0.1], startId=0, seed=0, mapSize=(500, 500), cellSize=(100, 100), debug=True) -> None:
+    def __init__(self, 
+        nIntersections, p=[0.2, 0.7, 0.1, 0.1], 
+        startId=0, seed=0, 
+        mapSize=(500, 500), cellSize=(100, 100), 
+        countryCode=CountryCodes.US,
+        debug=True) -> None:
 
         self.nIntersections = nIntersections
         self.p = p # probability distribution of 3-way, 4, 5, 6
@@ -24,6 +30,8 @@ class HDMapBuilder:
         self.placedIntersections = {}
         self.rotation = {}
         self.nextIntersectionId = startId
+
+        self.countryCode = countryCode
         
         self.seed = seed
         self.builder = SequentialJunctionBuilder(
@@ -221,7 +229,7 @@ class HDMapBuilder:
 
         self.connectIntersectionsByCellAdjacency()
 
-        combinedOdr = ODRHelper.combine(odrList, name)
+        combinedOdr = ODRHelper.combine(odrList, name, self.countryCode)
         ODRHelper.addAdjustedRoads(combinedOdr, self.network.connectionRoads)
 
         if self.debug:

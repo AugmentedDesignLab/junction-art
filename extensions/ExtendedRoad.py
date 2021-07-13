@@ -54,6 +54,19 @@ class ExtendedRoad(pyodrx.Road):
 
         pass
 
+    def isUturn(self):
+        """When successor and predecessor are the same road and have the same cp"""
+        if len(self.extendedPredecessors) != 1 or len(self.extendedSuccessors) !=1:
+            return False
+
+        eSuccessor = list(self.extendedSuccessors.values())[0]
+        ePredecessor = list(self.extendedPredecessors.values())[0]
+
+        if (eSuccessor.road == ePredecessor.road) and (eSuccessor.cp == ePredecessor.cp):
+            return True
+        return False
+
+
     
     def get_attributes(self):
         """ returns the attributes as a dict of the Road
@@ -79,6 +92,9 @@ class ExtendedRoad(pyodrx.Road):
         Returns:
             [type]: [description]
         """
+
+        if self.hasLanes() == False:
+            return None
 
         if self.junctionId is not None and self.isConnection == False:
             if self.junctionRelation == 'successor':
@@ -149,6 +165,8 @@ class ExtendedRoad(pyodrx.Road):
 
     def length(self):
         return self.planview.getTotalLength()
+
+    
 
     #region successor, predecessor
     def updatePredecessor(self, element_type,element_id,contact_point=None):
@@ -489,7 +507,11 @@ class ExtendedRoad(pyodrx.Road):
         return extensions.headingToTangent(h, tangentMagnitude)
 
 
-    # Lane Section related functions
+    #region Lane Section related functions
+
+    def hasLanes(self):
+        return self.lanes.hasLanes()
+
 
     def clearLanes(self):
         self.lanes.clearLanes()
@@ -562,8 +584,7 @@ class ExtendedRoad(pyodrx.Road):
 
         return self.lanes.getEndPointWidths(self.length())
     
-
-    #region Lane related functions
+    
     
     def getBorderDistanceLeft(self, cp):
         ls = self.getLaneSectionByCP(cp)

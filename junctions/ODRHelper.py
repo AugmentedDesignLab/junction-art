@@ -42,7 +42,7 @@ class ODRHelper:
 
 
     @staticmethod
-    def combine(odrList: List[ExtendedOpenDrive], name):
+    def combine(odrList: List[ExtendedOpenDrive], name, countryCode):
 
         """Does not readjust
 
@@ -50,7 +50,7 @@ class ODRHelper:
             [type]: [description]
         """
           
-        laneLinker = LaneLinker()
+        laneLinker = LaneLinker(countryCode)
         roadLinker = RoadLinker()
         
         combinedOdr = ExtendedOpenDrive(name, laneLinker=laneLinker)

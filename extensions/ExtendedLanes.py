@@ -41,6 +41,12 @@ class ExtendedLanes(pyodrx.Lanes):
 
         return lanes
 
+    def hasLanes(self):
+        for ls in self.lanesections:
+            if len(ls.leftlanes) > 0 or len(ls.rightlanes) > 0:
+                return True
+        return False
+
     
     def clearLanes(self):
         for ls in self.lanesections:

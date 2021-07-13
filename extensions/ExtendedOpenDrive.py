@@ -1,4 +1,5 @@
 import pyodrx, extensions
+import xml.etree.ElementTree as ET
 from pyodrx.enumerations import ElementType, ContactPoint
 from pyodrx.links import _Link, _Links, create_lane_links
 import numpy as np
@@ -56,6 +57,22 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
 
         extensions.modify_xodr_for_roadrunner(filename)
 
+
+    def get_element(self):
+        """ returns the elementTree of the FileHeader
+
+        """
+        element = ET.Element('OpenDRIVE')
+        element.append(self._header.get_element())
+        for r in self.roads:
+            roadElement = self.roads[r].get_element()
+            if roadElement is not None:
+                element.append(roadElement)
+    
+        for j in self.junctions:
+            element.append(j.get_element())
+
+        return element
 
     def hasRoad(self, roadId):
 

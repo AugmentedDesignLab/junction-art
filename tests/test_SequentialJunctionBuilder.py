@@ -339,8 +339,8 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
     def test_3WayJunctions(self):
 
         maxNumberOfRoadsPerJunction = 3
-        maxLanePerSide = 1
         minLanePerSide = 1
+        maxLanePerSide = 2
         
         for sl in range(5):
             path = self.configuration.get("harvested_straight_roads")

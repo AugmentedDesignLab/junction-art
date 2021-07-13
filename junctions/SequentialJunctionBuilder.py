@@ -287,18 +287,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
             roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.start)) # first road
         else:
             roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.end)) # first road
-        
 
-        # if restrictedLanes:
-        #     if cp1 == pyodrx.ContactPoint.end:
-        #         roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.start)) # first road
-        #     else:
-        #         roads.append(self.createRandomStraightRoad(0, maxLanePerSide=maxLanePerSide, minLanePerSide=minLanePerSide, skipEndpoint=pyodrx.ContactPoint.end)) # first road
-        # else:
-        #     roads.append(self.getRandomHarvestedStraightRoad(0, harvestedStraightRoads, maxLanePerSide, minLanePerSide)) # first road
-
-        # junctionId = id
-        # firstRoadId += 1
 
         roads[0].id = firstRoadId
         roads[0].junctionCP = cp1
@@ -377,14 +366,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
         self.fixNumOutgoingLanes(outsideRoads, cp1)
 
-        # 3. create connections and junction
-        # TODO this is not correct anymore.
-        # junction = self.createJunctionForASeriesOfRoads(roads)
-        # junction = pyodrx.Junction("singleConnectionsJunction", junctionId)
-        # junction = pyodrx.Junction("singleConnectionsJunction", firstRoadId)
 
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(id)
-        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [], countryCode=self.countryCode)
 
         
         logging.debug(f"{self.name}: roads before internal connections {len(roads)}")

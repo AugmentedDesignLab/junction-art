@@ -1,3 +1,4 @@
+from junctions.LaneConfiguration import LaneConfiguration
 import pyodrx
 import junctions
 import extensions
@@ -5,12 +6,16 @@ from pyodrx.exceptions import NotSameAmountOfLanesError
 import logging
 from extensions.ExtendedRoad import ExtendedRoad
 from junctions.RoadLinker import RoadLinker
+from extensions.CountryCodes import CountryCodes
 
 class LaneLinker:
 
-    def __init__(self):
+    def __init__(self, countryCode: CountryCodes):
 
         self.name = 'LaneLinker'
+        self.countryCode = countryCode
+        if countryCode != CountryCodes.US:
+            raise Exception("LaneLinker does not support non-US yet.")
 
     def createLaneLinks(self, road1: ExtendedRoad, road2: ExtendedRoad, ignoreMismatch=False):
         """ create_lane_links takes to roads and if they are connected, match their lanes 
@@ -51,6 +56,52 @@ class LaneLinker:
         """
         return road1.isPredecessorOf(road2) and road2.isSuccessorOf(road1)
 
+    
+
+    def _createLinksForUturns(self, connecting: ExtendedRoad, road: ExtendedRoad):
+        # we need to build successor only because incoming traffic is saved in junction def
+
+        if self.countryCode != CountryCodes.US:
+            raise Exception("_createLinksForUturns is only US")
+        # return if not successor
+        try:
+
+            roadCP = RoadLinker.getSuccessorCP(connecting, road) # same link CP for both start and end of uturn
+
+            ########## 1. Add successor lane links ##########
+            # get the lane sections
+            laneSectionForConnection = connecting.lanes.lanesections[-1] # end of connecting
+            # At the end of the uturn, traffic is going from median right lane.
+            connectionLanes = laneSectionForConnection.rightlanes
+
+            outgoingLanes = LaneConfiguration.getOutgoingLanesOnARoad(road, roadCP, self.countryCode)
+
+
+            # now the median right lane on the uturn is connected to all the outgoing road lanes.
+            uTurnLane = connectionLanes[0]
+            for outgoingLane in outgoingLanes:
+                uTurnLane.add_link("successor", outgoingLane.lane_id)
+
+
+            ######### 1. Add predecessor lane links ##############
+            
+            # get the lane sections
+            laneSectionForConnection = connecting.lanes.lanesections[0] # end of connecting
+            # At the end of the uturn, traffic is going from median right lane.
+            connectionLanes = laneSectionForConnection.rightlanes
+
+            incomingLanes = LaneConfiguration.getIncomingLanesOnARoad(road, roadCP, self.countryCode)
+
+            # now the median right lane on the uturn is connected to all the outgoing road lanes.
+            uTurnLane = connectionLanes[0]
+            for incomingLane in incomingLanes:
+                uTurnLane.add_link("predecessor", incomingLane.lane_id)
+                break # only the first lane.
+
+        except:
+            return
+        pass
+
         
     def _create_links_connecting_road(self, connecting: ExtendedRoad, road: ExtendedRoad, ignoreMismatch=True):
         """ _create_links_connecting_road will create lane links between a connecting road and a normal road
@@ -62,6 +113,10 @@ class LaneLinker:
                 road (Road): a that connects to the connecting road
 
         """
+
+        if connecting.isUturn():
+            return self._createLinksForUturns(connecting=connecting, road=road)
+
         linktype, sign, connecting_lanesec =  self._get_related_lanesection(connecting,road)
         _, _, road_lanesection_id =  self._get_related_lanesection(road,connecting) 
 

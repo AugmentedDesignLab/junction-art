@@ -40,10 +40,10 @@ def createOdr(name, roads, junctions):
     return odr
 
 
-def createOdrByPredecessor(name, roads, junctions):
+def createOdrByPredecessor(name, roads, junctions, countryCode):
 
     
-    laneLinker = LaneLinker()
+    laneLinker = LaneLinker(countryCode=countryCode)
     roadLinker = RoadLinker()
     
     odr = ExtendedOpenDrive(name, laneLinker=laneLinker)
