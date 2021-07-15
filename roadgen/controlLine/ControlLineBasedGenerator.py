@@ -12,6 +12,7 @@ from junctions.RoadLinker import RoadLinker
 from junctions.LaneBuilder import LaneBuilder
 from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
 from extensions.CountryCodes import CountryCodes
+from junctions.LaneMarkGenerator import LaneMarkGenerator
 import logging, math, pyodrx
 import numpy as np
 
@@ -35,6 +36,7 @@ class ControlLineBasedGenerator:
         self.laneLinker = LaneLinker(countryCode=country)
         self.roadBuilder = RoadBuilder()
         self.laneBuilder = LaneBuilder()
+        self.laneMarkGenerator = LaneMarkGenerator(countryCode=country)
         self.connectionRoads = []
         self.controlPointIntersectionMap = {} # controlpoint -> its intersection
         self.nextRoadId = 0
@@ -446,7 +448,9 @@ class ControlLineBasedGenerator:
 
         connectionRoad = self.roadBuilder.getConnectionRoadBetween(connectionRoadId, road1, road2, cp1, cp2, isJunction=False, laneSides=laneSides)
         RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=connectionRoad, sucCP=pyodrx.ContactPoint.start)
+        road1.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.start, xodr=True)
         RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
+        road2.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.end, xodr=True)
 
         self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
         self.laneLinker.createLaneLinks(road1, connectionRoad)
@@ -461,5 +465,6 @@ class ControlLineBasedGenerator:
         # print(x2, y2, h2)
         
 
-
+        
+        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfARoad(connectionRoad)
         self.connectionRoads.append(connectionRoad)

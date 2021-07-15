@@ -101,10 +101,10 @@ class ExtendedRoad(pyodrx.Road):
         if self.junctionId is not None and self.isConnection == False:
             if self.junctionRelation == 'successor':
                 self.updateSuccessor(pyodrx.ElementType.junction, self.junctionId, self.junctionCP)
-                self._removePredecessor()
+                # self._removePredecessor()
             else:
                 self.updatePredecessor(pyodrx.ElementType.junction, self.junctionId, self.junctionCP)
-                self._removeSuccessor()
+                # self._removeSuccessor()
 
         element = super().get_element()
         element.append(self.signals.get_element())

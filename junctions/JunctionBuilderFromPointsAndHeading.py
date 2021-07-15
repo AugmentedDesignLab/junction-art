@@ -15,6 +15,7 @@ from junctions.ConnectionBuilder import ConnectionBuilder
 from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.Intersection import Intersection
 from junctions.JunctionDef import JunctionDef
+from junctions.LaneMarkGenerator import LaneMarkGenerator
 
 
 class JunctionBuilderFromPointsAndHeading():
@@ -27,6 +28,7 @@ class JunctionBuilderFromPointsAndHeading():
         self.junctionBuilder = JunctionBuilder()
         self.laneBuilder = LaneBuilder()
         self.connectionBuilder = ConnectionBuilder()
+        self.laneMarkGenerator = LaneMarkGenerator(countryCode=country)
         self.countryCode = country
         self.laneWidth = laneWidth
         pass
@@ -66,7 +68,7 @@ class JunctionBuilderFromPointsAndHeading():
 
         self.fixNumOutgoingLanes(outSideRoadsShallowCopy, pyodrx.ContactPoint.start)
         odrName = "ODR_from_points " + str(odrID)
-        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [], countryCode=self.countryCode)
 
         roadID = roadID+1
         internalConnections = self.connectionBuilder.createSingleLaneConnectionRoads(roadID, outSideRoadsShallowCopy, 
@@ -143,7 +145,7 @@ class JunctionBuilderFromPointsAndHeading():
                                                                  minLanePerSide=minLanePerSide,
                                                                  skipEndpoint=skipEndpoint)
             odrName = "tempODR_StraightRoad" + str(roadID)
-            odrStraightRoad = extensions.createOdrByPredecessor(odrName, [straightRoad], [])
+            odrStraightRoad = extensions.createOdrByPredecessor(odrName, [straightRoad], [], countryCode=self.countryCode)
             newStartX, newStartY, newHeading = point[0], point[1], point[2]
             odrAfterTransform = ODRHelper.transform(odrStraightRoad, newStartX, newStartY, newHeading)
             # outsideRoads.append(straightRoad.shallowCopy())
@@ -266,7 +268,12 @@ class JunctionBuilderFromPointsAndHeading():
         # self.addInternalConnectionsToJunction(junction, internalConnections)
         connectionRoads += uTurnConnections
 
+        self.laneMarkGenerator.removeLaneMarkFromRoads(uTurnConnections)
         # U-turns ends
+
+        # lane marks
+
+        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(outSideRoadsShallowCopy)
 
         # junction creation
         junction = JunctionDef(nextRoadId).build(connectionRoads)
