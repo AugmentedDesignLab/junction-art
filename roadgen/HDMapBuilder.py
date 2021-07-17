@@ -10,6 +10,7 @@ from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.ODRHelper import ODRHelper
 from roadgen.layout.Network import Network
 from extensions.CountryCodes import CountryCodes
+from junctions.LaneMarkGenerator import LaneMarkGenerator
 import pyodrx
 import numpy as np
 import logging
@@ -63,6 +64,7 @@ class HDMapBuilder:
         self.grid = Grid(size=mapSize, cellSize=cellSize)
 
         self.mapBuilder = MapBuilder(self.grid, [], random_seed=seed)
+        self.laneMarkGenerator = LaneMarkGenerator(countryCode=countryCode)
 
         self.network = None
 
@@ -230,6 +232,8 @@ class HDMapBuilder:
         odrList = self.adjustIntersectionPositions()
 
         self.connectIntersectionsByCellAdjacency()
+
+        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(self.network.connectionRoads)
 
         combinedOdr = ODRHelper.combine(odrList, name, self.countryCode)
         ODRHelper.addAdjustedRoads(combinedOdr, self.network.connectionRoads)

@@ -114,7 +114,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         junction = self.createJunctionForASeriesOfRoads(roads, odrId)
 
         odrName = 'Draw_Rmax' + str(maxNumberOfRoadsPerJunction) + '_L2_' + str(odrId)
-        odr = extensions.createOdrByPredecessor(odrName, roads, [junction])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [junction], countryCode=self.countryCode)
 
         # The last connection and resetting odr
 

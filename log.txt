@@ -4,6 +4,59 @@ esmini GIT BRANCH: tags/v2.0.9^0
 esmini BUILD VERSION: 2.0.9.build.1017
 RoadManager.cpp / 4284 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
 RoadManager.cpp / 4286 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (22.01) to road length (22.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (22.01) to road length (22.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (22.01) to road length (22.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
+RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
@@ -20,65 +73,9 @@ RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road 
 RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
 RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4151 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): Roadmark length + space = 0 - ignoring
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (1.01) to road length (1.00)
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 1322 is not defined
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (51.03) to road length (51.02)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (51.03) to road length (51.02)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (51.03) to road length (51.02)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (51.03) to road length (51.02)
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane -2 on road 1323 is not defined
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (43.15) to road length (43.14)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (43.15) to road length (43.14)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (43.15) to road length (43.14)
-RoadManager.cpp / 4274 / roadmanager::OpenDrive::SetRoadMarkOSIPoints(): LaneRoadMarks for driving lane 2 on road 1324 is not defined
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (44.75) to road length (44.74)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (44.75) to road length (44.74)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (44.75) to road length (44.74)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (44.75) to road length (44.74)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (44.75) to road length (44.74)
-RoadManager.cpp / 4288 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries
-RoadManager.cpp / 4290 / roadmanager::OpenDrive::SetRoadOSI(): OSI road features done
