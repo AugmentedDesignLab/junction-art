@@ -29,7 +29,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         # extensions.printRoadPositions(odr)
         xmlPath = f"output/test_generateWithHorizontalControlines.xodr"
         odr.write_xml(xmlPath)
-        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
 
     def test_generateWithHorizontalControlinesCurvy(self):
 

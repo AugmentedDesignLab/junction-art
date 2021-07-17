@@ -418,7 +418,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
         if getAsOdr:
             return odr
 
-        intersection = Intersection(id, outsideRoads, incidentContactPoints, geoConnectionRoads=geoConnectionRoads, odr=odr)
+        intersection = Intersection(id, outsideRoads, incidentContactPoints, geoConnectionRoads=geoConnectionRoads, internalConnectionRoads=internalConnections, odr=odr)
         return intersection
 
 

@@ -293,7 +293,7 @@ class JunctionBuilderFromPointsAndHeading():
         if getAsOdr:
             return odr
 
-        intersection = Intersection(odrID, outSideRoadsShallowCopy, incidentContactPoints, geoConnectionRoads=paramPolyRoads, odr=finalTransformedODR)
+        intersection = Intersection(odrID, outSideRoadsShallowCopy, incidentContactPoints, geoConnectionRoads=paramPolyRoads, internalConnectionRoads=connectionRoads, odr=finalTransformedODR)
         return intersection
 
     

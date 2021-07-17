@@ -47,6 +47,8 @@ class ControlLineBasedGenerator:
         self.laneConfigurations = None
 
         self.nLaneDistributionOnASide = [0.2, 0.5, 0.2, 0.1] # 0, 1, 2, 3
+
+        self.placedIntersections = []
         
         np.random.seed(seed)
         pass
@@ -195,6 +197,8 @@ class ControlLineBasedGenerator:
         # now we have the intersections
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
         self.createConnectionRoadsBetweenIntersections()
+
+        self.adjustLaneMarkings()
         
         combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
@@ -228,6 +232,7 @@ class ControlLineBasedGenerator:
                 point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
                 self.controlPointIntersectionMap[point1] = point1.intersection
                 self.odrList.append(point1.intersection.odr)
+                self.placedIntersections.append(point1.intersection)
 
             if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
                 print(f"{self.name}: Creating intersection for line {line2.id} p = {point2.position}")
@@ -242,6 +247,7 @@ class ControlLineBasedGenerator:
                 point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
                 self.controlPointIntersectionMap[point2] = point2.intersection
                 self.odrList.append(point2.intersection.odr)
+                self.placedIntersections.append(point2.intersection)
 
         pass
 
@@ -466,5 +472,16 @@ class ControlLineBasedGenerator:
         
 
         
-        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfARoad(connectionRoad)
+        # self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfARoad(connectionRoad)
         self.connectionRoads.append(connectionRoad)
+
+
+    def adjustLaneMarkings(self):
+        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(self.connectionRoads)
+        self.laneMarkGenerator.addSolidYellowCenterLineOnRoads(self.connectionRoads)
+
+
+        for intersection in self.placedIntersections:
+            connectionRoads = intersection.internalConnectionRoads
+            self.laneMarkGenerator.addBrokenWhiteToSideLanesOfRoads(connectionRoads)
+            self.laneMarkGenerator.removeCenterLineFromRoads(connectionRoads)

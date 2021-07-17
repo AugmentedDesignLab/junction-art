@@ -4,7 +4,7 @@ from junctions.ODRHelper import ODRHelper
 
 class Intersection:
 
-    def __init__(self, id, incidentRoads, incidentCPs, geoConnectionRoads=None, odr=None):
+    def __init__(self, id, incidentRoads, incidentCPs, geoConnectionRoads=None, internalConnectionRoads=None, odr=None):
 
         self.id = id
         self.incidentRoads = incidentRoads
@@ -13,6 +13,7 @@ class Intersection:
         self.odr = odr
         self.incidentPoints = self.getIncidentPoints()
         self.connectedIncidentPoints = [] # list of indices
+        self.internalConnectionRoads = internalConnectionRoads
         
 
     def transform(self, startX, startY, heading):

@@ -222,18 +222,12 @@ class HDMapBuilder:
         # 1 create intersections and direction intersections.
         if self.debug:
             logging.info(f"{self.name}: Building new HDMap")
+
         self.createIntersections()
-        self.mapBuilder.setDirectionIntersections(list(self.intersections.keys()))
-        self.mapBuilder.run(self.nIntersections * 2, plot=plot)
-
-        # now each cell in the grid has reference to the direction intersection 
-        if self.debug:
-            logging.info(f"{self.name}: adjustIntersectionPositions")
+        self.prepareAndRunMapBuilder(plot=plot)
         odrList = self.adjustIntersectionPositions()
-
         self.connectIntersectionsByCellAdjacency()
-
-        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(self.network.connectionRoads)
+        self.adjustLaneMarkings()
 
         combinedOdr = ODRHelper.combine(odrList, name, self.countryCode)
         ODRHelper.addAdjustedRoads(combinedOdr, self.network.connectionRoads)
@@ -243,3 +237,16 @@ class HDMapBuilder:
             self.network.logClusters()
         return combinedOdr
 
+    def prepareAndRunMapBuilder(self, plot=True):
+        self.mapBuilder.setDirectionIntersections(list(self.intersections.keys()))
+        self.mapBuilder.run(self.nIntersections * 2, plot=plot)
+
+
+    def adjustLaneMarkings(self):
+        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(self.network.connectionRoads)
+
+        placedIntersections = list(self.placedIntersections.values())
+
+        for intersection in placedIntersections:
+            connectionRoads = intersection.internalConnectionRoads
+            self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(connectionRoads)
