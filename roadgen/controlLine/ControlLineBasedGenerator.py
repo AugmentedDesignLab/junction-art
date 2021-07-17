@@ -482,6 +482,11 @@ class ControlLineBasedGenerator:
 
 
         for intersection in self.placedIntersections:
+
+            # for each pair of intersection incident roads, call getOrderedConnectionRoadsBetween
+            # then call addBrokenLinesForAdjacentConnectionRoads
+
+            intersection.getOrderedConnectionRoadsBetween(intersection.incidentRoads[0], intersection.incidentRoads[1])
             connectionRoads = intersection.internalConnectionRoads
             self.laneMarkGenerator.addBrokenWhiteToSideLanesOfRoads(connectionRoads)
             self.laneMarkGenerator.removeCenterLineFromRoads(connectionRoads)

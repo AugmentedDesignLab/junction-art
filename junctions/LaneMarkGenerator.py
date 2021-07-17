@@ -9,8 +9,12 @@ from typing import List
 class LaneMarks(Enum):
     WHITE_SOLID = pyodrx.RoadMark(pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing, color=pyodrx.RoadMarkColor.white)
     WHITE_BROKEN = pyodrx.RoadMark(pyodrx.RoadMarkType.broken, 0.2, rule=pyodrx.MarkRule.none, color=pyodrx.RoadMarkColor.white)
+    WHITE_BOTT_DOTS = pyodrx.RoadMark(pyodrx.RoadMarkType.botts_dots, 0.2, rule=pyodrx.MarkRule.none, color=pyodrx.RoadMarkColor.white)
+
     YELLOW_SOLID = pyodrx.RoadMark(pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing, color=pyodrx.RoadMarkColor.yellow)
     YELLOW_BROKEN = pyodrx.RoadMark(pyodrx.RoadMarkType.broken, 0.2, rule=pyodrx.MarkRule.none, color=pyodrx.RoadMarkColor.yellow)
+    YELLOW_BOTT_DOTS = pyodrx.RoadMark(pyodrx.RoadMarkType.botts_dots, 0.2, rule=pyodrx.MarkRule.none, color=pyodrx.RoadMarkColor.yellow)
+
     NONE = pyodrx.RoadMark(pyodrx.RoadMarkType.none, 0.2, rule=pyodrx.MarkRule.none, color=pyodrx.RoadMarkColor.standard)
 
 class LaneMarkGenerator:
@@ -23,6 +27,11 @@ class LaneMarkGenerator:
     def addBrokenWhite(self, lanes):
         for lane in lanes:
             lane.add_roadmark(LaneMarks.WHITE_BROKEN.value)
+        pass
+
+    def addBottsDotWhite(self, lanes):
+        for lane in lanes:
+            lane.add_roadmark(LaneMarks.WHITE_BOTT_DOTS.value)
         pass
 
 
@@ -71,6 +80,7 @@ class LaneMarkGenerator:
 
     #region all lanes except centerlane
     
+    # Broken white
     def addBrokenWhiteToSideLanesOfRoads(self, roads: List[ExtendedRoad]):
         
         for road in roads:
@@ -90,7 +100,28 @@ class LaneMarkGenerator:
         self.addBrokenWhite(laneSection.leftlanes)
         self.addBrokenWhite(laneSection.rightlanes)
         pass
+    
+    # bott dots
 
+    def addBottsDotsToSideLanesOfRoads(self, roads: List[ExtendedRoad]):
+        
+        for road in roads:
+            self.addBottsDotsToSideLanesOfARoad(road)
+            
+        pass
+
+    def addBottsDotsToSideLanesOfARoad(self, road: ExtendedRoad):
+        
+        for ls in road.lanes.lanesections:
+            self.addBottsDotsToSideLanesOfLaneSection(ls)
+            
+        pass
+    
+    def addBottsDotsToSideLanesOfLaneSection(self, laneSection: ExtendedLaneSection):
+        
+        self.addBottsDotWhite(laneSection.leftlanes)
+        self.addBottsDotWhite(laneSection.rightlanes)
+        pass
     #region center lines
 
     def removeCenterLineFromRoads(self, roads: List[ExtendedRoad]):
@@ -120,4 +151,22 @@ class LaneMarkGenerator:
     def addBrokenYellowCenterLineOnARoad(self, road: ExtendedRoad):
         self.addCenterLineOnRoad(road, LaneMarks.YELLOW_BROKEN)
 
+    def addBrokenWhiteCenterLineOnRoads(self, roads: List[ExtendedRoad]):
+        for road in roads:
+            self.addBrokenWhiteCenterLineOnARoad(road)
+
+    def addBrokenWhiteCenterLineOnARoad(self, road: ExtendedRoad):
+        self.addCenterLineOnRoad(road, LaneMarks.WHITE_BROKEN)
+
     
+
+    #endregion
+
+    #region connection roads
+
+    def addBrokenLinesForAdjacentConnectionRoads(self, connectionRoads: List[ExtendedRoad]):
+        self.addBrokenWhiteToSideLanesOfRoads(connectionRoads)
+        self.removeCenterLineFromRoads(connectionRoads)
+        # for inside connection roads, add broken white to their center
+        for i in range(1, len(connectionRoads)-1):
+            self.addBrokenWhiteCenterLineOnRoads(connectionRoads[i])
