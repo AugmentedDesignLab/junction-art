@@ -62,7 +62,7 @@ class HDMapBuilder:
         
         self.grid = Grid(size=mapSize, cellSize=cellSize)
 
-        self.mapBuilder = MapBuilder(self.grid, [], random_seed=40)
+        self.mapBuilder = MapBuilder(self.grid, [], random_seed=seed)
 
         self.network = None
 
@@ -71,6 +71,8 @@ class HDMapBuilder:
         self.name = "HDMapBuilder"
 
         self.nextRoadId = 0
+
+        np.random.seed(seed)
 
         pass
 

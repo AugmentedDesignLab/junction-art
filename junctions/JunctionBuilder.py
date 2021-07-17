@@ -13,6 +13,7 @@ from junctions.CurveRoadBuilder import CurveRoadBuilder
 from extensions.CountryCodes import CountryCodes
 from junctions.ConnectionBuilder import ConnectionBuilder
 from library.Configuration import Configuration
+from junctions.LaneMarkGenerator import LaneMarkGenerator
 
 class JunctionBuilder:
     
@@ -47,6 +48,7 @@ class JunctionBuilder:
         self.curveBuilder = CurveRoadBuilder(country=country)
         self.connectionBuilder = ConnectionBuilder()
         self.countryCode = country
+        self.laneMarkGenerator = LaneMarkGenerator(countryCode=country)
         np.random.seed(random_seed)
         pass
 

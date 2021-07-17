@@ -98,17 +98,25 @@ class ExtendedRoad(pyodrx.Road):
         if self.hasLanes() == False:
             return None
 
-        if self.junctionId is not None and self.isConnection == False:
-            if self.junctionRelation == 'successor':
-                self.updateSuccessor(pyodrx.ElementType.junction, self.junctionId, self.junctionCP)
-                # self._removePredecessor()
-            else:
-                self.updatePredecessor(pyodrx.ElementType.junction, self.junctionId, self.junctionCP)
-                # self._removeSuccessor()
+        self.removeConnectedRoadsAtTheSameCPasJunctionAndAddJunction()
 
         element = super().get_element()
         element.append(self.signals.get_element())
         return element
+
+    def removeConnectedRoadsAtTheSameCPasJunctionAndAddJunction(self):
+        # If there is a junction connected at a cp, don't add successor or predecessor at the same cp.
+        if self.junctionId is not None and self.isConnection == False:
+            if self.junctionRelation == 'successor':
+                self.updateSuccessor(pyodrx.ElementType.junction, self.junctionId, self.junctionCP)
+                if self.hasAConnectionAsMainPredecessor():
+                    self._removePredecessor()
+            else:
+                self.updatePredecessor(pyodrx.ElementType.junction, self.junctionId, self.junctionCP)
+                if self.hasAConnectionAsMainSuccessor():
+                    self._removeSuccessor()
+
+
 
     def reset(self, clearRoadLinks = False):
         """[summary]
@@ -171,6 +179,8 @@ class ExtendedRoad(pyodrx.Road):
     
 
     #region successor, predecessor
+
+
     def updatePredecessor(self, element_type,element_id,contact_point=None):
         """ updatePredecessor adds a predecessor link to the road
         
@@ -239,6 +249,37 @@ class ExtendedRoad(pyodrx.Road):
 
     def isSuccessorOf(self, road):
         return ( road.hasSuccessor() and road.successor.element_id == self.id )
+
+
+    def hasSuccessorAtCP(self, cp):
+        if self.hasSuccessor():
+            if self.successor.contact_point == cp:
+                return True
+            
+        return False
+
+    def hasPredecessorAtCP(self, cp):
+        if self.hasPredecessor():
+            if self.predecessor.contact_point == cp:
+                return True
+        return False
+    
+
+    def hasAConnectionAsMainSuccessor(self):
+        
+        if self.hasSuccessor():
+            sucId = self.successor.element_id
+            return self.getExtendedSuccessorByRoadId(sucId).road.isConnection
+        return False
+
+    def hasAConnectionAsMainPredecessor(self):
+        
+        if self.hasPredecessor():
+            predId = self.predecessor.element_id
+            return self.getExtendedPredecessorByRoadId(predId).road.isConnection
+        return False
+
+
 
     def getElementType(self):
         # if self.isConnection:

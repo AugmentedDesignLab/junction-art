@@ -17,6 +17,7 @@ from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.LaneConfiguration import LaneConfiguration
 from junctions.Intersection import Intersection
 from junctions.JunctionDef import JunctionDef
+from junctions.LaneMarkGenerator import LaneMarkGenerator
 import logging
 
 
@@ -400,6 +401,9 @@ class SequentialJunctionBuilder(JunctionBuilder):
             # self.addInternalConnectionsToJunction(junction, internalConnections)
             connectionRoads += uTurnConnections
 
+        # lane marks
+
+        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(outsideRoads)
 
         # junction creation
 

@@ -78,7 +78,16 @@ class Network:
 
         connectionRoad = self.roadBuilder.getConnectionRoadBetween(connectionRoadId, road1, road2, cp1, cp2, isJunction=False, laneSides=laneSides)
         RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=connectionRoad, sucCP=pyodrx.ContactPoint.start)
+        if cp1 == pyodrx.ContactPoint.start:
+            road1.addExtendedPredecessor(connectionRoad, 0, pyodrx.ContactPoint.start, xodr=True)
+        else:
+            road1.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.start, xodr=True)
+
         RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
+        if cp2 == pyodrx.ContactPoint.start:
+            road2.addExtendedPredecessor(connectionRoad, 0, pyodrx.ContactPoint.end, xodr=True)
+        else:
+            road2.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.end, xodr=True)
 
         self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
 
