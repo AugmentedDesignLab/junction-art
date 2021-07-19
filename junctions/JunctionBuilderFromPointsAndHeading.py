@@ -166,7 +166,7 @@ class JunctionBuilderFromPointsAndHeading():
         if len(roadDefinition) == 2:
             return
         
-        print(roadDefinition)
+        # print(roadDefinition)
 
         # 3. start with the second road and stop at first.
         prevHeading = roadDefinition[1]['heading']

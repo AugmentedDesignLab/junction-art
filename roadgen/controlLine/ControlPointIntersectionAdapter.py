@@ -25,18 +25,20 @@ class ControlPointIntersectionAdapter:
         roadDefs = []
 
         nIncidentPoints = len(point.adjacentPointsCWOrder)
+        if nIncidentPoints > 3:
+            print(f"4 arms")
 
         if nIncidentPoints == 0:
             raise Exception(f"ControlPointIntersectionAdapter: createIntersection adjacentPointsCWOrder is empty")
 
         for heading, adjPoint in point.adjacentPointsCWOrder.items():
             # # we get a point between point and adjPoint which is close to the point.
-            # len = math.sqrt((point.position[0] - adjPoint.position[0]) ** 2 + (point.position[1] - adjPoint.position[1]) ** 2)
-            # xDiff = adjPoint.position[0] - point.position[0]
-            # theta = math.acos(xDiff / len)
-            randomDistance = distance
+            
+            # randomDistance = distance
+            randomDistance = ControlPointIntersectionAdapter.getMinDistance(point, adjPoint, laneConfigurations=laneConfigurations)
+            print(f"distance for point {adjPoint.position} is {randomDistance}")
             if randomDistance:
-                randomDistance = distance * np.random.uniform(0.5, 1.1)
+                randomDistance = randomDistance * np.random.uniform(1, 1.2)
             if randomizeHeading:
                 heading = heading * np.random.uniform(0.95, 1.05)
 
@@ -46,7 +48,11 @@ class ControlPointIntersectionAdapter:
             else:
                 line = ControlLine(None, adjPoint.position, point.position)
                 incidentPoint = line.createNextControlPoint(line.len - randomDistance)
-            logging.info(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
+            
+            actualDistance = math.sqrt((point.position[0] - incidentPoint.position[0]) ** 2 + (point.position[1] - incidentPoint.position[1]) ** 2 )
+            print(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)} with actual distance {actualDistance}")
+            if debug:
+                logging.info(f"Incident point {incidentPoint.position}, heading {round(math.degrees(heading), 2)}")
             
             skipEndpoint = None
             medianType = None
@@ -84,6 +90,76 @@ class ControlPointIntersectionAdapter:
             logging.error(f"ControlPointIntersectionAdapter: point {point.position}: {roadDefs}")
             logging.error(e)
             raise e
+
+
+
+    @staticmethod 
+    def getMinDistance(point: ControlPoint, adjPoint, laneConfigurations = None):
+
+        """
+            Assumes start contact points are incident points
+        """
+    
+
+        minDistance = 10
+        headings = list(point.adjacentPointsCWOrder.keys())
+        adjPoints = list(point.adjacentPointsCWOrder.values())
+
+
+        # get prev and next points
+        curIndex = adjPoints.index(adjPoint)
+        prevIndex = curIndex - 1
+        if curIndex == len(adjPoints) - 1:
+            nextIndex = 0
+        else:
+            nextIndex = curIndex + 1
+        
+        prevPoint = adjPoints[prevIndex]
+        nextPoint = adjPoints[nextIndex]
+        
+        n_left =  1
+        n_right = 1
+
+        if laneConfigurations is not None:
+            (n_left, n_right) = laneConfigurations[point][adjPoint]
+
+        # min distance based on the difference in headings
+        diffWithPrev = abs(headings[curIndex] - headings[prevIndex])
+        n_left_prev =  1
+        n_right_prev = 1
+
+        if laneConfigurations is not None:
+            (n_left_prev, n_right_prev) = laneConfigurations[point][prevPoint]
+        maxNLanes = max(n_left, n_right_prev)
+        if diffWithPrev <= np.pi / 2: # less than 90:
+            minWithPrev = 10 + maxNLanes * 5 / diffWithPrev
+        else:
+            minWithPrev = 10 + maxNLanes * 2
+        
+        if minDistance < minWithPrev:
+            minDistance = minWithPrev
+
+        diffWithNext = abs(headings[curIndex] - headings[nextIndex])
+        n_left_next =  1
+        n_right_next = 1
+
+        if laneConfigurations is not None:
+            (n_left_next, n_right_next) = laneConfigurations[point][nextPoint]
+        maxNLanes = max(n_right, n_left_next)
+        if diffWithNext <= np.pi / 2: # less than 45:
+            minWithNext = 10 + maxNLanes * 5 / diffWithNext
+        else:
+            minWithNext = 10 + maxNLanes * 2
+        
+        if minDistance < minWithNext:
+            minDistance = minWithNext
+
+        
+        return minDistance
+        
+
+        
+        
 
             
 

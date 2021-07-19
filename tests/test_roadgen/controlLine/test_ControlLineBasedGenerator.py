@@ -23,7 +23,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
 
     def test_generateWithHorizontalControlines(self):
 
-        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=2, randomizeDistance=True)
+        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=2, randomizeDistance=False)
         odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 5)
         # generator.grid.plot()
         # extensions.printRoadPositions(odr)

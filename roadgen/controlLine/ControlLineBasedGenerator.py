@@ -256,7 +256,7 @@ class ControlLineBasedGenerator:
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
         for (line1, line2, point1, point2) in self.grid.connections:
 
-            print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
+            # print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
             
             point1IncidentIndex = point1.adjPointToOutsideIndex[point2]
             point2IncidentIndex = point2.adjPointToOutsideIndex[point1]
@@ -294,7 +294,7 @@ class ControlLineBasedGenerator:
             
             if point2 not in self.laneConfigurations[point1]:
                 # we need to update both
-                print(f"{self.name}: createLaneConfigurationsForConnections: Lines ({line1.id, line2.id}, ({point1.position, point2.position}), lanes {point1_n_left, point1_n_right})")
+                # print(f"{self.name}: createLaneConfigurationsForConnections: Lines ({line1.id, line2.id}, ({point1.position, point2.position}), lanes {point1_n_left, point1_n_right})")
                 self.updateLaneConfigurations(point1, point2, point1_n_left, point1_n_right)
         
         self.fixLaneConfigurations(pyodrx.ContactPoint.start)
@@ -312,7 +312,7 @@ class ControlLineBasedGenerator:
     
 
     def fixLaneConfigurationsForAPoint(self, cp, point: ControlPoint):
-        print(point)
+        # print(point)
         for adjPoint in point.adjacentPoints:
             # 1. nIncoming on the adjacent point must not be greater than cumulative nOutgoing of other adjacent points
             nIncoming, nOutgoingOthers = self.getIncomingAndOutgoingForIncidentPoint(cp, point=point, adjPoint=adjPoint)
