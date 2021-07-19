@@ -22,7 +22,9 @@ class ControlLineBasedGenerator:
     def __init__(self, mapSize, debug=False,
                     randomizeLanes=True,
                     randomizeDistance = True, randomizeHeading=False,
-                    country=CountryCodes.US, seed=101) -> None:
+                    country=CountryCodes.US, seed=101,
+                    nLaneDistributionOnASide=[0.15, 0.6, 0.2, 0.05]
+                    ) -> None:
         self.name = "ControlLineBasedGenerator"
         self.mapSize = mapSize
         self.randomizeLanes = randomizeLanes
@@ -46,7 +48,7 @@ class ControlLineBasedGenerator:
                                                             laneWidth=3)
         self.laneConfigurations = None
 
-        self.nLaneDistributionOnASide = [0.2, 0.5, 0.2, 0.1] # 0, 1, 2, 3
+        self.nLaneDistributionOnASide = nLaneDistributionOnASide # 0, 1, 2, 3
 
         self.placedIntersections = []
         
