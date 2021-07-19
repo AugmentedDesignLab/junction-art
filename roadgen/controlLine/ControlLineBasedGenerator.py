@@ -482,6 +482,9 @@ class ControlLineBasedGenerator:
 
 
         for intersection in self.placedIntersections:
+            # self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(intersection.incidentRoads)
+            self.laneMarkGenerator.addSolidYellowCenterLineOnRoads(intersection.incidentRoads)
+            self.laneMarkGenerator.addMarkForRestrictedLanesOnRoads(intersection.incidentRoads)
 
             # for each pair of intersection incident roads, call getOrderedConnectionRoadsBetween
             # then call addBrokenLinesForAdjacentConnectionRoads
@@ -490,3 +493,7 @@ class ControlLineBasedGenerator:
             connectionRoads = intersection.internalConnectionRoads
             self.laneMarkGenerator.addBrokenWhiteToSideLanesOfRoads(connectionRoads)
             self.laneMarkGenerator.removeCenterLineFromRoads(connectionRoads)
+
+            for connectionRoad in connectionRoads:
+                if connectionRoad.isUturn():
+                    self.laneMarkGenerator.removeLaneMarkFrom(connectionRoad)

@@ -170,3 +170,23 @@ class LaneMarkGenerator:
         # for inside connection roads, add broken white to their center
         for i in range(1, len(connectionRoads)-1):
             self.addBrokenWhiteCenterLineOnRoads(connectionRoads[i])
+
+
+    #region restricted lanes
+
+    def addMarkForRestrictedLanesOnRoads(self, roads: List[ExtendedRoad]):
+        for road in roads:
+            self.addMarkForRestrictedLanesOnARoad(road)
+            
+    
+    def addMarkForRestrictedLanesOnARoad(self, road):
+        
+        for ls in road.lanes.lanesections:
+            self.addMarkForRestrictedLanes(ls.leftlanes)
+            self.addMarkForRestrictedLanes(ls.rightlanes)
+
+    
+    def addMarkForRestrictedLanes(self, lanes):
+        for lane in lanes:
+            if lane.lane_type == pyodrx.LaneType.restricted:
+                lane.add_roadmark(LaneMarks.YELLOW_SOLID.value)

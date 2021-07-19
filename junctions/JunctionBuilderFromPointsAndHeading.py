@@ -268,12 +268,11 @@ class JunctionBuilderFromPointsAndHeading():
         # self.addInternalConnectionsToJunction(junction, internalConnections)
         connectionRoads += uTurnConnections
 
-        self.laneMarkGenerator.removeLaneMarkFromRoads(uTurnConnections)
         # U-turns ends
 
         # lane marks
-
-        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(outSideRoadsShallowCopy)
+        # self.laneMarkGenerator.removeLaneMarkFromRoads(uTurnConnections)
+        # self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(outSideRoadsShallowCopy)
 
         # junction creation
         junction = JunctionDef(nextRoadId).build(connectionRoads)
