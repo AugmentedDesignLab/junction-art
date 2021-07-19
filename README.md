@@ -1,7 +1,16 @@
 # Junction Art
 Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Development and Test. It's built using [pyodrx](https://github.com/pyoscx/pyodrx) library. It generates road networks in [Open drive](https://www.asam.net/standards/detail/opendrive/) format. Detailed documentation with architecture can be found in the **docs* folder of the repository.
 
-# Dependencies:
+# Installation
+
+**Steps**:
+1. install dependencies
+2. create config.yaml (instructions below)
+3. create output folder (a folder called "output" in the root directory)
+
+## Dependencies:
+
+Python 3.7+
 
 1. pyodrx (included with the project. No need to install)
 2. dill
@@ -11,11 +20,21 @@ Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Develo
 6. flask and jinja2 (for web-ui)
 7. scikit-spatial
 
-# Configuration
+### Conda commands:
 
-1. esminipath
-2. esmini resources folder
-3. notebook path
+1. conda install dill
+2. conda install -c anaconda pyyaml 
+3. conda install -c anaconda scipy
+4. conda install -c conda-forge matplotlib
+5. conda install -c anaconda unittest2
+6. conda install -c conda-forge scikit-spatial
+
+## Configuration - create config.yaml
+copy the contents of config-sample.yaml file and create a new file "config.yaml" in the root directory of the project. Now change these configurations:
+
+
+1. esminipath - the folder containing the bin folder of esmini
+2. rootPath - the path to the root folder of this project.
 
 
 # Conventions:
