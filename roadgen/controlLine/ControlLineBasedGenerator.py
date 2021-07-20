@@ -155,18 +155,23 @@ class ControlLineBasedGenerator:
         line3 = ControlLine(3, (0,250), (1000, 220))
 
         line4 = ControlLine(4, (100, 500), (500, 550))
-        line5 = ControlLine(5, (0,600), (700, 620))
+        line5 = ControlLine(5, (0,600), (550, 620))
         line6 = ControlLine(6, (0,700), (400, 700))
         line7 = ControlLine(7, (0,770), (500, 800))
 
+        line78 = ControlLine(78, (700, 400), (1000, 350))
         line8 = ControlLine(8, (600, 550), (1000, 550))
-        line9 = ControlLine(9, (600, 750), (1000, 750))
+        line9 = ControlLine(9, (600, 650), (900, 700))
+
+        line10 = ControlLine(10, (950, 800), (1000, 1500))
+        line11 = ControlLine(11, (1100, 800), (1150, 1500))
+        line12 = ControlLine(11, (850, 900), (860, 1300))
         
         # pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7)]
         # self.lines= [line1, line2, line3, line4, line5, line6, line7]
-        pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7), (line8, line9)]
-        self.lines= [line1, line2, line3, line4, line5, line6, line7, line8, line9]
-        self.continuationPairs = []
+        pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7), (line78, line8), (line8, line9), (line10, line11), (line10, line12)]
+        self.lines= [line1, line2, line3, line4, line5, line6, line7, line78, line8, line9, line10, line11, line12]
+        self.continuationPairs = [(line4, line8), (line9, line10), (line6, line9)]
         # pairs = [(line1, line2)]
         # self.lines= [line1, line2]
         self.pairs = pairs

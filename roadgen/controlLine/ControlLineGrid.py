@@ -107,8 +107,8 @@ class ControlLineGrid:
                 'commonEnd': 0.1
             },
             'commonEnd': {
-                'orthogonal': 0.4,
-                'parallel': 0.2,
+                'orthogonal': 0.5,
+                'parallel': 0.1,
                 'random': 0.4,
                 'commonEnd': 0
             },
