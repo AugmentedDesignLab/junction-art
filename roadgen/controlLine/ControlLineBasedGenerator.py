@@ -34,6 +34,7 @@ class ControlLineBasedGenerator:
         self.debug = debug
         self.lines = None
         self.pairs = None
+        self.continuationPairs=None
         self.grid = None
         self.laneLinker = LaneLinker(countryCode=country)
         self.roadBuilder = RoadBuilder()
@@ -143,7 +144,9 @@ class ControlLineBasedGenerator:
         pass
 
     
-    def createTestGridWithHorizontalControlLines(self, nLines):
+    def createTestGridWithHorizontalControlLines(self, nLines=5):
+
+        self.continuationPairs = []
 
         line1 = ControlLine(1, (0,0), (1000, 0))
 
@@ -151,31 +154,70 @@ class ControlLineBasedGenerator:
 
         line3 = ControlLine(3, (0,250), (1000, 220))
 
-        line4 = ControlLine(4, (100, 500), (600, 550))
+        line4 = ControlLine(4, (100, 500), (500, 550))
         line5 = ControlLine(5, (0,600), (700, 620))
-        line6 = ControlLine(6, (0,700), (1000, 700))
-        line7 = ControlLine(7, (0,770), (1000, 800))
+        line6 = ControlLine(6, (0,700), (400, 700))
+        line7 = ControlLine(7, (0,770), (500, 800))
+
+        line8 = ControlLine(8, (600, 550), (1000, 550))
+        line9 = ControlLine(9, (600, 750), (1000, 750))
         
-        pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7)]
-        self.lines= [line1, line2, line3, line4, line5, line6, line7]
+        # pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7)]
+        # self.lines= [line1, line2, line3, line4, line5, line6, line7]
+        pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7), (line8, line9)]
+        self.lines= [line1, line2, line3, line4, line5, line6, line7, line8, line9]
+        self.continuationPairs = []
         # pairs = [(line1, line2)]
         # self.lines= [line1, line2]
         self.pairs = pairs
-        grid = ControlLineGrid(controlLinePairs=pairs, debug=True)
+        grid = ControlLineGrid(controlLinePairs=pairs, continuationPairs=self.continuationPairs, debug=True)
 
         for pair in self.pairs:
             grid.connectControlLinesWithRectsAndTriangles(pair)
-
-        
 
 
         for line in self.lines:
             grid.connectControlPointsOnALine(line)
 
+        
+        grid.connectContinuationPairs()
+
         self.grid = grid
+        self.grid.plotControlLines()
+        self.grid.plotConnections()
+        self.grid.plot()
+
         pass
     
     #endregion
+
+    def generateWithManualControlines(self, name):
+        # 1 grid creation
+        self.createTestGridWithHorizontalControlLines()
+
+        # 1.1
+        # build clockwise adjacent points structure
+        
+        self.buildClockwiseAdjacentMapForControlPoints()
+
+        # 2. define lanes for each connection
+        if self.randomizeLanes:
+            self.createLaneConfigurationsForConnections()
+        else:
+            self.laneConfigurations = None
+
+        # 3. create intersections for each control point
+        self.createIntersectionsForControlPoints()
+
+        # now we have the intersections
+        # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
+        self.createConnectionRoadsBetweenIntersections()
+
+        self.adjustLaneMarkings()
+        
+        combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
+        ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
+        return combinedOdr
     
     def generateWithHorizontalControlines(self, name, nLines):
 

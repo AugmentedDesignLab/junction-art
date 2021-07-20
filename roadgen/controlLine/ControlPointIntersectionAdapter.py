@@ -20,6 +20,7 @@ class ControlPointIntersectionAdapter:
 
         # ControlPointIntersectionAdapter.orderAjacentCW(point)
         distance = 15
+        maxDistance = 50
         country = CountryCodes.US
         laneWidth = 3
         roadDefs = []
@@ -37,6 +38,9 @@ class ControlPointIntersectionAdapter:
             # randomDistance = distance
             randomDistance = ControlPointIntersectionAdapter.getMinDistance(point, adjPoint, laneConfigurations=laneConfigurations)
             print(f"distance for point {adjPoint.position} is {randomDistance}")
+
+            if randomDistance > maxDistance:
+                raise Exception(f"ControlPointIntersectionAdapter: angle too tight to generate intersection with specified lanes")
             if randomDistance:
                 randomDistance = randomDistance * np.random.uniform(1, 1.2)
             if randomizeHeading:

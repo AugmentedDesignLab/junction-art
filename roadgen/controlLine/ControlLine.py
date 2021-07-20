@@ -92,6 +92,11 @@ class ControlLine:
         self._sortedPoints = sorted(self.controlPoints, key=lambda point: point.distanceFrom(cp0))
         return self._sortedPoints
 
+    def getFirstPoint(self):
+        if len(self.controlPoints) == 0:
+            return None
+        return self.getOrderedControlPoints()[0]
+
     def getLastPoint(self):
         if len(self.controlPoints) == 0:
             return None

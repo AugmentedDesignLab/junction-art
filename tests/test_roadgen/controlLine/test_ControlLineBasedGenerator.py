@@ -21,10 +21,20 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         pass
     
 
+    def test_generateWithManualControlLines(self):
+        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=3, randomizeDistance=False)
+        odr = generator.generateWithManualControlines("test_generateWithHorizontalControlines")
+        # generator.grid.plot()
+        # extensions.printRoadPositions(odr)
+        xmlPath = f"output/test_generateWithManualControlLines.xodr"
+        odr.write_xml(xmlPath)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+
+
     def test_generateWithHorizontalControlines(self):
 
         generator = ControlLineBasedGenerator((400, 400), debug=True, seed=2, randomizeDistance=False)
-        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 5)
+        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 4)
         # generator.grid.plot()
         # extensions.printRoadPositions(odr)
         xmlPath = f"output/test_generateWithHorizontalControlines.xodr"
