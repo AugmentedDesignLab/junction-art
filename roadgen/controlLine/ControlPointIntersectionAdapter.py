@@ -131,7 +131,9 @@ class ControlPointIntersectionAdapter:
         if laneConfigurations is not None:
             (n_left_prev, n_right_prev) = laneConfigurations[point][prevPoint]
         maxNLanes = max(n_left, n_right_prev)
-        if diffWithPrev <= np.pi / 2: # less than 90:
+        if diffWithPrev <= np.pi / 4: # less than 90:
+            minWithPrev = 10 + maxNLanes * 20 / diffWithPrev
+        elif diffWithPrev <= np.pi / 2: # less than 90:
             minWithPrev = 10 + maxNLanes * 5 / diffWithPrev
         else:
             minWithPrev = 10 + maxNLanes * 2
@@ -146,7 +148,9 @@ class ControlPointIntersectionAdapter:
         if laneConfigurations is not None:
             (n_left_next, n_right_next) = laneConfigurations[point][nextPoint]
         maxNLanes = max(n_right, n_left_next)
-        if diffWithNext <= np.pi / 2: # less than 45:
+        if diffWithNext <= np.pi / 4: # less than 45:
+            minWithNext = 10 + maxNLanes * 20 / diffWithNext
+        elif diffWithNext <= np.pi / 2: # less than 45:
             minWithNext = 10 + maxNLanes * 5 / diffWithNext
         else:
             minWithNext = 10 + maxNLanes * 2
