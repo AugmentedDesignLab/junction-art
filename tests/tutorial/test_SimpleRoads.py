@@ -7,6 +7,7 @@ from junctions.RoadLinker import RoadLinker
 from junctions.JunctionBuilder import JunctionBuilder
 from junctions.LaneBuilder import LaneBuilder
 from junctions.CurveRoadBuilder import CurveRoadBuilder
+from junctions.StandardCurvatures import StandardCurvature
 import pyodrx
 import numpy as np
 
@@ -15,7 +16,7 @@ class test_SimpleRoads(unittest.TestCase):
     def setUp(self) -> None:
         print("\nsetUp is called")
         self.configuration = Configuration()
-        self.builder = StraightRoadBuilder()
+        self.straightbuilder = StraightRoadBuilder()
         self.junctionBuilder = JunctionBuilder()
         self.laneBuilder = LaneBuilder()
         self.curveBuilder = CurveRoadBuilder()
@@ -26,21 +27,24 @@ class test_SimpleRoads(unittest.TestCase):
         print("\ntest_oneStraightRoad is called")
 
         # 1. create logical descriptions for each road in our network
-        road = self.builder.createRandom(roadId=1) # logical description of a road.
+        for _ in range(5):
+            road = self.straightbuilder.createRandom(roadId=1, minLanePerSide=1, maxLanePerSide=1) # logical description of a road.
 
-        # 2. place the roads into a map
-        odr = extensions.createOdrByPredecessor("First simple road network with one straight road only", [road], [])
+            # 2. place the roads into a map
+            odr = extensions.createOdrByPredecessor("First simple road network with one straight road only", [road], [])
 
-        
-        xmlPath = f"output/test_straightRoads.xodr"
-        odr.write_xml(xmlPath)
-        
-        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
+            
+            xmlPath = f"output/test_straightRoads.xodr"
+            odr.write_xml(xmlPath)
+            
+            extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
+
+
 
     def test_2Roads(self):
         # 1. create logical descriptions for each road in our network
-        road1 = self.builder.createRandom(roadId=1, turns=True) # logical description of a road.
-        road2 = self.builder.createRandom(roadId=2, merges=True) # logical description of a road.
+        road1 = self.straightbuilder.createRandom(roadId=1, turns=True) # logical description of a road.
+        road2 = self.straightbuilder.createRandom(roadId=2, merges=True) # logical description of a road.
 
       
         # define successor predecessor relationships
@@ -61,8 +65,8 @@ class test_SimpleRoads(unittest.TestCase):
 
     def test_3Roads(self):
         # 1. create logical descriptions for each road in our network
-        road1 = self.builder.createRandom(roadId=1, turns=True) # logical description of a road.
-        road2 = self.builder.createRandom(roadId=2, merges=True) # logical description of a road.
+        road1 = self.straightbuilder.createRandom(roadId=1, turns=True) # logical description of a road.
+        road2 = self.straightbuilder.createRandom(roadId=2, merges=True) # logical description of a road.
 
         # solve reference line to connect
         # road3 = self.junctionBuilder.createConnectionFor2Roads(nextRoadId=3, road1=road1, road2=road2, junction=None, cp1=pyodrx.ContactPoint.end, cp2=pyodrx.ContactPoint.start)
@@ -87,3 +91,27 @@ class test_SimpleRoads(unittest.TestCase):
         pass
 
 
+
+    
+    def test_assignment1(self):
+
+        road1 = self.straightbuilder.createRandom(roadId=1, minLanePerSide=2, maxLanePerSide=2)
+        road2 = self.curveBuilder.create(2, angleBetweenEndpoints=np.pi/3, n_lanes=2, curvature=.1)
+        # road2 = self.curveBuilder.createCurveByLength(2, length=20, curvature=StandardCurvature.Sharp.value)
+        road3 = self.straightbuilder.createRandom(roadId=3, minLanePerSide=2, maxLanePerSide=2)
+        
+        # define successor predecessor relationships
+        RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=road2, predCp=pyodrx.ContactPoint.end, sucRoad=road3, sucCP=pyodrx.ContactPoint.start)
+
+
+        roads = [road1, road2]
+        roads = [road1, road2, road3]
+        
+        # 3. place the roads into a map
+        odr = extensions.createOdrByPredecessor("First simple road network with one straight road only", roads, [])
+
+        xmlPath = f"output/test_assignment1.xodr"
+        odr.write_xml(xmlPath)
+        
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))

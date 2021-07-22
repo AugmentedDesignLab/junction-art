@@ -92,7 +92,7 @@ class CurveRoadBuilder:
             curvature *= -1
 
         if curveType is StandardCurveTypes.Simple:
-            return self.createSimple(roadId, angleBetweenEndpoints, isJunction, curvature, 
+            return self.createSimple(roadId, angleBetweenEndpoints, isJunction, curvature, n_lanes=n_lanes,
                                     isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
                                     isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane)
         elif curveType is StandardCurveTypes.LongArc:
