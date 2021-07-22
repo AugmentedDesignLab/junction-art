@@ -139,6 +139,8 @@ class ControlLineBasedGenerator:
         for line in self.lines:
             self.grid.connectControlPointsOnALine(line)
 
+        self.grid.plotControlLines()
+        self.grid.plotConnections()
         self.grid.plot()
 
         pass
@@ -546,3 +548,5 @@ class ControlLineBasedGenerator:
             for connectionRoad in connectionRoads:
                 if connectionRoad.isUturn():
                     self.laneMarkGenerator.removeLaneMarkFrom(connectionRoad)
+            
+            
