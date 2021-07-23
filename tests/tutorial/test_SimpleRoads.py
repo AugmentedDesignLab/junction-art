@@ -8,6 +8,7 @@ from junctions.JunctionBuilder import JunctionBuilder
 from junctions.LaneBuilder import LaneBuilder
 from junctions.CurveRoadBuilder import CurveRoadBuilder
 from junctions.StandardCurvatures import StandardCurvature
+from junctions.RoadBuilder import RoadBuilder
 import pyodrx
 import numpy as np
 
@@ -20,6 +21,7 @@ class test_SimpleRoads(unittest.TestCase):
         self.junctionBuilder = JunctionBuilder()
         self.laneBuilder = LaneBuilder()
         self.curveBuilder = CurveRoadBuilder()
+        self.roadBuilder = RoadBuilder()
 
 
     def test_oneStraightRoad(self):
@@ -110,6 +112,42 @@ class test_SimpleRoads(unittest.TestCase):
         
         # 3. place the roads into a map
         odr = extensions.createOdrByPredecessor("First simple road network with one straight road only", roads, [])
+
+        xmlPath = f"output/test_assignment1.xodr"
+        odr.write_xml(xmlPath)
+        
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath")))
+
+
+    def test_D(self):
+        road1 = self.straightbuilder.createRandom(roadId=1, minLanePerSide=1, maxLanePerSide=1, length=1)
+        road2 = self.curveBuilder.create(2, angleBetweenEndpoints=0.01, n_lanes=1, curvature=.07)
+        road3 = self.straightbuilder.createRandom(roadId=3, minLanePerSide=1, maxLanePerSide=1, length=1)
+        road4 = self.curveBuilder.create(4, angleBetweenEndpoints=np.pi/2, n_lanes=1, curvature=.6)
+        road5 = self.straightbuilder.createRandom(roadId=5, minLanePerSide=1, maxLanePerSide=1, length=30)
+
+
+        # define successor predecessor relationships
+        RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=road2, predCp=pyodrx.ContactPoint.end, sucRoad=road3, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=road3, predCp=pyodrx.ContactPoint.end, sucRoad=road4, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=road4, predCp=pyodrx.ContactPoint.end, sucRoad=road5, sucCP=pyodrx.ContactPoint.start)
+
+
+        roads = [road1, road2, road3, road4, road5]
+        
+        odr = extensions.createOdrByPredecessor("First simple road network with one straight road only", roads, [])
+        
+
+        road6 = self.roadBuilder.getConnectionRoadBetween(6, road1=road5, road2=road1, cp1=pyodrx.ContactPoint.end, cp2=pyodrx.ContactPoint.start)
+
+        # define successor predecessor relationships
+        RoadLinker.createExtendedPredSuc(predRoad=road5, predCp=pyodrx.ContactPoint.end, sucRoad=road6, sucCP=pyodrx.ContactPoint.start)
+        RoadLinker.createExtendedPredSuc(predRoad=road6, predCp=pyodrx.ContactPoint.end, sucRoad=road1, sucCP=pyodrx.ContactPoint.start)
+
+        roads.append(road6)
+        odr.updateRoads(roads)
+        odr.resetAndReadjust(byPredecessor=True)
 
         xmlPath = f"output/test_assignment1.xodr"
         odr.write_xml(xmlPath)
