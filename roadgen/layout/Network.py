@@ -1,9 +1,11 @@
+from junctions.LaneLinker import LaneLinker
 from junctions.LaneSides import LaneSides
 from junctions.RoadBuilder import RoadBuilder
 from extensions.ExtendedRoad import ExtendedRoad
 from junctions.ODRHelper import ODRHelper
 from junctions.RoadLinker import RoadLinker
 from junctions.LaneBuilder import LaneBuilder
+from extensions.CountryCodes import CountryCodes
 import pyodrx, logging
 
 class NetworkConnection:
@@ -40,8 +42,10 @@ class Network:
     """ Holds the connections and clusters """
 
 
-    def __init__(self, placedIntersections, debug=True) -> None:
+    def __init__(self, placedIntersections, countryCode, debug=True) -> None:
 
+        self.countryCode = countryCode
+        self.laneLinker = LaneLinker(countryCode=countryCode)
         self.roadBuilder = RoadBuilder()
         self.laneBuilder = LaneBuilder()
         self.placedIntersections = {} # map DI -> I
@@ -74,9 +78,21 @@ class Network:
 
         connectionRoad = self.roadBuilder.getConnectionRoadBetween(connectionRoadId, road1, road2, cp1, cp2, isJunction=False, laneSides=laneSides)
         RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=connectionRoad, sucCP=pyodrx.ContactPoint.start)
+        if cp1 == pyodrx.ContactPoint.start:
+            road1.addExtendedPredecessor(connectionRoad, 0, pyodrx.ContactPoint.start, xodr=True)
+        else:
+            road1.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.start, xodr=True)
+
         RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
+        if cp2 == pyodrx.ContactPoint.start:
+            road2.addExtendedPredecessor(connectionRoad, 0, pyodrx.ContactPoint.end, xodr=True)
+        else:
+            road2.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.end, xodr=True)
 
         self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
+
+        self.laneLinker.createLaneLinks(road1, connectionRoad)
+        self.laneLinker.createLaneLinks(road2, connectionRoad)
 
         x, y, h = road1.getPosition(cp1)
         ODRHelper.transformRoad(connectionRoad, x, y, h)

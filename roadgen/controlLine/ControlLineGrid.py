@@ -17,9 +17,10 @@ class ConnectionStrategy(Enum):
 
 class ControlLineGrid:
 
-    def __init__(self, size=(1000, 1000), controlLinePairs = None, debug=True):
+    def __init__(self, size=(1000, 1000), controlLinePairs = None, continuationPairs=None, debug=True):
         self.size = size
         self.controlLinePairs = controlLinePairs
+        self.continuationPairs = continuationPairs
         self.lines = set([])
         for pair in controlLinePairs:
             self.lines.add(pair[0])
@@ -106,8 +107,8 @@ class ControlLineGrid:
                 'commonEnd': 0.1
             },
             'commonEnd': {
-                'orthogonal': 0.4,
-                'parallel': 0.2,
+                'orthogonal': 0.5,
+                'parallel': 0.1,
                 'random': 0.4,
                 'commonEnd': 0
             },
@@ -256,6 +257,39 @@ class ControlLineGrid:
             point2 = line2.createControlPoint(projectionOn2)
 
         return point1, point2
+
+    def connectContinuationPairs(self):
+        for pair in self.continuationPairs:
+            self.connectContinuationPair(pair)
+    
+
+    def connectContinuationPair(self, pair: Tuple[ControlLine]):
+        """ connections the control lines as if they were sequentially connected"""
+        
+        if self.debug:
+            logging.info(f"{self.name}: connectContinuationPair: Connecting continuation pairs")
+
+        snapDistance = 60 # in meters
+
+        line1 = pair[0]
+        line2 = pair[1]
+        line1Copy = ControlLine(id=pair[0].id, start=pair[0].start, end=pair[0].end)
+        line2Copy = ControlLine(id=pair[1].id, start=pair[1].start, end=pair[1].end)
+
+        # TODO ideally we should create new control points at the end of line1 and at the start of line2 if not existing to avoid overlaps. But for now, we will live with existing
+
+        pointOnLine1 = line1.getLastPoint()
+        pointOnLine2 = line2.getFirstPoint()
+
+        if pointOnLine1 is None or pointOnLine2 is None:
+            if self.debug:
+                logging.info(f"{self.name}: connectContinuationPair. Cannot create continuation connection between line {line1.id} and line {line2.id}")
+        
+            return
+        
+        self.createConnection(line1, line2, pointOnLine1, pointOnLine2)
+
+
 
 
     def connectControlLinesWithExistingControlPoints(self, pair: Tuple[ControlLine], maxPerPoint=2, ConnectionStrategy=ConnectionStrategy.MIN, connectionDensity=0.9):
@@ -413,5 +447,23 @@ class ControlLineGrid:
             if line1 == line2:
                 continue
             plt.plot([point1.position[0], point2.position[0]], [point1.position[1], point2.position[1]], ':', color='gray', linewidth=1.5)
-        plt.grid(color = 'green', linestyle = '--', linewidth = 0.5)
+            plt.plot(point1.position[0], point1.position[1], 'o', color='#555555')
+            plt.plot(point2.position[0], point2.position[1], 'o', color='#555555')
+        plt.grid(color = '#f0f0f0', linestyle = '--', linewidth = 0.3)
+        plt.show()
+
+
+    def plotControlLines(self):
+        for line in self.lines:
+            plt.plot([line.start[0], line.end[0]], [line.start[1], line.end[1]], '-', linewidth=1.5)
+        plt.show()
+
+        
+    def plotConnections(self):
+       
+        for (line1, line2, point1, point2) in self.connections:
+            plt.plot([point1.position[0], point2.position[0]], [point1.position[1], point2.position[1]], ':', color='gray', linewidth=1.5)
+            plt.plot(point1.position[0], point1.position[1], 'o', color='#555555')
+            plt.plot(point2.position[0], point2.position[1], 'o', color='#555555')
+        plt.grid(color = '#f0f0f0', linestyle = '--', linewidth = 0.3)
         plt.show()

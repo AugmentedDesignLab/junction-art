@@ -1,10 +1,12 @@
+from extensions.ExtendedRoad import ExtendedRoad
 import pyodrx
 import numpy as np
 from junctions.ODRHelper import ODRHelper
+from typing import List
 
 class Intersection:
 
-    def __init__(self, id, incidentRoads, incidentCPs, geoConnectionRoads=None, odr=None):
+    def __init__(self, id, incidentRoads, incidentCPs, geoConnectionRoads=None, internalConnectionRoads: List[ExtendedRoad]=None, odr=None):
 
         self.id = id
         self.incidentRoads = incidentRoads
@@ -13,6 +15,7 @@ class Intersection:
         self.odr = odr
         self.incidentPoints = self.getIncidentPoints()
         self.connectedIncidentPoints = [] # list of indices
+        self.internalConnectionRoads = internalConnectionRoads
         
 
     def transform(self, startX, startY, heading):
@@ -111,7 +114,16 @@ class Intersection:
 
 
 
+    def getOrderedConnectionRoadsBetween(self, fromRoad: ExtendedRoad, toRoad: ExtendedRoad):
 
+        connectionRoads = []
+        for connectionRoad in self.internalConnectionRoads:
+            if connectionRoad.isExtendedSuccessorOf(fromRoad) and connectionRoad.isExtendedPredecessorOf(toRoad):
+                connectionRoads.append(connectionRoad)
+
+        print(connectionRoads)
+        return connectionRoads      
+            
             
 
 

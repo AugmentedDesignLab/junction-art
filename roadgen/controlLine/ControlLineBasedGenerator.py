@@ -7,10 +7,14 @@ from junctions.LaneSides import LaneSides
 from junctions.RoadBuilder import RoadBuilder
 from extensions.ExtendedRoad import ExtendedRoad
 from junctions.ODRHelper import ODRHelper
+from junctions.LaneLinker import LaneLinker
 from junctions.RoadLinker import RoadLinker
 from junctions.LaneBuilder import LaneBuilder
 from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
 from extensions.CountryCodes import CountryCodes
+from junctions.LaneMarkGenerator import LaneMarkGenerator
+from library.Combinator import Combinator
+import extensions
 import logging, math, pyodrx
 import numpy as np
 
@@ -20,7 +24,9 @@ class ControlLineBasedGenerator:
     def __init__(self, mapSize, debug=False,
                     randomizeLanes=True,
                     randomizeDistance = True, randomizeHeading=False,
-                    country=CountryCodes.US, seed=101) -> None:
+                    country=CountryCodes.US, seed=101,
+                    nLaneDistributionOnASide=[0.15, 0.6, 0.2, 0.05]
+                    ) -> None:
         self.name = "ControlLineBasedGenerator"
         self.mapSize = mapSize
         self.randomizeLanes = randomizeLanes
@@ -30,9 +36,12 @@ class ControlLineBasedGenerator:
         self.debug = debug
         self.lines = None
         self.pairs = None
+        self.continuationPairs=None
         self.grid = None
+        self.laneLinker = LaneLinker(countryCode=country)
         self.roadBuilder = RoadBuilder()
         self.laneBuilder = LaneBuilder()
+        self.laneMarkGenerator = LaneMarkGenerator(countryCode=country)
         self.connectionRoads = []
         self.controlPointIntersectionMap = {} # controlpoint -> its intersection
         self.nextRoadId = 0
@@ -42,7 +51,9 @@ class ControlLineBasedGenerator:
                                                             laneWidth=3)
         self.laneConfigurations = None
 
-        self.nLaneDistributionOnASide = [0.2, 0.5, 0.2, 0.1] # 0, 1, 2, 3
+        self.nLaneDistributionOnASide = nLaneDistributionOnASide # 0, 1, 2, 3
+
+        self.placedIntersections = []
         
         np.random.seed(seed)
         pass
@@ -130,12 +141,16 @@ class ControlLineBasedGenerator:
         for line in self.lines:
             self.grid.connectControlPointsOnALine(line)
 
+        self.grid.plotControlLines()
+        self.grid.plotConnections()
         self.grid.plot()
 
         pass
 
     
-    def createTestGridWithHorizontalControlLines(self, nLines):
+    def createTestGridWithHorizontalControlLines(self, nLines=5):
+
+        self.continuationPairs = []
 
         line1 = ControlLine(1, (0,0), (1000, 0))
 
@@ -143,31 +158,75 @@ class ControlLineBasedGenerator:
 
         line3 = ControlLine(3, (0,250), (1000, 220))
 
-        line4 = ControlLine(4, (100, 500), (600, 550))
-        line5 = ControlLine(5, (0,600), (700, 620))
-        line6 = ControlLine(6, (0,700), (1000, 700))
-        line7 = ControlLine(7, (0,770), (1000, 800))
+        line4 = ControlLine(4, (100, 500), (500, 550))
+        line5 = ControlLine(5, (0,600), (550, 620))
+        line6 = ControlLine(6, (0,700), (400, 700))
+        line7 = ControlLine(7, (0,770), (500, 800))
+
+        line78 = ControlLine(78, (700, 400), (1000, 350))
+        line8 = ControlLine(8, (600, 550), (1000, 550))
+        line9 = ControlLine(9, (600, 650), (900, 700))
+
+        line10 = ControlLine(10, (950, 800), (1000, 1500))
+        line11 = ControlLine(11, (1100, 800), (1150, 1500))
+        line12 = ControlLine(11, (850, 900), (860, 1300))
         
-        pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7)]
-        self.lines= [line1, line2, line3, line4, line5, line6, line7]
+        # pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7)]
+        # self.lines= [line1, line2, line3, line4, line5, line6, line7]
+        pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7), (line78, line8), (line8, line9), (line10, line11), (line10, line12)]
+        self.lines= [line1, line2, line3, line4, line5, line6, line7, line78, line8, line9, line10, line11, line12]
+        self.continuationPairs = [(line4, line8), (line9, line10), (line6, line9)]
         # pairs = [(line1, line2)]
         # self.lines= [line1, line2]
         self.pairs = pairs
-        grid = ControlLineGrid(controlLinePairs=pairs, debug=True)
+        grid = ControlLineGrid(controlLinePairs=pairs, continuationPairs=self.continuationPairs, debug=True)
 
         for pair in self.pairs:
             grid.connectControlLinesWithRectsAndTriangles(pair)
-
-        
 
 
         for line in self.lines:
             grid.connectControlPointsOnALine(line)
 
+        
+        grid.connectContinuationPairs()
+
         self.grid = grid
+        self.grid.plotControlLines()
+        self.grid.plotConnections()
+        self.grid.plot()
+
         pass
     
     #endregion
+
+    def generateWithManualControlines(self, name):
+        # 1 grid creation
+        self.createTestGridWithHorizontalControlLines()
+
+        # 1.1
+        # build clockwise adjacent points structure
+        
+        self.buildClockwiseAdjacentMapForControlPoints()
+
+        # 2. define lanes for each connection
+        if self.randomizeLanes:
+            self.createLaneConfigurationsForConnections()
+        else:
+            self.laneConfigurations = None
+
+        # 3. create intersections for each control point
+        self.createIntersectionsForControlPoints()
+
+        # now we have the intersections
+        # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
+        self.createConnectionRoadsBetweenIntersections()
+
+        self.adjustLaneMarkings()
+        
+        combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
+        ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
+        return combinedOdr
     
     def generateWithHorizontalControlines(self, name, nLines):
 
@@ -191,8 +250,10 @@ class ControlLineBasedGenerator:
         # now we have the intersections
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
         self.createConnectionRoadsBetweenIntersections()
+
+        self.adjustLaneMarkings()
         
-        combinedOdr = ODRHelper.combine(self.odrList, name)
+        combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
         
@@ -205,7 +266,7 @@ class ControlLineBasedGenerator:
                 ControlPointIntersectionAdapter.orderAjacentCW(point2)
         pass
 
-
+    #region placement on map
     def createIntersectionsForControlPoints(self):
         
         for (line1, line2, point1, point2) in self.grid.connections:
@@ -224,6 +285,7 @@ class ControlLineBasedGenerator:
                 point1.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point1, point1.intersection)
                 self.controlPointIntersectionMap[point1] = point1.intersection
                 self.odrList.append(point1.intersection.odr)
+                self.placedIntersections.append(point1.intersection)
 
             if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
                 print(f"{self.name}: Creating intersection for line {line2.id} p = {point2.position}")
@@ -238,6 +300,7 @@ class ControlLineBasedGenerator:
                 point2.adjPointToOutsideIndex = ControlPointIntersectionAdapter.getAdjacentPointOutsideRoadIndexMap(point2, point2.intersection)
                 self.controlPointIntersectionMap[point2] = point2.intersection
                 self.odrList.append(point2.intersection.odr)
+                self.placedIntersections.append(point2.intersection)
 
         pass
 
@@ -246,21 +309,53 @@ class ControlLineBasedGenerator:
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
         for (line1, line2, point1, point2) in self.grid.connections:
 
-            print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
+            # print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
             
             point1IncidentIndex = point1.adjPointToOutsideIndex[point2]
             point2IncidentIndex = point2.adjPointToOutsideIndex[point1]
 
             road1 = point1.intersection.incidentRoads[point1IncidentIndex]
-            cp1 =  self.reverseCP(point1.intersection.incidentCPs[point1IncidentIndex])
+            cp1 =  extensions.reverseCP(point1.intersection.incidentCPs[point1IncidentIndex])
             road2 = point2.intersection.incidentRoads[point2IncidentIndex]
-            cp2 = self.reverseCP(point2.intersection.incidentCPs[point2IncidentIndex])
+            cp2 = extensions.reverseCP(point2.intersection.incidentCPs[point2IncidentIndex])
 
             self.connect(self.nextRoadId, intersection1=point1.intersection, road1=road1, cp1=cp1,
                                           intersection2=point2. intersection, road2=road2, cp2=cp2, 
                                           laneSides=LaneSides.BOTH)
             self.nextRoadId += 1
         pass
+
+    def connect(self, connectionRoadId, intersection1:Intersection, road1: ExtendedRoad, cp1, intersection2:Intersection, road2: ExtendedRoad, cp2, laneSides):
+
+
+        if self.debug:
+            logging.info(f"{self.name}: connecting intersections ({intersection1.id}, {intersection2.id})")
+
+
+        connectionRoad = self.roadBuilder.getConnectionRoadBetween(connectionRoadId, road1, road2, cp1, cp2, isJunction=False, laneSides=laneSides)
+        RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=connectionRoad, sucCP=pyodrx.ContactPoint.start)
+        road1.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.start, xodr=True)
+        RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
+        road2.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.end, xodr=True)
+
+        self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
+        self.laneLinker.createLaneLinks(road1, connectionRoad)
+        self.laneLinker.createLaneLinks(road2, connectionRoad)
+
+        x, y, h = road1.getPosition(cp1)
+        ODRHelper.transformRoad(connectionRoad, x, y, h)
+        connectionRoad.planview.adjust_geometires()
+
+        # x2, y2, h2 = road2.getPosition(cp2)
+        # print(x, y, h)
+        # print(x2, y2, h2)
+        
+
+        
+        # self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfARoad(connectionRoad)
+        self.connectionRoads.append(connectionRoad)
+
+    #endregion
 
     #region lane configurations for each control point
     def createLaneConfigurationsForConnections(self):
@@ -284,7 +379,7 @@ class ControlLineBasedGenerator:
             
             if point2 not in self.laneConfigurations[point1]:
                 # we need to update both
-                print(f"{self.name}: createLaneConfigurationsForConnections: Lines ({line1.id, line2.id}, ({point1.position, point2.position}), lanes {point1_n_left, point1_n_right})")
+                # print(f"{self.name}: createLaneConfigurationsForConnections: Lines ({line1.id, line2.id}, ({point1.position, point2.position}), lanes {point1_n_left, point1_n_right})")
                 self.updateLaneConfigurations(point1, point2, point1_n_left, point1_n_right)
         
         self.fixLaneConfigurations(pyodrx.ContactPoint.start)
@@ -302,7 +397,7 @@ class ControlLineBasedGenerator:
     
 
     def fixLaneConfigurationsForAPoint(self, cp, point: ControlPoint):
-        print(point)
+        # print(point)
         for adjPoint in point.adjacentPoints:
             # 1. nIncoming on the adjacent point must not be greater than cumulative nOutgoing of other adjacent points
             nIncoming, nOutgoingOthers = self.getIncomingAndOutgoingForIncidentPoint(cp, point=point, adjPoint=adjPoint)
@@ -424,38 +519,20 @@ class ControlLineBasedGenerator:
             point2_n_right = point1_n_left
             self.laneConfigurations[point1][point2] = (point1_n_left, point1_n_right)
             self.laneConfigurations[point2][point1] = (point2_n_left, point2_n_right)
-            print(f"{self.name}: createLaneConfigurationsForConnections:  ({point1.position, point2.position}), lanes point1 {point1_n_left, point1_n_right}), lanes point2 {point2_n_left, point2_n_right}")
+            # print(f"{self.name}: createLaneConfigurationsForConnections:  ({point1.position, point2.position}), lanes point1 {point1_n_left, point1_n_right}), lanes point2 {point2_n_left, point2_n_right}")
 
 
     #endregion
 
-    def reverseCP(self, cp):
-         return pyodrx.ContactPoint.start if (cp == pyodrx.ContactPoint.end) else pyodrx.ContactPoint.end
 
 
+    def adjustLaneMarkings(self):
+        # for the connection roads that connect different intersections
+        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(self.connectionRoads)
+        self.laneMarkGenerator.addSolidYellowCenterLineOnRoads(self.connectionRoads)
 
-
-    def connect(self, connectionRoadId, intersection1:Intersection, road1: ExtendedRoad, cp1, intersection2:Intersection, road2: ExtendedRoad, cp2, laneSides):
-
-
-        if self.debug:
-            logging.info(f"{self.name}: connecting intersections ({intersection1.id}, {intersection2.id})")
-
-
-        connectionRoad = self.roadBuilder.getConnectionRoadBetween(connectionRoadId, road1, road2, cp1, cp2, isJunction=False, laneSides=laneSides)
-        RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=connectionRoad, sucCP=pyodrx.ContactPoint.start)
-        RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
-
-        self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
-
-        x, y, h = road1.getPosition(cp1)
-        ODRHelper.transformRoad(connectionRoad, x, y, h)
-        connectionRoad.planview.adjust_geometires()
-
-        # x2, y2, h2 = road2.getPosition(cp2)
-        # print(x, y, h)
-        # print(x2, y2, h2)
-        
-
-
-        self.connectionRoads.append(connectionRoad)
+        # for each intersection
+        for intersection in self.placedIntersections:
+            self.laneMarkGenerator.adjustMarksForIntersection(intersection)
+            
+            

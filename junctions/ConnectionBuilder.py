@@ -37,10 +37,13 @@ class ConnectionBuilder:
             outgoingCp ([type]): [description]
         """
         laneSides = None
+        connectionLaneId = None
         if self.countryCode == CountryCodes.US:
             laneSides = LaneSides.RIGHT
+            connectionLaneId = -1
         if self.countryCode == CountryCodes.UK:
             laneSides = LaneSides.LEFT
+            connectionLaneId = 1
         
         incomingBoundaryId = incomingLaneId - 1
         if incomingLaneId < 0:
@@ -85,13 +88,19 @@ class ConnectionBuilder:
                                                 laneSides=laneSides
 
                                             )
+
         
         newConnection.predecessorOffset = incomingBoundaryId
 
         newConnection.isSingleLaneConnection = True
 
         RoadLinker.createExtendedPredSuc(predRoad=incomingRoad, predCp=incomingCp, sucRoad=newConnection, sucCP=pyodrx.ContactPoint.start)
+
         RoadLinker.createExtendedPredSuc(predRoad=newConnection, predCp=pyodrx.ContactPoint.end, sucRoad=outgoingRoad, sucCP=outgoingCp)
+
+        newConnection.predefinedLaneLinks.append(('predecessor', incomingLaneId, connectionLaneId))
+        newConnection.predefinedLaneLinks.append(('successor', outgoingLaneId, connectionLaneId))
+        
 
         return newConnection
 
@@ -137,8 +146,10 @@ class ConnectionBuilder:
             try:
                 linkConfig = LaneConfiguration.getIntersectionLinks1ToMany(incomingLaneIds, outgoingLaneIds, strategy=strategy)
 
-                print(f"road id is {incomingRoad.id}")
-                print(linkConfig)
+                incomingRoad.linkConfig = linkConfig
+
+                # print(f"road id is {incomingRoad.id}")
+                # print(linkConfig)
 
                 # for each link, create a new connection road
                 connectionRoadsForConfig = self.createRoadsForLinkConfig(nextRoadId, roadDic, firstRoadId, incomingRoad, cp1, linkConfig)
