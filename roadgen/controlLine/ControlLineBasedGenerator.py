@@ -13,6 +13,8 @@ from junctions.LaneBuilder import LaneBuilder
 from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
 from extensions.CountryCodes import CountryCodes
 from junctions.LaneMarkGenerator import LaneMarkGenerator
+from library.Combinator import Combinator
+import extensions
 import logging, math, pyodrx
 import numpy as np
 
@@ -264,7 +266,7 @@ class ControlLineBasedGenerator:
                 ControlPointIntersectionAdapter.orderAjacentCW(point2)
         pass
 
-
+    #region placement on map
     def createIntersectionsForControlPoints(self):
         
         for (line1, line2, point1, point2) in self.grid.connections:
@@ -313,15 +315,47 @@ class ControlLineBasedGenerator:
             point2IncidentIndex = point2.adjPointToOutsideIndex[point1]
 
             road1 = point1.intersection.incidentRoads[point1IncidentIndex]
-            cp1 =  self.reverseCP(point1.intersection.incidentCPs[point1IncidentIndex])
+            cp1 =  extensions.reverseCP(point1.intersection.incidentCPs[point1IncidentIndex])
             road2 = point2.intersection.incidentRoads[point2IncidentIndex]
-            cp2 = self.reverseCP(point2.intersection.incidentCPs[point2IncidentIndex])
+            cp2 = extensions.reverseCP(point2.intersection.incidentCPs[point2IncidentIndex])
 
             self.connect(self.nextRoadId, intersection1=point1.intersection, road1=road1, cp1=cp1,
                                           intersection2=point2. intersection, road2=road2, cp2=cp2, 
                                           laneSides=LaneSides.BOTH)
             self.nextRoadId += 1
         pass
+
+    def connect(self, connectionRoadId, intersection1:Intersection, road1: ExtendedRoad, cp1, intersection2:Intersection, road2: ExtendedRoad, cp2, laneSides):
+
+
+        if self.debug:
+            logging.info(f"{self.name}: connecting intersections ({intersection1.id}, {intersection2.id})")
+
+
+        connectionRoad = self.roadBuilder.getConnectionRoadBetween(connectionRoadId, road1, road2, cp1, cp2, isJunction=False, laneSides=laneSides)
+        RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=connectionRoad, sucCP=pyodrx.ContactPoint.start)
+        road1.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.start, xodr=True)
+        RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
+        road2.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.end, xodr=True)
+
+        self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
+        self.laneLinker.createLaneLinks(road1, connectionRoad)
+        self.laneLinker.createLaneLinks(road2, connectionRoad)
+
+        x, y, h = road1.getPosition(cp1)
+        ODRHelper.transformRoad(connectionRoad, x, y, h)
+        connectionRoad.planview.adjust_geometires()
+
+        # x2, y2, h2 = road2.getPosition(cp2)
+        # print(x, y, h)
+        # print(x2, y2, h2)
+        
+
+        
+        # self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfARoad(connectionRoad)
+        self.connectionRoads.append(connectionRoad)
+
+    #endregion
 
     #region lane configurations for each control point
     def createLaneConfigurationsForConnections(self):
@@ -490,63 +524,15 @@ class ControlLineBasedGenerator:
 
     #endregion
 
-    def reverseCP(self, cp):
-         return pyodrx.ContactPoint.start if (cp == pyodrx.ContactPoint.end) else pyodrx.ContactPoint.end
-
-
-
-
-    def connect(self, connectionRoadId, intersection1:Intersection, road1: ExtendedRoad, cp1, intersection2:Intersection, road2: ExtendedRoad, cp2, laneSides):
-
-
-        if self.debug:
-            logging.info(f"{self.name}: connecting intersections ({intersection1.id}, {intersection2.id})")
-
-
-        connectionRoad = self.roadBuilder.getConnectionRoadBetween(connectionRoadId, road1, road2, cp1, cp2, isJunction=False, laneSides=laneSides)
-        RoadLinker.createExtendedPredSuc(predRoad=road1, predCp=cp1, sucRoad=connectionRoad, sucCP=pyodrx.ContactPoint.start)
-        road1.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.start, xodr=True)
-        RoadLinker.createExtendedPredSuc(predRoad=connectionRoad, predCp=pyodrx.ContactPoint.end, sucRoad=road2, sucCP=cp2)
-        road2.addExtendedSuccessor(connectionRoad, 0, pyodrx.ContactPoint.end, xodr=True)
-
-        self.laneBuilder.createLanesForConnectionRoad(connectionRoad, road1, road2)
-        self.laneLinker.createLaneLinks(road1, connectionRoad)
-        self.laneLinker.createLaneLinks(road2, connectionRoad)
-
-        x, y, h = road1.getPosition(cp1)
-        ODRHelper.transformRoad(connectionRoad, x, y, h)
-        connectionRoad.planview.adjust_geometires()
-
-        # x2, y2, h2 = road2.getPosition(cp2)
-        # print(x, y, h)
-        # print(x2, y2, h2)
-        
-
-        
-        # self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfARoad(connectionRoad)
-        self.connectionRoads.append(connectionRoad)
 
 
     def adjustLaneMarkings(self):
+        # for the connection roads that connect different intersections
         self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(self.connectionRoads)
         self.laneMarkGenerator.addSolidYellowCenterLineOnRoads(self.connectionRoads)
 
-
+        # for each intersection
         for intersection in self.placedIntersections:
-            # self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(intersection.incidentRoads)
-            self.laneMarkGenerator.addSolidYellowCenterLineOnRoads(intersection.incidentRoads)
-            self.laneMarkGenerator.addMarkForRestrictedLanesOnRoads(intersection.incidentRoads)
-
-            # for each pair of intersection incident roads, call getOrderedConnectionRoadsBetween
-            # then call addBrokenLinesForAdjacentConnectionRoads
-
-            intersection.getOrderedConnectionRoadsBetween(intersection.incidentRoads[0], intersection.incidentRoads[1])
-            connectionRoads = intersection.internalConnectionRoads
-            self.laneMarkGenerator.addBrokenWhiteToSideLanesOfRoads(connectionRoads)
-            self.laneMarkGenerator.removeCenterLineFromRoads(connectionRoads)
-
-            for connectionRoad in connectionRoads:
-                if connectionRoad.isUturn():
-                    self.laneMarkGenerator.removeLaneMarkFrom(connectionRoad)
+            self.laneMarkGenerator.adjustMarksForIntersection(intersection)
             
             

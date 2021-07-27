@@ -1,6 +1,7 @@
 from pyodrx.opendrive import Road
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
+import pyodrx
 
 
 import os, re
@@ -352,3 +353,6 @@ def getObjectsFromDill(path):
 
     return objects
 
+
+def reverseCP(cp):
+        return pyodrx.ContactPoint.start if (cp == pyodrx.ContactPoint.end) else pyodrx.ContactPoint.end

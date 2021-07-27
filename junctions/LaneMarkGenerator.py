@@ -1,8 +1,10 @@
+from junctions.Intersection import Intersection
 import pyodrx
 from enum import Enum
 from extensions.CountryCodes import CountryCodes
 from extensions.ExtendedRoad import ExtendedRoad
 from extensions.ExtendedLaneSection import ExtendedLaneSection
+from library.Combinator import Combinator
 from typing import List
 
 
@@ -41,6 +43,9 @@ class LaneMarkGenerator:
 
 
     def removeLaneMarkFrom(self, road: ExtendedRoad):
+
+        self.removeCenterLineFromRoad(road)
+
         for ls in road.lanes.lanesections:
             if len(ls.leftlanes) > 0:
                 self.removeMarkFromLanes(ls.leftlanes)
@@ -190,3 +195,54 @@ class LaneMarkGenerator:
         for lane in lanes:
             if lane.lane_type == pyodrx.LaneType.restricted:
                 lane.add_roadmark(LaneMarks.YELLOW_SOLID.value)
+
+
+    #region intersections
+
+    def adjustMarksForIntersection(self, intersection: Intersection, markOptions=None):
+        
+            self.adjustMarksForIncidentRoads(intersection=intersection, markOptions=markOptions)
+            self.adjustMarksForConnectionRoads(intersection=intersection, markOptions=markOptions)
+            pass
+
+
+    def adjustMarksForIncidentRoads(self, intersection: Intersection, markOptions=None):
+            self.addSolidYellowCenterLineOnRoads(intersection.incidentRoads)
+            self.addMarkForRestrictedLanesOnRoads(intersection.incidentRoads)
+            pass
+
+
+    def adjustMarksForConnectionRoads(self, intersection: Intersection, markOptions=None):
+            # for each pair of intersection incident roads, call getOrderedConnectionRoadsBetween
+            # then call addBrokenLinesForAdjacentConnectionRoads
+
+            markType = LaneMarks.WHITE_BROKEN
+            if (markOptions is not None) and ("connectionType"  in markOptions):
+                markType = markOptions["connectionType"]
+
+            # for each linkconfig for an incoming road
+            incidentPairs = Combinator.nP2(intersection.incidentRoads)
+            for (fromRoad, toRoad) in incidentPairs:
+                adjacentConnectionRoads = intersection.getOrderedConnectionRoadsBetween(fromRoad, toRoad)
+                if len(adjacentConnectionRoads) == 0:
+                    continue
+                
+                self.removeLaneMarkFromRoads(adjacentConnectionRoads)
+
+                # we need lane marks only when incoming lane changes 
+                # corner case is median lane.
+                lastIncomingLane = adjacentConnectionRoads[0].predecessorOffset
+                for connectionRoad in adjacentConnectionRoads:
+                    if connectionRoad.predecessorOffset > lastIncomingLane:
+                        lastIncomingLane = connectionRoad.predecessorOffset
+                        self.addCenterLineOnRoad(connectionRoad, markType)
+                        
+
+            # U-turns
+            connectionRoads = intersection.internalConnectionRoads
+            for connectionRoad in connectionRoads:
+                if connectionRoad.isUturn():
+                    self.removeLaneMarkFrom(connectionRoad)
+
+
+    #endregion
