@@ -121,7 +121,7 @@ class Intersection:
             if connectionRoad.isExtendedSuccessorOf(fromRoad) and connectionRoad.isExtendedPredecessorOf(toRoad):
                 connectionRoads.append(connectionRoad)
 
-        print(connectionRoads)
+        # print(connectionRoads)
         return connectionRoads      
             
             

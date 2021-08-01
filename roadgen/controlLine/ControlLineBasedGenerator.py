@@ -25,7 +25,9 @@ class ControlLineBasedGenerator:
                     randomizeLanes=True,
                     randomizeDistance = True, randomizeHeading=False,
                     country=CountryCodes.US, seed=101,
-                    nLaneDistributionOnASide=[0.15, 0.6, 0.2, 0.05]
+                    nLaneDistributionOnASide=[0.15, 0.6, 0.2, 0.05],
+                    nLaneDistributionOnControlLines=[0.05, 0.45, 0.4, 0.1],
+                    controlineLaneConfigurations = None
                     ) -> None:
         self.name = "ControlLineBasedGenerator"
         self.mapSize = mapSize
@@ -51,9 +53,13 @@ class ControlLineBasedGenerator:
                                                             laneWidth=3)
         self.laneConfigurations = None
 
-        self.nLaneDistributionOnASide = nLaneDistributionOnASide # 0, 1, 2, 3
 
         self.placedIntersections = []
+
+        # lane distributions.
+        self.nLaneDistributionOnASide = nLaneDistributionOnASide # 0, 1, 2, 3
+        self.controlineLaneConfigurations = controlineLaneConfigurations
+        self.nLaneDistributionOnControlLines = nLaneDistributionOnControlLines
         
         np.random.seed(seed)
         pass
@@ -366,6 +372,15 @@ class ControlLineBasedGenerator:
 
             point1_n_left =  np.random.choice([0, 1, 2, 3], p = self.nLaneDistributionOnASide)
             point1_n_right = np.random.choice([0, 1, 2, 3], p = self.nLaneDistributionOnASide)
+
+            if line1 == line2:
+                # on the same control line
+                if (self.controlineLaneConfigurations is not None) and (line1 in self.controlineLaneConfigurations):
+                    point1_n_left, point1_n_right =  self.controlineLaneConfigurations[line1]
+                else:
+                    point1_n_left =  np.random.choice([0, 1, 2, 3], p = self.nLaneDistributionOnControlLines)
+                    point1_n_right = np.random.choice([0, 1, 2, 3], p = self.nLaneDistributionOnControlLines)
+
 
             if point1_n_left == 0 and point1_n_right == 0:
                 point1_n_left = 1

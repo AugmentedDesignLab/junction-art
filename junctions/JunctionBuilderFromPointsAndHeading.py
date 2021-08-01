@@ -341,7 +341,7 @@ class JunctionBuilderFromPointsAndHeading():
                                                                                        n_lanes_right=road['rightLane'],
                                                                                        length=straighRoadLength,
                                                                                        medianType=road['medianType'],
-                                                                                       medianWidth=3,
+                                                                                       medianWidth=2,
                                                                                        skipEndpoint=road['skipEndpoint'])
             else:
                 straightRoad = self.straightRoadBuilder.create(roadId=roadID,
