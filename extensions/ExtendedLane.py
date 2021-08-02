@@ -41,6 +41,7 @@ class ExtendedLane(pyodrx.Lane):
                             soffset=self.soffset)
         lane.lane_id = self.lane_id
         lane.turnType = self.turnType
+        lane.roadmark = self.roadmark
         # TODO copy the rules.
         for rule in self.rules:
             lane.rules.append(rule)

@@ -1,3 +1,4 @@
+from junctions.LaneConfiguration import LaneConfiguration
 import pyodrx
 import junctions
 import extensions
@@ -5,12 +6,16 @@ from pyodrx.exceptions import NotSameAmountOfLanesError
 import logging
 from extensions.ExtendedRoad import ExtendedRoad
 from junctions.RoadLinker import RoadLinker
+from extensions.CountryCodes import CountryCodes
 
 class LaneLinker:
 
-    def __init__(self):
+    def __init__(self, countryCode: CountryCodes):
 
         self.name = 'LaneLinker'
+        self.countryCode = countryCode
+        if countryCode != CountryCodes.US:
+            raise Exception("LaneLinker does not support non-US yet.")
 
     def createLaneLinks(self, road1: ExtendedRoad, road2: ExtendedRoad, ignoreMismatch=False):
         """ create_lane_links takes to roads and if they are connected, match their lanes 
@@ -30,8 +35,15 @@ class LaneLinker:
             elif self.areConsecutive(road2, road1): 
                 self._create_links_roads(road2,road1)
 
+        elif road1.isSingleLaneConnection:
+            self._createLinksForSingleLaneConnectionRoad(connecting=road1)
+
+        elif road2.isSingleLaneConnection:
+            self._createLinksForSingleLaneConnectionRoad(connecting=road2)
+
         elif road1.road_type != -1:
             self._create_links_connecting_road(road1,road2)
+
         elif road2.road_type != -1:
             self._create_links_connecting_road(road2,road1)
 
@@ -49,7 +61,72 @@ class LaneLinker:
         Returns:
             [type]: [description]
         """
-        return road1.isPredecessorOf(road2) and road2.isSuccessorOf(road1)
+        # return road1.isPredecessorOf(road2) and road2.isSuccessorOf(road1)
+        return road1.isExtendedPredecessorOf(road2) and road2.isExtendedSuccessorOf(road1)
+
+    
+
+    def _createLinksForUturns(self, connecting: ExtendedRoad, road: ExtendedRoad):
+        # we need to build successor only because incoming traffic is saved in junction def
+
+        if self.countryCode != CountryCodes.US:
+            raise Exception("_createLinksForUturns is only US")
+        # return if not successor
+        try:
+
+            roadCP = RoadLinker.getSuccessorCP(connecting, road) # same link CP for both start and end of uturn
+
+            ########## 1. Add successor lane links ##########
+            # get the lane sections
+            laneSectionForConnection = connecting.lanes.lanesections[-1] # end of connecting
+            # At the end of the uturn, traffic is going from median right lane.
+            connectionLanes = laneSectionForConnection.rightlanes
+
+            outgoingLanes = LaneConfiguration.getOutgoingLanesOnARoad(road, roadCP, self.countryCode)
+
+
+            # now the median right lane on the uturn is connected to all the outgoing road lanes.
+            uTurnLane = connectionLanes[0]
+            for outgoingLane in outgoingLanes:
+                uTurnLane.add_link("successor", outgoingLane.lane_id)
+
+
+            ######### 1. Add predecessor lane links ##############
+            
+            # get the lane sections
+            laneSectionForConnection = connecting.lanes.lanesections[0] # end of connecting
+            # At the end of the uturn, traffic is going from median right lane.
+            connectionLanes = laneSectionForConnection.rightlanes
+
+            incomingLanes = LaneConfiguration.getIncomingLanesOnARoad(road, roadCP, self.countryCode)
+
+            # now the median right lane on the uturn is connected to all the outgoing road lanes.
+            uTurnLane = connectionLanes[0]
+            for incomingLane in incomingLanes:
+                uTurnLane.add_link("predecessor", incomingLane.lane_id)
+                break # only the first lane.
+
+        except:
+            return
+        pass
+    
+
+    def _createLinksForSingleLaneConnectionRoad(self, connecting: ExtendedRoad):
+
+        if self.countryCode != CountryCodes.US:
+            raise Exception("_createLinksForUturns is only US")
+        connecting.clearLaneLinks()
+        # links at the end
+        laneSectionForConnection = connecting.lanes.lanesections[0] # end of connecting
+        # At the end of the uturn, traffic is going from median right lane.
+        connectionLane = laneSectionForConnection.rightlanes[0]
+
+        for link in connecting.predefinedLaneLinks: #('predecessor', incomingLaneId, connectionLaneId) ('successor', outgoingLaneId, connectionLaneId)
+            if link[2] == connectionLane.lane_id:
+                connectionLane.add_link(link[0], link[1])
+            
+        pass
+
 
         
     def _create_links_connecting_road(self, connecting: ExtendedRoad, road: ExtendedRoad, ignoreMismatch=True):
@@ -62,6 +139,10 @@ class LaneLinker:
                 road (Road): a that connects to the connecting road
 
         """
+
+        if connecting.isUturn():
+            return self._createLinksForUturns(connecting=connecting, road=road)
+
         linktype, sign, connecting_lanesec =  self._get_related_lanesection(connecting,road)
         _, _, road_lanesection_id =  self._get_related_lanesection(road,connecting) 
 
@@ -88,6 +169,7 @@ class LaneLinker:
                     roadLanes = laneSectionForRoad.rightlanes
 
 
+
                 if len(connectionLanes) == len(roadLanes):
                     for i in range(len(roadLanes)):
                         linkid = roadLanes[i].lane_id
@@ -99,6 +181,7 @@ class LaneLinker:
 
                 else:
                     raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of left lanes.')
+
             if laneSectionForConnection.rightlanes:
                 # do right lanes
                 connectionLanes = laneSectionForConnection.rightlanes
@@ -119,7 +202,55 @@ class LaneLinker:
                     raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of right lanes.')
 
 
-    def _get_related_lanesection(self, road,connected_road):
+    def _getRelatedLanesection(self, road:ExtendedRoad, connected_road: ExtendedRoad):
+        """ _get_related_lanesection takes to roads, and gives the correct lane section to use
+            the type of link and if the sign of lanes should be switched
+
+            This function is very poorly written.
+
+            Parameters
+            ----------
+                road (Road): the road that you want the information about
+
+                connected_road (Road): the connected road
+
+            Returns
+            -------
+                linktype (str): the linktype of road to connected road (successor or predecessor)
+
+                sign (int): +1 or -1 depending on if the sign should change in the linking
+
+                road_lanesection_id (int): what lanesection in the road that should be used to link
+        """
+        linktype = None
+        sign = None
+        road_lanesection_id = None
+
+        if connected_road.isExtendedSuccessorOf(road):
+            linktype = 'successor'
+            successorCP = RoadLinker.getSuccessorCP(road, connected_road)
+            if successorCP == pyodrx.ContactPoint.start:
+                sign = 1
+            else:
+                sign = -1
+            road_lanesection_id = -1
+
+        elif connected_road.isExtendedPredecessorOf(road):
+            linktype = 'predecessor'
+            predecessorCP = RoadLinker.getPredecessorCP(road, connected_road)
+            if predecessorCP == pyodrx.ContactPoint.start:
+                sign = -1
+            else:
+                sign = 1
+            road_lanesection_id = 0
+            # TODO return here?
+
+        if connected_road.road_type != -1:
+            # treat connecting road in junction differently ? Why is it different?
+            sign, road_lanesection_id = self.getRelatedLaneSectionGivenSecondIsAConnection(road, connected_road, road_lanesection_id, sign)
+        return linktype, sign, road_lanesection_id
+
+    def _get_related_lanesection(self, road, connected_road):
         """ _get_related_lanesection takes to roads, and gives the correct lane section to use
             the type of link and if the sign of lanes should be switched
 
@@ -167,7 +298,6 @@ class LaneLinker:
             sign, road_lanesection_id = self.getRelatedLaneSectionGivenSecondIsAConnection(road, connected_road, road_lanesection_id, sign)
         return linktype, sign, road_lanesection_id
 
-
     def getRelatedLaneSectionGivenSecondIsAConnection(self, road, connected_road, road_lanesection_id, sign):
         if connected_road.predecessor.element_id == road.id:
             if connected_road.predecessor.link_type == pyodrx.ContactPoint.start: # TODO wtf is link type here.
@@ -208,8 +338,10 @@ class LaneLinker:
             logging.debug(f"{self.name}: switching lane sides for {pre_road.id} and {suc_road.id}")
 
 
-        pre_linktype, pre_sign, pre_connecting_lanesec =  self._get_related_lanesection(pre_road,suc_road)
-        suc_linktype, suc_sign, suc_connecting_lanesec =  self._get_related_lanesection(suc_road,pre_road)
+        # pre_linktype, pre_sign, pre_connecting_lanesec =  self._get_related_lanesection(pre_road,suc_road)
+        # suc_linktype, suc_sign, suc_connecting_lanesec =  self._get_related_lanesection(suc_road,pre_road)
+        pre_linktype, pre_sign, pre_connecting_lanesec =  self._getRelatedLanesection(pre_road,suc_road)
+        suc_linktype, suc_sign, suc_connecting_lanesec =  self._getRelatedLanesection(suc_road,pre_road)
         preLaneSection = pre_road.lanes.lanesections[pre_connecting_lanesec]
         # TODO it may be wrong. shouldn't it be suc_connecting_lanesec
         # sucLaneSection = suc_road.lanes.lanesections[-1] 

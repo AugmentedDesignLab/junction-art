@@ -12,8 +12,5 @@
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": false,
-    "python.pythonPath": "C:\\Users\\adhocmaster\\.conda\\envs\\opendrive\\python.exe",
-    "editor.fontSize": 16,
-    "files.autoSave": "afterDelay",
-    "editor.fontFamily": "MonoLisa, 'Courier New', monospace"
+    "python.pythonPath": "C:\\Users\\adhocmaster\\anaconda3\\envs\\junctionArt\\python.exe"
 }

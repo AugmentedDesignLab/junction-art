@@ -78,6 +78,7 @@ class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):
         ]
 
         odr = self.builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
+                                                                          firstRoadId=100,
                                                                           roadDefinition=roadDefinition,
                                                                           firstRoadId=10,
                                                                           straightRoadLen=40,
@@ -93,19 +94,27 @@ class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):
         #     {'x': 9.18485099360515e-16, 'y': 115.0, 'heading': 1.5707963267948966, 'leftLane': 1, 'rightLane': 1, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.end}, 
         #     {'x': 9.18485099360515e-16, 'y': 85, 'heading': 4.71238898038469, 'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}
         # ]
-        roadDefs = [
-            {'x': 246.68903179808726, 'y': 132.06133739837088, 'heading': 1.6453885407740492, 'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}, 
-            {'x': 232.19888458406353, 'y': 121.39515908838844, 'heading': 3.0945804556103114, 'leftLane': 2, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}, 
-            {'x': 246.87298086638685, 'y': 106.49432991649509, 'heading': 4.665376782405206, 'leftLane': 0, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}, 
-            {'x': 257.9417055131878, 'y': 120.18404011259686, 'heading': 6.236173109200104, 'leftLane': 1, 'rightLane': 0, 'medianType': None, 'skipEndpoint': None}
-        ]
+        # roadDefs = [
+        #     {'x': 246.68903179808726, 'y': 132.06133739837088, 'heading': 1.6453885407740492, 'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}, 
+        #     {'x': 232.19888458406353, 'y': 121.39515908838844, 'heading': 3.0945804556103114, 'leftLane': 2, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}, 
+        #     {'x': 246.87298086638685, 'y': 106.49432991649509, 'heading': 4.665376782405206, 'leftLane': 0, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}, 
+        #     {'x': 257.9417055131878, 'y': 120.18404011259686, 'heading': 6.236173109200104, 'leftLane': 1, 'rightLane': 0, 'medianType': None, 'skipEndpoint': None}
+        # ]
 
+        roadDefs = [
+            {'x': 246.68903179808726, 'y': 132.06133739837088, 'heading': 0, 'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}, 
+            {'x': 257.9417055131878, 'y': 120.18404011259686, 'heading': -1, 'leftLane': 1, 'rightLane': 0, 'medianType': None, 'skipEndpoint': None},
+            {'x': 246.87298086638685, 'y': 106.49432991649509, 'heading': -1.5, 'leftLane': 0, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}, 
+            {'x': 232.19888458406353, 'y': 121.39515908838844, 'heading': -2, 'leftLane': 2, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None}
+        ]
 
         intersection = self.builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
                                                                 roadDefinition=roadDefs,
                                                                 firstRoadId=100,
                                                                 straightRoadLen=10, getAsOdr = False)
         odr = intersection.odr
+        xmlPath = f"output/test_another.xodr"
+        odr.write_xml(xmlPath)
         extensions.printRoadPositions(odr)
         extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
 
