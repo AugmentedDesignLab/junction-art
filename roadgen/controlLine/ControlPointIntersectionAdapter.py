@@ -25,6 +25,8 @@ class ControlPointIntersectionAdapter:
         laneWidth = 3
         roadDefs = []
 
+        # point.printAdjacentPointsCW()
+
         nIncidentPoints = len(point.adjacentPointsCWOrder)
         # if nIncidentPoints > 3:
         #     print(f"4 arms")
@@ -189,9 +191,12 @@ class ControlPointIntersectionAdapter:
         prevPoint = adjPoints[prevIndex]
         nextPoint = adjPoints[nextIndex]
         
-        print(f"adjPoint", adjPoint)
-        print(f"prevPoint", prevPoint)
-        print(f"nextPoint", nextPoint)
+        # print(f"adjPoint", adjPoint)
+        # print(f"prevPoint", prevPoint)
+        # print(f"nextPoint", nextPoint)
+        # print(f"adjHeading", headings[curIndex])
+        # print(f"prevHeading", headings[prevIndex])
+        # print(f"nextHeading", headings[nextIndex])
 
         n_left =  1
         n_right = 1
@@ -200,45 +205,51 @@ class ControlPointIntersectionAdapter:
             (n_left, n_right) = laneConfigurations[point][adjPoint]
 
         # min distance based on the difference in headings
-        diffWithPrev = abs(headings[curIndex] - headings[prevIndex])
+        diffWithPrev = abs(headings[curIndex] - headings[prevIndex]) % (np.pi * 2)
+
+        if diffWithPrev > np.pi:
+            diffWithPrev = np.pi * 2 - diffWithPrev
+
         n_left_prev =  1
         n_right_prev = 1
 
         if laneConfigurations is not None:
             (n_left_prev, n_right_prev) = laneConfigurations[point][prevPoint]
 
-        totalLaneWidth = (n_left + n_right_prev) * laneWidth
+        totalLaneWidth = (n_left + n_right_prev + 1) * laneWidth
         
         if diffWithPrev <= np.pi / 2: # less than 90:
             minWithPrev = abs(totalLaneWidth / math.sin(diffWithPrev))
         else:
             minWithPrev = totalLaneWidth
 
-        print(f"minWithPrev", minWithPrev)
-        print(f"totalLaneWidth", totalLaneWidth)
-        print(f"diffWithPrev", diffWithPrev)
+        # print(f"minWithPrev", minWithPrev)
+        # print(f"totalLaneWidth", totalLaneWidth)
+        # print(f"diffWithPrev", diffWithPrev)
 
         
         if minDistance < minWithPrev:
             minDistance = minWithPrev
 
-        diffWithNext = abs(headings[curIndex] - headings[nextIndex])
+        diffWithNext = abs(headings[curIndex] - headings[nextIndex]) % (np.pi * 2)
+        if diffWithNext > np.pi:
+            diffWithNext = np.pi * 2 - diffWithNext
         n_left_next =  1
         n_right_next = 1
 
         if laneConfigurations is not None:
             (n_left_next, n_right_next) = laneConfigurations[point][nextPoint]
         
-        totalLaneWidth = (n_right + n_left_next) * laneWidth
+        totalLaneWidth = (n_right + n_left_next + 1) * laneWidth
 
         if diffWithNext <= np.pi / 2: # less than 90:
             minWithNext = abs(totalLaneWidth / math.sin(diffWithNext))
         else:
             minWithNext = totalLaneWidth
 
-        print(f"minWithNext", minWithNext)
-        print(f"totalLaneWidth", totalLaneWidth)
-        print(f"diffWithNext", diffWithNext)
+        # print(f"minWithNext", minWithNext)
+        # print(f"totalLaneWidth", totalLaneWidth)
+        # print(f"diffWithNext", diffWithNext)
 
         if minDistance < minWithNext:
             minDistance = minWithNext
