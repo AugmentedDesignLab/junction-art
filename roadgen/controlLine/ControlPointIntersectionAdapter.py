@@ -189,8 +189,9 @@ class ControlPointIntersectionAdapter:
         prevPoint = adjPoints[prevIndex]
         nextPoint = adjPoints[nextIndex]
         
-        # print(f"prevPoint", prevPoint)
-        # print(f"nextPoint", nextPoint)
+        print(f"adjPoint", adjPoint)
+        print(f"prevPoint", prevPoint)
+        print(f"nextPoint", nextPoint)
 
         n_left =  1
         n_right = 1
@@ -213,9 +214,9 @@ class ControlPointIntersectionAdapter:
         else:
             minWithPrev = totalLaneWidth
 
-        # print(f"minWithPrev", minWithPrev)
-        # print(f"totalLaneWidth", totalLaneWidth)
-        # print(f"diffWithPrev", diffWithPrev)
+        print(f"minWithPrev", minWithPrev)
+        print(f"totalLaneWidth", totalLaneWidth)
+        print(f"diffWithPrev", diffWithPrev)
 
         
         if minDistance < minWithPrev:
@@ -235,9 +236,9 @@ class ControlPointIntersectionAdapter:
         else:
             minWithNext = totalLaneWidth
 
-        # print(f"minWithNext", minWithNext)
-        # print(f"totalLaneWidth", totalLaneWidth)
-        # print(f"diffWithNext", diffWithNext)
+        print(f"minWithNext", minWithNext)
+        print(f"totalLaneWidth", totalLaneWidth)
+        print(f"diffWithNext", diffWithNext)
 
         if minDistance < minWithNext:
             minDistance = minWithNext

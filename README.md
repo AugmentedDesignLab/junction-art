@@ -19,6 +19,7 @@ Python 3.7+
 5. methodtools.
 6. flask and jinja2 (for web-ui)
 7. scikit-spatial
+8. z3
 
 ### Conda commands:
 
@@ -28,6 +29,7 @@ Python 3.7+
 4. conda install -c conda-forge matplotlib
 5. conda install -c anaconda unittest2
 6. conda install -c conda-forge scikit-spatial
+7. conda install -c asmeurer z3 (optional for road generation)
 
 ## Configuration - create config.yaml
 copy the contents of config-sample.yaml file and create a new file "config.yaml" in the root directory of the project. Now change these configurations:
