@@ -28,7 +28,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         # extensions.printRoadPositions(odr)
         xmlPath = f"output/test_generateWithManualControlLines.xodr"
         odr.write_xml(xmlPath)
-        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
 
 
     def test_generateWithManualControlLines2(self):
@@ -38,7 +38,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         # extensions.printRoadPositions(odr)
         xmlPath = f"output/test_generateWithManualControlLines2.xodr"
         odr.write_xml(xmlPath)
-        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
 
 
     def test_generateWithHorizontalControlines(self):
@@ -59,7 +59,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         # extensions.printRoadPositions(odr)
         xmlPath = f"output/test_generateWithHorizontalControlinesCurvy.xodr"
         odr.write_xml(xmlPath)
-        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
 
     def test_generateWithHorizontalControlinesBig(self):
         generator = ControlLineBasedGenerator((2000, 2000), debug=True, seed=1, randomizeDistance=False, nLaneDistributionOnASide=[0.25, 0.7, 0.05, 0])
