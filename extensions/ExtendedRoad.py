@@ -736,5 +736,9 @@ class ExtendedRoad(pyodrx.Road):
 
     #endregion
 
+    def addJunction(self, junctionId, junctionRelation, junctionCP):
+        self.junctionId = junctionId 
+        self.junctionRelation = junctionRelation
+        self.junctionCP = junctionCP 
 
     #region junction
