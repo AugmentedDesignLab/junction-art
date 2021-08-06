@@ -12,6 +12,12 @@ class TurnComplexity:
         self.maxComplexity = np.pi / minPathLengthIntersection
         pass
 
+    
+    def __str__(self) -> str:
+        return(
+            f"\tradius-complexity: {self.radiusComplexity()}"
+            f" radius-complexity-normalized: {self.normalizedRadiusComplexity()}"
+        )
 
     def radiusComplexity(self):
         return round(self.changeInHeading / self.lengthOfPath, 2)
@@ -27,6 +33,6 @@ class TurnComplexity:
         _, _, endH = road.getPosition(pyodrx.ContactPoint.end)
         length = road.length()
 
-        changeInHeading = abs(startH, endH)
+        changeInHeading = abs(startH - endH)
 
         return TurnComplexity(changeInHeading=changeInHeading, lengthOfPath=length, minPathLengthIntersection=minPathLengthIntersection)

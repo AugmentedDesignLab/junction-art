@@ -20,6 +20,7 @@ Python 3.7+
 6. flask and jinja2 (for web-ui)
 7. scikit-spatial
 8. z3
+9. seaborn
 
 ### Conda commands:
 
@@ -30,6 +31,7 @@ Python 3.7+
 5. conda install -c anaconda unittest2
 6. conda install -c conda-forge scikit-spatial
 7. conda install -c asmeurer z3 (optional for road generation)
+8. conda install -c anaconda seaborn (for analysis)
 
 ## Configuration - create config.yaml
 copy the contents of config-sample.yaml file and create a new file "config.yaml" in the root directory of the project. Now change these configurations:
