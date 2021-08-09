@@ -3,6 +3,7 @@ from extensions.ExtendedRoad import ExtendedRoad
 import extensions
 import math
 from analysis.metrics.fov.Angle import Angle
+from analysis.metrics.fov.FovComplexity import FovComplexity
 
 class IntersectionCorners:
 
@@ -41,12 +42,16 @@ class IntersectionCorners:
             if incidentRoad == fromRoad:
                 continue
 
+            otherCP = extensions.reverseCP(incidentCP)
             p2x, p2y, _ = incidentRoad.getPosition(incidentCP)
+            p3x, p3y, _ = incidentRoad.getPosition(otherCP)
             p2 = (p2x, p2y)
+            p3 = (p3x, p3y)
             angle = Angle.cornerAngle(p0, p1, p2)
+            deviationAngle = FovComplexity.getAngleDeviationFromSightLine(p1, p2, p3)
 
-            # print(f"{self.name}: p0 = ({p0}), p1 = ({p1}), p2 = ({p2})")
-            print(f"{self.name}: Corner angle between road {fromRoad.id} and {incidentRoad.id} is {math.degrees(angle)}")
+            print(f"{self.name}: p0 = ({p0}), p1 = ({p1}), p2 = ({p2}), p2 = ({p3})")
+            print(f"{self.name}: Corner angle between road {fromRoad.id} and {incidentRoad.id} is {math.degrees(angle)}. Deviation is {math.degrees(deviationAngle)}")
 
             if angle < minAngle:
                 minAngle = angle

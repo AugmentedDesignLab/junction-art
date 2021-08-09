@@ -21,6 +21,7 @@ Python 3.7+
 7. scikit-spatial
 8. z3
 9. seaborn
+10. shapely
 
 ### Conda commands:
 
@@ -32,6 +33,7 @@ Python 3.7+
 6. conda install -c conda-forge scikit-spatial
 7. conda install -c asmeurer z3 (optional for road generation)
 8. conda install -c anaconda seaborn (for analysis)
+9. conda install -c conda-forge shapely 
 
 ## Configuration - create config.yaml
 copy the contents of config-sample.yaml file and create a new file "config.yaml" in the root directory of the project. Now change these configurations:

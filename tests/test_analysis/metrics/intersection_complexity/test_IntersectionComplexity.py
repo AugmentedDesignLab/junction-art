@@ -1,5 +1,5 @@
 import unittest
-from analysis.metrics.intersection_complexity.IntersectionComplexity import IntersectionComplexity
+from analysis.metrics.travel.IntersectionComplexity import IntersectionComplexity
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 import extensions, os
 import numpy as np
