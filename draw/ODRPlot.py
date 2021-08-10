@@ -29,74 +29,62 @@ class ODRPlot():
 
         for i in range(len(self.xVal)):
             plt.plot(self.xVal[i], self.yVal[i])
-            
+
         # plt.plot(self.xVal, self.yVal)
         plt.show()
         pass
 
-    def draw_straight_road(self, StraightRoad):
-        pv = StraightRoad.planview
-        start_x, start_y, _ = pv.get_start_point()
-        end_x, end_y, _ = pv.get_end_point()
-        x_val = [start_x, end_x]
-        y_val = [start_y, end_y]
+    def draw_straight_road(self, StraightRoad, cp1=pyodrx.ContactPoint.start):
+        
+        start_coordinate = StraightRoad.planview.get_start_point()
+        end_coordinate = StraightRoad.planview.get_end_point()
+
+        start_point = Point(start_coordinate[0], start_coordinate[1])
+        end_point = Point(end_coordinate[0], end_coordinate[1])
+
+        self.arrange_and_append_coordinate(start_point, end_point)
+
+        lane_width = 3
+
+        center_line = Line(start_point, end_point)
+        
+        for lanesection in StraightRoad.lanes.lanesections:
+            for lane_index in range (0, len(lanesection.leftlanes)):
+                self.draw_lane(lane_width*(lane_index + 1), center_line)
+            for lane_index in range (0, len(lanesection.rightlanes)):
+                self.draw_lane(-lane_width*(lane_index + 1), center_line)
+
+        pass
+
+    def draw_lane(self, lane_width, center_line):
+        parallel_line = self.calculate_parallel_line_at_distance(center_line, lane_width)
+        perpendicular_at_start = center_line.perpendicular_line(center_line.p1)
+        perpendicular_at_end = center_line.perpendicular_line(center_line.p2)
+        parallel_point_at_start = perpendicular_at_start.intersection(parallel_line)[0]
+        parallel_point_at_end = perpendicular_at_end.intersection(parallel_line)[0]
+        self.arrange_and_append_coordinate(parallel_point_at_start, parallel_point_at_end)
+
+    def arrange_and_append_coordinate(self, start_point, end_point):
+        x_val, y_val = self.arrange_coordinate(start_point, end_point)
+        self.append_coordinate(x_val, y_val)
+
+    def arrange_coordinate(self, start_point, end_point):
+        x_val = [start_point.x, end_point.x]
+        y_val = [start_point.y, end_point.y]
+        return x_val,y_val
+
+    def append_coordinate(self, x_val, y_val):
         self.xVal.append(x_val)
         self.yVal.append(y_val)
-
-        lane_width = 15
-
-        start_point = Point(start_x, start_y)
-        end_point = Point(end_x, end_y)
-
-        ab = Line(start_point, end_point) # ab
-        cd, ef = self.calculate_parallel_line_at_distance(ab, lane_width)
-
-        # print('parallel_line1 ', parallel_line1, ' parallel_line2 ', parallel_line2)
-        
-
-        print('ab ', ab)
-        print('cd ', cd)
-        print('ef ', ef)
-
-        ce, df = ab.perpendicular_line(end_point), ab.perpendicular_line(start_point) 
-
-        c = ce.intersection(cd)[0]
-        d = df.intersection(cd)[0]
-        e = ce.intersection(ef)[0]
-        f = df.intersection(ef)[0]
-
-        print(c)
-        print(d)
-        print(e)
-        print(f)
-
-        # x_val = [c.x, d.x]
-        # y_val = [c.y, d.y]
-        # self.xVal.append(x_val)
-        # self.yVal.append(y_val)
-
-        # x_val = [e.x, f.x]
-        # y_val = [e.y, f.y]
-        # self.xVal.append(x_val)
-        # self.yVal.append(y_val)
-
-        # print('center line ', center_line)
-        # perpendicular_line = center_line.perpendicular_line(start_point)
-        # parallel_line = center_line.
-        # print('perpendicular line ', perpendicular_line.coefficients)
-
         pass
 
     def calculate_parallel_line_at_distance(self, line, distance):
         a, b, c = line.coefficients # ax + by + c = 0
         m, c = -(a/b), -(c/b) # y = mx + c
-        # slope = line.slope
-        # print('slope ', slope, ' m ', m)
         abs_diff = distance*math.sqrt(m**2 + 1)
-        c1, c2 = abs_diff - c, abs_diff + c
-        line1 = Line(Point(-m/c1, 0), Point(0, 1/c1))
-        line2 = Line(Point(-m/c2, 0), Point(0, 1/c2))
-        return line1, line2
+        new_c = c - abs_diff
+        line = Line(Point(-new_c/m, 0), Point(0, new_c))
+        return line
 
 
     def draw_poly_road(self, ParamPolyRoad):
@@ -119,16 +107,16 @@ class ODRPlot():
 
             x_val = []
             y_val = []
-            
+
             # h_start = h_start - h_end
-             
+
             for i in np.arange(0, 1.1, 0.1):
                 # getting the value from the actual equation from (0, 0) origin
                 x_abs = aU + bU*i + cU*(i**2) + dU*(i**3)
                 y_abs = aV + bV*i + cV*(i**2) + dV*(i**3)
 
                 # transforming the points from the end of incident roads
-                # TODO: transform wrt contact point 
+                # TODO: transform wrt contact point
                 x_trans = x_abs*math.cos(h_start) - y_abs*math.sin(h_start) + x_start
                 y_trans = x_abs*math.sin(h_start) + y_abs*math.cos(h_start) + y_start
 
@@ -142,8 +130,3 @@ class ODRPlot():
             self.xVal.append(x_val)
             self.yVal.append(y_val)
         pass
-
-    
-
-
-
