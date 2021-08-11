@@ -19,12 +19,11 @@ class ODRPlot():
         for key in self.odr.roads:
             road = self.odr.roads.get(key)
             if road.curveType == StandardCurveTypes.Line:
-                self.draw_straight_road(road)
-                # print()
-            # elif road.curveType == StandardCurveTypes.Poly:
-            #     if road.id < 6:
-            #         # self.draw_poly_road(road)
-            #         print(road.id)
+                # self.draw_straight_road(road)
+                print()
+            elif road.curveType == StandardCurveTypes.Poly and road.id == 1:
+                self.draw_poly_road(road)
+                # print(road.id)
 
 
         for i in range(len(self.xVal)):
@@ -64,20 +63,6 @@ class ODRPlot():
         parallel_point_at_end = perpendicular_at_end.intersection(parallel_line)[0]
         self.arrange_and_append_coordinate(parallel_point_at_start, parallel_point_at_end)
 
-    def arrange_and_append_coordinate(self, start_point, end_point):
-        x_val, y_val = self.arrange_coordinate(start_point, end_point)
-        self.append_coordinate(x_val, y_val)
-
-    def arrange_coordinate(self, start_point, end_point):
-        x_val = [start_point.x, end_point.x]
-        y_val = [start_point.y, end_point.y]
-        return x_val,y_val
-
-    def append_coordinate(self, x_val, y_val):
-        self.xVal.append(x_val)
-        self.yVal.append(y_val)
-        pass
-
     def calculate_parallel_line_at_distance(self, line, distance):
         a, b, c = line.coefficients # ax + by + c = 0
         m, c = -(a/b), -(c/b) # y = mx + c
@@ -86,47 +71,119 @@ class ODRPlot():
         line = Line(Point(-new_c/m, 0), Point(0, new_c))
         return line
 
+    def arrange_and_append_coordinate(self, start_point, end_point):
+        x_val, y_val = self.arrange_coordinate(start_point, end_point)
+        self.append_coordinate(x_val, y_val)
+
+    def arrange_coordinate(self, start, end):
+        x_val = [start.x, end.x]
+        y_val = [start.y, end.y]
+        return x_val,y_val
+
+    def append_coordinate(self, x_val, y_val):
+        self.xVal.append(x_val)
+        self.yVal.append(y_val)
+        pass
+
+    
+
 
     def draw_poly_road(self, ParamPolyRoad):
-        pv = ParamPolyRoad.planview
-        adjusted_geoms = pv._adjusted_geometries
-        x_start, y_start, h_start = pv.get_start_point()
-        x_end, y_end, h_end = pv.get_end_point()
 
-        # print('start ', x_start, y_start, h_start)
-        # print('end ', x_end, y_end, h_end)
+        x_start, y_start, h_start = ParamPolyRoad.planview.get_start_point()
+        start_point = Point(x_start, y_start)
 
-        for geom in adjusted_geoms:
-            _attr = geom.geom_type.get_attributes()
+        lanewidth = 3
 
-            aU, bU, cU, dU = float(_attr['aU']), float(_attr['bU']), float(_attr['cU']), float(_attr['dU'])
-            aV, bV, cV, dV = float(_attr['aV']), float(_attr['bV']), float(_attr['cV']), float(_attr['dV'])
+        # print('parampoly road  id ', ParamPolyRoad.id)
+        lanesections = ParamPolyRoad.lanes.lanesections
+        for lanesection in lanesections:
+            print('left lanes ', lanesection.leftlanes)
+            print('right lanes ', lanesection.rightlanes)
+        for geom in ParamPolyRoad.planview._adjusted_geometries:
 
-            # print('U ',aU, bU, cU, dU)
-            # print('V ',aV, bV, cV, dV)
+            aU, bU, cU, dU, aV, bV, cV, dV = self.get_parampoly_coefficiants(geom)
 
-            x_val = []
-            y_val = []
+            xVal_centerline = []
+            yVal_centerline = []
 
-            # h_start = h_start - h_end
+            xVal_leftlane = []
+            yVal_leftlane = []
 
-            for i in np.arange(0, 1.1, 0.1):
+            xVal_rightlane = []
+            yVal_rightlane = []
+
+            for i in np.arange(0, 1.01, 0.01):
                 # getting the value from the actual equation from (0, 0) origin
-                x_abs = aU + bU*i + cU*(i**2) + dU*(i**3)
-                y_abs = aV + bV*i + cV*(i**2) + dV*(i**3)
+                x_abs, y_abs = self.get_abs_coordinate_for_parampoly(aU, bU, cU, dU, aV, bV, cV, dV, i)
+                x_diff_val, y_diff_val = self.get_differentiated_value_for_parampoly(bU, cU, dU, bV, cV, dV, i)
 
                 # transforming the points from the end of incident roads
                 # TODO: transform wrt contact point
-                x_trans = x_abs*math.cos(h_start) - y_abs*math.sin(h_start) + x_start
-                y_trans = x_abs*math.sin(h_start) + y_abs*math.cos(h_start) + y_start
+                point_wrt_origin = Point(x_abs, y_abs)
+                x_trans, y_trans = self.transform_to_geometric_start_point(h_start, start_point, point_wrt_origin)
+                xVal_centerline.append(x_trans)
+                yVal_centerline.append(y_trans)
 
                 # x_trans = x_abs
                 # y_trans = y_abs
+                x_leftlane, y_leftlane = self.calc_coordinate_for_lane(lanewidth, point_wrt_origin, x_diff_val, y_diff_val)
+                xVal_leftlane.append(x_leftlane)
+                yVal_leftlane.append(y_leftlane)
 
-                x_val.append(x_trans)
-                y_val.append(y_trans)
+                x_rightlane, y_rightlane = self.calc_coordinate_for_lane(-lanewidth, point_wrt_origin, x_diff_val, y_diff_val)
+                xVal_rightlane.append(x_rightlane)
+                yVal_rightlane.append(y_rightlane)
+
+                # x_original.append(x_abs)
+                # y_original.append(y_abs)
+
+                
                 # print(i, x_abs, y_abs)
 
-            self.xVal.append(x_val)
-            self.yVal.append(y_val)
+            # self.xVal.append(x_original)
+            # self.yVal.append(y_original)
+
+
+            self.append_coordinate(xVal_centerline, yVal_centerline)
+            # self.xVal.append(xVal_centerline)
+            # self.yVal.append(yVal_centerline)
+
+            self.append_coordinate(xVal_leftlane, yVal_leftlane)
+            # self.xVal.append(xVal_leftlane)
+            # self.yVal.append(yVal_leftlane)
+
+            self.append_coordinate(xVal_rightlane, yVal_rightlane)
+            # self.xVal.append(x_val_rightlane)
+            # self.yVal.append(y_val_rightlane)
+
+            # self.xVal.append(x_val)
+            # self.yVal.append(y_val)
         pass
+
+    def calc_coordinate_for_lane(self, lanewidth, point_wrt_origin, x_diff_val, y_diff_val):
+        temp = lanewidth*y_diff_val*x_diff_val/math.sqrt(x_diff_val**2 + y_diff_val**2)
+        x_leftlane = point_wrt_origin.x + temp/x_diff_val
+        y_leftlane = point_wrt_origin.y - temp/y_diff_val
+        return x_leftlane,y_leftlane
+
+    def get_parampoly_coefficiants(self, geom):
+        _attr = geom.geom_type.get_attributes()
+        aU, bU, cU, dU = float(_attr['aU']), float(_attr['bU']), float(_attr['cU']), float(_attr['dU'])
+        aV, bV, cV, dV = float(_attr['aV']), float(_attr['bV']), float(_attr['cV']), float(_attr['dV'])
+        return aU,bU,cU,dU,aV,bV,cV,dV
+
+    def transform_to_geometric_start_point(self, h_start, geometric_start_point, point_wrt_origin):
+        x_trans = point_wrt_origin.x*math.cos(h_start) - point_wrt_origin.y*math.sin(h_start) + geometric_start_point.x
+        y_trans = point_wrt_origin.x*math.sin(h_start) + point_wrt_origin.y*math.cos(h_start) + geometric_start_point.y
+        return x_trans,y_trans
+
+    def get_differentiated_value_for_parampoly(self, bU, cU, dU, bV, cV, dV, i):
+        x_diff_val = bU + 2*cU*i + 3*dU*(i**2)
+        y_diff_val = bV + 2*cV*i + 3*dV*(i**2)
+        return x_diff_val,y_diff_val
+
+    def get_abs_coordinate_for_parampoly(self, aU, bU, cU, dU, aV, bV, cV, dV, i):
+        x_abs = aU + bU*i + cU*(i**2) + dU*(i**3)
+        y_abs = aV + bV*i + cV*(i**2) + dV*(i**3)
+        return x_abs,y_abs
