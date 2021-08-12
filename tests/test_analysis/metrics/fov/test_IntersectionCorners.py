@@ -1,6 +1,6 @@
 import unittest
 import math
-from analysis.metrics.intersection_complexity.IntersectionComplexity import IntersectionComplexity
+from analysis.metrics.travel.IntersectionComplexity import IntersectionComplexity
 from analysis.metrics.MetricManager import MetricManager
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 import extensions, os

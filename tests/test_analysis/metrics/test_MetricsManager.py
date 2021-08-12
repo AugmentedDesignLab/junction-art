@@ -1,14 +1,14 @@
 import unittest
-from analysis.metrics.travel.IntersectionComplexity import IntersectionComplexity
-from analysis.metrics.MetricManager import MetricManager
-from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 import extensions, os
 import numpy as np
-from library.Configuration import Configuration
-from junctions.LaneConfiguration import LaneConfigurationStrategies
-from junctions.IntersectionValidator import IntersectionValidator
 import pyodrx
 import logging
+from library.Configuration import Configuration
+from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+from junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctions.IntersectionValidator import IntersectionValidator
+from analysis.metrics.travel.ConnectionRoadComplexity import ConnectionRoadComplexity
+from analysis.metrics.MetricManager import MetricManager
 
 from analysis.core.Histogram import Histogram
 from analysis.core.ScatterPlot import ScatterPlot
@@ -45,7 +45,7 @@ class test_MetricManager(unittest.TestCase):
 
         intersections = []
         
-        for sl in range(30):
+        for sl in range(3):
             maxNumberOfRoadsPerJunction = np.random.randint(3, 6)
             path = self.configuration.get("harvested_straight_roads")
             intersection = self.builder.createWithRandomLaneConfigurations(path, 
@@ -59,17 +59,18 @@ class test_MetricManager(unittest.TestCase):
                                 getAsOdr=False)
 
             intersections.append(intersection)
-        
+            # extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
+
         metricManager = MetricManager(intersections)
 
         turnComplexities = metricManager.getNormalizedTurnComplexities()
         print(turnComplexities)
         # Histogram.plotNormalizedMetrics(turnComplexities, 'turn complexity')
-        bins = 3
-        Histogram.plotNormalizedMetricsDF(metricManager.metricsDF, 'turnComplexities', 'turn complexity', bins=bins)
-        Histogram.plot2MetricsDF(metricManager.metricsDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
-        Histogram.plot2StackedMetricsDF(metricManager.metricsDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
-        Histogram.plot2MetricsDFSep(metricManager.metricsDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
+        bins = 10
+        Histogram.plotNormalizedConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'turn complexity', bins=bins)
+        Histogram.plot2ConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
+        Histogram.plot2StackedConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
+        Histogram.plot2ConnectionRoadDFSep(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
 
 
     def test_TurnScatter(self):
@@ -79,7 +80,7 @@ class test_MetricManager(unittest.TestCase):
 
         intersections = []
         
-        for sl in range(30):
+        for sl in range(3):
             maxNumberOfRoadsPerJunction = np.random.randint(3, 6)
             path = self.configuration.get("harvested_straight_roads")
             intersection = self.builder.createWithRandomLaneConfigurations(path, 
@@ -100,4 +101,4 @@ class test_MetricManager(unittest.TestCase):
         print(turnComplexities)
         # Histogram.plotNormalizedMetrics(turnComplexities, 'turn complexity')
         
-        ScatterPlot.plot2MetricsDF(metricManager.metricsDF, 'turnComplexities', 'numberOfIncidentRoads')
+        ScatterPlot.plot2MetricsDF(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads')

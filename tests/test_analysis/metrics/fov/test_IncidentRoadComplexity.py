@@ -1,6 +1,8 @@
 import unittest
+import math
 import matplotlib.pyplot as plt
-from analysis.metrics.travel.ConnectionRoadComplexity import ConnectionRoadComplexity
+from analysis.metrics.travel.IntersectionComplexity import IntersectionComplexity
+from analysis.metrics.MetricManager import MetricManager
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 import extensions, os
 import numpy as np
@@ -9,10 +11,11 @@ from junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctions.IntersectionValidator import IntersectionValidator
 import pyodrx
 import logging
-logging.basicConfig(level=logging.INFO)
+from analysis.metrics.fov.IncidentRoadComplexity import IncidentRoadComplexity
+from analysis.metrics.fov.Fov import Fov
+import pandas as pd
 
-
-class test_ConnectionRoadComplexity(unittest.TestCase):
+class test_IncidentRoadComplexity(unittest.TestCase):
 
     def setUp(self):
         
@@ -35,13 +38,18 @@ class test_ConnectionRoadComplexity(unittest.TestCase):
         self.validator = IntersectionValidator()
         pass
 
-    def test_Creation(self):
 
-        maxNumberOfRoadsPerJunction = 3
+    
+    
+    def test_Intersections(self):
         minLanePerSide = 1
         maxLanePerSide = 2
+
+        intersections = []
+        frames = []
         
-        for sl in range(1):
+        for sl in range(3):
+            maxNumberOfRoadsPerJunction = np.random.randint(3, 6)
             path = self.configuration.get("harvested_straight_roads")
             intersection = self.builder.createWithRandomLaneConfigurations(path, 
                                 sl, 
@@ -53,27 +61,19 @@ class test_ConnectionRoadComplexity(unittest.TestCase):
                                 internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
                                 getAsOdr=False)
 
+            intersections.append(intersection)
 
-            odr = intersection.odr
-            # xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
-            xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
-            odr.write_xml(xmlPath)
-            # isValid = self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength)
-            # if isValid == False:
-            #     print(f"{sl} is an invalid intersection")
 
-            connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=10)
-
-            connectionRoadComplexity.measureTurnComplexities()
-
-            connectionRoadComplexity.printTurnComplexities()
-            print(f"\n max complexity is ", connectionRoadComplexity.getMaxTurnComplexity())
-            # plt = extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")), returnPlt=True)
-            # if isValid == False:
-            #     plt.title("Invalid")
-            # else:
-            #     plt.title("Valid")
-            # extensions.saveRoadImageFromFile(xmlPath, self.configuration.get("esminipath"))
+            fovComplexity = IncidentRoadComplexity(intersection)
+            frames.append(fovComplexity.incidentRoadDf)
+            # fovComplexity.incidentRoadDf.plot()
             # plt.show()
-            connectionRoadComplexity.connectRoadDf.plot()
-            plt.show()
+            # extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
+        
+
+        df = pd.concat(frames, ignore_index=True)
+        df.plot()
+        plt.show()
+        print(df.head())
+
+        
