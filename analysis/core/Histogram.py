@@ -10,14 +10,14 @@ class Histogram:
     @staticmethod
     def plotNormalizedMetrics(data, name, bins=10):
         g = sns.displot(data=data, kde=True, stat="probability", bins=bins)
-        g.set_axis_labels(name, "Number of Intersections")
+        g.set_axis_labels(name, "Distribution")
         g.set_titles(f"Distribution of {name}")
         plt.show()
     
     @staticmethod
     def plotNormalizedMetricsDF(data, col, name, bins=10):
         g = sns.displot(data=data, x=col, kde=True, stat="probability", bins=bins)
-        g.set_axis_labels(name, "Number of Intersections")
+        g.set_axis_labels(name, "Density")
         g.set_titles(f"Distribution of {name}")
         plt.show()
 

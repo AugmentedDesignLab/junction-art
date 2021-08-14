@@ -53,7 +53,7 @@ class IntersectionValidator:
             distance = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) * 1.2 # 1.2 offset for param poly.
 
             if distance < minConnectionLength:
-                print(f"invalid distance {distance} < {minConnectionLength}")
+                logging.debug("IntersectionValidator: invalid distance {distance} < {minConnectionLength}")
                 return False
 
         return True
@@ -90,7 +90,7 @@ class IntersectionValidator:
             borderDistanceLast = lastIncidentRoad.getBorderDistanceLeft(lastIP)
 
         if (lastX - borderDistanceLast) < x:
-            print("invalid X pos")
+            logging.debug("IntersectionValidator: invalid X pos")
             return False
 
 
@@ -103,7 +103,7 @@ class IntersectionValidator:
         maxH = (h + (3/2) * np.pi)
         if lastH > minH and lastH < maxH:
             if lastY >= (y - borderDistanceFirst):
-                print("invalid Y pos")
+                logging.debug("IntersectionValidator: invalid Y pos")
                 return False
         
         return True

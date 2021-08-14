@@ -12,7 +12,7 @@ from analysis.metrics.MetricManager import MetricManager
 
 from analysis.core.Histogram import Histogram
 from analysis.core.ScatterPlot import ScatterPlot
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 
 class test_MetricManager(unittest.TestCase):
@@ -20,7 +20,7 @@ class test_MetricManager(unittest.TestCase):
     def setUp(self):
         
         self.configuration = Configuration()
-        outputDir= os.path.join(os.getcwd(), 'output')
+        self.outputDir= os.path.join(os.getcwd(), 'analysis/output')
         lastId = 0
         self.seed = 1
         self.builder = SequentialJunctionBuilder(
@@ -37,6 +37,42 @@ class test_MetricManager(unittest.TestCase):
         self.randomState =self.configuration.get("random_state")
         self.validator = IntersectionValidator()
         pass
+
+    def createIntersections(self, maxN=3):
+
+        minLanePerSide = 1
+        maxLanePerSide = 2
+
+        intersections = []
+        
+        for sl in range(maxN):
+            maxNumberOfRoadsPerJunction = np.random.randint(3, 6)
+            path = self.configuration.get("harvested_straight_roads")
+            intersection = self.builder.createWithRandomLaneConfigurations(path, 
+                                sl, 
+                                maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+                                maxLanePerSide=maxLanePerSide, 
+                                minLanePerSide=minLanePerSide, 
+                                internalConnections=True, 
+                                cp1=pyodrx.ContactPoint.end,
+                                internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+                                getAsOdr=False)
+
+            isValid = self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength)
+            if isValid:
+                intersections.append(intersection)
+            print(f"Created {len(intersections)} intersections")
+
+        return intersections
+
+
+    
+    def test_export(self):
+        intersections = self.createIntersections(1000)
+        print(f"Created {len(intersections)} intersections")
+        metricManager = MetricManager(intersections)
+        metricManager.exportDataframes(path=self.outputDir)
+
 
     def test_TurnHisto(self):
 

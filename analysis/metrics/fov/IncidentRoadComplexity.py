@@ -22,7 +22,7 @@ class IncidentRoadComplexity:
         self.maxCurvature = None
         self.minDistance = None
         self.maxFov = None
-        self.measureCorners()
+        self.calculateStatistics()
 
     
     def initIncidentRoadCharacteristics(self):
@@ -40,11 +40,11 @@ class IncidentRoadComplexity:
 
     def getMinCornerAngle(self):
         if self.minCornerAngle is None:
-            self.measureCorners()
+            self.calculateStatistics()
         return self.minCornerAngle
 
 
-    def measureCorners(self):
+    def calculateStatistics(self):
 
         rows = []
         
@@ -56,22 +56,29 @@ class IncidentRoadComplexity:
             p0 = (p0x, p0y)
             p1 = (p1x, p1y)
             # cornerAngle, deviationAngle = self.measureMinCornerAndDeviationFrom(incidentRoad, p0, p1)
-            roadStats = self.measure(incidentRoad, p0, p1, h1)
+            roadStats = self.getRoadStats(incidentRoad, p0, p1, h1)
             fov = Fov.getFovFromMinCorner(roadStats['cornerAngle'])
 
             self.incidentRoadCharacteristics[incidentRoad]['corner'] = math.degrees(roadStats['cornerAngle'])
             self.incidentRoadCharacteristics[incidentRoad]['cornerDeviation'] = math.degrees(roadStats['deviationAngle'])
             self.incidentRoadCharacteristics[incidentRoad]['fov'] = math.degrees(fov)
             complexity = self.getComplexity(curvature=roadStats['maxCurvature'], fov=fov, deviationFromfov=roadStats['deviationAngle'])
+            complexity_avg = self.getComplexityAvg(curvature=roadStats['maxCurvature'], fov=fov, deviationFromfov=roadStats['deviationAngle'])
+            complexity_max = self.getComplexityMax(curvature=roadStats['maxCurvature'], fov=fov, deviationFromfov=roadStats['deviationAngle'])
 
             rows.append({
                 
                 'fov' : math.degrees(fov),
+                'fovNorm' : self.getNormFov(fov),
                 'corner' : math.degrees(roadStats['cornerAngle']),
                 'cornerDeviation' : math.degrees(roadStats['deviationAngle']),
+                'cornerDeviationNorm' : self.getNormDeviation(roadStats['deviationAngle']),
                 'minDistance' : roadStats['minDistance'],
                 'maxCurvature' : math.degrees(roadStats['maxCurvature']),
-                'complexity' : complexity
+                'maxCurvatureNorm': self.getNormCurvature(roadStats['maxCurvature']),
+                'complexity' : complexity,
+                'complexity_avg' : complexity_avg,
+                'complexity_max' : complexity_max,
             })
 
             # intersection summary
@@ -91,7 +98,7 @@ class IncidentRoadComplexity:
 
     
     
-    def measure(self, fromRoad: ExtendedRoad, p0, p1, h1):
+    def getRoadStats(self, fromRoad: ExtendedRoad, p0, p1, h1):
 
         minAngle = 3.15
         maxDeviation = 0
@@ -136,13 +143,51 @@ class IncidentRoadComplexity:
         }
 
 
+    def getMaxCurvature(self):
+        return (np.pi * 1.75) / self.minPathLengthIntersection # curvature of a Uturn
     
+    def getNormCurvature(self, curvature):
+        return curvature / self.getMaxCurvature()
+
+    def getNormDeviation(self, deviationFromfov):
+        return deviationFromfov / (np.pi / 2) #assuming max is 90
+
+    def getNormFov(self, fov):
+        return fov / np.pi # assuming max is 180
+
+
     def getComplexity(self, curvature, fov, deviationFromfov):
-        maxCurvature = np.pi / self.minPathLengthIntersection # curvature of a Uturn
-        norm_curvature = curvature / maxCurvature
-        normFov = fov / np.pi # assuming max is 180
-        normDeviation = deviationFromfov / (np.pi / 2) #assuming max is 90
+        norm_curvature = self.getNormCurvature(curvature)
+        normFov = self.getNormFov(fov)
+        normDeviation = self.getNormDeviation(deviationFromfov)
         complexity = norm_curvature * normFov * normDeviation
+
+        if complexity > 1:
+            print(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
+            complexity = 1.0
+        return complexity
+
+    def getComplexityAvg(self, curvature, fov, deviationFromfov):
+        norm_curvature = self.getNormCurvature(curvature)
+        normFov = self.getNormFov(fov)
+        normDeviation = self.getNormDeviation(deviationFromfov)
+        complexity = (norm_curvature + normFov + normDeviation) / 3
+
+        if complexity > 1:
+            print(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
+            complexity = 1.0
+        return complexity
+
+
+    def getComplexityMax(self, curvature, fov, deviationFromfov):
+        norm_curvature = self.getNormCurvature(curvature)
+        normFov = self.getNormFov(fov)
+        normDeviation = self.getNormDeviation(deviationFromfov)
+        complexity = max(norm_curvature, normFov, normDeviation)
+
+        if complexity > 1:
+            print(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
+            complexity = 1.0
         return complexity
 
 
