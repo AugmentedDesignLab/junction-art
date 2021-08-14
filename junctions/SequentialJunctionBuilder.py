@@ -403,7 +403,7 @@ class SequentialJunctionBuilder(JunctionBuilder):
 
         # lane marks
 
-        self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(outsideRoads)
+        # self.laneMarkGenerator.addBrokenWhiteToInsideLanesOfRoads(outsideRoads)
 
         # junction creation
 
