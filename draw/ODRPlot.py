@@ -25,13 +25,13 @@ class ODRPlot():
         # self.lanewidth = 5
 
 
-    def draw_odr(self, lanewidth=3):
+    def draw_odr(self, lanewidth=3, low=0, high=10):
         for key in self.odr.roads:
             road = self.odr.roads.get(key)
             if road.curveType == StandardCurveTypes.Line:
                 self.draw_straight_road(road, lanewidth)
                 print()
-            elif road.curveType == StandardCurveTypes.Poly:
+            elif road.curveType == StandardCurveTypes.Poly and road.id < high and road.id > low:
                 self.draw_poly_road(road, lanewidth, 0.2)
                 # print(road.id)
 
