@@ -68,7 +68,7 @@ class test_MetricManager(unittest.TestCase):
 
     
     def test_export(self):
-        intersections = self.createIntersections(1000)
+        intersections = self.createIntersections(100)
         print(f"Created {len(intersections)} intersections")
         metricManager = MetricManager(intersections)
         metricManager.exportDataframes(path=self.outputDir)
