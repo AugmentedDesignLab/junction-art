@@ -1,3 +1,4 @@
+from numpy.core.arrayprint import printoptions
 from junctions.Intersection import Intersection
 from analysis.metrics.travel.TurnComplexity import TurnComplexity
 from analysis.metrics.fov.IncidentRoadComplexity import IncidentRoadComplexity
@@ -24,13 +25,18 @@ class ConnectionRoadComplexity:
 
     def measureArea(self):
         
-        vertices = []
-        for incidentCP, incidentRoad in zip(self.intersection.incidentCPs, self.intersection.incidentRoads):
-            x, y, _ = incidentRoad.getPosition(incidentCP)
-            vertices.append((x, y))
-        
-        poly = Polygon(vertices)
-        return poly.area
+        try:
+            vertices = []
+            for incidentCP, incidentRoad in zip(self.intersection.incidentCPs, self.intersection.incidentRoads):
+                x, y, _ = incidentRoad.getPosition(incidentCP)
+                vertices.append((x, y))
+            
+            poly = Polygon(vertices)
+            return poly.area
+        except Exception as e:
+            print(vertices)
+            print(len(self.intersection.incidentRoads))
+            raise e
 
     
     

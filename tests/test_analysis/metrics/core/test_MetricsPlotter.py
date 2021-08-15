@@ -8,9 +8,9 @@ class test_MetricsPlotter(unittest.TestCase):
         
         path= os.path.join(os.getcwd(), 'analysis/output')
 
-        incidentPath = f"{path}/2021-08-12-incidentRoadDF.csv"
-        connectionPath = f"{path}/2021-08-12-connectionRoadDF.csv"
-        intersectionPath = f"{path}/2021-08-12-intersectionDF.csv"
+        incidentPath = f"{path}/2021-08-14-incidentRoadDF.csv"
+        connectionPath = f"{path}/2021-08-14-connectionRoadDF.csv"
+        intersectionPath = f"{path}/2021-08-14-intersectionDF.csv"
 
         self.plotter = MetricsPlotter(incidentPath=incidentPath, connectionPath=connectionPath, intersectionPath=intersectionPath)
     

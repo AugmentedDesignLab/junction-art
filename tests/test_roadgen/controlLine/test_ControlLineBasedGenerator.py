@@ -1,4 +1,4 @@
-import unittest, math
+import unittest, math, dill
 from roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
 from roadgen.controlLine.ControlPoint import ControlPoint
 from library.Configuration import Configuration
@@ -7,6 +7,7 @@ from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPoi
 from roadgen.controlLine.ControlLineBasedGenerator import ControlLineBasedGenerator
 import extensions, os, logging
 import numpy as np
+import traceback
 logfile = 'ControlLineBasedGenerator.log'
 logging.basicConfig(level=logging.INFO, filename=logfile)
 
@@ -16,6 +17,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
 
     def setUp(self) -> None:
         self.configuration = Configuration()
+        self.outputDir= os.path.join(os.getcwd(), 'output')
         with open(logfile, 'w') as f:
             f.truncate()
         pass
@@ -78,3 +80,51 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         xmlPath = f"output/test_generateWithHorizontalControlinesBig2Lane.xodr"
         odr.write_xml(xmlPath)
         # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+
+    
+    def test_export2LaneIntersections(self):
+
+        intersections = []
+        numberOfIntersections = 10000
+        outputPath = os.path.join(self.outputDir, f"CL-intersections-2lane-{numberOfIntersections}.dill")
+
+        created = 0
+        # create 
+        while created < numberOfIntersections:
+            try:
+                seed = np.random.randint(1, numberOfIntersections * 1000)
+                generator = ControlLineBasedGenerator((2000, 2000), debug=True, seed=seed, randomizeLanes=False, randomizeDistance=False)
+                generator.generateWithHorizontalControlines("test_generateWithHorizontalControlinesBig2Lane", 10, plotGrid=False, stopAfterCreatingIntersections=True)
+                intersections += generator.getIntersections()
+                created += len(intersections)
+                print(f"generated {created}")
+            except Exception as e:
+                print(e)
+                traceback.print_exc(limit=2)
+                pass
+        with open(outputPath, 'wb') as handler:
+            dill.dump(intersections, handler)
+
+    def test_exportIntersections(self):
+
+        intersections = []
+        numberOfIntersections = 10000
+        outputPath = os.path.join(self.outputDir, f"CL-intersections-{numberOfIntersections}.dill")
+
+        created = 0
+        # create 
+        while created < numberOfIntersections:
+            try:
+                seed = np.random.randint(1, numberOfIntersections * 1000)
+                generator = ControlLineBasedGenerator((2000, 2000), debug=True, seed=seed, randomizeLanes=True, randomizeDistance=False)
+                generator.generateWithHorizontalControlines("test_generateWithHorizontalControlinesBig2Lane", 10, plotGrid=False, stopAfterCreatingIntersections=True)
+                intersections += generator.getIntersections()
+                created += len(intersections)
+                print(f"generated {created}")
+            except Exception as e:
+                print(e)
+                traceback.print_exc(limit=2)
+                pass
+        with open(outputPath, 'wb') as handler:
+            dill.dump(intersections, handler)
+            

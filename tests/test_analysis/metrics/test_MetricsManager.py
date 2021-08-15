@@ -1,5 +1,5 @@
 import unittest
-import extensions, os
+import extensions, os, dill
 import numpy as np
 import pyodrx
 import logging
@@ -37,6 +37,19 @@ class test_MetricManager(unittest.TestCase):
         self.randomState =self.configuration.get("random_state")
         self.validator = IntersectionValidator()
         pass
+    
+    def getNwayOnly(self, intersections, n):
+        filtered = []
+        for intersection in intersections:
+            if len(intersection.incidentRoads) == n:
+                filtered.append(intersection)
+        return filtered
+
+    def loadIntersections(self, path):
+        intersections = None
+        with open(path, 'rb') as handler:
+            intersections = dill.load(handler)
+        return intersections
 
     def createIntersections(self, maxN=3):
 
@@ -68,7 +81,9 @@ class test_MetricManager(unittest.TestCase):
 
     
     def test_export(self):
-        intersections = self.createIntersections(100)
+        # intersections = self.createIntersections(50)
+        intersections = self.loadIntersections("output/CL-intersections-2lane-10000.dill")
+        intersections = intersections[:50]
         print(f"Created {len(intersections)} intersections")
         metricManager = MetricManager(intersections)
         metricManager.exportDataframes(path=self.outputDir)

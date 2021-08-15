@@ -1,4 +1,5 @@
 from junctions.Intersection import Intersection
+from junctions.Geometry import Geometry
 from extensions.ExtendedRoad import ExtendedRoad
 import extensions
 import math
@@ -144,7 +145,7 @@ class IncidentRoadComplexity:
 
 
     def getMaxCurvature(self):
-        return (np.pi * 1.75) / self.minPathLengthIntersection # curvature of a Uturn
+        return (np.pi * 2) / self.minPathLengthIntersection # curvature of a Uturn
     
     def getNormCurvature(self, curvature):
         return curvature / self.getMaxCurvature()
@@ -153,7 +154,7 @@ class IncidentRoadComplexity:
         return deviationFromfov / (np.pi / 2) #assuming max is 90
 
     def getNormFov(self, fov):
-        return fov / np.pi # assuming max is 180
+        return fov / (np.pi * 1.1) # assuming max is 180
 
 
     def getComplexity(self, curvature, fov, deviationFromfov):
@@ -193,6 +194,11 @@ class IncidentRoadComplexity:
 
     def getLinearDistance(self, p1, p2):
         return math.sqrt(((p1[0] - p2[0]) ** 2) + ((p1[1] - p2[1]) ** 2))
+
+
     
     def getAvgCurvature(self, h1, h2, distance):
+        h1 = Geometry.positiveNormalizeHeading(h1)
+        h2 = Geometry.positiveNormalizeHeading(h2)
+        # print(h1, h2, distance)
         return round(abs(h1 - h2) / distance, 2)
