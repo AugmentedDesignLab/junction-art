@@ -16,6 +16,8 @@ class MetricsPlotter:
         self.connectionRoadDF = pd.read_csv(connectionPath)
         self.intersectionDF = pd.read_csv(intersectionPath)
 
+        plt.rcParams['font.size'] = '24'
+
         self.normalize()
         pass
 
@@ -31,17 +33,21 @@ class MetricsPlotter:
 
     def plotIncidentHist(self, cols=["fov", "cornerDeviation", 'maxCurvature'], subplots=False):
 
-        ax = self.incidentRoadDFNormalized.plot.hist(bins=10, alpha=0.5, xlabel="Normalized Scale 0.0 - 1.0)", y=cols, subplots=subplots)
+        fig, ax = plt.subplots()
+        self.incidentRoadDFNormalized.plot.hist(bins=10, alpha=0.5, ax=ax, y=cols, subplots=subplots)
+        ax.set_xlabel("Normalized Scale 0.0 - 1.0)")
         plt.show()
-        ax = self.incidentRoadDF.plot.hist(bins=10, alpha=0.5, y=cols, subplots=subplots)
+        
+        fig, ax = plt.subplots()
+        self.incidentRoadDF.plot.hist(bins=10, alpha=0.5, ax=ax, y=cols, subplots=subplots)
+        ax.set_xlabel("Angle in Degrees)")
         plt.show()
         return 
 
-    def plotIncidentDistributions(self, cols=["fovNorm", "cornerDeviationNorm", 'maxCurvatureNorm'], subplots=False):
+    def plotIncidentDistributions(self, cols=["fov", "cornerDeviationNorm", 'maxCurvatureNorm'], subplots=False):
 
-        # ax = self.incidentRoadDF.plot.density(y=cols, subplots=subplots)
-        # ax = self.incidentRoadDF.fovNorm.plot.kde()
-        # plt.show()
+        ax = self.incidentRoadDF.plot.density(y=cols, subplots=subplots)
+        plt.show()
         # return ax
         bins=10
         
@@ -129,18 +135,17 @@ class MetricsPlotter:
         # fovLevels = np.linspace(0, self.incidentRoadDF['fov'].max(), )
         fobBins = np.linspace(0, self.incidentRoadDF['fov'].max(), bins)
         self.incidentRoadDF['fov-level'] = pd.cut(self.incidentRoadDF['fov'], bins=fobBins, labels=False)
-        
+
         cvBins = np.linspace(0, self.incidentRoadDF['cornerDeviation'].max(), bins)
         self.incidentRoadDF['cornerDeviation-level'] = pd.cut(self.incidentRoadDF['cornerDeviation'], bins=cvBins, labels=False)
     
-    def plotIncidentHeatMaps(self):
+    def plotIncidentHeatMapsComplexity(self):
 
         bins=25
         self.discretizeIncidentDf(bins)
-        ticks = np.arange(0, bins, 1.0)
         annot=False
 
-        heatDf = pd.crosstab(self.incidentRoadDF['complexity_max-level'], self.incidentRoadDF['maxCurvature-level']).div(len(self.incidentRoadDF))
+        heatDf = pd.crosstab(self.incidentRoadDF['complexity-level'], self.incidentRoadDF['maxCurvature-level']).div(len(self.incidentRoadDF))
         ax = sns.heatmap(heatDf, annot=annot)
         ax.set_title("Heatmap Curvature & Complexity")
         ax.set_xlabel("Curvature")
@@ -149,39 +154,109 @@ class MetricsPlotter:
         ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
         plt.show()
 
-        # heatDf = pd.crosstab(self.incidentRoadDF['complexity_max-level'], self.incidentRoadDF['fov-level']).div(len(self.incidentRoadDF))
-        # ax = sns.heatmap(heatDf, annot=annot)
-        # ax.set_title("Heatmap FOV & Complexity")
-        # ax.set_xlabel("FOV")
-        # ax.set_ylabel("Complexity")
-        # plt.show()
+        heatDf = pd.crosstab(self.incidentRoadDF['complexity-level'], self.incidentRoadDF['fov-level']).div(len(self.incidentRoadDF))
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap FOV & Complexity")
+        ax.set_xlabel("FOV")
+        ax.set_ylabel("Complexity")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
 
-        # heatDf = pd.crosstab(self.incidentRoadDF['complexity_max-level'], self.incidentRoadDF['cornerDeviation-level']).div(len(self.incidentRoadDF))
-        # ax = sns.heatmap(heatDf, annot=annot)
-        # ax.set_title("Heatmap Deviation-Sight line & Complexity")
-        # ax.set_xlabel("Deviation form Sight-line")
-        # ax.set_ylabel("Complexity")
-        # plt.show()
+        heatDf = pd.crosstab(self.incidentRoadDF['complexity-level'], self.incidentRoadDF['cornerDeviation-level']).div(len(self.incidentRoadDF))
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap Deviation-Sight line & Complexity")
+        ax.set_xlabel("Deviation form Sight-line")
+        ax.set_ylabel("Complexity")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
 
         
-        # # g = sns.displot(data=self.incidentRoadDF, x="fov", y="maxCurvature", bins=bins)
-        # # # g.set_axis_labels(name, "Number of Intersections")
-        # # g.set_titles(f"Fov vs Curvature")
-        # # g.set(xlim=(0, 180), ylim=(0, 36))
-        # # plt.show()
+        heatDf = pd.crosstab(self.incidentRoadDF['maxCurvature-level'], self.incidentRoadDF['fov-level']).div(len(self.incidentRoadDF))
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap FOV & Curvature")
+        ax.set_xlabel("FOV")
+        ax.set_ylabel("Curvature")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(5))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
 
-        # heatDf = pd.crosstab(self.incidentRoadDF['maxCurvature-level'], self.incidentRoadDF['fov-level']).div(len(self.incidentRoadDF))
-        # ax = sns.heatmap(heatDf, annot=annot)
-        # ax.set_title("Heatmap FOV & Curvature")
-        # # ax.set_xlabel("FOV")
-        # # ax.set_ylabel("Curvature")
-        # plt.show()
+
+    def plotIncidentHeatMapsComplexityMax(self):
+
+        bins=10
+        self.discretizeIncidentDf(bins)
+        annot=False
+        tickMulti = 2
+
+        heatDf = pd.crosstab(self.incidentRoadDF['complexity_max-level'], self.incidentRoadDF['maxCurvature-level']).div(len(self.incidentRoadDF))
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap Curvature & Complexity")
+        ax.set_xlabel("Curvature")
+        ax.set_ylabel("Complexity")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.yaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
+
+        heatDf = pd.crosstab(self.incidentRoadDF['complexity_max-level'], self.incidentRoadDF['fov-level']).div(len(self.incidentRoadDF))
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap FOV & Complexity")
+        ax.set_xlabel("FOV")
+        ax.set_ylabel("Complexity")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.yaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
+
+        heatDf = pd.crosstab(self.incidentRoadDF['complexity_max-level'], self.incidentRoadDF['cornerDeviation-level']).div(len(self.incidentRoadDF))
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap Deviation-Sight line & Complexity")
+        ax.set_xlabel("Deviation Angle form Sight-line")
+        ax.set_ylabel("Complexity")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.yaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
+
+        
+        heatDf = pd.crosstab(self.incidentRoadDF['maxCurvature-level'], self.incidentRoadDF['fov-level']).div(len(self.incidentRoadDF))
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap FOV & Curvature")
+        ax.set_xlabel("FOV")
+        ax.set_ylabel("Curvature")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.yaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
 
 
     
     def plotIncidentComplexityVs(self):
         self.incidentRoadDFNormalized.plot(y=["complexity", "fov", "cornerDeviation", "maxCurvature"])
         plt.show()
+
+
+    
+    def plotConnectionPropertyHistGroupedByLegs(self, property, bins=10, norm=False):
+        
+        Histogram.plot2MetricsDF(self.connectionRoadDF, property, 'legs', bins=bins, title="Connection road distribution")
+        # Histogram.plot2StackedMetricsDF(self.connectionRoadDF, property, 'legs', bins=bins, title="Connection road distribution")
+        Histogram.plot2MetricsDFSep(self.connectionRoadDF, property, 'legs', bins=bins)
+
+
+
+    
+    def plotIncidentPropertyHistGroupedByLegs(self, property, bins=10, norm=False):
+        
+        Histogram.plot2MetricsDF(self.incidentRoadDF, property, 'legs', bins=bins, title="Incident road distribution")
+        Histogram.plot2StackedMetricsDF(self.incidentRoadDF, property, 'legs', bins=bins, title="Incident road distribution")
+        Histogram.plot2MetricsDFSep(self.incidentRoadDF, property, 'legs', bins=bins)
 
         
     

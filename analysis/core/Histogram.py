@@ -3,7 +3,6 @@ import seaborn as sns
 # Apply the default theme
 sns.set_theme()
 
-
 class Histogram:
 
 
@@ -24,21 +23,21 @@ class Histogram:
     
     @staticmethod
     def plot2MetricsDF(data, col1, col2, bins=10, title=""):
-        g = sns.displot(data=data, x=col1, hue=col2, kde=True, stat="probability", bins=bins)
+        g = sns.displot(data=data, x=col1, hue=col2, kde=True, stat="probability", bins=bins, palette="colorblind")
         # g.set_axis_labels(name, "Number of Intersections")
         g.set_titles(f"{title}")
         plt.show()
 
     @staticmethod
     def plot2StackedMetricsDF(data, col1, col2, bins=10, title=""):
-        g = sns.displot(data=data, x=col1, hue=col2, multiple="stack", stat="probability", bins=bins)
+        g = sns.displot(data=data, x=col1, hue=col2, multiple="stack", stat="probability", bins=bins, palette="colorblind")
         # g.set_axis_labels(name, "Number of Intersections")
         g.set_titles(f"{title}")
         plt.show()
 
     @staticmethod
     def plot2MetricsDFSep(data, col1, col2, bins=10, title=""):
-        g = sns.displot(data=data, x=col1, col=col2, kde=True, stat="probability", bins=bins)
+        g = sns.displot(data=data, x=col1, col=col2, kde=True, stat="probability", bins=bins, palette="colorblind")
         # g.set_axis_labels(name, "Number of Intersections")
-        g.set_titles(f"{title}")
+        # g.set_titles(f"{title}")
         plt.show()

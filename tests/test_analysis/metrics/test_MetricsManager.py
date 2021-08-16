@@ -82,8 +82,17 @@ class test_MetricManager(unittest.TestCase):
     
     def test_export(self):
         # intersections = self.createIntersections(50)
+        intersections = self.loadIntersections("output/CL-intersections-10000.dill")
+        # intersections = intersections[:50]
+        print(f"Created {len(intersections)} intersections")
+        metricManager = MetricManager(intersections)
+        metricManager.exportDataframes(path=self.outputDir)
+
+        
+    def test_export2Lane(self):
+        # intersections = self.createIntersections(50)
         intersections = self.loadIntersections("output/CL-intersections-2lane-10000.dill")
-        intersections = intersections[:50]
+        # intersections = intersections[:50]
         print(f"Created {len(intersections)} intersections")
         metricManager = MetricManager(intersections)
         metricManager.exportDataframes(path=self.outputDir)
@@ -118,10 +127,11 @@ class test_MetricManager(unittest.TestCase):
         print(turnComplexities)
         # Histogram.plotNormalizedMetrics(turnComplexities, 'turn complexity')
         bins = 10
-        Histogram.plotNormalizedConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'turn complexity', bins=bins)
-        Histogram.plot2ConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
-        Histogram.plot2StackedConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
-        Histogram.plot2ConnectionRoadDFSep(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
+        print(metricManager.connectionRoadDF.head())
+        Histogram.plotNormalizedMetricsDF(metricManager.connectionRoadDF, 'turnCurvature', 'turn Curvature', bins=bins)
+        Histogram.plot2MetricsDF(metricManager.connectionRoadDF, 'turnCurvature', 'legs', bins=bins)
+        Histogram.plot2StackedMetricsDF(metricManager.connectionRoadDF, 'turnCurvature', 'legs', bins=bins)
+        Histogram.plot2MetricsDFSep(metricManager.connectionRoadDF, 'turnCurvature', 'legs', bins=bins)
 
 
     def test_TurnScatter(self):
