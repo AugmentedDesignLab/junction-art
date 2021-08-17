@@ -7,54 +7,45 @@
 # left lane 
 # right lane 
 
-from abc import ABC, abstractmethod 
+from abc import ABC, abstractmethod
 
+# import numpy as np
+# from junctions.StandardCurveTypes import StandardCurveTypes
+# from draw.IntersectionDrawer import Color
+# import math
+# from shapely.geometry.polygon import Polygon
+# from shapely.ops import unary_union
+
+# # from shapely.geometry import Point
+# from sympy.geometry import Line2D, Point
 
 class RoadPolygon(ABC):
     def __init__(self, road) -> None:
-        self.odr_road = road
+        self.road = road
+        self.road_id = road.id
+        self.leftlanes = road.lanes.lanesections[0].leftlanes
+        self.rightlanes = road.lanes.lanesections[0].rightlanes
         self.polygon = []
+
+        self.center_line_points = []
+        self.left_line_points = []
+        self.right_line_points = []
+        
+        self.lanewidth = 3
         # self.center_line = []
         super().__init__()
     
-    @property
-    def road_polygon(self):
-        return self.polygon
 
 
     @abstractmethod
     def build_polygon(self):
         pass
 
+    @abstractmethod
+    def fill_line_points(self):
+        pass
+
+
+
     
-
-class ParampolyRoadPolygon(RoadPolygon):
-    def __init__(self, road) -> None:
-        super().__init__(road)
-
-    def build_polygon(self):
-        print('parampoly polygon building', self.odr_road)
-        self.polygon = 'parampoly road polygon'
-        return 
-
-class StraightRoadPolygon(RoadPolygon):
-    def __init__(self, road) -> None:
-        super().__init__(road)
-
-    def build_polygon(self):
-        print('straight road buiding', self.odr_road)
-        self.polygon = 'straight road polygon'
-        return 
-
-
-roads = []
-
-roads.append(ParampolyRoadPolygon('roadID 1'))
-roads.append(StraightRoadPolygon('roadID 2'))
-roads.append(StraightRoadPolygon('roadID 3'))
-
-for road in roads:
-    road.build_polygon()
-    print('polygon ', road.road_polygon)
-
 
