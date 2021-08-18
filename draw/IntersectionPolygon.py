@@ -29,7 +29,7 @@ class IntersectionPolygon():
             road_polygon[road.id] = polygon
 
         for road in self.internal_connection_roads:
-            print('parampoly road id', road.id)
+            # print('parampoly road id', road.id)
             parampoly_road_polygon = ParamPolyRoadPolygon(road)
             polygon  = parampoly_road_polygon.build_polygon(step=0.1)
             road_polygon[road.id] = polygon

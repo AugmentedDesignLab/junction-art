@@ -1,4 +1,5 @@
 
+from sympy.geometry.point import Point2D
 from draw.RoadPolygon import RoadPolygon
 import numpy as np
 from junctions.StandardCurveTypes import StandardCurveTypes
@@ -37,6 +38,46 @@ class ParamPolyRoadPolygon(RoadPolygon):
         polygon = Polygon(polygon)        
         return polygon
 
+    # def fill_line_points(self, step):
+
+    #     xVal_centerline = np.zeros([])
+
+    #     return super().fill_line_points()
+
+    def get_center_coordinates_wrt_origin(self, aU, bU, cU, dU, aV, bV, cV, dV, step):
+        
+        array_size = np.int64((1/step)+1)
+
+        coff1 = np.array([[aU, bU, cU, dU]])
+        coff2 = np.array([[aV, bV, cV, dV]])
+
+        mat_i = np.array([i for i in np.arange(0, 1+step, step)])
+        new_mat = np.zeros((4, array_size))
+        for i in range(4):
+            new_mat[i] = mat_i**i
+
+        xVal = coff1.dot(new_mat)
+        yVal = coff2.dot(new_mat)
+
+        return xVal[0], yVal[0]
+
+    def get_differentiated_values(self, bU, cU, dU, bV, cV, dV, step):
+        
+        array_size = np.int64((1/step)+1)
+
+        coff1 = np.array([[bU, 2*cU, 3*dU]])
+        coff2 = np.array([[bV, 2*cV, 3*dV]])
+
+        mat_i = np.array([i for i in np.arange(0, 1+step, step)])
+        new_mat = np.zeros((3, array_size))
+        for i in range(3):
+            new_mat[i] = mat_i**i
+
+        finalx = coff1.dot(new_mat)
+        finaly = coff2.dot(new_mat)
+
+        return finalx[0], finaly[0]
+
     def fill_line_points(self, step = 0.1):
 
         # taking geometry for coefficient
@@ -45,47 +86,45 @@ class ParamPolyRoadPolygon(RoadPolygon):
 
         # coefficient from planview
         aU, bU, cU, dU, aV, bV, cV, dV = self.get_parampoly_coefficiants(geom)
+        # print('coeff U', aU, bU, cU, dU)
+        # print('coeff V', aV, bV, cV, dV)
 
         # start position and heading for final geometric transformation
         start_position = self.road.getAdjustedStartPosition()
         start_heading = start_position[2]
-        start_point = Point(start_position[0],start_position[1])
+        start_point = Point2D(start_position[0],start_position[1])
 
         # initialize
         xVal_centerline, yVal_centerline = [], []
         xVal_leftlane, yVal_leftlane = [], []
         xVal_rightlane, yVal_rightlane = [], []
 
+        # print('start ', start_point, start_heading)
         # for loop: interpolating from paramter [0, 1] for intermediate points
-        for i in np.arange(0, 1 + step, step):
 
-            # center line 
-            x, y = self.get_abs_coordinate_for_parampoly(aU, bU, cU, dU, aV, bV, cV, dV, i)
-            point_wrt_origin = Point(x, y)
-            x_trans, y_trans = self.transform_to_geometric_start_point(start_heading, start_point, point_wrt_origin)
-            # center line point array 
-            xVal_centerline.append(x_trans)
-            yVal_centerline.append(y_trans)
+        xVal_center_wrt_origin, yVal_center_wrt_origin = self.get_center_coordinates_wrt_origin(aU, bU, cU, dU, aV, bV, cV, dV, step)
 
-            # points at the lane width
-            x_diff_val, y_diff_val = self.get_differentiated_value_for_parampoly(bU, cU, dU, bV, cV, dV, i)
+        xVal_centerline = xVal_center_wrt_origin*math.cos(start_heading) - yVal_center_wrt_origin*math.sin(start_heading) + start_point.x
+        yVal_centerline = xVal_center_wrt_origin*math.sin(start_heading) + yVal_center_wrt_origin*math.cos(start_heading) + start_point.y
 
-            if len(self.rightlanes) != 0:
-                x_trans_right, y_trans_right = self.calc_coordinate_wrt_inertial_start(start_heading, 
-                                                                                        start_point, 
-                                                                                        +self.lanewidth, 
-                                                                                        x_diff_val, y_diff_val, 
-                                                                                        point_wrt_origin)
-                xVal_rightlane.append(x_trans_right)
-                yVal_rightlane.append(y_trans_right)
+        self.center_line_points.append(xVal_centerline.tolist())
+        self.center_line_points.append(yVal_centerline.tolist())
+        
+        if len(self.rightlanes) != 0:
+            x_diff_val, y_diff_val = self.get_differentiated_values(bU, cU, dU, bV, cV, dV, step)
+
+            temp = self.lanewidth / np.sqrt(x_diff_val**2 + y_diff_val**2)
+            x_lane_right_wrt_origin = xVal_center_wrt_origin + temp*y_diff_val
+            y_lane_right_wrt_origin = yVal_center_wrt_origin - temp*x_diff_val
 
 
+            xVal_rightlane = x_lane_right_wrt_origin*math.cos(start_heading) - y_lane_right_wrt_origin*math.sin(start_heading) + start_point.x
+            yVal_rightlane = x_lane_right_wrt_origin*math.sin(start_heading) + y_lane_right_wrt_origin*math.cos(start_heading) + start_point.y        
 
-        self.center_line_points.append(xVal_centerline)
-        self.center_line_points.append(yVal_centerline)
+            self.right_line_points.append(xVal_rightlane.tolist())
+            self.right_line_points.append(yVal_rightlane.tolist())
 
-        self.right_line_points.append(xVal_rightlane)
-        self.right_line_points.append(yVal_rightlane)
+
 
         return super().fill_line_points()
 
@@ -123,6 +162,9 @@ class ParamPolyRoadPolygon(RoadPolygon):
         aU, bU, cU, dU = float(_attr['aU']), float(_attr['bU']), float(_attr['cU']), float(_attr['dU'])
         aV, bV, cV, dV = float(_attr['aV']), float(_attr['bV']), float(_attr['cV']), float(_attr['dV'])
         return aU,bU,cU,dU,aV,bV,cV,dV
+
+
+    
 
 
 
