@@ -7,7 +7,7 @@ from typing import List
 import pandas as pd
 from datetime import datetime
 
-# from draw.IntersectionDrawer import IntersectionDrawer
+from draw.IntersectionDrawer import IntersectionDrawer
 
 class MetricManager:
 
@@ -80,7 +80,7 @@ class MetricManager:
 
         # self.intersectionDF['area'] = pd.Series(areas)
         # self.intersectionDF['conflictArea'] = pd.Series(conflictAreas)
-        self.intersectionDF['conflictPoints'] = None
+        # self.intersectionDF['conflictPoints'] = None
         # self.
 
         
