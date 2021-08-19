@@ -235,6 +235,24 @@ class MetricsPlotter:
         ax.yaxis.set_major_formatter(ticker.ScalarFormatter())
         plt.show()
 
+    def plotIncidentHeatMapsCurvatureFov(self):
+
+        bins=50
+        self.discretizeIncidentDf(bins)
+        annot=False
+        tickMulti = 2
+        
+        heatDf = pd.crosstab(self.incidentRoadDF['maxCurvature-level'], self.incidentRoadDF['fov-level']).div(len(self.incidentRoadDF))
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap FOV & Curvature")
+        ax.set_xlabel("FOV")
+        ax.set_ylabel("Curvature")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.yaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
+
 
     
     def plotIncidentComplexityVs(self):

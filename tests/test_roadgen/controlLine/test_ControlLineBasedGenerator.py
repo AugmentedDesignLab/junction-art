@@ -126,5 +126,6 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
                 traceback.print_exc(limit=2)
                 pass
         with open(outputPath, 'wb') as handler:
-            dill.dump(intersections, handler)
+            print(f"writing out {len(intersections)}")
+            print(dill.dump(intersections, handler))
             
