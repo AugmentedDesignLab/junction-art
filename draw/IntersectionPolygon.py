@@ -6,6 +6,7 @@ from shapely.geometry.polygon import Polygon
 from shapely.ops import unary_union
 from draw.ParamPolyRoadPolygon import ParamPolyRoadPolygon
 from draw.StraightRoadPolygon import StraightRoadPolygon
+from draw.AreaGeometry import AreaGeometry
 
 
 class IntersectionPolygon():
@@ -17,6 +18,9 @@ class IntersectionPolygon():
         self.connection_roads_without_u_turn = self.get_connection_roads_without_uturn()
 
         self.road_polygon = self.create_road_polygons() # key - road id , val - road polygon
+
+        self.area_geometry = AreaGeometry(self)
+
         pass
 
 
@@ -91,14 +95,8 @@ class IntersectionPolygon():
             polygon = self.road_polygon[road.id]
             connection_road_polygons.append(polygon)
 
-        print('size of connetion polygons ', len(connection_road_polygons))
+        # print('size of connetion polygons ', len(connection_road_polygons))
         result = unary_union([polygon if polygon.is_valid else polygon.buffer(0) for polygon in connection_road_polygons])
-
-        # geom if geom.is_valid else geom.buffer(0) for geom in geoms
-        #     if polygon.is_empty:
-        #         continue
-        #     else:
-        #         result_polygon = unary_union([result_polygon, polygon])
         return result
 
     def get_connection_roads_without_uturn(self):
@@ -110,3 +108,15 @@ class IntersectionPolygon():
             else:
                 internal_connection_road_without_uturn.append(road)
         return internal_connection_road_without_uturn
+
+
+    def get_intersection_area_value(self):
+        return self.area_geometry.interior_and_exterior_area_of_intersection()
+
+
+    def get_combined_road_overlap_polygon(self, include_u_turn = True):
+
+        polygon_list = self.get_road_overlap_polygons(include_u_turn)
+        combined_polygon = unary_union([polygon if polygon.is_valid else polygon.buffer(0) for polygon in polygon_list])
+
+        return combined_polygon

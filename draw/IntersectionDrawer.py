@@ -35,7 +35,7 @@ class IntersectionDrawer():
 #       currently just concerned about the area
 # TODO straight line drawing angle may be not correct
 
-    def draw_intersection(self, color = 'r', include_u_turn=True):
+    def draw_intersection(self, plt,  color = 'r', include_u_turn=True):
         
         road_polygon = self.intersection_polygon.get_road_polygons(include_u_turns=include_u_turn)
         
@@ -43,54 +43,102 @@ class IntersectionDrawer():
             polygon = road_polygon[key]
             x, y = polygon.exterior.xy
             plt.plot(x, y, color)
-        return plt
+        pass 
 
-    def draw_intersection_area(self, color='c', include_u_turn=True):
+    def draw_intersection_area(self, plt, color='c', include_u_turn=True):
 
         polygon = self.intersection_polygon.get_intersection_area_polygon(include_u_turn)
         x, y = polygon.exterior.xy
-        plt.fill(x, y, color)
-        return plt
+        plt.plot(x, y, color)
+        pass 
 
 
-    def draw_road_overlap_area(self, color = 'g', include_u_turn = True):
+    def draw_road_overlap_area(self, plt, color = 'g', include_u_turn = True):
         road_overlap_polygons = self.intersection_polygon.get_road_overlap_polygons(include_u_turn)
         
         for polygon in road_overlap_polygons:
             if polygon.type == 'Polygon' and polygon.exterior.length > 0:
                 x, y = polygon.exterior.xy
-                plt.fill(x, y, color)
+                plt.plot(x, y, color)
         
         # plt.show()
-        return plt
+        pass 
+
+    def draw_road_overlap_combined_polygon(self, plt, color= 'c', include_u_turn = True):
+
+        combined_road_overlap_polygon = self.intersection_polygon.get_combined_road_overlap_polygon(include_u_turn)
+        # print('perimeter ', combined_road_overlap_polygon.exterior.length)
+        if combined_road_overlap_polygon.geom_type == 'MultiPolygon':
+            for polygon in combined_road_overlap_polygon:
+                x, y = polygon.exterior.xy
+                plt.plot(x, y, color)
+        else:
+            x, y = combined_road_overlap_polygon.exterior.xy
+            plt.plot(x, y, color)
+
+        # plt.show()
+        pass
+
 
 
     def draw_polygon_image_arr(self, include_u_turn=True):
 
-        fig, (full_intersection, intersection_area, road_overlap) = plt.subplots(1, 3)
+        fig, (full_intersection, intersection_area, road_overlap, combined_overlap) = plt.subplots(1, 4)
         fig.suptitle('image array ')
         fig.set_figwidth(12)
         fig.set_figheight(3)
 
-        road_polygon = self.intersection_polygon.get_road_polygons(include_u_turn)
-        intersection_area_polygon = self.intersection_polygon.get_intersection_area_polygon(include_u_turn)
-        road_overlap_area_polygons = self.intersection_polygon.get_road_overlap_polygons(include_u_turn)
+        # road_polygon = self.intersection_polygon.get_road_polygons(include_u_turn)
+        # intersection_area_polygon = self.intersection_polygon.get_intersection_area_polygon(include_u_turn)
+        # road_overlap_area_polygons = self.intersection_polygon.get_road_overlap_polygons(include_u_turn)
+        # combined_road_overlap_polygons = self.intersection_polygon.get_combined_road_overlap_polygon(include_u_turn)
 
-        for key in road_polygon:
-            polygon = road_polygon[key]
-            x, y = polygon.exterior.xy
-            full_intersection.plot(x, y, color = 'r')
+        self.draw_intersection(full_intersection, color='c', include_u_turn=include_u_turn)
+        self.draw_intersection_area(intersection_area, color='g', include_u_turn=include_u_turn)
+        self.draw_road_overlap_area(road_overlap, color='b', include_u_turn=include_u_turn)
+        self.draw_road_overlap_combined_polygon(combined_overlap, color='r', include_u_turn=include_u_turn)
 
-        x, y = intersection_area_polygon.exterior.xy
-        intersection_area.plot(x, y, color = 'c')
+        # for key in road_polygon:
+        #     polygon = road_polygon[key]
+        #     x, y = polygon.exterior.xy
+        #     full_intersection.plot(x, y, color = 'r')
 
-        for polygon in road_overlap_area_polygons:
-            if polygon.type == 'Polygon' and polygon.exterior.length > 0:
-                x, y = polygon.exterior.xy
-                road_overlap.plot(x, y, color = 'b')
+        # x, y = intersection_area_polygon.exterior.xy
+        # intersection_area.plot(x, y, color = 'c')
 
+        # for polygon in road_overlap_area_polygons:
+        #     if polygon.type == 'Polygon' and polygon.exterior.length > 0:
+        #         x, y = polygon.exterior.xy
+        #         road_overlap.plot(x, y, color = 'b')
+
+        # # for polygon in combined_road_overlap_polygons:
+        # #     print('combined road overlap polygon ', polygon)
+
+        # self.draw_road_overlap_combined_polygon(combined_overlap, color='g')
         plt.show()
+
+
 
         pass
 
+
+    # def draw_any_p(self, geom):
+    #     if geom.type == 'Polygon':
+    #         exterior_polygon = Polygon([[p[0], p[1]] for p in geom.exterior.coords[:]])
+    #         interior_polygon = []
+    #         for interior in geom.interiors:
+    #             polygon = Polygon([[p[0], p[1]] for p in interior.coords[:]])
+    #             interior_polygon.append(polygon)
+    #     elif geom.type == 'MultiPolygon':
+    #         exterior_polygon = []
+    #         interior_polygon = []
+
+    #         for part in geom:
+    #             epc = self.extract_poly_interior_and_exterior_polygon(part)  # Recursive call
+    #             exterior_polygon += epc['exterior_polygon']
+    #             interior_polygon += epc['interior_polygon']
+    #     else:
+    #         raise ValueError('Unhandled geometry type: ' + repr(geom.type))
+    #     return {'exterior_polygon': exterior_polygon,
+    #             'interior_polygon': interior_polygon}
    
