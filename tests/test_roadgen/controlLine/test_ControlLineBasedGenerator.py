@@ -95,14 +95,16 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
                 seed = np.random.randint(1, numberOfIntersections * 1000)
                 generator = ControlLineBasedGenerator((2000, 2000), debug=True, seed=seed, randomizeLanes=False, randomizeDistance=False)
                 generator.generateWithHorizontalControlines("test_generateWithHorizontalControlinesBig2Lane", 10, plotGrid=False, stopAfterCreatingIntersections=True)
-                intersections += generator.getIntersections()
-                created += len(intersections)
+                newIntersections = generator.getIntersections()
+                intersections += newIntersections
+                created += len(newIntersections)
                 print(f"generated {created}")
             except Exception as e:
                 print(e)
                 traceback.print_exc(limit=2)
                 pass
         with open(outputPath, 'wb') as handler:
+            print(f"writing out {len(intersections)}")
             dill.dump(intersections, handler)
 
     def test_exportIntersections(self):
@@ -118,8 +120,9 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
                 seed = np.random.randint(1, numberOfIntersections * 1000)
                 generator = ControlLineBasedGenerator((2000, 2000), debug=True, seed=seed, randomizeLanes=True, randomizeDistance=False)
                 generator.generateWithHorizontalControlines("test_generateWithHorizontalControlinesBig2Lane", 10, plotGrid=False, stopAfterCreatingIntersections=True)
-                intersections += generator.getIntersections()
-                created += len(intersections)
+                newIntersections = generator.getIntersections()
+                intersections += newIntersections
+                created += len(newIntersections)
                 print(f"generated {created}")
             except Exception as e:
                 print(e)
