@@ -1,5 +1,5 @@
 import unittest
-import extensions, os
+import extensions, os, dill
 import numpy as np
 import pyodrx
 import logging
@@ -37,6 +37,19 @@ class test_MetricManager(unittest.TestCase):
         self.randomState =self.configuration.get("random_state")
         self.validator = IntersectionValidator()
         pass
+    
+    def getNwayOnly(self, intersections, n):
+        filtered = []
+        for intersection in intersections:
+            if len(intersection.incidentRoads) == n:
+                filtered.append(intersection)
+        return filtered
+
+    def loadIntersections(self, path):
+        intersections = None
+        with open(path, 'rb') as handler:
+            intersections = dill.load(handler)
+        return intersections
 
     def createIntersections(self, maxN=3):
 
@@ -68,7 +81,18 @@ class test_MetricManager(unittest.TestCase):
 
     
     def test_export(self):
-        intersections = self.createIntersections(1000)
+        # intersections = self.createIntersections(50)
+        intersections = self.loadIntersections("output/CL-intersections-10000.dill")
+        # intersections = intersections[:50]
+        print(f"Created {len(intersections)} intersections")
+        metricManager = MetricManager(intersections)
+        metricManager.exportDataframes(path=self.outputDir)
+
+        
+    def test_export2Lane(self):
+        # intersections = self.createIntersections(50)
+        intersections = self.loadIntersections("output/CL-intersections-2lane-10000.dill")
+        # intersections = intersections[:50]
         print(f"Created {len(intersections)} intersections")
         metricManager = MetricManager(intersections)
         metricManager.exportDataframes(path=self.outputDir)
@@ -103,10 +127,11 @@ class test_MetricManager(unittest.TestCase):
         print(turnComplexities)
         # Histogram.plotNormalizedMetrics(turnComplexities, 'turn complexity')
         bins = 10
-        Histogram.plotNormalizedConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'turn complexity', bins=bins)
-        Histogram.plot2ConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
-        Histogram.plot2StackedConnectionRoadDF(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
-        Histogram.plot2ConnectionRoadDFSep(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads', bins=bins)
+        print(metricManager.connectionRoadDF.head())
+        Histogram.plotNormalizedMetricsDF(metricManager.connectionRoadDF, 'turnCurvature', 'turn Curvature', bins=bins)
+        Histogram.plot2MetricsDF(metricManager.connectionRoadDF, 'turnCurvature', 'legs', bins=bins)
+        Histogram.plot2StackedMetricsDF(metricManager.connectionRoadDF, 'turnCurvature', 'legs', bins=bins)
+        Histogram.plot2MetricsDFSep(metricManager.connectionRoadDF, 'turnCurvature', 'legs', bins=bins)
 
 
     def test_TurnScatter(self):

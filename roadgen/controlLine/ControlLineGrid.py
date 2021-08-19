@@ -211,7 +211,6 @@ class ControlLineGrid:
             except Exception as e:
                 if self.debug:
                     logging.info(f"{self.name}: Lines ({line1.id}, {line2.id}): connectControlLinesWithRectsAndTriangles: ends due to {e}")
-                    traceback.print_exc()
                 break
 
     

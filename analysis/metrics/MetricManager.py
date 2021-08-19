@@ -1,3 +1,5 @@
+import logging, os, extensions
+from library.Configuration import Configuration
 from analysis.metrics.fov.IncidentRoadComplexity import IncidentRoadComplexity
 from junctions.Intersection import Intersection
 from analysis.metrics.travel.ConnectionRoadComplexity import ConnectionRoadComplexity
@@ -8,6 +10,7 @@ from datetime import datetime
 class MetricManager:
 
     def __init__(self, intersections: List[Intersection], metricConfigs = None) -> None:
+        self.configuration = Configuration()
         self.name = "MetricManager"
         self.intersections = intersections
         self.metricConfigs = metricConfigs
@@ -44,16 +47,31 @@ class MetricManager:
         intersectionIds = []
 
         for intersection in self.intersections:
-            intersectionIds.append(intersection.id)
-            numberOfIncidentRoads.append(len(intersection.incidentRoads))
-            numberOfConnectionRoads.append(len(intersection.internalConnectionRoads))
-            # connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
 
-            print(f"{self.name}: calculateIntersectionStatistics done for intersection {intersection.id}")
+            if len(intersection.incidentRoads) < 3:
+                raise Exception("Metrics available for 3+ leg intersections only")
+
+            try:
+                intersectionIds.append(intersection.id)
+                numberOfIncidentRoads.append(len(intersection.incidentRoads))
+                numberOfConnectionRoads.append(len(intersection.internalConnectionRoads))
+                # connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
+
+                print(f"{self.name}: calculateIntersectionStatistics done for intersection {intersection.id}")
+            except Exception as e:
+                extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
+                logging.error(e)
+                raise e
+
         
         self.intersectionDF["numberOfIncidentRoads"] = pd.Series(numberOfIncidentRoads)
         self.intersectionDF["numberOfConnectionRoads"] = pd.Series(numberOfConnectionRoads)
         self.intersectionDF["id"] = pd.Series(intersectionIds)
+
+        self.intersectionDF['area'] = None
+        self.intersectionDF['conflictArea'] = None
+        self.intersectionDF['conflictPoints'] = None
+        # self.
 
         
         self.calculateConnectionRoadStatistics()
@@ -67,9 +85,22 @@ class MetricManager:
 
         frames = []
         for intersection in self.intersections:
-            connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
-            connectionRoadComplexity.connectRoadDf['intersectionId'] = intersection.id
-            frames.append(connectionRoadComplexity.connectRoadDf)
+            try:
+                connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
+                connectionRoadComplexity.connectRoadDf['intersectionId'] = intersection.id
+                connectionRoadComplexity.connectRoadDf['legs'] = len(intersection.incidentRoads)
+                frames.append(connectionRoadComplexity.connectRoadDf)
+        
+                logging.debug(f"{self.name}: calculateConnectionRoadStatistics done for intersection {intersection.id}")
+
+                if connectionRoadComplexity.connectRoadDf['turnCurvature'].max() > 45:
+                    self.viewIntersection(intersection)
+
+            except Exception as e:
+                logging.error(e)
+                extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
+                raise e
+            
         
         self.connectionRoadDF = pd.concat(frames, ignore_index=True)
 
@@ -80,14 +111,28 @@ class MetricManager:
         
         frames = []
         for intersection in self.intersections:
-            incidentRoadComplexity = IncidentRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
-            incidentRoadComplexity.incidentRoadDf['intersectionId'] = intersection.id
-            frames.append(incidentRoadComplexity.incidentRoadDf)
-            print(f"{self.name}: calculateIncidentRoadStatistics done for intersection {intersection.id}")
+            try:
+                incidentRoadComplexity = IncidentRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
+                incidentRoadComplexity.incidentRoadDf['intersectionId'] = intersection.id
+                incidentRoadComplexity.incidentRoadDf['legs'] = len(intersection.incidentRoads)
+                frames.append(incidentRoadComplexity.incidentRoadDf)
+
+                logging.debug(f"{self.name}: calculateIncidentRoadStatistics done for intersection {intersection.id}")
+
+                if incidentRoadComplexity.incidentRoadDf['maxCurvatureNorm'].max() > 2:
+                    self.viewIntersection(intersection)
+
+            except Exception as e:
+                logging.error(e)
+                extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
+                raise e
         
         self.incidentRoadDF = pd.concat(frames, ignore_index=True)
 
     
+    def viewIntersection(self, intersection):
+        extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
+
 
     def exportDataframes(self, path):
         

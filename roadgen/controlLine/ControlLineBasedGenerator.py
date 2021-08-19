@@ -1,3 +1,4 @@
+from matplotlib.pyplot import plot
 from roadgen.controlLine.ControlPoint import ControlPoint
 from junctions.Intersection import Intersection
 from roadgen.controlLine.ControlLineGrid import ControlLineGrid
@@ -17,6 +18,7 @@ from library.Combinator import Combinator
 import extensions
 import logging, math, pyodrx
 import numpy as np
+import dill
 
 class ControlLineBasedGenerator:
 
@@ -66,7 +68,7 @@ class ControlLineBasedGenerator:
 
 
     #region grid
-    def createGridWithHorizontalControlLines(self, nLines):
+    def createGridWithHorizontalControlLines(self, nLines, plot=False):
 
         self.lines = []
         self.pairs = []
@@ -147,9 +149,10 @@ class ControlLineBasedGenerator:
         for line in self.lines:
             self.grid.connectControlPointsOnALine(line)
 
-        self.grid.plotControlLines()
-        self.grid.plotConnections()
-        self.grid.plot()
+        if plot:
+            self.grid.plotControlLines()
+            self.grid.plotConnections()
+            self.grid.plot()
 
         pass
 
@@ -206,6 +209,7 @@ class ControlLineBasedGenerator:
     
     #endregion
 
+    #region generator
     def generateWithManualControlines(self, name):
         # 1 grid creation
         self.createTestGridWithHorizontalControlLines()
@@ -234,10 +238,10 @@ class ControlLineBasedGenerator:
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
     
-    def generateWithHorizontalControlines(self, name, nLines):
+    def generateWithHorizontalControlines(self, name, nLines, plotGrid = True, stopAfterCreatingIntersections=False):
 
         # 1 grid creation
-        self.createGridWithHorizontalControlLines(nLines)
+        self.createGridWithHorizontalControlLines(nLines, plot=plotGrid)
 
         # 1.1
         # build clockwise adjacent points structure
@@ -253,6 +257,9 @@ class ControlLineBasedGenerator:
         # 3. create intersections for each control point
         self.createIntersectionsForControlPoints()
 
+        if stopAfterCreatingIntersections: # for stasitical concerns, we need intersections only
+            return
+
         # now we have the intersections
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
         self.createConnectionRoadsBetweenIntersections()
@@ -263,6 +270,9 @@ class ControlLineBasedGenerator:
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
         
+    #endregion
+
+    #region intersection creation and placement on map
 
     def buildClockwiseAdjacentMapForControlPoints(self):
         for (line1, line2, point1, point2) in self.grid.connections:
@@ -272,14 +282,13 @@ class ControlLineBasedGenerator:
                 ControlPointIntersectionAdapter.orderAjacentCW(point2)
         pass
 
-    #region placement on map
     def createIntersectionsForControlPoints(self):
         
         for (line1, line2, point1, point2) in self.grid.connections:
 
             
             if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
-                print(f"{self.name}: Creating intersection for line {line1.id} p = {point1.position}")
+                logging.info(f"{self.name}: Creating intersection for line {line1.id} p = {point1.position}")
                 point1.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point1, self.nextRoadId,
                                                                                             randomizeDistance=self.randomizeDistance,
                                                                                             randomizeHeading=self.randomizeHeading,
@@ -294,7 +303,7 @@ class ControlLineBasedGenerator:
                 self.placedIntersections.append(point1.intersection)
 
             if point2 not in self.controlPointIntersectionMap and len(point2.adjacentPoints) >= 2:
-                print(f"{self.name}: Creating intersection for line {line2.id} p = {point2.position}")
+                logging.info(f"{self.name}: Creating intersection for line {line2.id} p = {point2.position}")
                 point2.intersection = ControlPointIntersectionAdapter.createIntersection(self.nextIntersectionId, self.intersectionBuilder, point2, self.nextRoadId,
                                                                                             randomizeDistance=self.randomizeDistance,
                                                                                             randomizeHeading=self.randomizeHeading,
@@ -551,3 +560,18 @@ class ControlLineBasedGenerator:
             self.laneMarkGenerator.adjustMarksForIntersection(intersection)
             
             
+    #region exports
+
+    def exportIntersections(self, outputPath):
+        dill.dump(outputPath, self.placedIntersections)
+
+    def getIntersections(self):
+
+        # We need to return 3+ ways only
+        intersections = []
+
+        for intersection in self.placedIntersections:
+            if len(intersection.incidentRoads) > 2:
+                intersections.append(intersection)
+                
+        return intersections

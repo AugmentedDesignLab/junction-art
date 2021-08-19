@@ -42,7 +42,7 @@ class ControlPointIntersectionAdapter:
             # print(f"distance for point {adjPoint.position} is {randomDistance}")
 
             if randomDistance > maxDistance:
-                raise Exception(f"ControlPointIntersectionAdapter: angle too tight to generate intersection with specified lanes")
+                raise Exception(f"ControlPointIntersectionAdapter: angle too tight to generate intersection with specified lanes: ({randomDistance} > {maxDistance})")
             if randomDistance:
                 randomDistance = randomDistance * np.random.uniform(1, 1.2)
             if randomizeHeading:
