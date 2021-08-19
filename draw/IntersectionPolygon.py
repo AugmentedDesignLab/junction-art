@@ -6,26 +6,24 @@ from shapely.geometry.polygon import Polygon
 from shapely.ops import unary_union
 from draw.ParamPolyRoadPolygon import ParamPolyRoadPolygon
 from draw.StraightRoadPolygon import StraightRoadPolygon
-from draw.AreaGeometry import AreaGeometry
+from draw.AreaGeometry import PolygonHelper
 
 
 class IntersectionPolygon():
-    def __init__(self, intersection) -> None:
+    def __init__(self, intersection, step) -> None:
         self.intersection = intersection
 
         self.incident_roads = intersection.incidentRoads
         self.internal_connection_roads = intersection.internalConnectionRoads
         self.connection_roads_without_u_turn = self.get_connection_roads_without_uturn()
 
-        self.road_polygon = self.create_road_polygons() # key - road id , val - road polygon
-
-        self.area_geometry = AreaGeometry(self)
+        self.road_polygon = self.create_road_polygons(step) # key - road id , val - road polygon
 
         pass
 
 
     
-    def create_road_polygons(self):
+    def create_road_polygons(self, step = 0.1):
         road_polygon = {}
         for road in self.incident_roads:
             straight_road_polygon = StraightRoadPolygon(road)
@@ -35,7 +33,7 @@ class IntersectionPolygon():
         for road in self.internal_connection_roads:
             # print('parampoly road id', road.id)
             parampoly_road_polygon = ParamPolyRoadPolygon(road)
-            polygon  = parampoly_road_polygon.build_polygon(step=0.1)
+            polygon  = parampoly_road_polygon.build_polygon(step=step)
             road_polygon[road.id] = polygon
 
         return road_polygon
@@ -45,8 +43,7 @@ class IntersectionPolygon():
         road_polygon_dict = {}
         if include_u_turns:
             return self.road_polygon
-        else:
-            
+        else: 
             for road in self.incident_roads:
                 polygon = self.road_polygon[road.id]
                 road_polygon_dict[road.id] = polygon
@@ -76,8 +73,15 @@ class IntersectionPolygon():
                     if overlap_polygon.type == 'Polygon': 
                         if overlap_polygon.exterior.length > 0:
                             road_overlap_polygons.append(overlap_polygon)
+                        else:
+                            continue
+                            # print('polygon length ', overlap_polygon.exterior.length)
+                    elif overlap_polygon.type == 'MultiPolygon':
+                        for polygon in overlap_polygon:
+                            if polygon.exterior.length > 0:
+                                road_overlap_polygons.append(polygon)
                     else:
-                        continue
+                        print('intersection geometry is of type ', overlap_polygon.type)
                 else:
                     continue
 
@@ -109,9 +113,6 @@ class IntersectionPolygon():
                 internal_connection_road_without_uturn.append(road)
         return internal_connection_road_without_uturn
 
-
-    def get_intersection_area_value(self):
-        return self.area_geometry.interior_and_exterior_area_of_intersection()
 
 
     def get_combined_road_overlap_polygon(self, include_u_turn = True):

@@ -27,7 +27,7 @@ class Color(Enum):
 class IntersectionDrawer():
     def __init__(self, intersection, step = 0.1) -> None:
         self.intersection = intersection
-        self.intersection_polygon = IntersectionPolygon(intersection)
+        self.intersection_polygon = IntersectionPolygon(intersection, step)
         pass 
 
 
