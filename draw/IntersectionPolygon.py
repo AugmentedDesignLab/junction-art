@@ -68,21 +68,21 @@ class IntersectionPolygon():
             for road2 in internal_connection_roads:
                 if road1.id != road2.id:
                     road_polygon2 = self.road_polygon[road2.id]
-                    # print('roadpolygon1, roadpolygon2 ', road_polygon1.geom_type, road_polygon2.geom_type)
-                    overlap_polygon = road_polygon1.intersection(road_polygon2)
-                    if overlap_polygon.type == 'Polygon': 
-                        if overlap_polygon.exterior.length > 0:
-                            road_overlap_polygons.append(overlap_polygon)
+                    if road_polygon1.is_valid and road_polygon2.is_valid:
+                        overlap_polygon = road_polygon1.intersection(road_polygon2)
+                        if overlap_polygon.type == 'Polygon': 
+                            if overlap_polygon.exterior.length > 0:
+                                road_overlap_polygons.append(overlap_polygon)
+                            else:
+                                continue
+                                # print('polygon length ', overlap_polygon.exterior.length)
+                        elif overlap_polygon.type == 'MultiPolygon':
+                            for polygon in overlap_polygon:
+                                if polygon.exterior.length > 0:
+                                    road_overlap_polygons.append(polygon)
                         else:
+                            # print('intersection geometry is of type ', overlap_polygon.type)
                             continue
-                            # print('polygon length ', overlap_polygon.exterior.length)
-                    elif overlap_polygon.type == 'MultiPolygon':
-                        for polygon in overlap_polygon:
-                            if polygon.exterior.length > 0:
-                                road_overlap_polygons.append(polygon)
-                    else:
-                        # print('intersection geometry is of type ', overlap_polygon.type)
-                        continue
                 else:
                     continue
 
@@ -102,7 +102,12 @@ class IntersectionPolygon():
 
         # print('size of connetion polygons ', len(connection_road_polygons))
         result = unary_union([polygon if polygon.is_valid else polygon.buffer(0) for polygon in connection_road_polygons])
-        return result
+        if result.geom_type == 'MultiPolygon':
+            multi_result = []
+            for polygon in result:
+                multi_result.append(polygon)
+            return multi_result
+        return [result]
 
     def get_connection_roads_without_uturn(self):
         internal_connection_road_without_uturn = []
@@ -125,10 +130,12 @@ class IntersectionPolygon():
 
 
     def get_intersection_area_value(self, include_u_turn = True):
-        # area_value = 0
+        area_value = 0
         intersection_area_polygon = self.get_intersection_area_polygon(include_u_turn)
+        for polygon in intersection_area_polygon:
+            area_value += polygon.area
         # print('intersection_area polygon ', intersection_area_polygon.type)
-        return intersection_area_polygon.area
+        return area_value
 
     def get_combined_road_overlap_value(self, include_u_turn = True):
         

@@ -93,12 +93,21 @@ class StraightRoadPolygon(RoadPolygon):
 
     def calculate_parallel_line_at_distance(self, line, distance):
         a, b, c = line.coefficients # ax + by + c = 0
-        m, c = -(a/b), -(c/b) # y = mx + c
-        abs_diff = distance*math.sqrt(m**2 + 1)
-        new_c = c - abs_diff
-        if m == 0:
-            new_line = Line2D(Point(0, new_c), Point(10, new_c))
+        # print('line ', line)
+        # print('a b c ', a, b, c)
+        if b == 0: # parallel to y axis
+            new_line = Line2D(Point(-c-distance, 0), Point(-c-distance, 10))
+            # print('is parallel ', new_line.is_parallel(line))
+            return new_line
         else:
-            new_line = Line2D(Point(-new_c/m, 0), Point(0, new_c)) # x/a + y/b = 1
-        return new_line
+            # print('b != 0')
+            m, c = -(a/b), -(c/b) # y = mx + c
+            # print('m, c', m, c)
+            abs_diff = distance*math.sqrt(m**2 + 1)
+            new_c = c - abs_diff
+            if m == 0: # parallel to x axis
+                new_line = Line2D(Point(0, new_c), Point(10, new_c))
+            else:
+                new_line = Line2D(Point(-new_c/m, 0), Point(0, new_c)) # x/a + y/b = 1
+            return new_line
 

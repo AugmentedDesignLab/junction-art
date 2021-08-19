@@ -17,6 +17,10 @@ from draw.StraightRoadPolygon import StraightRoadPolygon
 from draw.ParamPolyRoadPolygon import ParamPolyRoadPolygon
 from draw.IntersectionPolygon import IntersectionPolygon
 
+# found error in this intersection from 10000
+# [472, 798, 806, 819, 854, 854, 1275, 1500, 1501, 2028, 2036, 2095, 2096, 2907, 2917, 2944, 2945, 3430, 3431, 3436, 3446, 3456, 3789, 4208, 4221, 4356, 4708, 5334, 5335, 5724, 5725, 6141, 6292, 6880, 6886, 6971, 7203, 7213, 7228, 7242, 7624, 7633, 7732, 7733, 8338, 8339, 8473, 8474, 8842, 8843, 9098, 9099, 9178, 9187, 9403, 9552, 9560, 9606, 9724, 9856, 9974]
+
+
 
 class Color(Enum):
     CENTER_LANE = 'r'
@@ -47,9 +51,10 @@ class IntersectionDrawer():
 
     def draw_intersection_area(self, plt, color='c', include_u_turn=True):
 
-        polygon = self.intersection_polygon.get_intersection_area_polygon(include_u_turn)
-        x, y = polygon.exterior.xy
-        plt.plot(x, y, color)
+        intersection_polygon = self.intersection_polygon.get_intersection_area_polygon(include_u_turn)
+        for polygon in intersection_polygon:
+            x, y = polygon.exterior.xy
+            plt.plot(x, y, color)
         pass 
 
 
@@ -105,9 +110,9 @@ class IntersectionDrawer():
     def get_area_values(self, include_u_turn = True):
         
         intersection_area_value = self.get_intersection_area_value(include_u_turn)
-        print('intersection area value ', intersection_area_value)
+        # print('intersection area value ', intersection_area_value)
         road_overlap_area_value = self.get_road_overlap_area_value(include_u_turn)
-        print('overlap area value ', road_overlap_area_value)
+        # print('overlap area value ', road_overlap_area_value)
         
         return {'IntersectionArea': intersection_area_value,
                 'ConflictArea': road_overlap_area_value}
