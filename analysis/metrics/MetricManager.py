@@ -45,6 +45,8 @@ class MetricManager:
         numberOfIncidentRoads = []
         numberOfConnectionRoads = []
         intersectionIds = []
+        areas = []
+        conflictAreas = []
 
         for intersection in self.intersections:
 
