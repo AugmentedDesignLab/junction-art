@@ -9,7 +9,7 @@ class test_MetricsPlotter(unittest.TestCase):
         
         path= os.path.join(os.getcwd(), 'analysis/output')
 
-        date = "randlane/2021-08-15"
+        date = "randlane/2021-08-18"
 
         incidentPath = f"{path}/{date}-incidentRoadDF.csv"
         connectionPath = f"{path}/{date}-connectionRoadDF.csv"
@@ -24,8 +24,8 @@ class test_MetricsPlotter(unittest.TestCase):
     def test_IncidentDistribution(self):
         self.plotter.plotIncidentDistributions(subplots=True)
 
-    def test_Incident_Complexity(self):
-        self.plotter.plotIncidentComplexity(subplots=True)
+    # def test_Incident_Complexity(self):
+    #     self.plotter.plotIncidentComplexity(subplots=True)
 
     def test_Incident_HeatMaps_Complexity(self):
         sns.set_context("talk")
@@ -56,7 +56,7 @@ class test_MetricsPlotter(unittest.TestCase):
     def test_Incident_Complexity(self):
         # sns.color_palette("viridis", as_cmap=True)
         sns.set_context("talk")
-        self.plotter.plotIncidentPropertyHistGroupedByLegs("complexity_max")
+        self.plotter.plotIncidentPropertyHistGroupedByLegs("complexity")
 
     def test_Incident_FOV(self):
         # sns.color_palette("viridis", as_cmap=True)
