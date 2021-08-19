@@ -71,16 +71,18 @@ class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):
     def test_createIntersectionFromPointsWithRoadDefinition(self):
 
         roadDefinition = [
-            {'x': -30, 'y': 30, 'heading': math.radians(135), 'leftLane': 3, 'rightLane': 1, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.start},
-            {'x':   0, 'y': 30, 'heading': math.radians(90),  'leftLane': 1, 'rightLane': 1, 'medianType': 'None'},
-            {'x':   0, 'y':  0, 'heading': math.radians(270), 'leftLane': 1, 'rightLane': 1, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.start},
-            {'x':   -40, 'y': -30, 'heading': math.radians(150),  'leftLane': 5, 'rightLane': 2, 'medianType': 'None'},
+            {'x': -30, 'y': 30, 'heading': 2, 'leftLane': 3, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {'x':   0, 'y': 30, 'heading': 1,  'leftLane': 3, 'rightLane': 3, 'medianType': None, 'skipEndpoint': None},
+            {'x':   0, 'y':  0, 'heading': -1.5, 'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
+            {'x':   -40, 'y': -30, 'heading': -2,  'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
         ]
 
         odr = self.builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
                                                                           firstRoadId=100,
                                                                           roadDefinition=roadDefinition,
-                                                                          straightRoadLen=40)
+                                                                          firstRoadId=10,
+                                                                          straightRoadLen=40,
+                                                                          getAsOdr=True)
         extensions.printRoadPositions(odr)
         extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
         pass

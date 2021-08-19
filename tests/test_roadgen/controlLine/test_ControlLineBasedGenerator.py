@@ -110,7 +110,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
     def test_exportIntersections(self):
 
         intersections = []
-        numberOfIntersections = 10000
+        numberOfIntersections = 100
         outputPath = os.path.join(self.outputDir, f"CL-intersections-{numberOfIntersections}.dill")
 
         created = 0

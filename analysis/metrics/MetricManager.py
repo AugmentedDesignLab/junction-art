@@ -7,6 +7,8 @@ from typing import List
 import pandas as pd
 from datetime import datetime
 
+# from draw.IntersectionDrawer import IntersectionDrawer
+
 class MetricManager:
 
     def __init__(self, intersections: List[Intersection], metricConfigs = None) -> None:
@@ -59,6 +61,12 @@ class MetricManager:
                 numberOfConnectionRoads.append(len(intersection.internalConnectionRoads))
                 # connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
 
+                # area_dict = IntersectionDrawer(intersection, step=0.1).get_area_values(include_u_turn=False)
+                # areas.append(area_dict['IntersectionArea'])
+                # conflictAreas.append(area_dict['ConflictArea'])
+
+                
+
                 print(f"{self.name}: calculateIntersectionStatistics done for intersection {intersection.id}")
             except Exception as e:
                 extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
@@ -70,8 +78,8 @@ class MetricManager:
         self.intersectionDF["numberOfConnectionRoads"] = pd.Series(numberOfConnectionRoads)
         self.intersectionDF["id"] = pd.Series(intersectionIds)
 
-        self.intersectionDF['area'] = None
-        self.intersectionDF['conflictArea'] = None
+        # self.intersectionDF['area'] = pd.Series(areas)
+        # self.intersectionDF['conflictArea'] = pd.Series(conflictAreas)
         self.intersectionDF['conflictPoints'] = None
         # self.
 
