@@ -1,6 +1,7 @@
 import numpy as np
 import pyodrx
 from extensions.ExtendedRoad import ExtendedRoad
+import math
 
 class TurnComplexity:
 
@@ -20,6 +21,7 @@ class TurnComplexity:
         )
 
     def radiusComplexity(self):
+        # print(f"change in heading ={math.degrees(self.changeInHeading)}, length = {self.lengthOfPath}")
         return round(self.changeInHeading / self.lengthOfPath, 2)
     
 

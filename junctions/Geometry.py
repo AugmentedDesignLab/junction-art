@@ -76,6 +76,13 @@ class Geometry(ABC):
 
         return u, v
 
+    @staticmethod
+    def positiveNormalizeHeading(h):
+        h = h % (np.pi *2) 
+        if h < 0.0:
+            h = (np.pi *2) + h
+        return h
+
 
     @staticmethod
     def getRelativeHeading(rootHeading, anotherHeading):

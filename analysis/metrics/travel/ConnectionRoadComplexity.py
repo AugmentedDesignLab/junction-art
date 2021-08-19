@@ -1,15 +1,18 @@
+from numpy.core.arrayprint import printoptions
 from junctions.Intersection import Intersection
 from analysis.metrics.travel.TurnComplexity import TurnComplexity
 from analysis.metrics.fov.IncidentRoadComplexity import IncidentRoadComplexity
 from shapely.geometry import Polygon
 import pandas as pd
 import numpy as np
+import math
 
 class ConnectionRoadComplexity:
 
 
     def __init__(self, intersection: Intersection, minPathLengthIntersection=10) -> None:
         self.intersection = intersection
+        self.name = f"ConnectionRoadComplexity #{self.intersection.id}"
         self.minPathLengthIntersection = minPathLengthIntersection
         # self.fovComplexity = IncidentRoadComplexity(intersection)
         self.connectRoadDf = None
@@ -24,13 +27,18 @@ class ConnectionRoadComplexity:
 
     def measureArea(self):
         
-        vertices = []
-        for incidentCP, incidentRoad in zip(self.intersection.incidentCPs, self.intersection.incidentRoads):
-            x, y, _ = incidentRoad.getPosition(incidentCP)
-            vertices.append((x, y))
-        
-        poly = Polygon(vertices)
-        return poly.area
+        try:
+            vertices = []
+            for incidentCP, incidentRoad in zip(self.intersection.incidentCPs, self.intersection.incidentRoads):
+                x, y, _ = incidentRoad.getPosition(incidentCP)
+                vertices.append((x, y))
+            
+            poly = Polygon(vertices)
+            return poly.area
+        except Exception as e:
+            print(vertices)
+            print(len(self.intersection.incidentRoads))
+            raise e
 
     
     
@@ -65,6 +73,10 @@ class ConnectionRoadComplexity:
             raise Exception(f"{self.name}: missing internalConnectionRoads")
         
         for connectionRoad in self.intersection.internalConnectionRoads:
+            
+            if connectionRoad.isUturn():
+                continue
+            
             # print(f"lenght of connection road: ", connectionRoad.length())
             turnComplexity = TurnComplexity.createFromRoad(connectionRoad, minPathLengthIntersection=self.minPathLengthIntersection)
             self.turnComplexities[connectionRoad] = turnComplexity.normalizedRadiusComplexity()
@@ -72,9 +84,9 @@ class ConnectionRoadComplexity:
             self.connectionRoadCharacteristics[connectionRoad]['turnCurvatureNorm'] = turnComplexity.normalizedRadiusComplexity()
             self.connectionRoadCharacteristics[connectionRoad]['turnLength'] = connectionRoad.length()
 
-            fromRoad = connectionRoad.getExtendedPredecessorByRoadId(connectionRoad.predecessor.element_id).road
+            # fromRoad = connectionRoad.getExtendedPredecessorByRoadId(connectionRoad.predecessor.element_id).road
             stats = dict()
-            stats['turnCurvature'] = turnComplexity.radiusComplexity()
+            stats['turnCurvature'] = math.degrees(turnComplexity.radiusComplexity())
             stats['turnCurvatureNorm'] = turnComplexity.normalizedRadiusComplexity()
             stats['turnLength'] = connectionRoad.length()
             # stats['fov'] = self.fovComplexity.incidentRoadCharacteristics[fromRoad]['fov']
@@ -86,6 +98,8 @@ class ConnectionRoadComplexity:
             #                                             deviationFromfov=stats['cornerDeviation']
             #                                         )
 
+            if stats['turnCurvature'] > 45:
+                raise Exception(f"{self.name}: measureTurnComplexities: turn curvature is too much {stats['turnCurvature']}")
             rows.append(stats)
         
         self.connectRoadDf = pd.DataFrame(rows)
