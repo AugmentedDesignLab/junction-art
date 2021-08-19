@@ -108,4 +108,6 @@ class IntersectionDrawer():
         print('intersection area value ', intersection_area_value)
         road_overlap_area_value = self.get_road_overlap_area_value(include_u_turn)
         print('overlap area value ', road_overlap_area_value)
-        pass
+        
+        return {'IntersectionArea': intersection_area_value,
+                'ConflictArea': road_overlap_area_value}
