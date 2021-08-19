@@ -9,7 +9,7 @@ class test_MetricsPlotter(unittest.TestCase):
         
         path= os.path.join(os.getcwd(), 'analysis/output')
 
-        date = "2lane/2021-08-15"
+        date = "randlane/2021-08-15"
 
         incidentPath = f"{path}/{date}-incidentRoadDF.csv"
         connectionPath = f"{path}/{date}-connectionRoadDF.csv"
