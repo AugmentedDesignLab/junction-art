@@ -42,7 +42,6 @@ class IntersectionDrawer():
     def draw_intersection(self, plt,  color = 'r', include_u_turn=True):
         
         road_polygon = self.intersection_polygon.get_road_polygons(include_u_turns=include_u_turn)
-        
         for key in road_polygon:
             polygon = road_polygon[key]
             x, y = polygon.exterior.xy
@@ -59,13 +58,12 @@ class IntersectionDrawer():
 
 
     def draw_road_overlap_area(self, plt, color = 'g', include_u_turn = True):
+
         road_overlap_polygons = self.intersection_polygon.get_road_overlap_polygons(include_u_turn)
-        
         for polygon in road_overlap_polygons:
             if polygon.type == 'Polygon' and polygon.exterior.length > 0:
                 x, y = polygon.exterior.xy
                 plt.plot(x, y, color)
-        
         # plt.show()
         pass 
 
@@ -80,10 +78,51 @@ class IntersectionDrawer():
         else:
             x, y = combined_road_overlap_polygon.exterior.xy
             plt.plot(x, y, color)
-
         # plt.show()
         pass
 
+
+    def draw_intersection_fill(self, plt,  color = 'r', include_u_turn=True):
+        
+        road_polygon = self.intersection_polygon.get_road_polygons(include_u_turns=include_u_turn)
+        for key in road_polygon:
+            polygon = road_polygon[key]
+            x, y = polygon.exterior.xy
+            plt.fill(x, y, color)
+        pass 
+
+    def draw_intersection_area_fill(self, plt, color='c', include_u_turn=True):
+
+        intersection_polygon = self.intersection_polygon.get_intersection_area_polygon(include_u_turn)
+        for polygon in intersection_polygon:
+            x, y = polygon.exterior.xy
+            plt.fill(x, y, color)
+        pass 
+
+
+    def draw_road_overlap_area_fill(self, plt, color = 'g', include_u_turn = True):
+
+        road_overlap_polygons = self.intersection_polygon.get_road_overlap_polygons(include_u_turn)
+        for polygon in road_overlap_polygons:
+            if polygon.type == 'Polygon' and polygon.exterior.length > 0:
+                x, y = polygon.exterior.xy
+                plt.fill(x, y, color)
+        # plt.show()
+        pass 
+
+    def draw_road_overlap_combined_polygon_fill(self, plt, color= 'c', include_u_turn = True):
+
+        combined_road_overlap_polygon = self.intersection_polygon.get_combined_road_overlap_polygon(include_u_turn)
+        # print('perimeter ', combined_road_overlap_polygon.exterior.length)
+        if combined_road_overlap_polygon.geom_type == 'MultiPolygon':
+            for polygon in combined_road_overlap_polygon:
+                x, y = polygon.exterior.xy
+                plt.fill(x, y, color)
+        else:
+            x, y = combined_road_overlap_polygon.exterior.xy
+            plt.plot(x, y, color)
+        # plt.show()
+        pass
 
 
     def draw_polygon_image_arr(self, include_u_turn=True):
@@ -99,6 +138,15 @@ class IntersectionDrawer():
         self.draw_road_overlap_combined_polygon(combined_overlap, color='r', include_u_turn=include_u_turn)
 
         plt.show()
+        pass
+
+    def draw_intersection_and_conflict_area_fill(self, include_u_turn = True):
+
+        self.draw_intersection_area_fill(plt, color='g', include_u_turn=include_u_turn)
+        self.draw_road_overlap_combined_polygon_fill(plt, color='r', include_u_turn=include_u_turn)
+        plt.show()
+
+
         pass
 
     def get_intersection_area_value(self, include_u_turn = True):
