@@ -16,6 +16,9 @@ class MetricsPlotter:
         self.connectionRoadDF = pd.read_csv(connectionPath)
         self.intersectionDF = pd.read_csv(intersectionPath)
 
+        self.intersectionDF['legs'] = self.intersectionDF['numberOfIncidentRoads']
+        self.intersectionDF['conflictRatio'] = self.intersectionDF['conflictArea'] / self.intersectionDF['area']
+
         plt.rcParams['font.size'] = '24'
 
         self.normalize()
@@ -123,8 +126,12 @@ class MetricsPlotter:
 
 
     def discretizeIncidentDf(self, bins = 10):
+
         complexityBins = np.linspace(0, self.incidentRoadDF['complexity'].max(), bins)
         self.incidentRoadDF['complexity-level'] = pd.cut(self.incidentRoadDF['complexity'], bins=complexityBins, labels=False)
+
+        complexityBins = np.linspace(0, self.incidentRoadDF['complexity_avg'].max(), bins)
+        self.incidentRoadDF['complexity_avg-level'] = pd.cut(self.incidentRoadDF['complexity_avg'], bins=complexityBins, labels=False)
 
         complexityMaxBins = np.linspace(0, self.incidentRoadDF['complexity_max'].max(), bins)
         self.incidentRoadDF['complexity_max-level'] = pd.cut(self.incidentRoadDF['complexity_max'], bins=complexityMaxBins, labels=False)
@@ -303,6 +310,18 @@ class MetricsPlotter:
         Histogram.plot2MetricsDF(self.incidentRoadDF, property, 'legs', bins=bins, title="Incident road distribution")
         Histogram.plot2StackedMetricsDF(self.incidentRoadDF, property, 'legs', bins=bins, title="Incident road distribution")
         Histogram.plot2MetricsDFSep(self.incidentRoadDF, property, 'legs', bins=bins)
+
+    
+
+    def plotIntersectionPropertyHistGroupedByLegs(self, property, bins=10, norm=False, xlabel=""):
+        
+        # Histogram.plot2MetricsDF(self.intersectionDF, property, 'legs', bins=bins, title="Intersection distribution", xlabel=xlabel)
+        # Histogram.plot2StackedMetricsDF(self.intersectionDF, property, 'legs', bins=bins, title="Intersection distribution", xlabel=xlabel)
+        Histogram.plot2MetricsDFSep(self.intersectionDF, property, 'legs', bins=bins, xlabel=xlabel)
+
+
+    def plotIntersectionPropertyHist(self, property, bins=10, norm=False, xlabel=""):
+        Histogram.plotMetricsDF(self.intersectionDF, property, xlabel="Incident road distribution", bins=bins)
 
         
     

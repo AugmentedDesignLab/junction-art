@@ -172,7 +172,7 @@ class IncidentRoadComplexity:
         norm_curvature = self.getNormCurvature(curvature)
         normFov = self.getNormFov(fov)
         normDeviation = self.getNormDeviation(deviationFromfov)
-        complexity = (norm_curvature + normFov + normDeviation) / 3
+        complexity = 0.5 * norm_curvature + 0.25 * (normFov + normDeviation)
 
         if complexity > 1:
             print(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")

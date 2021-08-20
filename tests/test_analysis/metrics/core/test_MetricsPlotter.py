@@ -9,7 +9,7 @@ class test_MetricsPlotter(unittest.TestCase):
         
         path= os.path.join(os.getcwd(), 'analysis/output')
 
-        date = "randlane/2021-08-18"
+        date = "randlane/2021-08-20"
 
         incidentPath = f"{path}/{date}-incidentRoadDF.csv"
         connectionPath = f"{path}/{date}-connectionRoadDF.csv"
@@ -56,7 +56,7 @@ class test_MetricsPlotter(unittest.TestCase):
     def test_Incident_Complexity(self):
         # sns.color_palette("viridis", as_cmap=True)
         sns.set_context("talk")
-        self.plotter.plotIncidentPropertyHistGroupedByLegs("complexity")
+        self.plotter.plotIncidentPropertyHistGroupedByLegs("complexity_avg")
 
     def test_Incident_FOV(self):
         # sns.color_palette("viridis", as_cmap=True)
@@ -67,3 +67,13 @@ class test_MetricsPlotter(unittest.TestCase):
         # sns.color_palette("viridis", as_cmap=True)
         sns.set_context("talk")
         self.plotter.plotIncidentPropertyHistGroupedByLegs("cornerDeviation")
+
+    
+    def test_plotIntersectionPropertyHistGroupedByLegs(self):
+        sns.set_context("talk")
+        self.plotter.plotIntersectionPropertyHist("numberOfIncidentRoads", xlabel="nIncidentRoads")
+        self.plotter.plotIntersectionPropertyHistGroupedByLegs("numberOfConnectionRoads", xlabel="nConnectionRoads")
+        self.plotter.plotIntersectionPropertyHistGroupedByLegs("area")
+        self.plotter.plotIntersectionPropertyHistGroupedByLegs("conflictArea")
+        self.plotter.plotIntersectionPropertyHistGroupedByLegs("conflictRatio")
+        # sns.plotIntersectionPropertyHistGroupedByLegs("conflictArea")

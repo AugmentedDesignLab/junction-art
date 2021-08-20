@@ -61,9 +61,9 @@ class MetricManager:
                 numberOfConnectionRoads.append(len(intersection.internalConnectionRoads))
                 # connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
 
-                # area_dict = IntersectionDrawer(intersection, step=0.1).get_area_values(include_u_turn=False)
-                # areas.append(area_dict['IntersectionArea'])
-                # conflictAreas.append(area_dict['ConflictArea'])
+                area_dict = IntersectionDrawer(intersection, step=0.1).get_area_values(include_u_turn=False)
+                areas.append(area_dict['IntersectionArea'])
+                conflictAreas.append(area_dict['ConflictArea'])
 
                 
 
@@ -78,8 +78,8 @@ class MetricManager:
         self.intersectionDF["numberOfConnectionRoads"] = pd.Series(numberOfConnectionRoads)
         self.intersectionDF["id"] = pd.Series(intersectionIds)
 
-        # self.intersectionDF['area'] = pd.Series(areas)
-        # self.intersectionDF['conflictArea'] = pd.Series(conflictAreas)
+        self.intersectionDF['area'] = pd.Series(areas)
+        self.intersectionDF['conflictArea'] = pd.Series(conflictAreas)
         # self.intersectionDF['conflictPoints'] = None
         # self.
 

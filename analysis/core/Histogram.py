@@ -20,24 +20,37 @@ class Histogram:
         g.set_titles(f"Distribution of {name}")
         plt.show()
 
+    @staticmethod
+    def plotMetricsDF(data, col, xlabel="", bins=10):
+        g = sns.displot(data=data, x=col, kde=True, bins=bins)
+        if xlabel != "":
+            g.set_axis_labels(xlabel, "Count")
+
+        g.set_titles(f"Distribution of {xlabel}")
+        plt.show()
+
     
     @staticmethod
-    def plot2MetricsDF(data, col1, col2, bins=10, title=""):
+    def plot2MetricsDF(data, col1, col2, bins=10, title="", xlabel=""):
         g = sns.displot(data=data, x=col1, hue=col2, kde=True, stat="probability", bins=bins, palette="colorblind")
         # g.set_axis_labels(name, "Number of Intersections")
         g.set_titles(f"{title}")
         plt.show()
 
     @staticmethod
-    def plot2StackedMetricsDF(data, col1, col2, bins=10, title=""):
+    def plot2StackedMetricsDF(data, col1, col2, bins=10, title="", xlabel=""):
         g = sns.displot(data=data, x=col1, hue=col2, multiple="stack", stat="probability", bins=bins, palette="colorblind")
         # g.set_axis_labels(name, "Number of Intersections")
         g.set_titles(f"{title}")
         plt.show()
 
     @staticmethod
-    def plot2MetricsDFSep(data, col1, col2, bins=10, title=""):
+    def plot2MetricsDFSep(data, col1, col2, bins=10, title="", xlabel=""):
         g = sns.displot(data=data, x=col1, col=col2, kde=True, stat="probability", bins=bins, palette="colorblind")
-        # g.set_axis_labels(name, "Number of Intersections")
-        # g.set_titles(f"{title}")
+
+        if xlabel != "":
+            g.set_axis_labels(xlabel, "probability")
+
+        if title != "":
+            g.set_titles(title)
         plt.show()
