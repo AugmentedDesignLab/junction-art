@@ -163,3 +163,12 @@ class test_MetricManager(unittest.TestCase):
         # Histogram.plotNormalizedMetrics(turnComplexities, 'turn complexity')
         
         ScatterPlot.plot2MetricsDF(metricManager.connectionRoadDF, 'turnComplexities', 'numberOfIncidentRoads')
+
+    
+    def test_drawRandomIntersectionConflictAreas(self):
+        intersections = self.loadIntersections("output/CL-intersections-10000.dill")
+        # intersections = intersections[:50]
+        print(f"imported {len(intersections)} intersections")
+        metricManager = MetricManager(intersections, startStats=False)
+        metricManager.drawRandomIntersectionConflictAreas(15)
+        pass

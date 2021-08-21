@@ -45,17 +45,20 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
 
     def test_generateWithHorizontalControlines(self):
 
-        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=2, randomizeDistance=False)
-        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 4)
-        # generator.grid.plot()
-        # extensions.printRoadPositions(odr)
-        xmlPath = f"output/test_generateWithHorizontalControlines.xodr"
-        odr.write_xml(xmlPath)
-        # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        for seed in range(1,20):
+            try:
+                generator = ControlLineBasedGenerator((600, 600), debug=True, seed=seed, randomizeDistance=False, randomizeHeading=True)
+                odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 4, plotGrid=False)
+
+                # xmlPath = f"output/test_generateWithHorizontalControlines.xodr"
+                # odr.write_xml(xmlPath)
+                extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+            except:
+                pass
 
     def test_generateWithHorizontalControlinesCurvy(self):
 
-        generator = ControlLineBasedGenerator((800, 800), debug=True, seed=2, randomizeDistance=True, randomizeHeading=True)
+        generator = ControlLineBasedGenerator((800, 800), debug=True, seed=1, randomizeDistance=True, randomizeHeading=True)
         odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlinesCurvy", 5)
         # generator.grid.plot()
         # extensions.printRoadPositions(odr)
@@ -64,13 +67,13 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
 
     def test_generateWithHorizontalControlinesBig(self):
-        generator = ControlLineBasedGenerator((2000, 2000), debug=True, seed=1, randomizeDistance=False, nLaneDistributionOnASide=[0.25, 0.7, 0.05, 0])
-        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlinesBig", 10)
+        generator = ControlLineBasedGenerator((5000, 5000), debug=True, seed=1, randomizeDistance=False, nLaneDistributionOnASide=[0.25, 0.7, 0.05, 0])
+        odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlinesBig", 20)
         # generator.grid.plot()
         # extensions.printRoadPositions(odr)
         xmlPath = f"output/test_generateWithHorizontalControlinesBig.xodr"
         odr.write_xml(xmlPath)
-        # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
 
     def test_generateWithHorizontalControlinesBig2Lane(self):
         generator = ControlLineBasedGenerator((2000, 2000), debug=True, seed=1, randomizeLanes=False, randomizeDistance=False)
@@ -132,3 +135,10 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
             print(f"writing out {len(intersections)}")
             print(dill.dump(intersections, handler))
             
+    def test_generateWithA(self):
+        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=1, randomizeHeading=True, randomizeDistance=False, nLaneDistributionOnASide=[0.2, 0.7, 0.1, 0], nLaneDistributionOnControlLines=[0, 0.2, 0.7, 0.1])
+        odr = generator.generateWithManualControlines("test_mapA", layout='A')
+
+        # xmlPath = f"output/test_generateWithManualControlLines2.xodr"
+        # odr.write_xml(xmlPath)
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 

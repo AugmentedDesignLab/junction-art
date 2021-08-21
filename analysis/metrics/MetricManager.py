@@ -8,10 +8,11 @@ import pandas as pd
 from datetime import datetime
 
 from draw.IntersectionDrawer import IntersectionDrawer
+import numpy as np
 
 class MetricManager:
 
-    def __init__(self, intersections: List[Intersection], metricConfigs = None) -> None:
+    def __init__(self, intersections: List[Intersection], metricConfigs = None, startStats=True) -> None:
         self.configuration = Configuration()
         self.name = "MetricManager"
         self.intersections = intersections
@@ -19,7 +20,8 @@ class MetricManager:
         self.connectionRoadDF = pd.DataFrame()
         self.incidentRoadDF = pd.DataFrame()
         self.intersectionDF = pd.DataFrame()
-        self.calculateIntersectionStatistics()
+        if startStats:
+            self.calculateIntersectionStatistics()
         pass
     
 
@@ -159,6 +161,14 @@ class MetricManager:
         self.connectionRoadDF.to_csv(connectionPath, index=False)
         self.intersectionDF.to_csv(intersectionPath, index=False)
 
+
+    def drawRandomIntersectionConflictAreas(self, n=5):
+
+        for _ in range(n):
+            i = np.random.randint(0, len(self.intersections))
+            if len(self.intersections[i].incidentRoads) == 3:
+                drawer = IntersectionDrawer(self.intersections[i], step=0.1)
+                drawer.draw_intersection_and_conflict_area_fill()
     
     
 

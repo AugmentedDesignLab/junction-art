@@ -156,6 +156,90 @@ class ControlLineBasedGenerator:
 
         pass
 
+    def createGridP(self):
+        self.continuationPairs = []
+        width = 100
+        line1 = ControlLine(1, (0,0), (100, 400))
+        line11 = ControlLine(2, (100,0), (200, 400))
+        line2 = ControlLine(3, (150, 600), (350, 1400))
+        line22 = ControlLine(4, (250, 600), (350, 1000))
+
+        lineH1 = ControlLine(5, (450, 400), (650, 400))
+        lineH2 = ControlLine(5, (450, 550), (650, 550))
+
+        self.lines= [line1, line11, line2, line22, lineH1, lineH2]
+        pairs = [(line1, line11), (line2, line22), (lineH1, lineH2)]
+        self.continuationPairs = [(line1, line2), (line11, line22), (line11, lineH1), (line22, lineH2)]
+
+        self.pairs = pairs
+        grid = ControlLineGrid(controlLinePairs=pairs, continuationPairs=self.continuationPairs, debug=True)
+
+        for pair in self.pairs:
+            grid.connectControlLinesWithRectsAndTriangles(pair)
+
+
+        for line in self.lines:
+            grid.connectControlPointsOnALine(line)
+
+        
+        grid.connectContinuationPairs()
+
+        self.grid = grid
+        self.grid.plotControlLines()
+        self.grid.plotConnections()
+        # self.grid.plot()
+
+
+    def createGridA(self):
+        self.continuationPairs = []
+        width = 100
+        line1 = ControlLine(1, (0,0), (100, 400))
+        line11 = ControlLine(2, (100,0), (200, 400))
+        line2 = ControlLine(3, (150, 600), (500, 2000))
+        line22 = ControlLine(4, (250, 600), (500, 1600))
+
+        lineH1 = ControlLine(5, (300, 400), (700, 400))
+        lineH2 = ControlLine(6, (300, 550), (700, 550))
+
+        line3 = ControlLine(7, (550, 1800), (850, 600))  # starts from 2 end
+        line33 = ControlLine(8, (550, 1400), (750, 600))
+
+        line4 = ControlLine(8, (900, 400), (1000, 0))
+        line44 = ControlLine(9, (800, 400), (850, 0)) # end of h2
+
+        self.lines= [line1, line11, line2, line22, lineH1, lineH2, line3, line33, line4, line44]
+        pairs = [(line1, line11), (line2, line22), (lineH1, lineH2), (line3, line33), (line4, line44)]
+        self.continuationPairs = [
+            (line1, line2, 'es'), 
+            (line11, line22, 'es'), 
+            (line11, lineH1, 'es'), 
+            (line22, lineH2, 'ss'),
+            (line22, line3, 'es'),
+            (line22, line33, 'es'),
+            (line3, line4, 'es'),
+            (line33, line44, 'es'),
+            (lineH2, line33, 'ee'),
+            (lineH1, line44, 'es')
+            ]
+
+        self.pairs = pairs
+        grid = ControlLineGrid(controlLinePairs=pairs, continuationPairs=self.continuationPairs, debug=True)
+
+        for pair in self.pairs:
+            grid.connectControlLinesWithRectsAndTriangles(pair)
+
+
+        for line in self.lines:
+            grid.connectControlPointsOnALine(line)
+
+        
+        grid.connectContinuationPairs()
+
+        self.grid = grid
+        self.grid.plotControlLines()
+        # self.grid.plotConnections()
+        self.grid.plot()
+
     
     def createTestGridWithHorizontalControlLines(self, nLines=5):
 
@@ -210,9 +294,13 @@ class ControlLineBasedGenerator:
     #endregion
 
     #region generator
-    def generateWithManualControlines(self, name):
+    def generateWithManualControlines(self, name, layout=None):
         # 1 grid creation
-        self.createTestGridWithHorizontalControlLines()
+        if layout == "A":
+            self.createGridA()
+            # return False
+        else:
+            self.createTestGridWithHorizontalControlLines()
 
         # 1.1
         # build clockwise adjacent points structure

@@ -272,13 +272,26 @@ class ControlLineGrid:
 
         line1 = pair[0]
         line2 = pair[1]
+
+        connectionEnds = 'ss'
+        if len(pair) > 2:
+            connectionEnds = pair[2]
+
         line1Copy = ControlLine(id=pair[0].id, start=pair[0].start, end=pair[0].end)
         line2Copy = ControlLine(id=pair[1].id, start=pair[1].start, end=pair[1].end)
 
         # TODO ideally we should create new control points at the end of line1 and at the start of line2 if not existing to avoid overlaps. But for now, we will live with existing
 
-        pointOnLine1 = line1.getLastPoint()
-        pointOnLine2 = line2.getFirstPoint()
+        if connectionEnds[0] == 's':
+            pointOnLine1 = line1.getFirstPoint()
+        else:
+            pointOnLine1 = line1.getLastPoint()
+        if connectionEnds[1] == 's':
+            pointOnLine2 = line2.getFirstPoint()
+        else:
+            pointOnLine2 = line2.getLastPoint()
+
+        # pointOnLine2 = line2.getFirstPoint()
 
         if pointOnLine1 is None or pointOnLine2 is None:
             if self.debug:

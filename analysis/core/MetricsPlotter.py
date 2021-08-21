@@ -362,3 +362,6 @@ class MetricsPlotter:
         ax.yaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
         ax.yaxis.set_major_formatter(ticker.ScalarFormatter())
         plt.show()
+
+    
+    
