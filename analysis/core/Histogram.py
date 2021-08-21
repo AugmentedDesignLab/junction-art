@@ -21,8 +21,8 @@ class Histogram:
         plt.show()
 
     @staticmethod
-    def plotMetricsDF(data, col, xlabel="", bins=10):
-        g = sns.displot(data=data, x=col, kde=True, bins=bins)
+    def plotMetricsDF(data, col, xlabel="", bins=10, kde=True):
+        g = sns.displot(data=data, x=col, kde=kde, bins=bins)
         if xlabel != "":
             g.set_axis_labels(xlabel, "Count")
 

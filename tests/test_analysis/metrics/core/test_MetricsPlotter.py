@@ -71,9 +71,15 @@ class test_MetricsPlotter(unittest.TestCase):
     
     def test_plotIntersectionPropertyHistGroupedByLegs(self):
         sns.set_context("talk")
-        self.plotter.plotIntersectionPropertyHist("numberOfIncidentRoads", xlabel="nIncidentRoads")
+        self.plotter.plotIntersectionPropertyHist("numberOfIncidentRoads", xlabel="nIncidentRoads", kde=False)
         self.plotter.plotIntersectionPropertyHistGroupedByLegs("numberOfConnectionRoads", xlabel="nConnectionRoads")
         self.plotter.plotIntersectionPropertyHistGroupedByLegs("area")
         self.plotter.plotIntersectionPropertyHistGroupedByLegs("conflictArea")
         self.plotter.plotIntersectionPropertyHistGroupedByLegs("conflictRatio")
         # sns.plotIntersectionPropertyHistGroupedByLegs("conflictArea")
+
+    
+    
+    def test_plotIntersectionHeatmaps(self):
+        sns.set_context("talk")
+        self.plotter.plotIntersectionHeatMaps(scale=10)

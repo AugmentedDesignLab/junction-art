@@ -151,6 +151,17 @@ class MetricsPlotter:
         # self.incidentRoadDF['cornerDeviation-level'] = pd.cut(self.incidentRoadDF['cornerDeviation'], bins=cvBins, labels=False)
         cvBins = np.linspace(0, 90, 90)
         self.incidentRoadDF['cornerDeviation-level'] = pd.cut(self.incidentRoadDF['cornerDeviation'], bins=cvBins, labels=False)
+
+        
+    def discretizeIntersectionDf(self, scale = 10):
+        areaBins = np.linspace(0, self.intersectionDF['area'].max(), int(self.intersectionDF['area'].max()) // scale)
+        self.intersectionDF['area-level'] = pd.cut(self.intersectionDF['area'], bins=areaBins, labels=False)
+
+
+        conflictBins = np.linspace(0, self.intersectionDF['conflictArea'].max(), int(self.intersectionDF['conflictArea'].max()) // scale )
+        self.intersectionDF['conflictArea-level'] = pd.cut(self.intersectionDF['conflictArea'], bins=conflictBins, labels=False)
+        return 
+
     
     def plotIncidentHeatMapsComplexity(self):
 
@@ -320,8 +331,34 @@ class MetricsPlotter:
         Histogram.plot2MetricsDFSep(self.intersectionDF, property, 'legs', bins=bins, xlabel=xlabel)
 
 
-    def plotIntersectionPropertyHist(self, property, bins=10, norm=False, xlabel=""):
-        Histogram.plotMetricsDF(self.intersectionDF, property, xlabel="Incident road distribution", bins=bins)
+    def plotIntersectionPropertyHist(self, property, bins=10, norm=False, xlabel="", kde=True):
+        Histogram.plotMetricsDF(self.intersectionDF, property, xlabel="nIncidentRoads", bins=bins, kde=kde)
 
         
     
+
+    def plotIntersectionHeatMaps(self, scale=10):
+
+        self.discretizeIntersectionDf(scale)
+        annot=False
+        tickMulti = 10
+
+        # areaBins = np.linspace(self.intersectionDF['area'].min(), self.intersectionDF['area'].max(), bins)
+        # conflictBins = np.linspace(self.intersectionDF['conflictArea'].min(), self.intersectionDF['conflictArea'].max(), bins)
+
+        # x_axis_labels = [int(x) for x in areaBins[:-1]]
+        # y_axis_labels = [int(x) for x in conflictBins[:-1]]
+
+        # print(x_axis_labels)
+        
+        heatDf = pd.crosstab(self.intersectionDF['conflictArea-level'], self.intersectionDF['area-level']).div(len(self.intersectionDF))
+        # ax = sns.heatmap(heatDf, annot=annot, xticklabels=x_axis_labels, yticklabels=y_axis_labels)
+        ax = sns.heatmap(heatDf, annot=annot)
+        ax.set_title("Heatmap Area & conflictArea")
+        ax.set_xlabel("Area")
+        ax.set_ylabel("conflictArea")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.xaxis.set_major_formatter(ticker.ScalarFormatter())
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(tickMulti))
+        ax.yaxis.set_major_formatter(ticker.ScalarFormatter())
+        plt.show()
