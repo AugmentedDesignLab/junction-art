@@ -9,7 +9,7 @@ class test_MetricsPlotter(unittest.TestCase):
         
         path= os.path.join(os.getcwd(), 'analysis/output')
 
-        date = "randlane/2021-08-20"
+        date = "randlane/2021-08-21"
 
         incidentPath = f"{path}/{date}-incidentRoadDF.csv"
         connectionPath = f"{path}/{date}-connectionRoadDF.csv"
@@ -37,7 +37,7 @@ class test_MetricsPlotter(unittest.TestCase):
 
 
     def test_plotIncidentHeatMapsCurvatureFov(self):
-        sns.set_context("talk")
+        # sns.set_context("talk")
         self.plotter.plotIncidentHeatMapsCurvatureFov()
     def test_Incident_ComplexityRelation(self):
         self.plotter.plotIncidentComplexityVs()
@@ -81,5 +81,9 @@ class test_MetricsPlotter(unittest.TestCase):
     
     
     def test_plotIntersectionHeatmaps(self):
-        sns.set_context("talk")
+        # sns.set_context("talk")
         self.plotter.plotIntersectionHeatMaps(scale=10)
+
+    
+    def test_printIntersectionHead(self):
+        self.plotter.printIntersectionHead()

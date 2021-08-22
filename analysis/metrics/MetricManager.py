@@ -51,25 +51,26 @@ class MetricManager:
         intersectionIds = []
         areas = []
         conflictAreas = []
-
+        intersectionCount = 0
         for intersection in self.intersections:
 
             if len(intersection.incidentRoads) < 3:
                 raise Exception("Metrics available for 3+ leg intersections only")
 
             try:
-                intersectionIds.append(intersection.id)
                 numberOfIncidentRoads.append(len(intersection.incidentRoads))
                 numberOfConnectionRoads.append(len(intersection.internalConnectionRoads))
-                # connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
 
                 area_dict = IntersectionDrawer(intersection, step=0.1).get_area_values(include_u_turn=False)
                 areas.append(area_dict['IntersectionArea'])
                 conflictAreas.append(area_dict['ConflictArea'])
+                
+                intersectionCount += 1
+                intersectionIds.append(intersectionCount)
 
                 
 
-                print(f"{self.name}: calculateIntersectionStatistics done for intersection {intersection.id}")
+                print(f"{self.name}: calculateIntersectionStatistics done for intersection {intersectionCount}")
             except Exception as e:
                 extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
                 logging.error(e)
@@ -79,6 +80,8 @@ class MetricManager:
         self.intersectionDF["numberOfIncidentRoads"] = pd.Series(numberOfIncidentRoads)
         self.intersectionDF["numberOfConnectionRoads"] = pd.Series(numberOfConnectionRoads)
         self.intersectionDF["id"] = pd.Series(intersectionIds)
+        # print(self.intersectionDF.columns)
+        self.intersectionDF.set_index([intersectionIds], inplace=True)
 
         self.intersectionDF['area'] = pd.Series(areas)
         self.intersectionDF['conflictArea'] = pd.Series(conflictAreas)
@@ -88,6 +91,8 @@ class MetricManager:
         
         self.calculateConnectionRoadStatistics()
         self.calculateIncidentRoadStatistics()
+
+        self.intersectionDF = self.addExtraSummaryForIntersections(self.intersectionDF, self.incidentRoadDF, self.connectionRoadDF)
         pass
 
     
@@ -96,17 +101,22 @@ class MetricManager:
         minPathLengthIntersection = self.getMinConnectionPath()
 
         frames = []
+        intersectionCount = 0
         for intersection in self.intersections:
             try:
                 connectionRoadComplexity = ConnectionRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
-                connectionRoadComplexity.connectRoadDf['intersectionId'] = intersection.id
                 connectionRoadComplexity.connectRoadDf['legs'] = len(intersection.incidentRoads)
-                frames.append(connectionRoadComplexity.connectRoadDf)
         
-                logging.debug(f"{self.name}: calculateConnectionRoadStatistics done for intersection {intersection.id}")
 
                 if connectionRoadComplexity.connectRoadDf['turnCurvature'].max() > 45:
                     self.viewIntersection(intersection)
+                
+                
+                intersectionCount += 1
+                connectionRoadComplexity.connectRoadDf['intersectionId'] = intersectionCount
+                frames.append(connectionRoadComplexity.connectRoadDf)
+
+                logging.debug(f"{self.name}: calculateConnectionRoadStatistics done for intersection {intersectionCount}")
 
             except Exception as e:
                 logging.error(e)
@@ -122,17 +132,21 @@ class MetricManager:
         minPathLengthIntersection = self.getMinConnectionPath()
         
         frames = []
+        intersectionCount = 0
         for intersection in self.intersections:
             try:
                 incidentRoadComplexity = IncidentRoadComplexity(intersection, minPathLengthIntersection=minPathLengthIntersection)
-                incidentRoadComplexity.incidentRoadDf['intersectionId'] = intersection.id
                 incidentRoadComplexity.incidentRoadDf['legs'] = len(intersection.incidentRoads)
-                frames.append(incidentRoadComplexity.incidentRoadDf)
 
-                logging.debug(f"{self.name}: calculateIncidentRoadStatistics done for intersection {intersection.id}")
 
                 if incidentRoadComplexity.incidentRoadDf['maxCurvatureNorm'].max() > 2:
                     self.viewIntersection(intersection)
+
+                intersectionCount += 1
+                incidentRoadComplexity.incidentRoadDf['intersectionId'] = intersectionCount
+                frames.append(incidentRoadComplexity.incidentRoadDf)
+
+                logging.debug(f"{self.name}: calculateIncidentRoadStatistics done for intersection {intersectionCount}")
 
             except Exception as e:
                 logging.error(e)
@@ -169,6 +183,19 @@ class MetricManager:
             if len(self.intersections[i].incidentRoads) == 3:
                 drawer = IntersectionDrawer(self.intersections[i], step=0.1)
                 drawer.draw_intersection_and_conflict_area_fill()
+
+    
+    @staticmethod
+    def addExtraSummaryForIntersections(intersectionDF:pd.DataFrame, incidentDF:pd.DataFrame, connectionDF:pd.DataFrame=None):
+
+        # fov
+        groupedIncidentDF = incidentDF.groupby(['intersectionId']).max()[['fov', 'maxCurvature', 'complexity_avg', 'cornerDeviation']]
+
+        print(groupedIncidentDF.head())
+        print(groupedIncidentDF.index)
+        intersectionDF = intersectionDF.join(groupedIncidentDF, how='left')
+
+        return intersectionDF
     
     
 
