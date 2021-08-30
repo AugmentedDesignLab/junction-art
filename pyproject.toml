@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "JunctionArt"
+version = "0.1.0"
+description = "Procedural HD Map and Intersection Generator"
+authors = ["Adhocmaster <adhocmaster@live.com>"]
+license = "Mozilla Public License Version 2.0"
+packages = [
+    {include="junctionart", from="src"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,2 @@
+class IncompatibleRoadsException(Exception):
+    pass
