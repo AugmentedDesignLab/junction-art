@@ -30,8 +30,8 @@ release = '1.0.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-]
+
+extensions = ['myst_parser']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -53,3 +53,16 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+myst_enable_extensions = [
+  "colon_fence",
+]
+
+
+language = "en"
+myst_html_meta = {
+    "description lang=en": "Procedural Generation of Intersections and HD Maps for Autonomous Vehicle Development and Test.",
+    "keywords": "JunctionArt, Road Generator, HD Map generator OpenDrive, Opendrive road generator, Carla HD Maps, Autonomous Vehicles Map Generator",
+    "property=og:locale":  "en_US"
+}

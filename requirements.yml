@@ -69,10 +69,12 @@ dependencies:
   - m2w64-gcc-libs-core=5.3.0=7
   - m2w64-gmp=6.1.0=2
   - m2w64-libwinpthread-git=5.0.0.4634.697f757=2
+  - markdown-it-py=1.1.0=pyhd8ed1ab_0
   - markupsafe=1.1.1=py37hfa6e2cd_1
   - matplotlib=3.3.2=0
   - matplotlib-base=3.3.2=py37hba9282a_0
   - mccabe=0.6.1=py37_1
+  - mdit-py-plugins=0.2.8=pyhd8ed1ab_0
   - mistune=0.8.4=py37hfa6e2cd_1001
   - mkl=2020.2=256
   - mkl-service=2.3.0=py37h196d8e1_0
@@ -81,6 +83,7 @@ dependencies:
   - more-itertools=8.6.0=pyhd3eb1b0_0
   - mpmath=1.1.0=py37_0
   - msys2-conda-epoch=20160418=1
+  - myst-parser=0.15.1=pyhd8ed1ab_0
   - nbclient=0.5.1=py_0
   - nbconvert=6.0.7=py37_0
   - nbformat=5.0.8=py_0
@@ -150,6 +153,7 @@ dependencies:
   - tornado=6.1=py37h2bbff1b_0
   - traitlets=5.0.5=py_0
   - typed-ast=1.4.1=py37he774522_0
+  - typing_extensions=3.10.0.0=pyha770c72_0
   - urllib3=1.26.3=pyhd3eb1b0_0
   - vc=14.2=h21ff451_1
   - vs2015_runtime=14.27.29016=h5e58377_2

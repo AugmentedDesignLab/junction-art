@@ -10,6 +10,10 @@ Welcome to JunctionArt's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   installation.md
+   user-guide.md
+   dev-guide.md
+
 
 
 Indices and tables
