@@ -1,6 +1,8 @@
 # Junction Art
 Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Development and Test. It's built using [pyodrx](https://github.com/pyoscx/pyodrx) library. It generates road networks in [Open drive](https://www.asam.net/standards/detail/opendrive/) format. Detailed documentation with architecture can be found in the **docs* folder of the repository.
 
+**The documentation moved to [https://junctionart.readthedocs.io/](https://junctionart.readthedocs.io/)**
+
 # Installation
 
 **Steps**:
