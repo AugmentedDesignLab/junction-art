@@ -25,7 +25,7 @@ Remove **--prune** if you need the existing python packages installed in your en
 ### Option 2: Install via pip
 
 :::{code-block} python
-$ pip install -r requirements.txt
+$ pip install -r requirements-pip.txt
 :::
 
 (section-install-pypi)=
