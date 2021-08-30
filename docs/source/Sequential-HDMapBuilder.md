@@ -1,4 +1,4 @@
-## Algorithm
+## Sequential HD Map Builder
 
 1. A collection of intersections, curves into unplaced segments
 2. A collection of road segments(no intersection) into unplaced connection roads

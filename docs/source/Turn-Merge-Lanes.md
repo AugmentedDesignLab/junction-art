@@ -1,6 +1,6 @@
-# Turn and Merge Lanes:
+# Turn and Merge Lanes
 
-# Usage
+## Usage
 There are 3 variations of turn lanes:
 
 ### 1. Turn lanes at the end of a side:
@@ -57,12 +57,12 @@ Similarly, merge lanes have similar structures. Merge lanes at the beginning of 
 <br>
 <br>
 
-# Architecture
+## Architecture
 
 
 ![leftTurnLaneOnRightWithMerge-Architecture](images/leftTurnLaneOnRightWithMerge-Architecture.png)
 
-## 3 Lane Sections
+### 3 Lane Sections
 
 To create turn lanes we create 3 consecutive lane sections starting at s=0. s=1, s=roadLength-1.
 
@@ -76,7 +76,7 @@ So, for on turn lane in a side with an existing lane, the first section will hav
 
 This simplifies a lot of calculations for consecutive roads, road signs, etc.
 
-## Lane Offset Calculations:
+### Lane Offset Calculations:
 
 For turn lanes at *only the beginning* of a side, the center lane is shifted up or down from the reference line (Which have the same effect has reference lines shifted down or up). Special functions available in RoadLinker to adjust laneOffsets of sucessor roads.
 
