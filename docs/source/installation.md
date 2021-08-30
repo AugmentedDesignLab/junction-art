@@ -6,8 +6,6 @@ You can use JunctionArt as an intersection and road generator, or you can use it
 (section-install-source)=
 ## Installing from source
 
-## Installing from source2
-
 1. Clone the repository from *https://github.com/AugmentedDesignLab/junction-art*
 2. Install it from the root folder of the project.
 

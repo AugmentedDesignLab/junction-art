@@ -1,4 +1,4 @@
-# Keypoints
+# Keypoints of Junction Architecture
 
 1. The successor or predecessor of an incident road is a junction object, not a road object.
 2. For each incident road, we are creating a set of connection roads from its incoming lanes. So, in the juncttion description, these connection roads need to be included. The data we need here are: laneConfigurations, contact points between the incoming road and connection road, lane links of the incoming road and the connection road.
