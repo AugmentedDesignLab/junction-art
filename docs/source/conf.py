@@ -36,6 +36,9 @@ extensions = [
     'myst_parser',
     'sphinx.ext.autosectionlabel',
     'sphinx_rtd_theme',
+    'sphinx.ext.autodoc', 
+    'sphinx.ext.coverage', 
+    'sphinx.ext.napoleon'
     ]
 autosectionlabel_prefix_document = True
 
