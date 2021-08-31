@@ -80,7 +80,6 @@ class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):
         odr = self.builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
                                                                           firstRoadId=100,
                                                                           roadDefinition=roadDefinition,
-                                                                          firstRoadId=10,
                                                                           straightRoadLen=40,
                                                                           getAsOdr=True)
         extensions.printRoadPositions(odr)
