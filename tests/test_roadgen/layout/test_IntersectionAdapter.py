@@ -1,14 +1,14 @@
 import unittest
-from junctions.Intersection import Intersection
-from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+from junctionart.junctions.Intersection import Intersection
+from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 import junctionart.extensions as extensions, os
 import numpy as np
-from library.Configuration import Configuration
-from junctions.LaneConfiguration import LaneConfigurationStrategies
-import pyodrx
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
+import pyodrx as pyodrx
 import logging
 
-from roadgen.layout.IntersectionAdapter import IntersectionAdapter
+from junctionart.roadgen.layout.IntersectionAdapter import IntersectionAdapter
 logging.basicConfig(level=logging.INFO)
 
 

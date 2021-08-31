@@ -14,8 +14,8 @@ from .geometry import Line, Arc, Spiral, EulerSpiral, PlanView
 from .opendrive import Road, OpenDrive
 from .links import Junction, Connection, _get_related_lanesection
 
-from junctions.StandardCurveTypes import StandardCurveTypes
-import extensions
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
+import junctionart.extensions as extensions
 
 from .exceptions import *
 

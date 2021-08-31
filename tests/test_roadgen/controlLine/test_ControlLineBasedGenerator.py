@@ -1,10 +1,10 @@
 import unittest, math, dill
-from roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
-from roadgen.controlLine.ControlPoint import ControlPoint
-from library.Configuration import Configuration
-from extensions.CountryCodes import CountryCodes
-from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
-from roadgen.controlLine.ControlLineBasedGenerator import ControlLineBasedGenerator
+from junctionart.roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
+from junctionart.roadgen.controlLine.ControlPoint import ControlPoint
+from junctionart.library.Configuration import Configuration
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
+from junctionart.roadgen.controlLine.ControlLineBasedGenerator import ControlLineBasedGenerator
 import junctionart.extensions as extensions, os, logging
 import numpy as np
 import traceback

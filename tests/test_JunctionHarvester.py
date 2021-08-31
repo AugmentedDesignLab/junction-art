@@ -2,10 +2,10 @@ import unittest
 
 import numpy as np
 import os, dill
-import pyodrx 
+import pyodrx as pyodrx 
 
-from junctions.JunctionHarvester import JunctionHarvester
-from library.Configuration import Configuration
+from junctionart.junctions.JunctionHarvester import JunctionHarvester
+from junctionart.library.Configuration import Configuration
 
 
 class test_JunctionHarvester(unittest.TestCase):

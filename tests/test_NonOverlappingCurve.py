@@ -1,10 +1,10 @@
 import unittest
-import pyodrx, extensions
-from library.Configuration import Configuration
+import pyodrx as pyodrx, extensions
+from junctionart.library.Configuration import Configuration
 import numpy as np
-from junctions.RoadBuilder import RoadBuilder
-from junctions.JunctionBuilder import JunctionBuilder
-from junctions.AngleCurvatureMap import AngleCurvatureMap
+from junctionart.junctions.RoadBuilder import RoadBuilder
+from junctionart.junctions.JunctionBuilder import JunctionBuilder
+from junctionart.junctions.AngleCurvatureMap import AngleCurvatureMap
 import math
 
 

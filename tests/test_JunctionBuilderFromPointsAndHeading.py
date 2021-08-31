@@ -1,9 +1,9 @@
 
-import pyodrx
-from extensions.CountryCodes import CountryCodes
+import pyodrx as pyodrx
+from junctionart.extensions.CountryCodes import CountryCodes
 import unittest
-from library.Configuration import Configuration
-from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
 import junctionart.extensions as extensions, os
 import math
 

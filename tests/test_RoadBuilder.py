@@ -1,14 +1,14 @@
 import unittest, os
-from junctions.RoadBuilder import RoadBuilder
+from junctionart.junctions.RoadBuilder import RoadBuilder
 from scipy.interpolate import CubicHermiteSpline
-from junctions.JunctionHarvester import JunctionHarvester
+from junctionart.junctions.JunctionHarvester import JunctionHarvester
 import numpy as np
-import pyodrx, extensions
-from junctions.JunctionBuilder import JunctionBuilder
-from library.Configuration import Configuration
+import pyodrx as pyodrx, extensions
+from junctionart.junctions.JunctionBuilder import JunctionBuilder
+from junctionart.library.Configuration import Configuration
 import junctions
 
-from junctions.Direction import CircularDirection
+from junctionart.junctions.Direction import CircularDirection
 
 class test_RoadBuilder(unittest.TestCase):
 

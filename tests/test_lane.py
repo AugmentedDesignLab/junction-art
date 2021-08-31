@@ -1,7 +1,7 @@
 import pytest
 
 
-import pyodrx 
+import pyodrx as pyodrx 
 
 def test_roadline():
     line = pyodrx.RoadLine()

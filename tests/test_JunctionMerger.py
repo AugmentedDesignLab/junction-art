@@ -2,10 +2,10 @@ import unittest
 
 import numpy as np
 import os, dill
-import pyodrx 
-from junctions.JunctionMerger import JunctionMerger
+import pyodrx as pyodrx 
+from junctionart.junctions.JunctionMerger import JunctionMerger
 import junctionart.extensions as extensions
-from library.Configuration import Configuration
+from junctionart.library.Configuration import Configuration
 
 class test_JunctionMerger(unittest.TestCase):
 

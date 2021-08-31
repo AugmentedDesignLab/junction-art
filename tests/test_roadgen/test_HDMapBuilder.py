@@ -1,8 +1,8 @@
 import unittest
 
 from matplotlib.pyplot import plot
-from roadgen.HDMapBuilder import HDMapBuilder
-from library.Configuration import Configuration
+from junctionart.roadgen.HDMapBuilder import HDMapBuilder
+from junctionart.library.Configuration import Configuration
 import junctionart.extensions as extensions, os
 import logging
 logfile = 'HDMapBuilder.log'

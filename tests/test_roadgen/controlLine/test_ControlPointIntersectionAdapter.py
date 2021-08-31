@@ -1,11 +1,11 @@
 from pyodrx.enumerations import ContactPoint
-import pyodrx
+import pyodrx as pyodrx
 import unittest, math
-from roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
-from roadgen.controlLine.ControlPoint import ControlPoint
-from library.Configuration import Configuration
-from extensions.CountryCodes import CountryCodes
-from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
+from junctionart.roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
+from junctionart.roadgen.controlLine.ControlPoint import ControlPoint
+from junctionart.library.Configuration import Configuration
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
 import junctionart.extensions as extensions, os
 import logging
 logging.basicConfig(level=logging.INFO)

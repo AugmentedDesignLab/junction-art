@@ -1,14 +1,14 @@
 import unittest
-# from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+# from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 
 import os
 import numpy as np
-from src.junctionart.library.Configuration import Configuration
-from src.junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
-from src.junctionart.junctions.IntersectionValidator import IntersectionValidator
-from src.junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
-import src.junctionart.extensions as extensions
-import pyodrx
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctionart.junctions.IntersectionValidator import IntersectionValidator
+from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+import junctionart.extensions as extensions
+import pyodrx as pyodrx
 import logging
 logging.basicConfig(level=logging.INFO)
 

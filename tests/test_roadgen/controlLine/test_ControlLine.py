@@ -1,6 +1,6 @@
 import unittest, math
 
-from roadgen.controlLine.ControlLine import ControlLine
+from junctionart.roadgen.controlLine.ControlLine import ControlLine
 
 class test_ControlLine(unittest.TestCase):
 

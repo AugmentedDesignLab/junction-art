@@ -1,5 +1,5 @@
 import unittest
-from library.Combinator import Combinator
+from junctionart.library.Combinator import Combinator
 
 class test_Combinator(unittest.TestCase):
 

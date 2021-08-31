@@ -1,6 +1,6 @@
 import unittest
 
-from roadgen.definitions.LineSegment import LineSegment
+from junctionart.roadgen.definitions.LineSegment import LineSegment
 
 class test_LineSegment(unittest.TestCase):
 

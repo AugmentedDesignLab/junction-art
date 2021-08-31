@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
-from roadgen.layout.Grid import Grid
-from roadgen.layout.MapBuilder import MapBuilder
-from roadgen.definitions.DirectionIntersection import DirectionIntersection
-from roadgen.definitions.DirectionQuadrant import DirectionQuadrant
+from junctionart.roadgen.layout.Grid import Grid
+from junctionart.roadgen.layout.MapBuilder import MapBuilder
+from junctionart.roadgen.definitions.DirectionIntersection import DirectionIntersection
+from junctionart.roadgen.definitions.DirectionQuadrant import DirectionQuadrant
 
 
 class test_MapBuilder(unittest.TestCase):

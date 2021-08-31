@@ -2,11 +2,11 @@
 import unittest, os
 import numpy as np
 
-from library.Configuration import Configuration
-from junctions.threeWayJunction import ThreeWayJunctionBuilder
-import pyodrx
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.threeWayJunction import ThreeWayJunctionBuilder
+import pyodrx as pyodrx
 import junctionart.extensions as extensions
-from junctions.ODRHelper import ODRHelper
+from junctionart.junctions.ODRHelper import ODRHelper
 
 class test_ODRHelper(unittest.TestCase):
 

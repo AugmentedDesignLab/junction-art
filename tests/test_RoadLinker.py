@@ -2,20 +2,20 @@ import unittest
 
 import numpy as np
 import os, dill, math
-import pyodrx 
-from junctions.JunctionMerger import JunctionMerger
+import pyodrx as pyodrx 
+from junctionart.junctions.JunctionMerger import JunctionMerger
 import junctionart.extensions as extensions
-from library.Configuration import Configuration
-from junctions.JunctionBuilder import JunctionBuilder
-from junctions.RoadBuilder import RoadBuilder
-from junctions.LaneBuilder import LaneBuilder
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.JunctionBuilder import JunctionBuilder
+from junctionart.junctions.RoadBuilder import RoadBuilder
+from junctionart.junctions.LaneBuilder import LaneBuilder
 
-from junctions.LaneLinker import LaneLinker
+from junctionart.junctions.LaneLinker import LaneLinker
 
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from junctions.CurveRoadBuilder import CurveRoadBuilder
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.junctions.CurveRoadBuilder import CurveRoadBuilder
 
-from junctions.RoadLinker import RoadLinker
+from junctionart.junctions.RoadLinker import RoadLinker
 
 
 class test_RoadLiner(unittest.TestCase):

@@ -1,9 +1,9 @@
 import os
 import junctionart.extensions as extensions
 import unittest
-import pyodrx
-from library.Configuration import Configuration
-from junctions.JunctionBuilderFromRoadDefinition import JunctionBuilderFromRoadDefinition
+import pyodrx as pyodrx
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.JunctionBuilderFromRoadDefinition import JunctionBuilderFromRoadDefinition
 
 
 class test_JunctionBuilderFromRoadDefinition(unittest.TestCase):
