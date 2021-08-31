@@ -1,10 +1,10 @@
 from abc import ABC
 from enum import Enum
 import numpy as np
-from extensions.ExtendedRoad import ExtendedRoad
-from extensions.ExtendedLaneSection import ExtendedLaneSection
-from library.Configuration import Configuration
-from extensions.CountryCodes import CountryCodes
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
+from junctionart.extensions.ExtendedLaneSection import ExtendedLaneSection
+from junctionart.library.Configuration import Configuration
+from junctionart.extensions.CountryCodes import CountryCodes
 import pyodrx
 
 class LaneConfigurationStrategies(Enum):
@@ -223,13 +223,15 @@ class LaneConfiguration(ABC):
         if len(incomingLanes) > len(outgoingLanes):
             raise Exception("# of incoming lanes is greater than # of outgoing lanes in this intersection")
 
-        if strategy == LaneConfigurationStrategies.SPLIT_ANY:
+        if strategy.value == LaneConfigurationStrategies.SPLIT_ANY.value:
             strategy = LaneConfigurationStrategies.getRandomAvailableSplitStrategy()
 
-        if strategy == LaneConfigurationStrategies.SPLIT_LAST:
+        if strategy.value == LaneConfigurationStrategies.SPLIT_LAST.value:
             return LaneConfiguration.getIntersectionLinks1ToManyBySplittingLast(incomingLanes, outgoingLanes)
-        if strategy == LaneConfigurationStrategies.SPLIT_FIRST:
+        if strategy.value == LaneConfigurationStrategies.SPLIT_FIRST.value:
             return LaneConfiguration.getIntersectionLinks1ToManyBySplittingFirst(incomingLanes, outgoingLanes)
+        
+        raise Exception(f"LaneConfiguration: getIntersectionLinks1ToMany: no strategies matched {strategy}")
 
         
     @staticmethod

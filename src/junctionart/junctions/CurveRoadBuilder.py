@@ -1,22 +1,21 @@
 import numpy as np
 import os
 import pyodrx
-import extensions
 import math
 
-from junctions.LaneSides import LaneSides
-from junctions.StandardCurvatures import StandardCurvature
-from junctions.StandardCurveTypes import StandardCurveTypes
-from extensions.ExtendedRoad import ExtendedRoad
-from extensions.ExtendedPlanview import ExtendedPlanview
+from junctionart.junctions.LaneSides import LaneSides
+from junctionart.junctions.StandardCurvatures import StandardCurvature
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
+from junctionart.extensions.ExtendedPlanview import ExtendedPlanview
 from scipy.interpolate import CubicHermiteSpline
 
-from junctions.RoadSeries import RoadSeries
-from junctions.Direction import CircularDirection
-from junctions.Geometry import Geometry
-from junctions.LaneBuilder import LaneBuilder
-from extensions.CountryCodes import CountryCodes
-import extensions
+from junctionart.junctions.RoadSeries import RoadSeries
+from junctionart.junctions.Direction import CircularDirection
+from junctionart.junctions.Geometry import Geometry
+from junctionart.junctions.LaneBuilder import LaneBuilder
+from junctionart.extensions.CountryCodes import CountryCodes
+import junctionart.extensions as extensions
 
 
 class CurveRoadBuilder:

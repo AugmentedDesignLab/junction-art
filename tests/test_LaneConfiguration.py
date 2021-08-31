@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import os, dill
 import pyodrx 
-import extensions
+import junctionart.extensions as extensions
 from library.Configuration import Configuration
 from junctions.LaneConfiguration import LaneConfigurationStrategies, LaneConfiguration
 from extensions.ExtendedLaneSection import ExtendedLaneSection

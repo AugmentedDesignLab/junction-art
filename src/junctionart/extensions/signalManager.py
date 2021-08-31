@@ -1,7 +1,7 @@
 # Handles the automated signal placement.
 # Takes the road object as parameter and instantiates the signal object with the correct attributes. 
 from pyodrx.signals import Signals, Signal
-import extensions
+import junctionart.extensions as extensions
 
 
 class SignalManager:

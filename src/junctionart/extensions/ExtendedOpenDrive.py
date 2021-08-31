@@ -1,4 +1,4 @@
-import pyodrx, extensions
+import pyodrx
 import xml.etree.ElementTree as ET
 from pyodrx.enumerations import ElementType, ContactPoint
 from pyodrx.links import _Link, _Links, create_lane_links
@@ -6,6 +6,7 @@ import numpy as np
 from itertools import combinations
 import math
 import logging
+import junctionart.extensions as extensions
 
 
 class ExtendedOpenDrive(pyodrx.OpenDrive):

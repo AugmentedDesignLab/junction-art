@@ -3,20 +3,20 @@ import os, math
 import pyodrx 
 import math
 import dill
-from junctions.RoadBuilder import RoadBuilder
-from junctions.StandardCurvatures import StandardCurvature
-from junctions.StandardCurveTypes import StandardCurveTypes
-from junctions.JunctionMerger import JunctionMerger
-import extensions
-from junctions.moreExceptions import *
-from junctions.AngleCurvatureMap import AngleCurvatureMap
+from junctionart.junctions.RoadBuilder import RoadBuilder
+from junctionart.junctions.StandardCurvatures import StandardCurvature
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.junctions.JunctionMerger import JunctionMerger
+import junctionart.extensions as extensions
+from junctionart.junctions.moreExceptions import *
+from junctionart.junctions.AngleCurvatureMap import AngleCurvatureMap
 import logging
-from junctions.JunctionBuilder import JunctionBuilder
+from junctionart.junctions.JunctionBuilder import JunctionBuilder
 
-from library.Configuration import Configuration
-from junctions.RoadLinker import RoadLinker
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.RoadLinker import RoadLinker
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 
 
 class JunctionHarvester:

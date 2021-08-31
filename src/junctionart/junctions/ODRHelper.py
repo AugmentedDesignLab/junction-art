@@ -1,9 +1,9 @@
-from extensions.ExtendedPredecessor import ExtendedPredecessor
+from junctionart.extensions.ExtendedPredecessor import ExtendedPredecessor
 import pyodrx
-from extensions.ExtendedOpenDrive import ExtendedOpenDrive
-from junctions.LaneLinker import LaneLinker
-from junctions.RoadLinker import RoadLinker
-from extensions.ExtendedRoad import ExtendedRoad
+from junctionart.extensions.ExtendedOpenDrive import ExtendedOpenDrive
+from junctionart.junctions.LaneLinker import LaneLinker
+from junctionart.junctions.RoadLinker import RoadLinker
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
 
 from typing import Dict, List
 

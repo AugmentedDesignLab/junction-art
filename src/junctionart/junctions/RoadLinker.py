@@ -1,6 +1,6 @@
 import pyodrx
 import logging
-from extensions.ExtendedRoad import ExtendedRoad
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
 import math
 import numpy as np
 

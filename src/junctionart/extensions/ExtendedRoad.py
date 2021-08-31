@@ -2,12 +2,12 @@ import pyodrx
 from copy import copy
 import numpy as np
 import math
-import extensions
+import junctionart.extensions as extensions
 from pyodrx.signals import Signals
-from junctions.StandardCurveTypes import StandardCurveTypes
-from junctions.Geometry import Geometry
-from extensions.ExtendedPredecessor import ExtendedPredecessor
-from extensions.ExtendedSuccessor import ExtendedSuccessor
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.junctions.Geometry import Geometry
+from junctionart.extensions.ExtendedPredecessor import ExtendedPredecessor
+from junctionart.extensions.ExtendedSuccessor import ExtendedSuccessor
 
 class ExtendedRoad(pyodrx.Road):
 

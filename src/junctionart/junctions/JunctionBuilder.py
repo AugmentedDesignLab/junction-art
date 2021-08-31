@@ -1,19 +1,19 @@
 import pyodrx, math
-from junctions.RoadBuilder import RoadBuilder
+from junctionart.junctions.RoadBuilder import RoadBuilder
 import numpy as np
-import extensions
-from junctions.LaneSides import LaneSides
-from junctions.Direction import CircularDirection
-from junctions.JunctionAreaTypes import JunctionAreaTypes
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from extensions.ExtendedRoad import ExtendedRoad
-from junctions.RoadLinker import RoadLinker
-from junctions.LaneBuilder import LaneBuilder
-from junctions.CurveRoadBuilder import CurveRoadBuilder
-from extensions.CountryCodes import CountryCodes
-from junctions.ConnectionBuilder import ConnectionBuilder
-from library.Configuration import Configuration
-from junctions.LaneMarkGenerator import LaneMarkGenerator
+import junctionart.extensions as extensions
+from junctionart.junctions.LaneSides import LaneSides
+from junctionart.junctions.Direction import CircularDirection
+from junctionart.junctions.JunctionAreaTypes import JunctionAreaTypes
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
+from junctionart.junctions.RoadLinker import RoadLinker
+from junctionart.junctions.LaneBuilder import LaneBuilder
+from junctionart.junctions.CurveRoadBuilder import CurveRoadBuilder
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.ConnectionBuilder import ConnectionBuilder
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.LaneMarkGenerator import LaneMarkGenerator
 
 class JunctionBuilder:
     

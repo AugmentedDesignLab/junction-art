@@ -1,5 +1,5 @@
 import unittest
-import extensions
+import junctionart.extensions as extensions
 import os
 from library.Configuration import Configuration
 

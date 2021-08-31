@@ -1,7 +1,7 @@
 import unittest
 from junctions.Intersection import Intersection
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
-import extensions, os
+import junctionart.extensions as extensions, os
 import numpy as np
 from library.Configuration import Configuration
 from junctions.LaneConfiguration import LaneConfigurationStrategies

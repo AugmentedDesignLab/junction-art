@@ -1,8 +1,8 @@
 import numpy as np
 import math
 
-from junctions.StandardCurvatures import StandardCurvature
-from junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.junctions.StandardCurvatures import StandardCurvature
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
 
 class AngleCurvatureMap:
 

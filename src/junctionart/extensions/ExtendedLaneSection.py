@@ -1,5 +1,5 @@
 import pyodrx
-from junctions.Geometry import Geometry
+from junctionart.junctions.Geometry import Geometry
 
 
 class ExtendedLaneSection(pyodrx.LaneSection):

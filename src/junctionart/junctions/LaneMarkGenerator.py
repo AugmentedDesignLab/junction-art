@@ -1,10 +1,10 @@
-from junctions.Intersection import Intersection
+from junctionart.junctions.Intersection import Intersection
 import pyodrx
 from enum import Enum
-from extensions.CountryCodes import CountryCodes
-from extensions.ExtendedRoad import ExtendedRoad
-from extensions.ExtendedLaneSection import ExtendedLaneSection
-from library.Combinator import Combinator
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
+from junctionart.extensions.ExtendedLaneSection import ExtendedLaneSection
+from junctionart.library.Combinator import Combinator
 from typing import List
 
 

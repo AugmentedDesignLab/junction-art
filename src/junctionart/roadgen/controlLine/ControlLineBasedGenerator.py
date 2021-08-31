@@ -14,8 +14,8 @@ from junctionart.junctions.LaneBuilder import LaneBuilder
 from junctionart.junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
 from junctionart.extensions.CountryCodes import CountryCodes
 from junctionart.junctions.LaneMarkGenerator import LaneMarkGenerator
-from library.Combinator import Combinator
-import junctionart.extensions
+from junctionart.library.Combinator import Combinator
+import junctionart.extensions as extensions
 import logging, math, pyodrx
 import numpy as np
 import dill

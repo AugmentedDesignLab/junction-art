@@ -1,21 +1,21 @@
-import junctions
-from junctions.LaneSides import LaneSides
+import junctionart.junctions
+from junctionart.junctions.LaneSides import LaneSides
 import pyodrx
-import extensions
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from junctions.ODRHelper import ODRHelper
+import junctionart.extensions as extensions
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.junctions.ODRHelper import ODRHelper
 import math
-from junctions.JunctionBuilder import JunctionBuilder
+from junctionart.junctions.JunctionBuilder import JunctionBuilder
 import copy
-from junctions.RoadLinker import RoadLinker
-from junctions.LaneBuilder import LaneBuilder
-from junctions.LaneConfiguration import LaneConfiguration
-from extensions.CountryCodes import CountryCodes
-from junctions.ConnectionBuilder import ConnectionBuilder
-from junctions.LaneConfiguration import LaneConfigurationStrategies
-from junctions.Intersection import Intersection
-from junctions.JunctionDef import JunctionDef
-from junctions.LaneMarkGenerator import LaneMarkGenerator
+from junctionart.junctions.RoadLinker import RoadLinker
+from junctionart.junctions.LaneBuilder import LaneBuilder
+from junctionart.junctions.LaneConfiguration import LaneConfiguration
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.ConnectionBuilder import ConnectionBuilder
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctionart.junctions.Intersection import Intersection
+from junctionart.junctions.JunctionDef import JunctionDef
+from junctionart.junctions.LaneMarkGenerator import LaneMarkGenerator
 
 
 class JunctionBuilderFromPointsAndHeading():

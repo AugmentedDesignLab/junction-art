@@ -11,10 +11,10 @@ import math
 import matplotlib.pyplot as plt
 from numpy.lib.function_base import append
 from .ExtendedOpenDrive import ExtendedOpenDrive
-from junctions.LaneLinker import LaneLinker
-from junctions.RoadLinker import RoadLinker
-from junctions.Geometry import Geometry
-from extensions.ExtendedRoad import ExtendedRoad
+from junctionart.junctions.LaneLinker import LaneLinker
+from junctionart.junctions.RoadLinker import RoadLinker
+from junctionart.junctions.Geometry import Geometry
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
 import dill
 import logging
 import numpy as np

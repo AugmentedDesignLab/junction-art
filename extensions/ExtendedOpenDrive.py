@@ -1,11 +1,13 @@
-import pyodrx, extensions
+import pyodrx
 import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import Element
 from pyodrx.enumerations import ElementType, ContactPoint
 from pyodrx.links import _Link, _Links, create_lane_links
 import numpy as np
 from itertools import combinations
 import math
 import logging
+import extensions
 
 
 class ExtendedOpenDrive(pyodrx.OpenDrive):
@@ -62,8 +64,9 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
         """ returns the elementTree of the FileHeader
 
         """
-        element = ET.Element('OpenDRIVE')
-        element.append(self._header.get_element())
+        element = Element('OpenDRIVE')
+        headerElement = self._header.get_element()
+        element.append(headerElement)
         for r in self.roads:
             roadElement = self.roads[r].get_element()
             if roadElement is not None:

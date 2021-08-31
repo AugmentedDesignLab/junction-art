@@ -1,7 +1,7 @@
-from extensions.ExtendedRoad import ExtendedRoad
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
 import pyodrx
 import numpy as np
-from junctions.ODRHelper import ODRHelper
+from junctionart.junctions.ODRHelper import ODRHelper
 from typing import List
 
 class Intersection:

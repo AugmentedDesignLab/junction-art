@@ -1,5 +1,5 @@
 import os
-import extensions
+import junctionart.extensions as extensions
 import unittest
 import pyodrx
 from library.Configuration import Configuration

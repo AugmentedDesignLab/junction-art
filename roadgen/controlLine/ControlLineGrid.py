@@ -273,7 +273,7 @@ class ControlLineGrid:
         line1 = pair[0]
         line2 = pair[1]
 
-        connectionEnds = 'ss'
+        connectionEnds = 'es'
         if len(pair) > 2:
             connectionEnds = pair[2]
 

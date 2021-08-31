@@ -1,6 +1,6 @@
 import pyodrx
 import xml.etree.ElementTree as ET
-import extensions
+import junctionart.extensions as extensions
 
 
 class ExtendedLanes(pyodrx.Lanes):

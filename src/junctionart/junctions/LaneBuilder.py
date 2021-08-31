@@ -1,17 +1,17 @@
 import pyodrx
-import junctions
-import extensions
+import junctionart.junctions
+import junctionart.extensions as extensions
 import math
-from junctions.LaneSides import LaneSides
-from extensions.LaneOffset import LaneOffset
-from junctions.TurnTypes import TurnTypes
-from extensions.ExtendedLane import ExtendedLane
-from junctions.LaneConfiguration import LaneConfigurationStrategies, LaneConfiguration
-from extensions.ExtendedRoad import ExtendedRoad
+from junctionart.junctions.LaneSides import LaneSides
+from junctionart.extensions.LaneOffset import LaneOffset
+from junctionart.junctions.TurnTypes import TurnTypes
+from junctionart.extensions.ExtendedLane import ExtendedLane
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies, LaneConfiguration
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
 
-from junctions.RoadLinker import RoadLinker
+from junctionart.junctions.RoadLinker import RoadLinker
 
-from library.Configuration import Configuration
+from junctionart.library.Configuration import Configuration
 
 STD_ROADMARK = pyodrx.RoadMark(pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing)
 class LaneBuilder:

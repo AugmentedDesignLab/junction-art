@@ -3,14 +3,14 @@ import os
 import pyodrx 
 import math
 import dill
-from junctions.moreExceptions import *
-from junctions.RoadBuilder import RoadBuilder
-from junctions.StandardCurvatures import StandardCurvature
-from junctions.StandardCurveTypes import StandardCurveTypes
-import extensions
+from junctionart.junctions.moreExceptions import *
+from junctionart.junctions.RoadBuilder import RoadBuilder
+from junctionart.junctions.StandardCurvatures import StandardCurvature
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
+import junctionart.extensions as extensions
 from copy import copy
 import logging
-from library.Configuration import Configuration
+from junctionart.library.Configuration import Configuration
 
 class JunctionMerger:
 

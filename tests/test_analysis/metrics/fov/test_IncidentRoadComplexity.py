@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from analysis.metrics.travel.IntersectionComplexity import IntersectionComplexity
 from analysis.metrics.MetricManager import MetricManager
 from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
-import extensions, os
+import junctionart.extensions as extensions, os
 import numpy as np
 from library.Configuration import Configuration
 from junctions.LaneConfiguration import LaneConfigurationStrategies

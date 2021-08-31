@@ -4,7 +4,7 @@ from extensions.CountryCodes import CountryCodes
 import unittest
 from library.Configuration import Configuration
 from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
-import extensions, os
+import junctionart.extensions as extensions, os
 import math
 
 class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):

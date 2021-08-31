@@ -1,23 +1,23 @@
 import os, dill
 import pyodrx, math
-from junctions.RoadBuilder import RoadBuilder
+from junctionart.junctions.RoadBuilder import RoadBuilder
 import numpy as np
-import extensions
-from junctions.LaneSides import LaneSides
-from junctions.Direction import CircularDirection
-from junctions.JunctionAreaTypes import JunctionAreaTypes
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from extensions.ExtendedRoad import ExtendedRoad
-from junctions.RoadLinker import RoadLinker
-from junctions.JunctionBuilder import JunctionBuilder
-from junctions.StandardCurveTypes import StandardCurveTypes
-from junctions.AngleCurvatureMap import AngleCurvatureMap
-from extensions.CountryCodes import CountryCodes
-from junctions.LaneConfiguration import LaneConfigurationStrategies
-from junctions.LaneConfiguration import LaneConfiguration
-from junctions.Intersection import Intersection
-from junctions.JunctionDef import JunctionDef
-from junctions.LaneMarkGenerator import LaneMarkGenerator
+import junctionart.extensions as extensions
+from junctionart.junctions.LaneSides import LaneSides
+from junctionart.junctions.Direction import CircularDirection
+from junctionart.junctions.JunctionAreaTypes import JunctionAreaTypes
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
+from junctionart.junctions.RoadLinker import RoadLinker
+from junctionart.junctions.JunctionBuilder import JunctionBuilder
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.junctions.AngleCurvatureMap import AngleCurvatureMap
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctionart.junctions.LaneConfiguration import LaneConfiguration
+from junctionart.junctions.Intersection import Intersection
+from junctionart.junctions.JunctionDef import JunctionDef
+from junctionart.junctions.LaneMarkGenerator import LaneMarkGenerator
 import logging
 
 

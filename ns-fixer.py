@@ -4,11 +4,33 @@ import pprint
 pp = pprint.PrettyPrinter()
 
 fixer = Fixer()
+
+nsMap = {
+  'roadgen': 'junctionart.roadgen',
+  'junctions': 'junctionart.junctions',
+  'extensions': 'junctionart.extensions',
+  'library.Combinator': 'junctionart.library.Combinator',
+  'library.Configuration': 'junctionart.library.Configuration',
+}
+
 srcDir = 'roadgen'
 destDir = 'src/junctionart/roadgen'
 
+fixer.run(packageSrcDir=srcDir, packageOutputDir=destDir, nsMap=nsMap)
+
+srcDir = 'junctions'
+destDir = 'src/junctionart/junctions'
+fixer.run(packageSrcDir=srcDir, packageOutputDir=destDir, nsMap=nsMap)
+
+srcDir = 'extensions'
+destDir = 'src/junctionart/extensions'
+fixer.run(packageSrcDir=srcDir, packageOutputDir=destDir, nsMap=nsMap)
+
 # nsMap = fixer.buildNsMap(srcDir)
 # pp.pprint(nsMap)
+
+
+
 
 '''
 {
@@ -76,11 +98,3 @@ destDir = 'src/junctionart/roadgen'
 }
 
 '''
-
-nsMap = {
-  'roadgen': 'junctionart.roadgen',
-  'junctions': 'junctionart.junctions',
-  'extensions': 'junctionart.extensions',
-}
-
-fixer.run(packageSrcDir=srcDir, packageOutputDir=destDir, nsMap=nsMap)

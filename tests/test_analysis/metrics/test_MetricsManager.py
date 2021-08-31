@@ -1,5 +1,5 @@
 import unittest
-import extensions, os, dill
+import junctionart.extensions as extensions, os, dill
 import numpy as np
 import pyodrx
 import logging

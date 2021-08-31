@@ -8,7 +8,7 @@ import numpy as np
 import os, dill
 import pyodrx 
 from junctions.JunctionMerger import JunctionMerger
-import extensions
+import junctionart.extensions as extensions
 from library.Configuration import Configuration
 from junctions.JunctionBuilder import JunctionBuilder
 from junctions.RoadBuilder import RoadBuilder

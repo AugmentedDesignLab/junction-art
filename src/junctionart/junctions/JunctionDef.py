@@ -1,8 +1,8 @@
 import pyodrx
 import xml.etree.ElementTree as ET
-from extensions.ExtendedRoad import ExtendedRoad
-from extensions.CountryCodes import CountryCodes
-from junctions.LaneConfiguration import LaneConfiguration
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.LaneConfiguration import LaneConfiguration
 from typing import List, Dict
 
 class JunctionDef:

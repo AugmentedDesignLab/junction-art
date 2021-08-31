@@ -1,16 +1,16 @@
 import pyodrx
-import extensions
+import junctionart.extensions as extensions
 import math
 import numpy as np
-from library.Configuration import Configuration
-from extensions.CountryCodes import CountryCodes
-from junctions.CurveRoadBuilder import CurveRoadBuilder
-from junctions.Geometry import Geometry
+from junctionart.library.Configuration import Configuration
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.CurveRoadBuilder import CurveRoadBuilder
+from junctionart.junctions.Geometry import Geometry
 from scipy.interpolate import CubicHermiteSpline
-from junctions.LaneSides import LaneSides
-from junctions.RoadLinker import RoadLinker
-from junctions.LaneConfiguration import LaneConfiguration
-from junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctionart.junctions.LaneSides import LaneSides
+from junctionart.junctions.RoadLinker import RoadLinker
+from junctionart.junctions.LaneConfiguration import LaneConfiguration
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
 import logging
 
 class ConnectionBuilder:

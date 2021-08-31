@@ -5,7 +5,7 @@ import numpy as np
 from library.Configuration import Configuration
 from junctions.threeWayJunction import ThreeWayJunctionBuilder
 import pyodrx
-import extensions
+import junctionart.extensions as extensions
 from junctions.ODRHelper import ODRHelper
 
 class test_ODRHelper(unittest.TestCase):

@@ -6,7 +6,7 @@ from roadgen.controlLine.ControlPoint import ControlPoint
 from library.Configuration import Configuration
 from extensions.CountryCodes import CountryCodes
 from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
-import extensions, os
+import junctionart.extensions as extensions, os
 import logging
 logging.basicConfig(level=logging.INFO)
 

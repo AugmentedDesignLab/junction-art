@@ -1,5 +1,5 @@
 import pyodrx
-from junctions.Geometry import Geometry
+from junctionart.junctions.Geometry import Geometry
 class ExtendedPlanview(pyodrx.PlanView):
 
     def reset(self):

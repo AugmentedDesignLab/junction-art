@@ -1,4 +1,4 @@
-name: opendrive
+name: junction-art
 channels:
   - anaconda
   - conda-forge

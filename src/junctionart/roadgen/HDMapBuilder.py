@@ -5,7 +5,7 @@ from junctionart.roadgen.layout.Grid import Grid
 from junctionart.roadgen.layout.IntersectionAdapter import IntersectionAdapter
 from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 from junctionart.junctions.IntersectionValidator import IntersectionValidator
-from library.Configuration import Configuration
+from junctionart.library.Configuration import Configuration
 from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
 from junctionart.junctions.ODRHelper import ODRHelper
 from junctionart.roadgen.layout.Network import Network

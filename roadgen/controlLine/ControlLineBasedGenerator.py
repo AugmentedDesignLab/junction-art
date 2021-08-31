@@ -268,7 +268,7 @@ class ControlLineBasedGenerator:
         # self.lines= [line1, line2, line3, line4, line5, line6, line7]
         pairs = [(line1, line2), (line2, line3), (line3, line4), (line4, line5), (line5, line6), (line6, line7), (line78, line8), (line8, line9), (line10, line11), (line10, line12)]
         self.lines= [line1, line2, line3, line4, line5, line6, line7, line78, line8, line9, line10, line11, line12]
-        self.continuationPairs = [(line4, line8), (line9, line10), (line6, line9)]
+        self.continuationPairs = [(line4, line8), (line9, line10), (line6, line9, 'es')]
         # pairs = [(line1, line2)]
         # self.lines= [line1, line2]
         self.pairs = pairs

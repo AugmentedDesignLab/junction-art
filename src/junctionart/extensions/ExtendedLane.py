@@ -1,5 +1,5 @@
 import pyodrx
-from junctions.TurnTypes import TurnTypes
+from junctionart.junctions.TurnTypes import TurnTypes
 
 class ExtendedLane(pyodrx.Lane):
 

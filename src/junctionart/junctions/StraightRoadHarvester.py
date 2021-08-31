@@ -2,12 +2,12 @@
 import os, dill
 import numpy as np
 import logging
-from junctions.LaneSides import LaneSides
-from library.Configuration import Configuration
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from extensions.CountryCodes import CountryCodes
-from junctions.TurnTypes import TurnTypes
-import extensions
+from junctionart.junctions.LaneSides import LaneSides
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.TurnTypes import TurnTypes
+import junctionart.extensions as extensions
 
 class StraightRoadHarvester:
 

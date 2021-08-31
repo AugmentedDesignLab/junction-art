@@ -1,10 +1,10 @@
-from junctions.Intersection import Intersection
+from junctionart.junctions.Intersection import Intersection
 import pyodrx
 import numpy as np
 import math, os
 import logging
-import extensions
-from library.Configuration import Configuration
+import junctionart.extensions as extensions
+from junctionart.library.Configuration import Configuration
 
 class IntersectionValidator:
 
