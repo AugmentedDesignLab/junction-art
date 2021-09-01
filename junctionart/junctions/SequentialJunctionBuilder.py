@@ -1,7 +1,10 @@
 import os, dill
 import pyodrx, math
-from junctionart.junctions.RoadBuilder import RoadBuilder
 import numpy as np
+import logging
+
+
+from junctionart.junctions.RoadBuilder import RoadBuilder
 import junctionart.extensions as extensions
 from junctionart.junctions.LaneSides import LaneSides
 from junctionart.junctions.Direction import CircularDirection
@@ -18,8 +21,6 @@ from junctionart.junctions.LaneConfiguration import LaneConfiguration
 from junctionart.junctions.Intersection import Intersection
 from junctionart.junctions.JunctionDef import JunctionDef
 from junctionart.junctions.LaneMarkGenerator import LaneMarkGenerator
-import logging
-
 
 class SequentialJunctionBuilder(JunctionBuilder):
 

@@ -1,8 +1,9 @@
 import numpy as np
 import os
-import pyodrx, extensions
+import pyodrx
 import math
 
+import junctionart.extensions as extensions
 from junctionart.junctions.LaneSides import LaneSides
 from junctionart.junctions.StandardCurvatures import StandardCurvature
 from junctionart.junctions.StandardCurveTypes import StandardCurveTypes

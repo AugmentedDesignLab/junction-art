@@ -1,4 +1,4 @@
-import junctionart.junctions
+import junctionart.junctions as junctions
 from junctionart.junctions.LaneSides import LaneSides
 import pyodrx
 import junctionart.extensions as extensions
@@ -206,7 +206,7 @@ class JunctionBuilderFromPointsAndHeading():
         # # 2 special case, last road and first road. If the heading of the last road is positive, it will be greater than 0, else it will be less than 0.
         # if roadDefinitionCopy[-1]['heading']
         # 3. start with the second road and stop at first.
-        print(roadDefinitionCopy)
+        # print(roadDefinitionCopy)
         self.assertClockwiseOrder(roadDefinitionCopy)
             
 

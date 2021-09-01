@@ -1,9 +1,11 @@
-from junctionart.junctions.LaneConfiguration import LaneConfiguration
+
 import pyodrx
-import junctionart.junctions
-import junctionart.extensions as extensions
 from pyodrx.exceptions import NotSameAmountOfLanesError
 import logging
+
+import junctionart.junctions as junctions
+import junctionart.extensions as extensions
+from junctionart.junctions.LaneConfiguration import LaneConfiguration
 from junctionart.extensions.ExtendedRoad import ExtendedRoad
 from junctionart.junctions.RoadLinker import RoadLinker
 from junctionart.extensions.CountryCodes import CountryCodes

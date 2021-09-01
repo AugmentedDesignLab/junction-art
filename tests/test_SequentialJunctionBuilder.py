@@ -4,7 +4,7 @@ import unittest
 import os
 import numpy as np
 from junctionart.library.Configuration import Configuration
-from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctionart.junctions.LaneConfigurationStrategies import LaneConfigurationStrategies
 from junctionart.junctions.IntersectionValidator import IntersectionValidator
 from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
 import junctionart.extensions as extensions
@@ -36,6 +36,8 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
 
         pass
 
+    def test_Hello(self):
+        pass
 
     def test_drawLikeAPainter2L(self):
         maxNumberOfRoadsPerJunction = 3

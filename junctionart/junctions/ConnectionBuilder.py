@@ -10,7 +10,7 @@ from scipy.interpolate import CubicHermiteSpline
 from junctionart.junctions.LaneSides import LaneSides
 from junctionart.junctions.RoadLinker import RoadLinker
 from junctionart.junctions.LaneConfiguration import LaneConfiguration
-from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctionart.junctions.LaneConfigurationStrategies import LaneConfigurationStrategies
 import logging
 
 class ConnectionBuilder:

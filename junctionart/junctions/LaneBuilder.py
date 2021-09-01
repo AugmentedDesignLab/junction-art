@@ -1,5 +1,5 @@
 import pyodrx
-import junctionart.junctions
+import junctionart.junctions as junctions
 import junctionart.extensions as extensions
 import math
 from junctionart.junctions.LaneSides import LaneSides

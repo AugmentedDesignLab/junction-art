@@ -15,7 +15,7 @@ from .opendrive import Road, OpenDrive
 from .links import Junction, Connection, _get_related_lanesection
 
 from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
-import junctionart.extensions
+import junctionart.extensions as extensions
 
 from .exceptions import *
 
