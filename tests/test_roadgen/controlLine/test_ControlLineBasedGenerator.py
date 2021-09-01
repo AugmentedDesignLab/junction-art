@@ -137,8 +137,10 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
             
     def test_generateWithA(self):
         generator = ControlLineBasedGenerator((400, 400), debug=True, seed=1, randomizeHeading=True, randomizeDistance=False, nLaneDistributionOnASide=[0.2, 0.7, 0.1, 0], nLaneDistributionOnControlLines=[0, 0.2, 0.7, 0.1])
-        odr = generator.generateWithManualControlines("test_mapA", layout='A')
 
-        # xmlPath = f"output/test_generateWithManualControlLines2.xodr"
-        # odr.write_xml(xmlPath)
-        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        for _ in range(2):
+            odr = generator.generateWithManualControlines("test_mapA", layout='A', plotGrid=False)
+
+            # xmlPath = f"output/test_generateWithManualControlLines2.xodr"
+            # odr.write_xml(xmlPath)
+            extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 

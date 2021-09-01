@@ -29,7 +29,8 @@ class ControlLineBasedGenerator:
                     country=CountryCodes.US, seed=101,
                     nLaneDistributionOnASide=[0.15, 0.6, 0.2, 0.05],
                     nLaneDistributionOnControlLines=[0.05, 0.45, 0.4, 0.1],
-                    controlineLaneConfigurations = None
+                    controlineLaneConfigurations = None,
+                    
                     ) -> None:
         self.name = "ControlLineBasedGenerator"
         self.mapSize = mapSize
@@ -38,25 +39,25 @@ class ControlLineBasedGenerator:
         self.randomizeHeading = randomizeHeading
         self.country = country
         self.debug = debug
-        self.lines = None
-        self.pairs = None
-        self.continuationPairs=None
-        self.grid = None
         self.laneLinker = LaneLinker(countryCode=country)
         self.roadBuilder = RoadBuilder()
         self.laneBuilder = LaneBuilder()
         self.laneMarkGenerator = LaneMarkGenerator(countryCode=country)
+        self.intersectionBuilder = JunctionBuilderFromPointsAndHeading(country=country,
+                                                            laneWidth=3)
+        # states                                          
+        self.lines = None
+        self.pairs = None
+        self.continuationPairs=None
+        self.grid = None
+        self.laneConfigurations = None
+        self.placedIntersections = []
+
         self.connectionRoads = []
         self.controlPointIntersectionMap = {} # controlpoint -> its intersection
         self.nextRoadId = 0
         self.nextIntersectionId = 0
         self.odrList = []
-        self.intersectionBuilder = JunctionBuilderFromPointsAndHeading(country=country,
-                                                            laneWidth=3)
-        self.laneConfigurations = None
-
-
-        self.placedIntersections = []
 
         # lane distributions.
         self.nLaneDistributionOnASide = nLaneDistributionOnASide # 0, 1, 2, 3
@@ -65,6 +66,23 @@ class ControlLineBasedGenerator:
         
         np.random.seed(seed)
         pass
+
+
+    def reset(self):
+        # states      
+
+        self.lines = None
+        self.pairs = None
+        self.continuationPairs=None
+        self.grid = None
+        self.laneConfigurations = None
+        self.placedIntersections = []
+
+        self.connectionRoads = []
+        self.controlPointIntersectionMap = {} # controlpoint -> its intersection
+        self.nextRoadId = 0
+        self.nextIntersectionId = 0
+        self.odrList = []
 
 
     #region grid
@@ -156,7 +174,7 @@ class ControlLineBasedGenerator:
 
         pass
 
-    def createGridP(self):
+    def createGridP(self, plot=False):
         self.continuationPairs = []
         width = 100
         line1 = ControlLine(1, (0,0), (100, 400))
@@ -185,12 +203,13 @@ class ControlLineBasedGenerator:
         grid.connectContinuationPairs()
 
         self.grid = grid
-        self.grid.plotControlLines()
-        self.grid.plotConnections()
-        # self.grid.plot()
+        if plot:
+            self.grid.plotControlLines()
+            self.grid.plotConnections()
+            self.grid.plot()
 
 
-    def createGridA(self):
+    def createGridA(self, plot=False):
         self.continuationPairs = []
         width = 100
         line1 = ControlLine(1, (0,0), (100, 400))
@@ -236,12 +255,13 @@ class ControlLineBasedGenerator:
         grid.connectContinuationPairs()
 
         self.grid = grid
-        self.grid.plotControlLines()
-        # self.grid.plotConnections()
-        self.grid.plot()
+        if plot:
+            self.grid.plotControlLines()
+            self.grid.plotConnections()
+            self.grid.plot()
 
     
-    def createTestGridWithHorizontalControlLines(self, nLines=5):
+    def createTestGridWithHorizontalControlLines(self, nLines=5, plot=False):
 
         self.continuationPairs = []
 
@@ -288,61 +308,81 @@ class ControlLineBasedGenerator:
         self.grid.plotControlLines()
         self.grid.plotConnections()
         self.grid.plot()
+        if plot:
+            self.grid.plotControlLines()
+            self.grid.plotConnections()
+            self.grid.plot()
 
         pass
     
     #endregion
 
     #region generator
-    def generateWithManualControlines(self, name, layout=None):
+    def generateWithManualControlines(self, name, layout=None, plotGrid = True):
+        self.reset()
+
+        logging.info(f"{self.name}: generateWithManualControlines: creating grid")
+
         # 1 grid creation
         if layout == "A":
-            self.createGridA()
+            self.createGridA(plot=plotGrid)
             # return False
         else:
-            self.createTestGridWithHorizontalControlLines()
+            self.createTestGridWithHorizontalControlLines(plot=plotGrid)
 
         # 1.1
         # build clockwise adjacent points structure
+        logging.info(f"{self.name}: generateWithManualControlines: buildClockwiseAdjacentMapForControlPoints")
         
         self.buildClockwiseAdjacentMapForControlPoints()
 
         # 2. define lanes for each connection
         if self.randomizeLanes:
+            logging.info(f"{self.name}: generateWithManualControlines: randomizeLanes")
             self.createLaneConfigurationsForConnections()
         else:
             self.laneConfigurations = None
 
+        logging.info(f"{self.name}: generateWithManualControlines: createIntersectionsForControlPoints")
         # 3. create intersections for each control point
         self.createIntersectionsForControlPoints()
 
         # now we have the intersections
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
+        logging.info(f"{self.name}: generateWithManualControlines: createConnectionRoadsBetweenIntersections")
         self.createConnectionRoadsBetweenIntersections()
 
+        logging.info(f"{self.name}: generateWithManualControlines: adjustLaneMarkings")
         self.adjustLaneMarkings()
         
+        logging.info(f"{self.name}: generateWithManualControlines: combine")
         combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
     
     def generateWithHorizontalControlines(self, name, nLines, plotGrid = True, stopAfterCreatingIntersections=False):
 
+        self.reset()
+
+        logging.info(f"{self.name}: generateWithHorizontalControlines: creating grid")
         # 1 grid creation
         self.createGridWithHorizontalControlLines(nLines, plot=plotGrid)
 
         # 1.1
         # build clockwise adjacent points structure
         
+        logging.info(f"{self.name}: generateWithHorizontalControlines: buildClockwiseAdjacentMapForControlPoints")
         self.buildClockwiseAdjacentMapForControlPoints()
 
         # 2. define lanes for each connection
         if self.randomizeLanes:
+            logging.info(f"{self.name}: generateWithHorizontalControlines: randomizeLanes")
             self.createLaneConfigurationsForConnections()
         else:
             self.laneConfigurations = None
 
         # 3. create intersections for each control point
+        logging.info(f"{self.name}: generateWithHorizontalControlines: createIntersectionsForControlPoints")
         self.createIntersectionsForControlPoints()
 
         if stopAfterCreatingIntersections: # for stasitical concerns, we need intersections only
@@ -350,10 +390,13 @@ class ControlLineBasedGenerator:
 
         # now we have the intersections
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
+        logging.info(f"{self.name}: generateWithHorizontalControlines: createConnectionRoadsBetweenIntersections")
         self.createConnectionRoadsBetweenIntersections()
 
+        logging.info(f"{self.name}: generateWithHorizontalControlines: adjustLaneMarkings")
         self.adjustLaneMarkings()
         
+        logging.info(f"{self.name}: generateWithHorizontalControlines: combine")
         combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
