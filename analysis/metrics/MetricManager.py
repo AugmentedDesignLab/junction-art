@@ -1,7 +1,8 @@
-import logging, os, extensions
-from library.Configuration import Configuration
+import logging, os
+import junctionart.extensions as extensions
+from junctionart.library.Configuration import Configuration
 from analysis.metrics.fov.IncidentRoadComplexity import IncidentRoadComplexity
-from junctions.Intersection import Intersection
+from junctionart.junctions.Intersection import Intersection
 from analysis.metrics.travel.ConnectionRoadComplexity import ConnectionRoadComplexity
 from typing import List
 import pandas as pd

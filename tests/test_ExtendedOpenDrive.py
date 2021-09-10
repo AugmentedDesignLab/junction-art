@@ -3,7 +3,8 @@ from junctionart.junctions.RoadBuilder import RoadBuilder
 from scipy.interpolate import CubicHermiteSpline
 from junctionart.junctions.JunctionHarvester import JunctionHarvester
 import numpy as np
-import pyodrx as pyodrx, extensions
+import pyodrx as pyodrx
+import junctionart.extensions as extensions
 from junctionart.junctions.JunctionBuilder import JunctionBuilder
 from junctionart.library.Configuration import Configuration
 

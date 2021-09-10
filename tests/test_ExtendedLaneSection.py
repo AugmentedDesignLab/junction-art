@@ -1,5 +1,5 @@
 import pyodrx as pyodrx
-import junctions
+import junctionart.junctions
 
 
 import unittest

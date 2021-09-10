@@ -1,5 +1,6 @@
 import unittest
-import pyodrx as pyodrx, extensions
+import pyodrx as pyodrx
+import junctionart.extensions as extensions
 from junctionart.library.Configuration import Configuration
 import numpy as np
 from junctionart.junctions.RoadBuilder import RoadBuilder
