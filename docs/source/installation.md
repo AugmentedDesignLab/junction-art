@@ -20,9 +20,14 @@ Run these commands in order
 
     poetry config virtualenvs.create false --local
     conda env update -f requirements.yml --prune
+    pip install --upgrade pip
+    conda install -c conda-forge shapely
+    conda install -c conda-forge matplotlib
     poetry install
 :::
 
+
+If you are going to use the analysis tools, you need to make sure libgeos_c is installed (the conda install -c conda-forge shapely command should install it by default.)
 
 
 ### Option 1: Install via conda (recommended)

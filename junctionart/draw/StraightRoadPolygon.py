@@ -2,7 +2,7 @@
 from junctionart.draw.RoadPolygon import RoadPolygon
 
 import numpy as np
-from junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
 import math
 from shapely.geometry.polygon import Polygon
 from shapely.ops import unary_union

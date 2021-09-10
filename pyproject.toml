@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "JunctionArt"
-version = "0.1.0"
+version = "0.1.1"
 description = "Procedural HD Map and Intersection Generator"
 authors = ["Adhocmaster <adhocmaster@live.com>"]
 license = "Mozilla Public License Version 2.0"

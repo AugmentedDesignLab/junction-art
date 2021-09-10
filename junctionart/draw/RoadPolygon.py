@@ -10,7 +10,7 @@
 from abc import ABC, abstractmethod
 
 # import numpy as np
-# from junctions.StandardCurveTypes import StandardCurveTypes
+# from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
 # from junctionart.draw.IntersectionDrawer import Color
 # import math
 # from shapely.geometry.polygon import Polygon

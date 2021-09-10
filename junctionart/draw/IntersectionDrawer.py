@@ -3,14 +3,14 @@ from enum import Enum
 import numpy as np
 from sympy.core.parameters import evaluate
 from sympy.geometry.point import Point2D 
-from junctions.Intersection import Intersection
-from extensions.ExtendedRoad import ExtendedRoad
+from junctionart.junctions.Intersection import Intersection
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
 from shapely.geometry import Polygon, polygon
 from shapely.ops import unary_union
 from sympy import Point, Line
 import matplotlib.pyplot as plt
 import math
-from junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
 
 # import draw
 from junctionart.draw.StraightRoadPolygon import StraightRoadPolygon

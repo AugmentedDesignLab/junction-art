@@ -1,11 +1,11 @@
 from shapely.geometry.base import EmptyGeometry
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from extensions.moreHelpers import laneWidths
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.extensions.moreHelpers import laneWidths
 import math
 import matplotlib.pyplot as plt
 import pyodrx
-from extensions.ExtendedOpenDrive import ExtendedOpenDrive
-from junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.extensions.ExtendedOpenDrive import ExtendedOpenDrive
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
 import numpy as np
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
