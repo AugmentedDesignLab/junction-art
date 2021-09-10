@@ -8,7 +8,7 @@ from typing import List
 import pandas as pd
 from datetime import datetime
 
-from draw.IntersectionDrawer import IntersectionDrawer
+from junctionart.draw.IntersectionDrawer import IntersectionDrawer
 import numpy as np
 
 class MetricManager:
