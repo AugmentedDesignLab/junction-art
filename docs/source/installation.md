@@ -2,6 +2,8 @@
 
 You can use JunctionArt as an intersection and road generator, or you can use it as a library to build features upon. Both needs the package to be installed. You can install it from {ref}`the source<section-install-source>` or {ref}`the pypi package<section-install-pypi>`. To view the roads, you need a tool like esmini or Mathworks Roadrunner. Many of our test codes are integrated with esmini odrplot.
 
+## Python version:
+Works in python 3.7.9. There are some internal python library issues with 3.7.11.
 
 (section-install-source)=
 ## Installing from source
@@ -16,7 +18,7 @@ https://www.anaconda.com/
 
 Run these commands in order
 
-:::
+:::{code-block}
 
     poetry config virtualenvs.create false --local
     conda env update -f requirements.yml --prune
