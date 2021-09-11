@@ -11,10 +11,10 @@ First import the following modules.
 
 :::{code-block}
 import pyodrx
-from extensions.CountryCodes import CountryCodes
+from junctionart.extensions.CountryCodes import CountryCodes
 from library.Configuration import Configuration
-from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
-import extensions, os
+from junctionart.junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
+import junctionart.extensions, os
 :::
 
 Create the **JunctionBuilderFromPointsAndHeading** object. A;so create the **configuration** object to fetch the directory of esmini **odr_viewer**. 

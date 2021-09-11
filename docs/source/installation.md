@@ -7,7 +7,27 @@ You can use JunctionArt as an intersection and road generator, or you can use it
 ## Installing from source
 
 1. Clone the repository from *https://github.com/AugmentedDesignLab/junction-art*
-2. Install it from the root folder of the project.
+
+2. Install poetry and conda
+https://python-poetry.org/docs/ 
+https://www.anaconda.com/
+
+3. Go to the root folder of the junction-art. Create a new virtual environment with conda.
+
+Run these commands in order
+
+:::
+
+    poetry config virtualenvs.create false --local
+    conda env update -f requirements.yml --prune
+    pip install --upgrade pip
+    conda install -c conda-forge shapely
+    conda install -c conda-forge matplotlib
+    poetry install
+:::
+
+
+If you are going to use the analysis tools, you need to make sure libgeos_c is installed (the conda install -c conda-forge shapely command should install it by default.)
 
 
 ### Option 1: Install via conda (recommended)
@@ -31,7 +51,8 @@ $ pip install -r requirements-pip.txt
 (section-install-pypi)=
 ## Installing from pypi
 
-
+1. pip install junctionart..
+2. Install https://trac.osgeo.org/osgeo4w/ for analysis tools
 :::{note}
 And here's a note with a colon fence!
 :::

@@ -1,6 +1,6 @@
 import numpy as np
 import pyodrx
-from extensions.ExtendedRoad import ExtendedRoad
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
 import math
 
 class TurnComplexity:
