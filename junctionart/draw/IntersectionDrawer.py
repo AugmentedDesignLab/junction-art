@@ -17,16 +17,6 @@ from junctionart.draw.StraightRoadPolygon import StraightRoadPolygon
 from junctionart.draw.ParamPolyRoadPolygon import ParamPolyRoadPolygon
 from junctionart.draw.IntersectionPolygon import IntersectionPolygon
 
-# found error in this intersection from 10000
-# [472, 798, 806, 819, 854, 854, 1275, 1500, 1501, 2028, 2036, 2095, 2096, 2907, 2917, 2944, 2945, 3430, 3431, 3436, 3446, 3456, 3789, 4208, 4221, 4356, 4708, 5334, 5335, 5724, 5725, 6141, 6292, 6880, 6886, 6971, 7203, 7213, 7228, 7242, 7624, 7633, 7732, 7733, 8338, 8339, 8473, 8474, 8842, 8843, 9098, 9099, 9178, 9187, 9403, 9552, 9560, 9606, 9724, 9856, 9974]
-
-
-
-class Color(Enum):
-    CENTER_LANE = 'r'
-    LEFT_LANE = 'g'
-    RIGHT_LANE = 'g'
-
 
 class IntersectionDrawer():
     def __init__(self, intersection, step = 0.1) -> None:
