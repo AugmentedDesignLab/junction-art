@@ -5,6 +5,8 @@ You can use JunctionArt as an intersection and road generator, or you can use it
 ## Python version:
 Works in python 3.7.9. There are some internal python library issues with 3.7.11.
 
+**There are some libraries that may face permission errors. In such cases, run your terminal in administrator mode**
+
 (section-install-source)=
 ## Installing from source
 
@@ -22,6 +24,16 @@ Run these commands in order
 
     poetry config virtualenvs.create false --local
     conda env update -f requirements.yml --prune
+    pip install --upgrade pip
+    conda install -c conda-forge shapely
+    conda install -c conda-forge matplotlib
+    poetry install
+:::
+OR 
+:::{code-block}
+
+    poetry config virtualenvs.create false --local
+    pip install -r requirements-pip.txt
     pip install --upgrade pip
     conda install -c conda-forge shapely
     conda install -c conda-forge matplotlib
