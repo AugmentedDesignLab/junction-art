@@ -1,10 +1,10 @@
 
-import pyodrx
-from extensions.CountryCodes import CountryCodes
+import pyodrx as pyodrx
+from junctionart.extensions.CountryCodes import CountryCodes
 import unittest
-from library.Configuration import Configuration
-from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
-import extensions, os
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
+import junctionart.extensions as extensions, os
 import math
 
 class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):
@@ -71,16 +71,15 @@ class test_JunctionBuilderFromPointsAndHeading(unittest.TestCase):
     def test_createIntersectionFromPointsWithRoadDefinition(self):
 
         roadDefinition = [
-            {'x': -30, 'y': 30, 'heading': 2, 'leftLane': 3, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
-            {'x':   0, 'y': 30, 'heading': 1,  'leftLane': 3, 'rightLane': 3, 'medianType': None, 'skipEndpoint': None},
-            {'x':   0, 'y':  0, 'heading': -1.5, 'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
-            {'x':   -40, 'y': -30, 'heading': -2,  'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {'x': -30, 'y': 30, 'heading': 2, 'leftLane': 2, 'rightLane': 2, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.start},
+            {'x':   0, 'y': 30, 'heading': 1,  'leftLane': 2, 'rightLane': 3, 'medianType': None, 'skipEndpoint': None},
+            {'x':   0, 'y':  0, 'heading': -1.5, 'leftLane': 1, 'rightLane': 1, 'medianType': 'partial', 'skipEndpoint': pyodrx.ContactPoint.end},
+            # {'x':   -40, 'y': -30, 'heading': -2,  'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
         ]
 
         odr = self.builder.createIntersectionFromPointsWithRoadDefinition(odrID=0,
                                                                           firstRoadId=100,
                                                                           roadDefinition=roadDefinition,
-                                                                          firstRoadId=10,
                                                                           straightRoadLen=40,
                                                                           getAsOdr=True)
         extensions.printRoadPositions(odr)

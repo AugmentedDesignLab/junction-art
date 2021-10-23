@@ -1,6 +1,6 @@
-from junctions.Intersection import Intersection
-from extensions.ExtendedRoad import ExtendedRoad
-import extensions
+from junctionart.junctions.Intersection import Intersection
+from junctionart.extensions.ExtendedRoad import ExtendedRoad
+import junctionart.extensions
 import math
 from analysis.metrics.fov.Angle import Angle
 from analysis.metrics.fov.FovComplexity import FovComplexity

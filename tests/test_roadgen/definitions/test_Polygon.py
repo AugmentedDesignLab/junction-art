@@ -1,6 +1,6 @@
 import unittest
 from z3 import *
-from roadgen.definitions.Polygon import Polygon
+from junctionart.roadgen.definitions.Polygon import Polygon
 import pprint
 import matplotlib.pyplot as plt
 import copy

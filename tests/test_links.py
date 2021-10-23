@@ -1,5 +1,5 @@
 import pytest
-import pyodrx
+import pyodrx as pyodrx
 import numpy as np
 
 def test_link():

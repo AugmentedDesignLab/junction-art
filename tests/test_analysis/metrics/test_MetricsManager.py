@@ -1,12 +1,12 @@
 import unittest
-import extensions, os, dill
+import junctionart.extensions as extensions, os, dill
 import numpy as np
-import pyodrx
+import pyodrx as pyodrx
 import logging
-from library.Configuration import Configuration
-from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
-from junctions.LaneConfiguration import LaneConfigurationStrategies
-from junctions.IntersectionValidator import IntersectionValidator
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctionart.junctions.IntersectionValidator import IntersectionValidator
 from analysis.metrics.travel.ConnectionRoadComplexity import ConnectionRoadComplexity
 from analysis.metrics.MetricManager import MetricManager
 

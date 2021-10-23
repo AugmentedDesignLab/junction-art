@@ -1,5 +1,5 @@
 from numpy.core.arrayprint import printoptions
-from junctions.Intersection import Intersection
+from junctionart.junctions.Intersection import Intersection
 from analysis.metrics.travel.TurnComplexity import TurnComplexity
 from analysis.metrics.fov.IncidentRoadComplexity import IncidentRoadComplexity
 from shapely.geometry import Polygon

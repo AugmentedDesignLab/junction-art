@@ -1,7 +1,7 @@
 import unittest, math
 
-from roadgen.controlLine.ControlLine import ControlLine
-from roadgen.controlLine.ControlLineGrid import ControlLineGrid
+from junctionart.roadgen.controlLine.ControlLine import ControlLine
+from junctionart.roadgen.controlLine.ControlLineGrid import ControlLineGrid
 import logging
 logfile = 'ControlLineGrid.log'
 logging.basicConfig(level=logging.INFO, filename=logfile)

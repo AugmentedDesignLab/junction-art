@@ -1,7 +1,7 @@
 import unittest
-import extensions
+import junctionart.extensions as extensions
 import os
-from library.Configuration import Configuration
+from junctionart.library.Configuration import Configuration
 
 class test_moreHelper(unittest.TestCase):
 

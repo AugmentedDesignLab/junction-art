@@ -1,11 +1,11 @@
 import unittest, math, dill
-from roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
-from roadgen.controlLine.ControlPoint import ControlPoint
-from library.Configuration import Configuration
-from extensions.CountryCodes import CountryCodes
-from junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
-from roadgen.controlLine.ControlLineBasedGenerator import ControlLineBasedGenerator
-import extensions, os, logging
+from junctionart.roadgen.controlLine.ControlPointIntersectionAdapter import ControlPointIntersectionAdapter
+from junctionart.roadgen.controlLine.ControlPoint import ControlPoint
+from junctionart.library.Configuration import Configuration
+from junctionart.extensions.CountryCodes import CountryCodes
+from junctionart.junctions.JunctionBuilderFromPointsAndHeading import JunctionBuilderFromPointsAndHeading
+from junctionart.roadgen.controlLine.ControlLineBasedGenerator import ControlLineBasedGenerator
+import junctionart.extensions as extensions, os, logging
 import numpy as np
 import traceback
 logfile = 'ControlLineBasedGenerator.log'
@@ -24,17 +24,17 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
     
 
     def test_generateWithManualControlLines(self):
-        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=10, randomizeDistance=False, nLaneDistributionOnASide=[0.2, 0.7, 0.1, 0])
+        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=3, randomizeDistance=False, nLaneDistributionOnASide=[0.2, 0.7, 0.1, 0])
         odr = generator.generateWithManualControlines("test_generateWithHorizontalControlines")
         # generator.grid.plot()
         # extensions.printRoadPositions(odr)
         xmlPath = f"output/test_generateWithManualControlLines.xodr"
         odr.write_xml(xmlPath)
-        # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
 
 
     def test_generateWithManualControlLines2(self):
-        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=10, randomizeDistance=False, nLaneDistributionOnASide=[0.2, 0.7, 0.1, 0], nLaneDistributionOnControlLines=[0, 0.2, 0.7, 0.1])
+        generator = ControlLineBasedGenerator((400, 400), debug=True, seed=2, randomizeDistance=False, nLaneDistributionOnASide=[0.2, 0.7, 0.1, 0], nLaneDistributionOnControlLines=[0, 0.2, 0.7, 0.1])
         odr = generator.generateWithManualControlines("test_generateWithHorizontalControlines2")
         # generator.grid.plot()
         # extensions.printRoadPositions(odr)
@@ -137,8 +137,10 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
             
     def test_generateWithA(self):
         generator = ControlLineBasedGenerator((400, 400), debug=True, seed=1, randomizeHeading=True, randomizeDistance=False, nLaneDistributionOnASide=[0.2, 0.7, 0.1, 0], nLaneDistributionOnControlLines=[0, 0.2, 0.7, 0.1])
-        odr = generator.generateWithManualControlines("test_mapA", layout='A')
 
-        # xmlPath = f"output/test_generateWithManualControlLines2.xodr"
-        # odr.write_xml(xmlPath)
-        extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
+        for _ in range(2):
+            odr = generator.generateWithManualControlines("test_mapA", layout='A', plotGrid=False)
+
+            # xmlPath = f"output/test_generateWithManualControlLines2.xodr"
+            # odr.write_xml(xmlPath)
+            extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 

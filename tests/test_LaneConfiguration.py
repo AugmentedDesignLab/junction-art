@@ -2,14 +2,14 @@ import unittest
 
 import numpy as np
 import os, dill
-import pyodrx 
-import extensions
-from library.Configuration import Configuration
-from junctions.LaneConfiguration import LaneConfigurationStrategies, LaneConfiguration
-from extensions.ExtendedLaneSection import ExtendedLaneSection
-from extensions.ExtendedLane import ExtendedLane
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from extensions.CountryCodes import CountryCodes
+import pyodrx as pyodrx 
+import junctionart.extensions as extensions
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies, LaneConfiguration
+from junctionart.extensions.ExtendedLaneSection import ExtendedLaneSection
+from junctionart.extensions.ExtendedLane import ExtendedLane
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.extensions.CountryCodes import CountryCodes
 
 
 class test_LaneConfiguration(unittest.TestCase):

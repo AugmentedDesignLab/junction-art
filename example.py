@@ -1,8 +1,8 @@
 import pyodrx 
 import numpy as np
 import os
-import extensions
-from extensions.renamedClasses import LaneSections
+import junctionart.extensions
+from junctionart.extensions.renamedClasses import LaneSections
 
 line1 = pyodrx.Line(100)
 

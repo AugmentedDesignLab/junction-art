@@ -1,5 +1,5 @@
 import unittest
-from junctions.Geometry import Geometry
+from junctionart.junctions.Geometry import Geometry
 
 
 class test_Geometry2(unittest.TestCase):

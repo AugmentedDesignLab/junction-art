@@ -1,13 +1,13 @@
 import unittest
 import matplotlib.pyplot as plt
 from analysis.metrics.travel.ConnectionRoadComplexity import ConnectionRoadComplexity
-from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
-import extensions, os
+from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+import junctionart.extensions as extensions, os
 import numpy as np
-from library.Configuration import Configuration
-from junctions.LaneConfiguration import LaneConfigurationStrategies
-from junctions.IntersectionValidator import IntersectionValidator
-import pyodrx
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.LaneConfiguration import LaneConfigurationStrategies
+from junctionart.junctions.IntersectionValidator import IntersectionValidator
+import pyodrx as pyodrx
 import logging
 logging.basicConfig(level=logging.INFO)
 

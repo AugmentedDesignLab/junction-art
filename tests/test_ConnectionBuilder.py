@@ -1,19 +1,20 @@
 import unittest, os, math
-from junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
 from scipy.interpolate import CubicHermiteSpline
-from junctions.JunctionHarvester import JunctionHarvester
+from junctionart.junctions.JunctionHarvester import JunctionHarvester
 import numpy as np
-import pyodrx, extensions
-from junctions.JunctionBuilder import JunctionBuilder
-from library.Configuration import Configuration
-import junctions
+import pyodrx as pyodrx
+import junctionart.extensions as extensions
+from junctionart.junctions.JunctionBuilder import JunctionBuilder
+from junctionart.library.Configuration import Configuration
+import junctionart.junctions
 
-from junctions.Direction import CircularDirection
-from junctions.RoadLinker import RoadLinker
-from junctions.LaneSides import LaneSides
-from junctions.StandardCurveTypes import StandardCurveTypes
-from junctions.ConnectionBuilder import ConnectionBuilder
-from junctions.CurveRoadBuilder import CurveRoadBuilder
+from junctionart.junctions.Direction import CircularDirection
+from junctionart.junctions.RoadLinker import RoadLinker
+from junctionart.junctions.LaneSides import LaneSides
+from junctionart.junctions.StandardCurveTypes import StandardCurveTypes
+from junctionart.junctions.ConnectionBuilder import ConnectionBuilder
+from junctionart.junctions.CurveRoadBuilder import CurveRoadBuilder
 
 
 class test_ExtendedRoad(unittest.TestCase):

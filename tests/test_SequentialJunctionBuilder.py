@@ -1,11 +1,14 @@
 import unittest
-from junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
-import extensions, os
+# from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+
+import os
 import numpy as np
-from library.Configuration import Configuration
-from junctions.LaneConfiguration import LaneConfigurationStrategies
-from junctions.IntersectionValidator import IntersectionValidator
-import pyodrx
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.LaneConfigurationStrategies import LaneConfigurationStrategies
+from junctionart.junctions.IntersectionValidator import IntersectionValidator
+from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBuilder
+import junctionart.extensions as extensions
+import pyodrx as pyodrx
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -33,6 +36,8 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
 
         pass
 
+    def test_Hello(self):
+        pass
 
     def test_drawLikeAPainter2L(self):
         maxNumberOfRoadsPerJunction = 3

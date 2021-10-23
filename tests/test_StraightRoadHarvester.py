@@ -2,13 +2,13 @@ import unittest
 
 import numpy as np
 import os, dill
-import pyodrx 
+import pyodrx as pyodrx 
 import pprint
-from junctions.StraightRoadHarvester import StraightRoadHarvester
-from junctions.StraightRoadBuilder import StraightRoadBuilder
-from library.Configuration import Configuration
-from junctions.TurnTypes import TurnTypes
-from extensions.CountryCodes import CountryCodes
+from junctionart.junctions.StraightRoadHarvester import StraightRoadHarvester
+from junctionart.junctions.StraightRoadBuilder import StraightRoadBuilder
+from junctionart.library.Configuration import Configuration
+from junctionart.junctions.TurnTypes import TurnTypes
+from junctionart.extensions.CountryCodes import CountryCodes
 
 
 class test_StraightRoadHarvester(unittest.TestCase):

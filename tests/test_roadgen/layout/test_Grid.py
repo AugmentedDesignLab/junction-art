@@ -1,5 +1,5 @@
 import unittest
-from roadgen.layout.Grid import Grid
+from junctionart.roadgen.layout.Grid import Grid
 
 class test_Grid(unittest.TestCase):
 
