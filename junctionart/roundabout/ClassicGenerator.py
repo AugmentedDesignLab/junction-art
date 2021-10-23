@@ -1,4 +1,7 @@
+from typing_extensions import Literal
 from roundabout.Generator import Generator
+from junctions.IncidentPoint import IncidentPoint
+from extensions.ExtendedRoad import ExtendedRoad
 from typing import List, Dict
 import random
 import math
@@ -10,6 +13,10 @@ class ClassicGenerator(Generator):
 
     def generateWithIncidentPointConfiguration(self, ipConfig: List[Dict]):
 
+        # 0 construct incident points
+
+        incidentPoints = self.parseIncidentPoints(ipConfig)
+
         # 1. get a circle
         center, radius = self.getCircle(ipConfig)
 
@@ -20,10 +27,17 @@ class ClassicGenerator(Generator):
 
         # 3. create 3-way intersections
 
-        self.createIntersections()
+    
+        intersections = self.createIntersections(incidentPoints, circularRoads)
+
+        # 4. create the  roundabout object
+
         pass
     
     
+    def parseIncidentPoints(self, ipConfig: List[Dict]):
+        return []
+
     def getCircularRoads(self, center, radius, nLanes = 2, nSegments=10):
 
         # TODO, diya.
@@ -38,6 +52,8 @@ class ClassicGenerator(Generator):
 
         return center, radius
 
+    def createIntersections(self, incidentPoints: List[IncidentPoint], circularRoads: List[ExtendedRoad]):
+        return []
 
 
     def getOptimalCircle(self, points):
