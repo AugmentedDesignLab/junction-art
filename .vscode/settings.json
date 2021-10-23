@@ -1,16 +1,11 @@
 {
-    "python.testing.unittestArgs": [
-        "-v",
-        "-s",
-        "./tests",
-        "-p",
-        "test_*.py"
-    ],
-    "python.testing.pytestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
-    "python.testing.unittestEnabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "python.linting.flake8Enabled": false,
-    "python.pythonPath": "C:\\Users\\adhocmaster\\anaconda3\\envs\\junctionArt\\python.exe"
+  "python.testing.unittestArgs": ["-v", "-s", "./tests", "-p", "test_*.py"],
+  "python.testing.pytestEnabled": false,
+  "python.testing.nosetestsEnabled": false,
+  "python.testing.unittestEnabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": false,
+  "python.pythonPath": "C:\\Users\\adhocmaster\\anaconda3\\envs\\junctionArt\\python.exe",
+  "python.formatting.provider": "black"
 }
