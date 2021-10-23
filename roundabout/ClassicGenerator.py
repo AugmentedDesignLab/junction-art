@@ -4,12 +4,39 @@ import random
 import math
 
 
-class ClassicRoundabout(Generator):
+class ClassicGenerator(Generator):
+
+
+
     def generateWithIncidentPointConfiguration(self, ipConfig: List[Dict]):
+
+        # 1. get a circle
+        center, radius = self.getCircle(ipConfig)
+
+        # 2. make the circular road with segments
+
+        nLanes = 2
+        circularRoads = self.getCircularRoads(ipConfig, nLanes)
+
+
+        pass
+    
+    
+    def getCircularRoads(self, center, radius, nLanes = 2, nSegments=10):
+
+        # TODO, diya.
+
+        return []
+
+
+    def getCircle(self, ipConfig: List[Dict]):
         points = [Point(point["x"], point["y"]) for point in ipConfig]
         optimalCenter, radius = self.getOptimalCircle(points)
         quality, center, radius = self.circleRandomizer(points, optimalCenter, radius)
-        pass
+
+        return center, radius
+
+
 
     def getOptimalCircle(self, points):
         sum_x = (
