@@ -16,9 +16,11 @@ class ClassicGenerator(Generator):
         # 2. make the circular road with segments
 
         nLanes = 2
-        circularRoads = self.getCircularRoads(ipConfig, nLanes)
+        circularRoads = self.getCircularRoads(center, radius, nLanes)
 
+        # 3. create 3-way intersections
 
+        self.createIntersections()
         pass
     
     
