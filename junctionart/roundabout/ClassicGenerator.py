@@ -36,7 +36,7 @@ class ClassicGenerator(Generator):
     
     
     def parseIncidentPoints(self, ipConfig: List[Dict]):
-        return []
+        return [IncidentPoint.parseIncidentPoint(point) for point in ipConfig]
 
     def getCircularRoads(self, center, radius, nLanes = 2, nSegments=10):
 
