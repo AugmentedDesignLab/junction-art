@@ -305,9 +305,6 @@ class ControlLineBasedGenerator:
         grid.connectContinuationPairs()
 
         self.grid = grid
-        self.grid.plotControlLines()
-        self.grid.plotConnections()
-        self.grid.plot()
         if plot:
             self.grid.plotControlLines()
             self.grid.plotConnections()
