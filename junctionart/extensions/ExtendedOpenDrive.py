@@ -183,8 +183,8 @@ class ExtendedOpenDrive(pyodrx.OpenDrive):
                 if curAsSuc is None:
                     raise Exception(f"current road {currRoad.id} is not an extended successor of its predecessor. Cannot adjust start point")
 
-                if curAsSuc.cp != pyodrx.ContactPoint.start:
-                    raise Exception(f"current road {currRoad.id}'s cp is not start. Cannot adjust start point")
+                # if curAsSuc.cp != pyodrx.ContactPoint.start:
+                    # raise Exception(f"current road {currRoad.id}'s cp is not start. Cannot adjust start point")
 
                 if self.getPredecessorRoad(currRoad).planViewAdjusted():
                     self.adjust_road_wrt_neightbour(roadIdStr, currRoad.predecessor.element_id, currRoad.predecessor.contact_point, 'predecessor')
