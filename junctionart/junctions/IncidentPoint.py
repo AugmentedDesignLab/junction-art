@@ -1,4 +1,11 @@
 # TODO zarif
-
+# done
 class IncidentPoint:
-    pass
+    def __init__(self, x, y, heading) -> None:
+        self.x = x
+        self.y = y
+        self.heading = heading
+    
+    @staticmethod
+    def parseIncidentPoint(ip):
+        return IncidentPoint(ip["x"], ip["y"], ip["heading"])
