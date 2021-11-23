@@ -38,8 +38,8 @@ class test_ClassicGenerator(unittest.TestCase):
         threePoints = [
             {"x": 80, "y": 20, "heading": math.radians(0)},
             {"x": 210, "y": 20, "heading": math.radians(135)},
-            {"x": 100, "y": 100, "heading": math.radians(270)},
-            {"x": 160, "y": -30, "heading": math.radians(90)},
+            {"x": 100, "y": 100, "heading": math.radians(370)},
+            {"x": 160, "y": -50, "heading": math.radians(90)},
         ]
         odr = self.builder.generateWithIncidentPointConfiguration(
             ipConfig=threePoints
