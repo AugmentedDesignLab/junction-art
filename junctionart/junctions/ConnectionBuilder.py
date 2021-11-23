@@ -246,3 +246,46 @@ class ConnectionBuilder:
             logging.debug(f"{self.name}: created connection for link {link}")
 
         return newConnectionRoads
+
+    def createRoadsForRoundaboutLinkConfig(self, nextRoadId, roadDic, cp1, cp2, linkConfig):
+        """[summary]
+
+        Args:
+            nextRoadId ([type]): [description]
+            roadDic ([type]): Instead of a list of current roads, supply a dictionary where each road is keyed with its id as a string.
+            firstRoadId ([type]): [description]
+            incomingRoad ([type]): [description]
+            cp1 ([type]): cp of the first road that is connected to the intersection.
+            linkConfig ([type]): a list of tuples where each tuple defines a unique connection between two lanes. A link is a tuple ('incoming-road-id:lane-id', 'outgoing-road-id:lane-id')
+
+        Returns:
+            [type]: [description]
+        """
+        newConnectionRoads = []
+        for i in range(len(linkConfig)):
+            link = linkConfig[i]
+
+            fromUniqueLaneId = link[0]
+            incomingRoadId = int(fromUniqueLaneId.split(':')[0])
+            incomingLaneId = int(fromUniqueLaneId.split(':')[1])
+
+            toUniqueLaneId = link[1]
+            outgoingRoadId = int(toUniqueLaneId.split(':')[0])
+            outgoingLaneId = int(toUniqueLaneId.split(':')[1])
+
+            incomingRoad = roadDic[incomingRoadId]
+            outgoingRoad = roadDic[outgoingRoadId]
+
+            
+            newConnection = self.createSingleLaneConnectionRoad(nextRoadId, incomingRoad, outgoingRoad, incomingLaneId, outgoingLaneId, cp1, cp2)
+
+            # newConnection.updatePredecessorOffset(-1 if i % 2 != 0 else 1)
+            # if i % 2 != 0:
+            #     newConnection.updatePredecessorOffset(-1)
+            newConnectionRoads.append(newConnection)
+
+            nextRoadId += 1
+
+            logging.debug(f"{self.name}: created connection for link {link}")
+
+        return newConnectionRoads

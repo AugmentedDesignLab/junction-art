@@ -2,7 +2,7 @@ from operator import ipow
 from os import close
 from typing_extensions import Literal
 from junctionart.roundabout.Generator import Generator
-from junctionart.junctions.IncidentPoint import IncidentPoint # have to to fix
+from junctionart.junctions.IncidentPoint import IncidentPoint  # have to to fix
 from junctionart.junctions.JunctionBuilder import JunctionBuilder
 from junctionart.extensions.ExtendedRoad import ExtendedRoad
 from junctionart.junctions.CurveRoadBuilder import CurveRoadBuilder
@@ -31,8 +31,15 @@ class ClassicGenerator(Generator):
         self.roadBuilder = RoadBuilder()
         self.connectionBuilder = ConnectionBuilder()
 
-
-    def generateWithIncidentPointConfiguration(self, ipConfig: List[Dict], firstRoadId=0, maxLanePerSide=2, minLanePerSide=0, skipEndpoint=None, odrId=0,):
+    def generateWithIncidentPointConfiguration(
+        self,
+        ipConfig: List[Dict],
+        firstRoadId=0,
+        maxLanePerSide=2,
+        minLanePerSide=0,
+        skipEndpoint=None,
+        odrId=0,
+    ):
 
         # 0 construct incident points
 
@@ -46,7 +53,9 @@ class ClassicGenerator(Generator):
         # 2. make the circular road with segments
 
         nLanes = 1
-        circularRoads, circularRoadStartPoints = self.getCircularRoads(center, radius, firstRoadId, nLanes, nSegments=7)
+        circularRoads, circularRoadStartPoints = self.getCircularRoads(
+            center, radius, firstRoadId, nLanes, nSegments=10
+        )
         self.createSuccPreRelationBetweenCircularRoads(circularRoads)
 
         odrName = "TempCircularRoads" + str(odrId)
@@ -56,82 +65,90 @@ class ClassicGenerator(Generator):
 
         circularRoadsJointId = firstRoadId + len(circularRoads)
         circularRoadsJoint = self.junctionBuilder.createConnectionFor2Roads(
-                nextRoadId=circularRoadsJointId,
-                road1=circularRoads[-1],
-                road2=circularRoads[0],
-                junction=None,
-                cp1=pyodrx.ContactPoint.end,
-                cp2=pyodrx.ContactPoint.start,
+            nextRoadId=circularRoadsJointId,
+            road1=circularRoads[-1],
+            road2=circularRoads[0],
+            junction=None,
+            cp1=pyodrx.ContactPoint.end,
+            cp2=pyodrx.ContactPoint.start,
         )
-        
+
         circularRoads.append(circularRoadsJoint)
         odr.updateRoads(circularRoads)
         odr.resetAndReadjust(byPredecessor=True)
         temp_odr = ODRHelper.transform(
-                odr, startX=circularRoadStartPoints[0].x, startY=circularRoadStartPoints[0].y, heading=0
-         )
-
+            odr,
+            startX=circularRoadStartPoints[0].x,
+            startY=circularRoadStartPoints[0].y,
+            heading=0,
+        )
 
         firstStraightRoadId = circularRoadsJointId + 1
         # 3. create 3-way intersections
-            # 3.1 make straightRoads from incidentPoints
-        straightRoads = self.createStraightRoads(incidentPoints, 30, firstStraightRoadId, 1, 0, None)
-            # 3.2 work out nearest circle segment from straightRoads/incidentPoints
-        closestCircularRoadIdForIncidentPoints = self.getClosestCircularRoadIdForIncidentPoints(incidentPoints, circularRoadStartPoints)
-            # 3.3 make parampolies between straightRoads with respective circle segment(start and end)
-        links = self.getLaneConfigForConnectionRoads(closestCircularRoadIdForIncidentPoints, straightRoads, circularRoads)
+        # 3.1 make straightRoads from incidentPoints
+        straightRoads = self.createStraightRoads(
+            incidentPoints, 30, firstStraightRoadId, 1, 1, None
+        )
+        # 3.2 work out nearest circle segment from straightRoads/incidentPoints
+        closestCircularRoadIdForIncidentPoints = self.getClosestCircularRoadIdForIncidentPoints(
+            incidentPoints, circularRoadStartPoints
+        )
+        # 3.3 make parampolies between straightRoads with respective circle segment(start and end)
+        leftLinks, rightLinks = self.getLaneConfigForConnectionRoads(
+            closestCircularRoadIdForIncidentPoints, straightRoads, circularRoads
+        )
         roadDic = self.getRoadDic(straightRoads, circularRoads)
-        connectionRoads = self.getConnectionRoads(firstStraightRoadId, roadDic, links)
+        rightConnectionRoads = self.getConnectionRoads(
+            firstStraightRoadId + len(straightRoads),
+            roadDic,
+            pyodrx.ContactPoint.end,
+            pyodrx.ContactPoint.end,
+            rightLinks,
+        )
 
-
-        leftParamPolyConnectionRoads, rightParamPolyConnectionRoads, leftClosestCircularRoads, rightClosestCircularRoads, outsideRoads = self.getParamPolyConnectionRoads(closestCircularRoadIdForIncidentPoints, straightRoads, circularRoads, firstStraightRoadId)
-            # 3.4 join parampolies with staightRoad and circle segment
+        # 3.4 join parampolies with staightRoad and circle segment
         roads = []
         roads.extend(circularRoads)
-        # moreRoads = self.createSuccPredRelationBetweenRoads(straightRoads, leftParamPolyConnectionRoads, rightParamPolyConnectionRoads, leftClosestCircularRoads, rightClosestCircularRoads)
-        roads.extend(outsideRoads)
-        # print("babu re " , len(roads))
-        
-        # circularRoadsJointId = firstStraightRoadId + 3 * len(straightRoads)
-        
-        # for road in roads:
-        #     print(road.id)
-        # odrName = "ODR_from_points " + str(odrId)
-        # odr = extensions.createOdrByPredecessor(
-        #     odrName, roads, [], countryCode=self.countryCode
-        # )
-        # circularRoadsJoint = self.junctionBuilder.createConnectionFor2Roads(
-        #         nextRoadId=circularRoadsJointId,
-        #         road1=circularRoads[-1],
-        #         road2=circularRoads[0],
-        #         junction=None,
-        #         cp1=pyodrx.ContactPoint.end,
-        #         cp2=pyodrx.ContactPoint.start,
-        # )
-        
-        # roads.append(circularRoadsJoint)
-        # odr.updateRoads(roads)
+        roads.extend(rightConnectionRoads)
+        roads.extend(straightRoads)
 
-        # odr.resetAndReadjust(byPredecessor=True)
-        # for point in circularRoadStartPoints:
-        #     print(point.x, point.y)
         odr.updateRoads(roads)
         odr.resetAndReadjust(byPredecessor=True)
-        temp_odr = ODRHelper.transform(
-                odr, startX=circularRoadStartPoints[0].x, startY=circularRoadStartPoints[0].y, heading=0
-         )
-        odr = ODRHelper.transform(odr=odr, startX=circularRoadStartPoints[0].x, startY=circularRoadStartPoints[0].y, heading=0)
+
+        leftConnectionRoads = self.getConnectionRoads(
+            firstStraightRoadId + 2 * len(straightRoads),
+            roadDic,
+            pyodrx.ContactPoint.start,
+            pyodrx.ContactPoint.start,
+            leftLinks,
+        )
+        roads.extend(leftConnectionRoads)
+
+        odr.updateRoads(roads)
+        odr.resetAndReadjust(byPredecessor=True)
+        odr = ODRHelper.transform(
+            odr=odr,
+            startX=circularRoadStartPoints[0].x,
+            startY=circularRoadStartPoints[0].y,
+            heading=0,
+        )
 
         return odr
-
 
         # intersections = self.createIntersections(incidentPoints, circularRoads)
 
         # 4. create the  roundabout object
-        
+
         pass
-    
-    def createSuccPredRelationBetweenRoads(self, straightRoads, leftParamPolyConnectionRoads, rightParamPolyConnectionRoads, leftClosestCircularRoads, rightClosestCircularRoads):
+
+    def createSuccPredRelationBetweenRoads(
+        self,
+        straightRoads,
+        leftParamPolyConnectionRoads,
+        rightParamPolyConnectionRoads,
+        leftClosestCircularRoads,
+        rightClosestCircularRoads,
+    ):
         roads = []
         for i in range(0, len(straightRoads)):
             RoadLinker.createExtendedPredSuc(
@@ -163,88 +180,72 @@ class ClassicGenerator(Generator):
             roads.append(rightParamPolyConnectionRoads[i])
             roads.append(straightRoads[i])
 
-
         return roads
-    def getLaneConfigForConnectionRoads(self, closestCircularRoadIdForIncidentPoints, straightRoads, circularRoads):
-        links = []
+
+    def getLaneConfigForConnectionRoads(
+        self, closestCircularRoadIdForIncidentPoints, straightRoads, circularRoads
+    ):
+        leftLinks = []
+        rightLinks = []
+
         nStraightRoads = len(straightRoads)
         for i in range(nStraightRoads):
             closestCiruclarRoadId = closestCircularRoadIdForIncidentPoints[i]
             straightRoad = straightRoads[i]
             leftCircularRoad = circularRoads[closestCiruclarRoadId - 1]
-            rightCircularRoad = circularRoads[0] if(closestCiruclarRoadId + 1 == len(circularRoads)) else circularRoads[closestCiruclarRoadId + 1]
-            incomingRoadId1 = str(leftCircularRoad.id) + ":" + str(-1)
-            outgoingRoadId1 = str(straightRoad.id) + ":" + str(-1)
-            outgoingRoadId2 = str(straightRoad.id) + ":" + str(1)
-            incomingRoadId2 = str(rightCircularRoad.id) + ":" + str(1)
-            link1 = (incomingRoadId1, outgoingRoadId1)
-            link2 = (incomingRoadId2, outgoingRoadId2)
-            print(link1, link2)
-            links.append(link1)
-            links.append(link2)
-            
-        return links
-    
+            rightCircularRoad = (
+                circularRoads[0]
+                if (closestCiruclarRoadId + 1 == len(circularRoads))
+                else circularRoads[closestCiruclarRoadId + 1]
+            )
+            rightIncoming = str(leftCircularRoad.id) + ":" + str(-1)
+            leftIncoming = str(straightRoad.id) + ":" + str(1)
+            rightOutgoing = str(straightRoad.id) + ":" + str(-1)
+            leftOutgoing = str(rightCircularRoad.id) + ":" + str(-1)
+            leftLink = (leftIncoming, leftOutgoing)
+            rightLink = (rightIncoming, rightOutgoing)
+
+            leftLinks.append(leftLink)
+            rightLinks.append(rightLink)
+
+        return leftLinks, rightLinks
+
     def getRoadDic(self, straightRoads, circularRoads):
-        roadDic = {road.id : road for road in straightRoads}
+        roadDic = {road.id: road for road in straightRoads}
         for road in circularRoads:
             roadDic[road.id] = road
         return roadDic
 
-    def getConnectionRoads(self, startRoadId, roadDic, laneConfig):
-        connectionRoads = self.connectionBuilder.createRoadsForLinkConfig(startRoadId, roadDic, 0, null, pyodrx.ContactPoint.start, linkConfig)
+    def getConnectionRoads(self, startRoadId, roadDic, cp1, cp2, laneConfig):
+        connectionRoads = self.connectionBuilder.createRoadsForRoundaboutLinkConfig(
+            startRoadId, roadDic, cp1, cp2, laneConfig
+        )
         return connectionRoads
 
-    def getParamPolyConnectionRoads(self, closestCiruclarRoadIdForIncidentPoints, straightRoads, circularRoads, roadId):
-        leftParamPolyConnectionRoads, rightParamPolyConnectionRoads = [], []
-        leftClosestCircularRoads, rightClosestCircularRoads = [], [],
-        outsideRoads = []
-        nStraightRoads = len(straightRoads)
-        for i in range(nStraightRoads):
-            closestCiruclarRoadId = closestCiruclarRoadIdForIncidentPoints[i]
-            straightRoad = straightRoads[i]
-            leftCircularRoad = circularRoads[closestCiruclarRoadId - 1]
-            rightCircularRoad = circularRoads[0] if(closestCiruclarRoadId + 1 == len(circularRoads)) else circularRoads[closestCiruclarRoadId + 1]
-            leftParamPolyRoad = self.junctionBuilder.createConnectionFor2Roads(
-                nextRoadId=roadId + 3*i + 0,
-                road1=leftCircularRoad,#straightRoad,
-                road2=straightRoad,#leftCircularRoad,
-                junction=None,
-                cp1=pyodrx.ContactPoint.end,
-                cp2=pyodrx.ContactPoint.end,
-            )
-            rightParamPolyRoad = self.junctionBuilder.createConnectionFor2Roads(
-                nextRoadId=roadId + 3*i + 1,
-                road1=rightCircularRoad,#straightRoad,
-                road2=straightRoad,#rightCircularRoad,
-                junction=None,
-                cp1=pyodrx.ContactPoint.start,
-                cp2=pyodrx.ContactPoint.end,
-            )
-
-            leftParamPolyConnectionRoads.append(leftParamPolyRoad)
-            rightParamPolyConnectionRoads.append(rightParamPolyRoad)
-            leftClosestCircularRoads.append(leftCircularRoad)
-            rightClosestCircularRoads.append(rightCircularRoad)
-            outsideRoads.append(leftParamPolyRoad)
-            outsideRoads.append(rightParamPolyRoad)
-            outsideRoads.append(straightRoad)
-        return leftParamPolyConnectionRoads, rightParamPolyConnectionRoads, leftClosestCircularRoads, rightClosestCircularRoads, outsideRoads
-
-
-    def getClosestCircularRoadIdForIncidentPoints(self, incidentPoints, circularRoadStartPoints):
+    def getClosestCircularRoadIdForIncidentPoints(
+        self, incidentPoints, circularRoadStartPoints
+    ):
         closestCircularRoadIdForIncidentPoints = []
         for incidentPoint in incidentPoints:
             incidentPointWithoutHeading = Point(incidentPoint.x, incidentPoint.y)
             bestPoint = circularRoadStartPoints[0]
             bestDistance = self.__distance(incidentPointWithoutHeading, bestPoint)
             for circularRoadStartPoint in circularRoadStartPoints:
-                bestPoint = circularRoadStartPoint if (self.__distance(incidentPointWithoutHeading, circularRoadStartPoint) < bestDistance) else bestPoint
+                bestPoint = (
+                    circularRoadStartPoint
+                    if (
+                        self.__distance(
+                            incidentPointWithoutHeading, circularRoadStartPoint
+                        )
+                        < bestDistance
+                    )
+                    else bestPoint
+                )
                 bestDistance = self.__distance(incidentPointWithoutHeading, bestPoint)
-            
+
             closestCircularRoadId = circularRoadStartPoints.index(bestPoint)
             closestCircularRoadIdForIncidentPoints.append(closestCircularRoadId)
-        
+
         return closestCircularRoadIdForIncidentPoints
 
     def parseIncidentPoints(self, ipConfig: List[Dict]):
@@ -252,7 +253,7 @@ class ClassicGenerator(Generator):
 
     def createStraightRoads(
         self,
-        incidentPoints : List[IncidentPoint],
+        incidentPoints: List[IncidentPoint],
         straightRoadLen,
         firstRoadID,
         maxLanePerSide,
@@ -260,11 +261,17 @@ class ClassicGenerator(Generator):
         skipEndpoint,
     ):
 
-        roadID = firstRoadID + 2
+        roadID = firstRoadID
         straightRoads = []
         for incidentPoint in incidentPoints:
             distance = self.__distance(incidentPoint, self.center)
-            roadLength = distance - self.radius - 30 if( distance > self.radius + 30 ) else 0
+            roadLength = (
+                distance - self.radius - 30 if (distance > self.radius + 30) else 0
+            )
+
+            roadLength = (
+                distance - self.radius * 1.2 if (distance > self.radius * 1.2) else 0
+            )
             straightRoad = self.straightRoadBuilder.createRandom(
                 roadId=roadID,
                 length=roadLength,
@@ -276,12 +283,16 @@ class ClassicGenerator(Generator):
             odrStraightRoad = extensions.createOdrByPredecessor(
                 odrName, [straightRoad], [], countryCode=self.countryCode
             )
-            newStartX, newStartY, newHeading = incidentPoint.x, incidentPoint.y, incidentPoint.heading
+            newStartX, newStartY, newHeading = (
+                incidentPoint.x,
+                incidentPoint.y,
+                incidentPoint.heading,
+            )
             odrAfterTransform = ODRHelper.transform(
                 odrStraightRoad, newStartX, newStartY, newHeading
             )
             straightRoads.append(straightRoad)
-            roadID += 3
+            roadID += 1
 
         return straightRoads
 
@@ -295,48 +306,51 @@ class ClassicGenerator(Generator):
                 sucCP=pyodrx.ContactPoint.start,
             )
 
-    def getCircularRoads(self, center, radius, firstRoadId, nLanes = 2, nSegments=10):
+    def getCircularRoads(self, center, radius, firstRoadId, nLanes=2, nSegments=10):
         roadLength = 2 * np.pi * radius / nSegments
         curvature = 1 / radius
-        
+
         circularRoads = []
         circularRoadStartPoints = []
 
         for i in range(nSegments):
             circularRoad = self.curveBuilder.createCurveByLength(
-                roadId=firstRoadId + i, length=roadLength, curvature=curvature, n_lanes=nLanes
+                roadId=firstRoadId + i,
+                length=roadLength,
+                curvature=curvature,
+                n_lanes=nLanes,
             )
             odrName = "tempODR_circularRoad" + str(i + 1)
-            # odrCircularRoad = extensions.createOdrByPredecessor(
-            #     odrName, [circularRoad], [], countryCode=self.countryCode
-            # )
-            newHeading = i * (360/nSegments)
+
+            newHeading = i * (360 / nSegments)
             newX = center.x + radius * math.sin(math.radians(newHeading))
             newY = center.y - radius * math.cos(math.radians(newHeading))
-            
-            # odrAfterTransform = ODRHelper.transform(
-            #     odrCircularRoad, newX, newY, newHeading
-            # )
-            
+
             circularRoadStartPoints.append(Point(newX, newY))
             circularRoads.append(circularRoad)
-            
 
         return circularRoads, circularRoadStartPoints
 
-    
-    
     def getCircle(self, incidentPoints: List[IncidentPoint]):
         optimalCenter, radius = self.getOptimalCircle(incidentPoints)
-        # quality, center, radius = self.getRandomizedCircle(incidentPoints, optimalCenter, radius)
+        # quality, optimalCenter, radius = self.getRandomizedCircle(incidentPoints, optimalCenter, radius)
         # NOTE : circularRandomizer does not work
-        return optimalCenter, radius*0.4
+        return optimalCenter, radius * 0.4
 
-    def createIntersections(self, incidentPoints: List[IncidentPoint], circularRoads: List[ExtendedRoad]):
+    def createIntersections(
+        self, incidentPoints: List[IncidentPoint], circularRoads: List[ExtendedRoad]
+    ):
         return []
 
-
     def getOptimalCircle(self, incidentPoints):
+        if len(incidentPoints) == 2:
+            center = Point(
+                (incidentPoints[0].x + incidentPoints[1].x) / 2,
+                (incidentPoints[0].y + incidentPoints[1].y) / 2,
+            )
+            radius = self.__distance(incidentPoints[0], incidentPoints[1]) / 2
+            return center, radius
+
         sum_x = (
             sum_y
         ) = sum_xx = sum_yy = sum_xy = sum_xxy = sum_xyy = sum_xxx = sum_yyy = 0.0
@@ -374,10 +388,12 @@ class ClassicGenerator(Generator):
             yDiff = incidentPoints[i].y - centerY
             radius = min(radius, (xDiff * xDiff + yDiff * yDiff) ** 0.5)
 
-        return center, radius 
+        return center, radius
         # returns optimal circle (x, y, r) for the given list of points.
 
-    def getRandomizedCircle(self, incidentPoints:List[IncidentPoint], optimalCenter, radius):
+    def getRandomizedCircle(
+        self, incidentPoints: List[IncidentPoint], optimalCenter, radius
+    ):
         a = random.uniform(0, 2)
         b = random.uniform(0, 2)
         newX = optimalCenter.x * a
@@ -401,6 +417,7 @@ class ClassicGenerator(Generator):
 
     def __distance(self, p, q):
         return math.sqrt((p.x - q.x) ** 2 + (p.y - q.y) ** 2)
+
 
 class Point:
     def __init__(self, x, y):
