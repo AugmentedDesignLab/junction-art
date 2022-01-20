@@ -6,8 +6,9 @@ import numpy as np
 import pyodrx as pyodrx
 import junctionart.extensions as extensions
 from junctionart.junctions.JunctionBuilder import JunctionBuilder
+from junctionart.extensions.CountryCodes import CountryCodes
 from junctionart.library.Configuration import Configuration
-import junctionart.junctions
+from junctionart.junctions.RoadBuilder import RoadBuilder
 
 from junctionart.junctions.Direction import CircularDirection
 from junctionart.junctions.RoadLinker import RoadLinker
@@ -22,7 +23,7 @@ class test_ExtendedRoad(unittest.TestCase):
         
         self.configuration = Configuration()
         self.esminipath = self.configuration.get("esminipath")
-        self.roadBuilder = junctions.RoadBuilder()
+        self.roadBuilder = RoadBuilder()
 
         self.straightRoadBuilder = StraightRoadBuilder()
         self.roadLinker = RoadLinker()
@@ -43,7 +44,7 @@ class test_ExtendedRoad(unittest.TestCase):
         RoadLinker.createExtendedPredSuc(predRoad=roads[1], predCp=pyodrx.ContactPoint.end, sucRoad=roads[2], sucCP=pyodrx.ContactPoint.start)
 
         odrName = "test_createSingleLaneConnectionRoad"
-        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [], CountryCodes.US)
         
         # extensions.view_road(odr, os.path.join('..', self.configuration.get("esminipath")))
 
