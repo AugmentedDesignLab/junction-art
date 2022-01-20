@@ -27,8 +27,8 @@ class ControlLineBasedGenerator:
                     randomizeLanes=True,
                     randomizeDistance = True, randomizeHeading=False,
                     country=CountryCodes.US, seed=101,
-                    nLaneDistributionOnASide=[0.15, 0.6, 0.2, 0.05],
-                    nLaneDistributionOnControlLines=[0.05, 0.45, 0.4, 0.1],
+                    nLaneDistributionOnASide=[0.1, 0.7, 0.18, 0.02],
+                    nLaneDistributionOnControlLines=[0.05, 0.5, 0.4, 0.05],
                     controlineLaneConfigurations = None,
                     
                     ) -> None:

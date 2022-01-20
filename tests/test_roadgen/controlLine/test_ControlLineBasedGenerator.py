@@ -156,28 +156,28 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         heading = ["test configuration", "#tries", "#success", "total time (minutes)", "time per map (seconds)", "memory (MB)"]
         stats = []
 
+        # count = 50
+        # mapsize=(500, 500)
+        # # goal generate count 400x400 maps with 2 lanes
+        # tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=False, nControlLine=3, count=count)
+        # # print(f"tries: {tryCount}, success: {successCount}, time: {durationInMin} Seconds, averageInSec: {averageInSec}")
+        # stats.append([f"{count} {mapsize} square meter maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+
+        # # goal generate count 400x400 maps with random lanes
+        # tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=True, nControlLine=3, count=count)
+        # stats.append([f"{count} {mapsize} square meter maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+
+        # count = 50
+        # mapsize=(1000, 1000)
+        # # 2 lanes
+        # tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=False, nControlLine=6, count=count)
+        # stats.append([f"{count} {mapsize} square meter maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+
+        # # random lanes
+        # tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=True, nControlLine=6, count=count)
+        # stats.append([f"{count} {mapsize} square meter maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+
         count = 50
-        mapsize=(500, 500)
-        # goal generate count 400x400 maps with 2 lanes
-        tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=False, nControlLine=3, count=count)
-        # print(f"tries: {tryCount}, success: {successCount}, time: {durationInMin} Seconds, averageInSec: {averageInSec}")
-        stats.append([f"{count} {mapsize} square meter maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
-
-        # goal generate count 400x400 maps with random lanes
-        tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=True, nControlLine=3, count=count)
-        stats.append([f"{count} {mapsize} square meter maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
-
-        count = 50
-        mapsize=(1000, 1000)
-        # 2 lanes
-        tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=False, nControlLine=6, count=count)
-        stats.append([f"{count} {mapsize} square meter maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
-
-        # random lanes
-        tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=True, nControlLine=6, count=count)
-        stats.append([f"{count} {mapsize} square meter maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
-
-        count = 25
         mapsize=(5000, 5000)
         # 2 lanes
         tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=False, nControlLine=25, count=count)
@@ -187,39 +187,39 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=True, nControlLine=25, count=count)
         stats.append([f"{count} {mapsize} square meter maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
 
-        # count = 4
-        # mapsize=(10000, 10000)
-        # # 2 lanes
-        # tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=False, nControlLine=50, count=count)
-        # stats.append([f"{count} {mapsize} square meter maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+        # # count = 4
+        # # mapsize=(10000, 10000)
+        # # # 2 lanes
+        # # tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=False, nControlLine=50, count=count)
+        # # stats.append([f"{count} {mapsize} square meter maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
 
-        # # random lanes
-        # tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=True, nControlLine=50, count=count)
-        # stats.append([f"{count} {mapsize} square meter maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+        # # # random lanes
+        # # tryCount, successCount, durationInMin, averageInSec, memory= self.getRunningTimeStatsFor1000Maps(mapsize=mapsize, randomizeLanes=True, nControlLine=50, count=count)
+        # # stats.append([f"{count} {mapsize} square meter maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
 
-        # test with manual
-        count = 50
-        mapsize=(1200, 1400)
-        # goal generate count 400x400 maps with 2 lanes
-        tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000ManualMaps(mapsize=mapsize, randomizeLanes=False, nControlLine=3, count=count)
-        # print(f"tries: {tryCount}, success: {successCount}, time: {durationInMin} Seconds, averageInSec: {averageInSec}")
-        stats.append([f"{count} {mapsize} manual control-line maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+        # # test with manual
+        # count = 50
+        # mapsize=(1200, 1400)
+        # # goal generate count 400x400 maps with 2 lanes
+        # tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000ManualMaps(mapsize=mapsize, randomizeLanes=False, nControlLine=3, count=count)
+        # # print(f"tries: {tryCount}, success: {successCount}, time: {durationInMin} Seconds, averageInSec: {averageInSec}")
+        # stats.append([f"{count} {mapsize} manual control-line maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
 
-        # goal generate count 400x400 maps with random lanes
-        tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000ManualMaps(mapsize=mapsize, randomizeLanes=True, nControlLine=3, count=count)
-        stats.append([f"{count} {mapsize} manual control-line maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+        # # goal generate count 400x400 maps with random lanes
+        # tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000ManualMaps(mapsize=mapsize, randomizeLanes=True, nControlLine=3, count=count)
+        # stats.append([f"{count} {mapsize} manual control-line maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
 
-        # test with A
-        count = 50
-        mapsize=(1000, 1600)
-        # goal generate count 400x400 maps with 2 lanes
-        tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000AMaps(mapsize=mapsize, randomizeLanes=False, nControlLine=3, count=count)
-        # print(f"tries: {tryCount}, success: {successCount}, time: {durationInMin} Seconds, averageInSec: {averageInSec}")
-        stats.append([f"{count} {mapsize} A-shaped maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+        # # test with A
+        # count = 50
+        # mapsize=(1000, 1600)
+        # # goal generate count 400x400 maps with 2 lanes
+        # tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000AMaps(mapsize=mapsize, randomizeLanes=False, nControlLine=3, count=count)
+        # # print(f"tries: {tryCount}, success: {successCount}, time: {durationInMin} Seconds, averageInSec: {averageInSec}")
+        # stats.append([f"{count} {mapsize} A-shaped maps with 2 lanes", tryCount, successCount, durationInMin, averageInSec, memory])
 
-        # goal generate count 400x400 maps with random lanes
-        tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000AMaps(mapsize=mapsize, randomizeLanes=True, nControlLine=3, count=count)
-        stats.append([f"{count} {mapsize} A-shaped maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
+        # # goal generate count 400x400 maps with random lanes
+        # tryCount, successCount, durationInMin, averageInSec, memory = self.getRunningTimeStatsFor1000AMaps(mapsize=mapsize, randomizeLanes=True, nControlLine=3, count=count)
+        # stats.append([f"{count} {mapsize} A-shaped maps with random lanes", tryCount, successCount, durationInMin, averageInSec, memory])
 
 
         print("\n")
@@ -236,7 +236,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
         tryCount = 0
         successCount = 0
         startNS = time.process_time_ns()
-        for seed in range(1, count * 2):
+        for seed in range(1, count * 20):
             tryCount += 1
             try:
                 generator = ControlLineBasedGenerator(mapsize, debug=False, seed=seed, randomizeLanes=randomizeLanes, randomizeDistance=False, randomizeHeading=False)
@@ -246,6 +246,8 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
                 # odr.write_xml(xmlPath)
                 # extensions.view_road(odr, os.path.join('..',self.configuration.get("esminipath"))) 
                 successCount += 1
+
+                print(f"success {successCount}/{tryCount}")
                 if successCount == count:
                     break
             except:
