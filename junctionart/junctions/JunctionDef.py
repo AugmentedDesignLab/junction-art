@@ -60,6 +60,24 @@ class JunctionDef:
 
         pass
 
+    def addMultiLaneConnectionUS(self, incomingRoad: ExtendedRoad, connectionRoad: ExtendedRoad):
+        # get incoming and outgoing lanes
+        incomingLanes = LaneConfiguration.getIncomingLanesOnARoad(incomingRoad, incomingRoad.junctionCP, self.countryCode)
+        outgoingLanes = LaneConfiguration.getOutgoingLanesOnARoad(connectionRoad, connectionRoad.junctionCP, self.countryCode)
+
+        # get lane configurations
+
+        # get connection
+        connection = pyodrx.Connection(incomingRoad.id, connectionRoad.id, pyodrx.ContactPoint.start)
+
+        # add links to the connection according to lane configurations
+
+        
+        # add connection to the junction
+        self.junction.add_connection(connection)
+        pass
+        
+        
 
     def build(self, connectionRoads: List[ExtendedRoad]):
 
@@ -89,4 +107,13 @@ class JunctionDef:
             else:
                 raise Exception(f"{self.name}: build: only US is implemented")
         
+        return self.junction
+
+
+    def buildWithoutConnection(self, connectionRoads: List[ExtendedRoad]):
+        self.connections = connectionRoads
+        self.junction = pyodrx.Junction(self.name, self.id)
+        for connectionRoad in connectionRoads:
+            connectionRoad.junctionId = self.id
+
         return self.junction

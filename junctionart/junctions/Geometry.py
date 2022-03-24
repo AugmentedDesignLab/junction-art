@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from threading import stack_size
 import numpy as np
 import math
 import pyodrx
@@ -165,4 +166,68 @@ class Geometry(ABC):
         yCoeffs = hermiteY.c.flatten()
         return xCoeffs, yCoeffs
 
+    @staticmethod
+    def forward_elimination(A, b, is_partial_pivot_enabled, showall, round_digit):
+        nCol = A.shape[0]
+        for i in range(nCol - 1):
+            if is_partial_pivot_enabled == True:
+                max_col_index = i + np.abs(A[i:,i]).argmax()
+                A[[i, max_col_index]] = A[[max_col_index, i]]
+                b[[i, max_col_index]] = b[[max_col_index, i]]
+            for j in range(i + 1, nCol):
+                multiply_factor = A[j][i]/A[i][i]
+                A[j] = A[j] - A[i]*multiply_factor.round(round_digit)
+                b[j] = b[j] - b[i]*multiply_factor.round(round_digit)
+                if showall == True:
+                    print("A :", A, "B :", b)
+            
+        return A, b
 
+    @staticmethod
+    def back_substitution(A, b):
+        X = np.zeros(A.shape[0])
+        nCol = A.shape[0]
+        for i in range(nCol - 1, -1, -1):
+            X[i] = (b[i] - (A[i][i + 1: nCol] * X[i + 1 : nCol]).sum()) / A[i][i]
+            
+        return X
+    
+    @staticmethod
+    def guassian_elimination(A, b, is_partial_pivot_enabled = True, showall = True, round_digit = 3):
+        A, b= forward_elimination(A, b, is_partial_pivot_enabled, showall, round_digit)
+        X = back_substitution(A, b)
+        return X.round(round_digit)
+
+    @staticmethod
+    def cubic_eqn_finder(points):
+        a = []
+        b = []
+        for point in points:
+            x, y = point
+            a.append([x**3, x**2, x, 1])
+            b.append(y)
+            
+        a = np.array(a).astype(float)
+        b = np.array(b).astype(float)
+        x = guassian_elimination(a, b, round_digit=7, showall = False)
+        return x
+
+    @staticmethod
+    def cubic_equation_finder_start_end(start, end):
+        x1, y1 = start
+        x4, y4 = end
+        x2, y2 = x1 + (x4 - x1) *.5, y1 + (y4 - y1) * .2
+        x3, y3 = x1 + (x4 - x1) *.9, y1 + (y4 - y1) * .8
+        points = [(x1, y1), (x2, y2), (x3, y3), (x4, y4)]
+        return cubic_eqn_finder(points)
+
+    @staticmethod
+    def get_points(startx, start_width, endx, end_width):
+        return [(startx,  start_width/2), (startx, -start_width/2)], [(endx, + end_width/2), (endx, - end_width/2)]
+
+    @staticmethod
+    def cubicEquationSolver(startX, startWidth, endX, endWidth):
+        starts, ends = get_points(startX, startWidth, endX, endWidth)
+        a, b, c, d = cubic_equation_finder_start_end(starts[0], ends[0])
+        a1, b1, c1, d1 = cubic_equation_finder_start_end(starts[1], ends[1])
+        return [a, b, c, d], [a1, b1, c1, d1]

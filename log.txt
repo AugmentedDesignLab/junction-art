@@ -1,11 +1,8 @@
-esmini GIT REV: 988165d
-esmini GIT TAG: v2.0.9
-esmini GIT BRANCH: tags/v2.0.9^0
-esmini BUILD VERSION: 2.0.9.build.1017
-RoadManager.cpp / 4284 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
-RoadManager.cpp / 4286 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (187.01) to road length (187.01)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (187.01) to road length (187.01)
-RoadManager.cpp / 5584 / roadmanager::Position::SetRoadMarkPos(): Truncate road mark s pos (187.01) to road length (187.01)
-RoadManager.cpp / 4288 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries
-RoadManager.cpp / 4290 / roadmanager::OpenDrive::SetRoadOSI(): OSI road features done
+esmini GIT REV: b82d8c5
+esmini GIT TAG: v2.0.15
+esmini GIT BRANCH: tags/v2.0.15^0
+esmini BUILD VERSION: 2.0.15.build.1067
+RoadManager.cpp / 4305 / SetRoadOSI(): Generating OSI lanes
+RoadManager.cpp / 4307 / SetRoadOSI(): Generating OSI road marks
+RoadManager.cpp / 4309 / SetRoadOSI(): Generating OSI lane boundaries
+RoadManager.cpp / 4311 / SetRoadOSI(): OSI road features done

@@ -36,18 +36,39 @@ class test_ClassicGenerator(unittest.TestCase):
     def test_createRoundAboutFromIncidentPoints1(self):
 
         threePoints = [
-            {"x": 80, "y": 20, "heading": math.radians(0)},
-            {"x": 210, "y": 20, "heading": math.radians(135)},
-            {"x": 100, "y": 100, "heading": math.radians(270)},
-            {"x": 160, "y": -250, "heading": math.radians(90)},
+            {"x": 80, "y": 20, "heading": math.radians(45),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {"x": 210, "y": 20, "heading": math.radians(115),'leftLane': 3, 'rightLane': 3, 'medianType': None, 'skipEndpoint': None},
+            {"x": 100, "y": 100, "heading": math.radians(300),'leftLane': 4, 'rightLane': 4, 'medianType': None, 'skipEndpoint': None},
+            # {"x": 160, "y": 49, "heading": math.radians(300),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
+            # {"x": 160, "y": 100, "heading": math.radians(220),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
         ]
-        odr = self.builder.generateWithIncidentPointConfiguration(
-            ipConfig=threePoints
+        odr = self.builder.generateWithRoadDefinition(
+            threePoints,
+            outgoingLanesMerge=False
         )
         extensions.printRoadPositions(odr)
         extensions.view_road(
             odr, os.path.join("..", self.configuration.get("esminipath"))
         )
+
+    def test_createRoundAboutFromIncidentPoints3(self):
+
+        threePoints = [
+            {"x": 440, "y": 500, "heading": math.radians(270),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            # {"x": 600, "y": 200, "heading": math.radians(15),'leftLane': 2, 'rightLane': 3, 'medianType': None, 'skipEndpoint': None},
+            {"x": 100, "y": 500, "heading": math.radians(340),'leftLane': 2, 'rightLane': 4, 'medianType': None, 'skipEndpoint': None},
+            {"x": 460, "y": 50, "heading": math.radians(90),'leftLane': 2, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
+            {"x": 160, "y": 100, "heading": math.radians(20),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
+        ]
+        odr = self.builder.generateWithRoadDefinition(
+            threePoints,
+            outgoingLanesMerge=False
+        )
+        extensions.printRoadPositions(odr)
+        extensions.view_road(
+            odr, os.path.join("..", self.configuration.get("esminipath"))
+        )
+
 
     def test_createRoundAboutFromIncidentPoints2(self):
 
