@@ -45,7 +45,7 @@ If you are going to use the analysis tools, you need to make sure libgeos_c is i
 
 
 ### Option 1: Install via conda (recommended)
-1. Activate or create a conda environment for the project with python 3.6+
+1. Activate or create a conda environment for the project with python 3.7+
 2. Put the name of your environment in the first line of requirements.yml file (located in the root).
 
 ```
