@@ -1,5 +1,3 @@
-from z3 import *
-
 from junctionart.roadgen.definitions.DirectionIntersection import DirectionIntersection
 import logging
 

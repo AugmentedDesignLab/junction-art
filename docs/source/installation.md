@@ -27,6 +27,9 @@ Run these commands in order
     pip install --upgrade pip
     conda install -c conda-forge shapely
     conda install -c conda-forge matplotlib
+    conda install -c conda-forge tabulate
+    conda install -c conda-forge psutil
+    conda install -c conda-forge scikit-spatial
     poetry install
 :::
 OR 
@@ -37,6 +40,9 @@ OR
     pip install --upgrade pip
     conda install -c conda-forge shapely
     conda install -c conda-forge matplotlib
+    conda install -c conda-forge tabulate
+    conda install -c conda-forge psutil
+    conda install -c conda-forge scikit-spatial
     poetry install
 :::
 
