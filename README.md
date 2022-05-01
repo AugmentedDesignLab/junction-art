@@ -3,6 +3,10 @@ Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Develo
 
 **The documentation moved to [https://junctionart.readthedocs.io/](https://junctionart.readthedocs.io/)**
 
+## Citation
+
+Junction Art paper got accepted to SAE journal. Citation information will be available soon.
+
 # Installation
 
 **Steps**:
