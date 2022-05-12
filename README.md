@@ -5,7 +5,22 @@ Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Develo
 
 ## Citation
 
-Junction Art paper got accepted to SAE journal. Citation information will be available soon.
+Here is the "almost ready" citation if you want to refer to the work:
+
+```
+@article{junctionart:2023,
+ author  = {Muktadir, Golam Md and Jawad, Abdul and Paranjape, Ishaan and Whitehead, Jim and Shepelev, Aleksey},
+ title   = {Procedural Generation of High-Definition Road Networks for Autonomous Vehicle Testing and Traffic Simulations},
+ journal = {SAE International Journal of Connected and Automated Vehicles},
+ year    = {2023},
+ volume  = {},
+ number  = {},
+ pages   = {},
+ issn    = {2574-0741},
+ doi     = {10.4271/12-06-01-0007},
+}
+```
+
 
 # Installation
 
