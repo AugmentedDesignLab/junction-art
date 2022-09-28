@@ -49,7 +49,6 @@ class ControlLineBasedGenerator:
         self.lines = None
         self.pairs = None
         self.continuationPairs=None
-        self.grid = None
         self.laneConfigurations = None
         self.placedIntersections = []
 
@@ -74,7 +73,7 @@ class ControlLineBasedGenerator:
         self.lines = None
         self.pairs = None
         self.continuationPairs=None
-        self.grid = None
+        grid = None
         self.laneConfigurations = None
         self.placedIntersections = []
 
@@ -159,20 +158,21 @@ class ControlLineBasedGenerator:
             if i > 0:
                 self.pairs.append((self.lines[-2], self.lines[-1]))
 
-        self.grid = ControlLineGrid(controlLinePairs=self.pairs, debug=True)
+        grid = ControlLineGrid(controlLinePairs=self.pairs, debug=True)
 
         for pair in self.pairs:
-            self.grid.connectControlLinesWithRectsAndTriangles(pair)
+            grid.connectControlLinesWithRectsAndTriangles(pair)
 
         for line in self.lines:
-            self.grid.connectControlPointsOnALine(line)
+            grid.connectControlPointsOnALine(line)
 
         if plot:
-            self.grid.plotControlLines()
-            self.grid.plotConnections()
-            self.grid.plot()
+            grid.plotControlLines()
+            grid.plotConnections()
+            grid.plot()
 
-        pass
+        return grid
+        
 
     def createGridP(self, plot=False):
         self.continuationPairs = []
@@ -202,11 +202,13 @@ class ControlLineBasedGenerator:
         
         grid.connectContinuationPairs()
 
-        self.grid = grid
+        grid = grid
         if plot:
-            self.grid.plotControlLines()
-            self.grid.plotConnections()
-            self.grid.plot()
+            grid.plotControlLines()
+            grid.plotConnections()
+            grid.plot()
+
+        return grid
 
 
     def createGridA(self, plot=False):
@@ -254,11 +256,13 @@ class ControlLineBasedGenerator:
         
         grid.connectContinuationPairs()
 
-        self.grid = grid
+        grid = grid
         if plot:
-            self.grid.plotControlLines()
-            self.grid.plotConnections()
-            self.grid.plot()
+            grid.plotControlLines()
+            grid.plotConnections()
+            grid.plot()
+
+        return grid
 
     
     def createTestGridWithHorizontalControlLines(self, nLines=5, plot=False):
@@ -304,13 +308,12 @@ class ControlLineBasedGenerator:
         
         grid.connectContinuationPairs()
 
-        self.grid = grid
         if plot:
-            self.grid.plotControlLines()
-            self.grid.plotConnections()
-            self.grid.plot()
-
-        pass
+            grid.plotControlLines()
+            grid.plotConnections()
+            grid.plot()
+            
+        return grid
     
     #endregion
 
@@ -322,12 +325,12 @@ class ControlLineBasedGenerator:
 
         # 1 grid creation
         if layout == "A":
-            self.createGridA(plot=plotGrid)
+            grid = self.createGridA(plot=plotGrid)
             # return False
         else:
-            self.createTestGridWithHorizontalControlLines(plot=plotGrid)
+            grid = self.createTestGridWithHorizontalControlLines(plot=plotGrid)
 
-        return self.generateByGrid(name, self.grid)
+        return self.generateByGrid(name, grid)
 
     
     def generateWithHorizontalControlines(self, name, nLines, plotGrid = True, stopAfterCreatingIntersections=False):
@@ -336,8 +339,8 @@ class ControlLineBasedGenerator:
 
         logging.info(f"{self.name}: generateWithHorizontalControlines: creating grid")
         # 1 grid creation
-        self.createGridWithHorizontalControlLines(nLines, plot=plotGrid)
-        return self.generateByGrid(name, self.grid, stopAfterCreatingIntersections)
+        grid = self.createGridWithHorizontalControlLines(nLines, plot=plotGrid)
+        return self.generateByGrid(name, grid, stopAfterCreatingIntersections)
 
         
     

@@ -50,7 +50,7 @@ class test_ControlLineBasedGenerator(unittest.TestCase):
 
     def test_generateWithHorizontalControlines(self):
 
-        for seed in range(1,20):
+        for seed in range(1,2):
             try:
                 generator = ControlLineBasedGenerator((600, 600), debug=True, seed=seed, randomizeDistance=False, randomizeHeading=True)
                 odr = generator.generateWithHorizontalControlines("test_generateWithHorizontalControlines", 4, plotGrid=False)
