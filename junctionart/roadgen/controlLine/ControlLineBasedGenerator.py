@@ -327,35 +327,8 @@ class ControlLineBasedGenerator:
         else:
             self.createTestGridWithHorizontalControlLines(plot=plotGrid)
 
-        # 1.1
-        # build clockwise adjacent points structure
-        logging.info(f"{self.name}: generateWithManualControlines: buildClockwiseAdjacentMapForControlPoints")
-        
-        self.buildClockwiseAdjacentMapForControlPoints()
+        return self.generateByGrid(name, self.grid)
 
-        # 2. define lanes for each connection
-        if self.randomizeLanes:
-            logging.info(f"{self.name}: generateWithManualControlines: randomizeLanes")
-            self.createLaneConfigurationsForConnections()
-        else:
-            self.laneConfigurations = None
-
-        logging.info(f"{self.name}: generateWithManualControlines: createIntersectionsForControlPoints")
-        # 3. create intersections for each control point
-        self.createIntersectionsForControlPoints()
-
-        # now we have the intersections
-        # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
-        logging.info(f"{self.name}: generateWithManualControlines: createConnectionRoadsBetweenIntersections")
-        self.createConnectionRoadsBetweenIntersections()
-
-        logging.info(f"{self.name}: generateWithManualControlines: adjustLaneMarkings")
-        self.adjustLaneMarkings()
-        
-        logging.info(f"{self.name}: generateWithManualControlines: combine")
-        combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
-        ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
-        return combinedOdr
     
     def generateWithHorizontalControlines(self, name, nLines, plotGrid = True, stopAfterCreatingIntersections=False):
 
@@ -364,23 +337,27 @@ class ControlLineBasedGenerator:
         logging.info(f"{self.name}: generateWithHorizontalControlines: creating grid")
         # 1 grid creation
         self.createGridWithHorizontalControlLines(nLines, plot=plotGrid)
+        return self.generateByGrid(name, self.grid, stopAfterCreatingIntersections)
 
+        
+    
+    def generateByGrid(self, name, grid, stopAfterCreatingIntersections=False):
         # 1.1
         # build clockwise adjacent points structure
         
         logging.info(f"{self.name}: generateWithHorizontalControlines: buildClockwiseAdjacentMapForControlPoints")
-        self.buildClockwiseAdjacentMapForControlPoints()
+        self.buildClockwiseAdjacentMapForControlPoints(grid.connections)
 
         # 2. define lanes for each connection
         if self.randomizeLanes:
             logging.info(f"{self.name}: generateWithHorizontalControlines: randomizeLanes")
-            self.createLaneConfigurationsForConnections()
+            self.createLaneConfigurationsForConnections(grid.connections)
         else:
             self.laneConfigurations = None
 
         # 3. create intersections for each control point
         logging.info(f"{self.name}: generateWithHorizontalControlines: createIntersectionsForControlPoints")
-        self.createIntersectionsForControlPoints()
+        self.createIntersectionsForControlPoints(grid.connections)
 
         if stopAfterCreatingIntersections: # for stasitical concerns, we need intersections only
             return
@@ -388,7 +365,7 @@ class ControlLineBasedGenerator:
         # now we have the intersections
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
         logging.info(f"{self.name}: generateWithHorizontalControlines: createConnectionRoadsBetweenIntersections")
-        self.createConnectionRoadsBetweenIntersections()
+        self.createConnectionRoadsBetweenIntersections(grid.connections)
 
         logging.info(f"{self.name}: generateWithHorizontalControlines: adjustLaneMarkings")
         self.adjustLaneMarkings()
@@ -397,22 +374,22 @@ class ControlLineBasedGenerator:
         combinedOdr = ODRHelper.combine(self.odrList, name, countryCode=self.country)
         ODRHelper.addAdjustedRoads(combinedOdr, self.connectionRoads)
         return combinedOdr
-        
+
     #endregion
 
     #region intersection creation and placement on map
 
-    def buildClockwiseAdjacentMapForControlPoints(self):
-        for (line1, line2, point1, point2) in self.grid.connections:
+    def buildClockwiseAdjacentMapForControlPoints(self, connections):
+        for (line1, line2, point1, point2) in connections:
             if len(point1.adjacentPointsCWOrder) == 0:
                 ControlPointIntersectionAdapter.orderAjacentCW(point1)
             if len(point2.adjacentPointsCWOrder) == 0:
                 ControlPointIntersectionAdapter.orderAjacentCW(point2)
         pass
 
-    def createIntersectionsForControlPoints(self):
+    def createIntersectionsForControlPoints(self, connections):
         
-        for (line1, line2, point1, point2) in self.grid.connections:
+        for (line1, line2, point1, point2) in connections:
 
             
             if point1 not in self.controlPointIntersectionMap and len(point1.adjacentPoints) >= 2:
@@ -448,9 +425,9 @@ class ControlLineBasedGenerator:
         pass
 
 
-    def createConnectionRoadsBetweenIntersections(self):
+    def createConnectionRoadsBetweenIntersections(self, connections):
         # for each connection, find the pair of intersections, find the pair of controlpoints, create straight connection road.
-        for (line1, line2, point1, point2) in self.grid.connections:
+        for (line1, line2, point1, point2) in connections:
 
             # print(f"{self.name}: Creating connections between {point1.position} and {point2.position}")
             
@@ -501,11 +478,11 @@ class ControlLineBasedGenerator:
     #endregion
 
     #region lane configurations for each control point
-    def createLaneConfigurationsForConnections(self):
+    def createLaneConfigurationsForConnections(self, connections):
 
         self.laneConfigurations = {}
 
-        for (line1, line2, point1, point2) in self.grid.connections:
+        for (line1, line2, point1, point2) in connections:
 
             point1_n_left =  np.random.choice([0, 1, 2, 3], p = self.nLaneDistributionOnASide)
             point1_n_right = np.random.choice([0, 1, 2, 3], p = self.nLaneDistributionOnASide)
