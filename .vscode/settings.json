@@ -14,5 +14,5 @@
   "python.linting.flake8Enabled": false,
   "python.formatting.provider": "black",
   "terminal.integrated.inheritEnv": false,
-  "python.pythonPath": "C:\\Users\\adhocmaster\\anaconda3\\envs\\junctionArt\\python.exe"
+  "python.pythonPath": "C:\\Users\\adhocmaster\\.conda\\envs\\junction-art-poetry\\python.exe"
 }

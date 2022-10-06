@@ -10,6 +10,7 @@ from junctionart.junctions.SequentialJunctionBuilder import SequentialJunctionBu
 import junctionart.extensions as extensions
 import pyodrx as pyodrx
 import logging
+from tqdm import tqdm
 logging.basicConfig(level=logging.INFO)
 
 class test_SequentialJunctionBuilder(unittest.TestCase):
@@ -340,6 +341,43 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
             
             extensions.view_road(odr,os.path.join('..',self.configuration.get("esminipath")))
             extensions.saveRoadImageFromFile(xmlPath, self.configuration.get("esminipath"))
+    
+    # def test_export2LaneIntersections(self):
+        
+    #     maxNumberOfRoadsPerJunction = 3
+    #     minLanePerSide = 1
+    #     maxLanePerSide = 2
+    #     numberOfIntersections = 10
+        
+    #     created = 0
+    #     # create 
+    #     with tqdm(total=numberOfIntersections) as pbar:
+    #         while created < numberOfIntersections:
+    #             path = self.configuration.get("harvested_straight_roads")
+    #             intersection = self.builder.createWithRandomLaneConfigurations(path, 
+    #                                 sl, 
+    #                                 maxNumberOfRoadsPerJunction=maxNumberOfRoadsPerJunction, 
+    #                                 maxLanePerSide=maxLanePerSide, 
+    #                                 minLanePerSide=minLanePerSide, 
+    #                                 internalConnections=True, 
+    #                                 cp1=pyodrx.ContactPoint.end,
+    #                                 internalLinkStrategy = LaneConfigurationStrategies.SPLIT_ANY,
+    #                                 getAsOdr=False)
+
+
+    #             odr = intersection.odr
+    #             # xmlPath = f"output/test_createWithRandomLaneConfigurations-split-any-{maxNumberOfRoadsPerJunction}-{sl}.xodr"
+    #             xmlPath = f"output/seed-{self.seed}-{maxNumberOfRoadsPerJunction}-way-{sl}.xodr"
+    #             odr.write_xml(xmlPath)
+    #             isValid = self.validator.validateIncidentPoints(intersection, self.builder.minConnectionLength)
+    #             if isValid:
+    #                 pbar.update(1)
+                    
+    #             if created % 100 == 0:
+    #                 print(f"generated {created}")
+
+
+
 
     def test_3WayJunctions(self):
 
@@ -347,7 +385,7 @@ class test_SequentialJunctionBuilder(unittest.TestCase):
         minLanePerSide = 1
         maxLanePerSide = 2
         
-        for sl in range(5):
+        for sl in range(3):
             path = self.configuration.get("harvested_straight_roads")
             intersection = self.builder.createWithRandomLaneConfigurations(path, 
                                 sl, 
