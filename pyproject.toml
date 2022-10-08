@@ -132,6 +132,7 @@ sphinx-rtd-theme = "^0.5.2"
 linkify-it-py = "^1.0.1"
 tabulate = "^0.8.9"
 psutil = "^5.8.0"
+tqdm = "^4.64.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.3"
