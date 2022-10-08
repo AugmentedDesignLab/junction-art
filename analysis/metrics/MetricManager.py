@@ -71,7 +71,7 @@ class MetricManager:
 
                 
 
-                print(f"{self.name}: calculateIntersectionStatistics done for intersection {intersectionCount}")
+                logging.debug(f"{self.name}: calculateIntersectionStatistics done for intersection {intersectionCount}")
             except Exception as e:
                 extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
                 logging.error(e)
@@ -162,8 +162,11 @@ class MetricManager:
 
 
     def exportDataframes(self, path):
+
+        os.makedirs(path, exist_ok=True)
         
         suf = datetime.now().strftime("%Y-%m-%d")
+
         incidentPath = f"{path}/{suf}-incidentRoadDF.csv"
         connectionPath = f"{path}/{suf}-connectionRoadDF.csv"
         intersectionPath = f"{path}/{suf}-intersectionDF.csv"
@@ -192,8 +195,8 @@ class MetricManager:
         # fov
         groupedIncidentDF = incidentDF.groupby(['intersectionId']).max()[['fov', 'maxCurvature', 'complexity_avg', 'cornerDeviation']]
 
-        print(groupedIncidentDF.head())
-        print(groupedIncidentDF.index)
+        logging.info(groupedIncidentDF.head())
+        # print(groupedIncidentDF.index)
         intersectionDF = intersectionDF.join(groupedIncidentDF, how='left')
 
         return intersectionDF

@@ -1,7 +1,7 @@
 from junctionart.junctions.Intersection import Intersection
 from junctionart.junctions.Geometry import Geometry
 from junctionart.extensions.ExtendedRoad import ExtendedRoad
-import junctionart.extensions
+import junctionart.extensions as extensions
 import math
 from analysis.metrics.fov.Angle import Angle
 from analysis.metrics.fov.Fov import Fov

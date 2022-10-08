@@ -43,11 +43,13 @@ class MetricsPlotter:
         fig, ax = plt.subplots()
         self.incidentRoadDFNormalized.plot.hist(bins=10, alpha=0.5, ax=ax, y=cols, subplots=subplots)
         ax.set_xlabel("Normalized Scale 0.0 - 1.0)")
+        fig.tight_layout()
         plt.show()
         
         fig, ax = plt.subplots()
         self.incidentRoadDF.plot.hist(bins=10, alpha=0.5, ax=ax, y=cols, subplots=subplots)
         ax.set_xlabel("Angle in Degrees)")
+        fig.tight_layout()
         plt.show()
         return 
 
