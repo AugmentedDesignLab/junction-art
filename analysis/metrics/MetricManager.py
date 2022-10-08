@@ -7,6 +7,7 @@ from analysis.metrics.travel.ConnectionRoadComplexity import ConnectionRoadCompl
 from typing import List
 import pandas as pd
 from datetime import datetime
+from tqdm import tqdm
 
 from junctionart.draw.IntersectionDrawer import IntersectionDrawer
 import numpy as np
@@ -53,7 +54,7 @@ class MetricManager:
         areas = []
         conflictAreas = []
         intersectionCount = 0
-        for intersection in self.intersections:
+        for intersection in tqdm(self.intersections, desc="calculateIntersectionStatistics"):
 
             if len(intersection.incidentRoads) < 3:
                 raise Exception("Metrics available for 3+ leg intersections only")
