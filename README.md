@@ -42,7 +42,10 @@ Python 3.7+
 7. scikit-spatial
 8. z3
 9. seaborn
-10. shapely
+10. shapely, (requres installation of [osgeo](https://trac.osgeo.org/osgeo4w/)
+11. pandas
+12. tqdm
+13. sympy
 
 ### Conda commands:
 
@@ -54,6 +57,9 @@ Python 3.7+
 6. conda install -c conda-forge scikit-spatial
 7. conda install -c asmeurer z3 (optional for road generation)
 8. conda install -c anaconda seaborn (for analysis)
+9. conda install -c conda-forge shapely 
+10. conda install -c conda-forge pandas 
+9. conda install tqdm 
 9. conda install -c conda-forge shapely 
 
 ## Configuration - create config.yaml
