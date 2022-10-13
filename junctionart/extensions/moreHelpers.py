@@ -35,7 +35,7 @@ def createOdr(name, roads, junctions):
         odr.add_junction(junction)
 
     roadLinker.adjustLaneOffsetsForOdr(odr)
-    logging.info(f"moreHelpers: createOdr: starting adjustment. May freeze!!!!!!!!!!!!!")
+    logging.debug(f"moreHelpers: createOdr: starting adjustment. May freeze!!!!!!!!!!!!!")
     odr.adjust_roads_and_lanes()
 
     return odr
@@ -55,7 +55,7 @@ def createOdrByPredecessor(name, roads, junctions, countryCode):
         odr.add_junction(junction)
 
     roadLinker.adjustLaneOffsetsForOdr(odr)
-    logging.info(f"moreHelpers: createOdrByPredecessor: starting adjustment. May freeze!!!!!!!!!!!!!")
+    logging.debug(f"moreHelpers: createOdrByPredecessor: starting adjustment. May freeze!!!!!!!!!!!!!")
     odr.adjust_roads_and_lanesByPredecessor()
 
     return odr

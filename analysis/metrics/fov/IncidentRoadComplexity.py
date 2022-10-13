@@ -1,13 +1,14 @@
 from junctionart.junctions.Intersection import Intersection
 from junctionart.junctions.Geometry import Geometry
 from junctionart.extensions.ExtendedRoad import ExtendedRoad
-import junctionart.extensions
+import junctionart.extensions as extensions
 import math
 from analysis.metrics.fov.Angle import Angle
 from analysis.metrics.fov.Fov import Fov
 from analysis.metrics.fov.FovComplexity import FovComplexity
 import pandas as pd
 import numpy as np
+import logging
 
 class IncidentRoadComplexity:
 
@@ -164,7 +165,7 @@ class IncidentRoadComplexity:
         complexity = norm_curvature * normFov * normDeviation
 
         if complexity > 1:
-            print(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
+            logging.warn(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
             complexity = 1.0
         return complexity
 
@@ -175,7 +176,7 @@ class IncidentRoadComplexity:
         complexity = 0.5 * norm_curvature + 0.25 * (normFov + normDeviation)
 
         if complexity > 1:
-            print(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
+            logging.warn(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
             complexity = 1.0
         return complexity
 
@@ -187,7 +188,7 @@ class IncidentRoadComplexity:
         complexity = max(norm_curvature, normFov, normDeviation)
 
         if complexity > 1:
-            print(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
+            logging.warn(f"{self.name}:getComplexity  complexity over 1. curvature={curvature}, maxCurvature={self.getMaxCurvature()},  norm_curvature={norm_curvature}, normFov={normFov}, normDeviation={normDeviation}")
             complexity = 1.0
         return complexity
 

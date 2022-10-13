@@ -7,6 +7,7 @@ from analysis.metrics.travel.ConnectionRoadComplexity import ConnectionRoadCompl
 from typing import List
 import pandas as pd
 from datetime import datetime
+from tqdm import tqdm
 
 from junctionart.draw.IntersectionDrawer import IntersectionDrawer
 import numpy as np
@@ -53,7 +54,7 @@ class MetricManager:
         areas = []
         conflictAreas = []
         intersectionCount = 0
-        for intersection in self.intersections:
+        for intersection in tqdm(self.intersections, desc="calculateIntersectionStatistics"):
 
             if len(intersection.incidentRoads) < 3:
                 raise Exception("Metrics available for 3+ leg intersections only")
@@ -71,7 +72,7 @@ class MetricManager:
 
                 
 
-                print(f"{self.name}: calculateIntersectionStatistics done for intersection {intersectionCount}")
+                logging.debug(f"{self.name}: calculateIntersectionStatistics done for intersection {intersectionCount}")
             except Exception as e:
                 extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
                 logging.error(e)
@@ -162,8 +163,11 @@ class MetricManager:
 
 
     def exportDataframes(self, path):
+
+        os.makedirs(path, exist_ok=True)
         
         suf = datetime.now().strftime("%Y-%m-%d")
+
         incidentPath = f"{path}/{suf}-incidentRoadDF.csv"
         connectionPath = f"{path}/{suf}-connectionRoadDF.csv"
         intersectionPath = f"{path}/{suf}-intersectionDF.csv"
@@ -192,8 +196,8 @@ class MetricManager:
         # fov
         groupedIncidentDF = incidentDF.groupby(['intersectionId']).max()[['fov', 'maxCurvature', 'complexity_avg', 'cornerDeviation']]
 
-        print(groupedIncidentDF.head())
-        print(groupedIncidentDF.index)
+        logging.info(groupedIncidentDF.head())
+        # print(groupedIncidentDF.index)
         intersectionDF = intersectionDF.join(groupedIncidentDF, how='left')
 
         return intersectionDF

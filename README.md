@@ -42,7 +42,11 @@ Python 3.7+
 7. scikit-spatial
 8. z3
 9. seaborn
-10. shapely
+10. shapely, (requres installation of [osgeo](https://stackoverflow.com/questions/12578471/oserror-geos-c-could-not-be-found-when-installing-shapely/50623996#50623996)
+11. pandas
+12. tqdm
+13. sympy
+14. geos
 
 ### Conda commands:
 
@@ -55,6 +59,11 @@ Python 3.7+
 7. conda install -c asmeurer z3 (optional for road generation)
 8. conda install -c anaconda seaborn (for analysis)
 9. conda install -c conda-forge shapely 
+10. conda install -c conda-forge pandas 
+11. conda install tqdm 
+12. conda install -c conda-forge shapely 
+13. conda install -c conda-forge geos
+
 
 ## Configuration - create config.yaml
 copy the contents of config-sample.yaml file and create a new file "config.yaml" in the root directory of the project. Now change these configurations:
