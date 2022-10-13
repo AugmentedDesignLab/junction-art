@@ -5,8 +5,8 @@ try:
 except ValueError: # Already removed
     pass
 
-projectFolder = 'C:/Users/abjaw/Documents/GitHub/junction-art'
-projectFolder = 'c:/muktadir/junction-art'
+projectFolder = 'C:/Users/adhocmaster/Documents/GitHub/junction-art'
+# projectFolder = 'c:/muktadir/junction-art'
 sys.path.append(str(projectFolder))
 os.chdir(projectFolder)
 print( f"current working dir{os.getcwd()}")
