@@ -60,12 +60,13 @@ class MetricManager:
                 raise Exception("Metrics available for 3+ leg intersections only")
 
             try:
-                numberOfIncidentRoads.append(len(intersection.incidentRoads))
-                numberOfConnectionRoads.append(len(intersection.internalConnectionRoads))
-
                 area_dict = IntersectionDrawer(intersection, step=0.1).get_area_values(include_u_turn=False)
                 areas.append(area_dict['IntersectionArea'])
                 conflictAreas.append(area_dict['ConflictArea'])
+                
+                numberOfIncidentRoads.append(len(intersection.incidentRoads))
+                numberOfConnectionRoads.append(len(intersection.internalConnectionRoads))
+
                 
                 intersectionCount += 1
                 intersectionIds.append(intersectionCount)
@@ -76,7 +77,7 @@ class MetricManager:
             except Exception as e:
                 extensions.view_road(intersection.odr,os.path.join('..',self.configuration.get("esminipath")))
                 logging.error(e)
-                raise e
+                # raise e
 
         
         self.intersectionDF["numberOfIncidentRoads"] = pd.Series(numberOfIncidentRoads)

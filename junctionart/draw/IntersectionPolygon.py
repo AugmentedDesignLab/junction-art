@@ -124,7 +124,10 @@ class IntersectionPolygon():
     def get_combined_road_overlap_polygon(self, include_u_turn = True):
 
         polygon_list = self.get_road_overlap_polygons(include_u_turn)
-        combined_polygon = unary_union([polygon if polygon.is_valid else polygon.buffer(0) for polygon in polygon_list])
+        # print(polygon_list)
+        cleanedPolygons = [polygon if polygon.is_valid else polygon.buffer(0.01) for polygon in polygon_list]
+        
+        combined_polygon = unary_union(cleanedPolygons)
 
         return combined_polygon
 
