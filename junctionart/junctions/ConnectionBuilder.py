@@ -59,7 +59,7 @@ class ConnectionBuilder:
 
         x1, y1, h1 = incomingRoad.getLanePosition(incomingBoundaryId, incomingCp)
         x2, y2, h2 = outgoingRoad.getLanePosition(outgoingBoundaryId, outgoingCp)
-
+        
         # special case for U turns from -1 to 1 or 1 to -1
         if x1 == x2 and y1 == y2:
         #     x1 = 0.9 * x1

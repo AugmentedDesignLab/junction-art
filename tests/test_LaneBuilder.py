@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 import os, dill
+from junctionart.extensions.CountryCodes import CountryCodes
 import pyodrx as pyodrx 
 from junctionart.junctions.JunctionMerger import JunctionMerger
 import junctionart.extensions as extensions
@@ -23,7 +24,7 @@ class test_LaneBuilder(unittest.TestCase):
         self.esminiPath = self.configuration.get("esminipath")
         self.roadBuilder = RoadBuilder()
         self.laneBuilder = LaneBuilder()
-        self.laneLinker = LaneLinker()
+        self.laneLinker = LaneLinker(CountryCodes.US)
         self.straightRoadBuilder = StraightRoadBuilder()
 
 
@@ -47,7 +48,7 @@ class test_LaneBuilder(unittest.TestCase):
 
 
         odrName = "test_connectionRoad"
-        odr = extensions.createOdrByPredecessor(odrName, roads, [])
+        odr = extensions.createOdrByPredecessor(odrName, roads, [], CountryCodes.US)
         
         self.laneBuilder.addRightTurnLaneUS(roads[0], 3)
         # self.laneBuilder.addRightLaneUS(roads[1])

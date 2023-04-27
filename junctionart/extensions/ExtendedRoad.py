@@ -723,7 +723,7 @@ class ExtendedRoad(pyodrx.Road):
         # in local coordinate the reference line moves along v
 
         localShiftAmount = self.getBorderDistanceOfLane(laneNo, cp)
-
+        
         if laneNo > 0: 
             x += localShiftAmount * math.cos(h + np.pi/2)
             y += localShiftAmount * math.sin(h + np.pi/2)

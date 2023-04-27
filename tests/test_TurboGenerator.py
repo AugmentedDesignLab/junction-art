@@ -1,3 +1,5 @@
+from asyncio import run_coroutine_threadsafe
+from email import generator
 from junctionart.extensions.ExtendedLane import ExtendedLane
 from junctionart.junctions.Geometry import Geometry
 from junctionart.junctions.LaneSides import LaneSides
@@ -5,9 +7,12 @@ import pyodrx as pyodrx
 from junctionart.extensions.CountryCodes import CountryCodes
 import unittest
 from junctionart.library.Configuration import Configuration
+# )
 import junctionart.extensions as extensions, os
 import math
-from junctionart.roundabout.ClassicGenerator import ClassicGenerator
+from junctionart.roundabout.TurboGenerator import TurboGenerator
+# from junctionart.roundabout.ClassicGenerator import ClassicGenerator
+# test
 from junctionart.junctions.JunctionBuilder import JunctionBuilder
 from junctionart.junctions.LaneBuilder import LaneBuilder
 from junctionart.junctions.CurveRoadBuilder import CurveRoadBuilder
@@ -26,7 +31,7 @@ class test_ClassicGenerator(unittest.TestCase):
     def setUp(self):
         self.configuration = Configuration()
 
-        self.builder = ClassicGenerator(country=CountryCodes.US, laneWidth=3)
+        self.builder = TurboGenerator(country=CountryCodes.US, laneWidth=3)
 
         # test
         self.straightbuilder = StraightRoadBuilder()
@@ -39,17 +44,33 @@ class test_ClassicGenerator(unittest.TestCase):
     def test_createRoundAboutFromIncidentPoints1(self):
 
         threePoints = [
-            {"x": 80, "y": 20, "heading": math.radians(45),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
-            {"x": 210, "y": 20, "heading": math.radians(115),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
-            {"x": 100, "y": 100, "heading": math.radians(300),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
+            {"x": 80, "y": 20, "heading": math.radians(45),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {"x": 210, "y": 20, "heading": math.radians(115),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {"x": 100, "y": 100, "heading": math.radians(300),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
             # {"x": 160, "y": 49, "heading": math.radians(300),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
             # {"x": 160, "y": 100, "heading": math.radians(220),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
         ]
-        odr = self.builder.generateWithRoadDefinition(
+        odr = self.builder.generateWithRoadDefinitionTurbo(
             threePoints,
             outgoingLanesMerge=False
         )
-        extensions.printRoadPositions(odr)
+        extensions.view_road(
+            odr, os.path.join("..", self.configuration.get("esminipath"))
+        )
+    def test_createRoundAboutFromIncidentPoints1Turbo(self):
+
+        threePoints = [
+            {"x": 80, "y": 20, "heading": math.radians(90),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {"x": 120, "y": 60, "heading": math.radians(180),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {"x": 80, "y": 100, "heading": math.radians(270),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {"x": 40, "y": 60, "heading": math.radians(360),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            # {"x": 160, "y": 100, "heading": math.radians(220),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
+        ]
+        odr = self.builder.generateWithRoadDefinitionTurbo(
+            threePoints,
+            outgoingLanesMerge=False
+        )
+        
         extensions.view_road(
             odr, os.path.join("..", self.configuration.get("esminipath"))
         )
@@ -63,11 +84,10 @@ class test_ClassicGenerator(unittest.TestCase):
             {"x": 460, "y": 50, "heading": math.radians(90),'leftLane': 2, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
             {"x": 160, "y": 100, "heading": math.radians(20),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
         ]
-        odr = self.builder.generateWithRoadDefinition(
+        odr = self.builder.generateWithRoadDefinitionTurbo(
             threePoints,
             outgoingLanesMerge=False
         )
-        extensions.printRoadPositions(odr)
         extensions.view_road(
             odr, os.path.join("..", self.configuration.get("esminipath"))
         )
@@ -81,7 +101,7 @@ class test_ClassicGenerator(unittest.TestCase):
             {"x": random.random()*control, "y": random.random()*control, "heading": math.radians((random.random()*control % 100) + 100),'leftLane': 2, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
             {"x": 160, "y": 100, "heading": math.radians(200),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
         ]
-        odr = self.builder.generateWithRoadDefinition(
+        odr = self.builder.generateWithRoadDefinitionTurbo(
             threePoints,
             outgoingLanesMerge=True
         )
@@ -98,7 +118,7 @@ class test_ClassicGenerator(unittest.TestCase):
             {"x": 100, "y": 100, "heading": math.radians(250),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
             # {"x": -100, "y": 100, "heading": math.radians(20),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
         ]
-        odr = self.builder.generateWithRoadDefinition(
+        odr = self.builder.generateWithRoadDefinitionTurbo(
             threePoints
         )
         extensions.printRoadPositions(odr)
@@ -106,6 +126,21 @@ class test_ClassicGenerator(unittest.TestCase):
             odr, os.path.join("..", self.configuration.get("esminipath"))
         )
     
+    def get_fixed_points2(self, center_x, center_y, radius, nPoints):
+        points = []
+        randomAngle = 2*np.pi*random.random()
+        angles = [randomAngle + i*2*np.pi/nPoints for i in range(nPoints)]
+        for angle in angles:
+            angle = angle + random.randint(-5*(6-nPoints), 5*(6-nPoints))
+            x = center_x + radius * math.cos(angle)
+            y = center_y + radius * math.sin(angle)
+            angle = self.get_angle(x, y, center_x, center_y)
+            modified_angle = angle + random.randint(-30, 30)
+            # modified_x, modified_y = self.random_gradient_tranlation(modified_angle, x, y)
+            points.append((x, y, modified_angle))
+            
+        return sorted(points, key = lambda x : x[2])
+
     def test_roadWidening(self):
         road1 = self.straightbuilder.createRandom(roadId=0)
         ls = road1.getLaneSections()
@@ -144,7 +179,7 @@ class test_ClassicGenerator(unittest.TestCase):
         return random_x, random_y
 
     def get_angle(self, center_x, center_y, x, y):
-        angle = math.atan2(center_y - y, center_x - x)
+        angle = math.atan2(y - center_y, x - center_x)
         return (math.degrees(angle))
 
     def random_gradient_tranlation(self, angle, start_x, start_y):
@@ -164,39 +199,14 @@ class test_ClassicGenerator(unittest.TestCase):
             
         return sorted(points, key = lambda x : x[2])
 
-    def get_fixed_points(self, center_x, center_y, radius, nPoints):
-        points = []
-        for i in range(nPoints):
-            x, y = self.get_random_point(center_x, center_y, radius)
-            angle = self.get_angle(center_x, center_y, x, y)
-            modified_angle = angle + random.randint(-30, 30)
-            # modified_x, modified_y = self.random_gradient_tranlation(modified_angle, x, y)
-            points.append((x, y, modified_angle))
-            
-        return sorted(points, key = lambda x : x[2])
-
-    def get_fixed_points2(self, center_x, center_y, radius, nPoints):
-        points = []
-        randomAngle = 2*np.pi*random.random()
-        angles = [randomAngle + i*2*np.pi/nPoints for i in range(nPoints)]
-        for angle in angles:
-            angle = angle + random.randint(-5*(6-nPoints), 5*(6-nPoints))
-            x = center_x + radius * math.cos(angle)
-            y = center_y + radius * math.sin(angle)
-            angle = self.get_angle(center_x, center_y, x, y)
-            modified_angle = angle + random.randint(-30, 30)
-            # modified_x, modified_y = self.random_gradient_tranlation(modified_angle, x, y)
-            points.append((x, y, modified_angle))
-            
-        return sorted(points, key = lambda x : x[2])
     def test_random_point_genration(self):
         sys.setrecursionlimit(100000)
-        for i in range(3, 6): # from 2 - 6 ways
+        for i in range(3, 4): # from 2 - 6 ways
             roundabouts = []
             for j in range(20): #make 100 roundabouts for each way
                 center_x, center_y, radius = self.get_random_circle()
-                points = self.get_fixed_points(center_x, center_y, radius, i)
-                # print(points)
+                points = self.get_random_points(center_x, center_y, radius, i)
+                print(points)
                 road_definitions = [{"x": point[0], "y": point[1], "heading": math.radians(point[2]),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None} for point in points]
                 generator = ClassicGenerator(country=CountryCodes.US, laneWidth=3)
                 odr = generator.generateWithRoadDefinition(
@@ -207,38 +217,18 @@ class test_ClassicGenerator(unittest.TestCase):
                 roundabout = generator.getRoundabout()
                 roundabouts.append(roundabout)
 
-            with open(f"_roundabout{i}ways_V3.pickle", "wb") as f:
-                pickle.dump(roundabouts, f)
-
-    def test_same_point_genration(self):
-        sys.setrecursionlimit(100000)
-        roundabouts = []
-        for j in range(30): #make 100 roundabouts for each way
-            center_x, center_y, radius = 5, 5, 40
-            points = self.get_fixed_points(center_x, center_y, radius, 3)
-            road_definitions = [{"x": point[0], "y": point[1], "heading": math.radians(point[2]),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None} for point in points]
-            generator = ClassicGenerator(country=CountryCodes.US, laneWidth=3)
-            odr = generator.generateWithRoadDefinition(
-                road_definitions,
-                outgoingLanesMerge=False
-            )
-
-            roundabout = generator.getRoundabout()
-            roundabouts.append(roundabout)
-
-            with open(f"_roundabout{3}ways_fixed.pickle", "wb") as f:
+            with open(f"_roundabout{i}ways.pickle", "wb") as f:
                 pickle.dump(roundabouts, f)
 
     def test_random_roundabout(self):
-        i = 3
+        i = 4
         center_x, center_y, radius = self.get_random_circle()
-        radius = 40
+        # radius = 40
         points = self.get_fixed_points2(center_x, center_y, radius, i)
         print(points)
-        
-        road_definitions = [{"x": point[0], "y": point[1], "heading": math.radians(point[2]),'leftLane': random.randint(1, 3), 'rightLane': random.randint(1, 2), 'medianType': None, 'skipEndpoint': None} for point in points]
-        generator = ClassicGenerator(country=CountryCodes.US, laneWidth=3)
-        odr = generator.generateWithRoadDefinition(
+        road_definitions = [{"x": point[0], "y": point[1], "heading": math.radians(point[2]),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None} for point in points]
+        generator = TurboGenerator(country=CountryCodes.US, laneWidth=3)
+        odr = generator.generateWithRoadDefinitionTurbo(
             road_definitions,
             outgoingLanesMerge=False
         )
@@ -342,6 +332,9 @@ class test_ClassicGenerator(unittest.TestCase):
         roads.append(circularRoadsJoint2)
         odr.updateRoads(roads)
         odr.resetAndReadjust(byPredecessor=True)
+
+        ODRHelper.transform(odr, heading=-45)
+        # odr.resetAndReadjust(byPredecessor=True)
         extensions.view_road(
             odr, os.path.join("..", self.configuration.get("esminipath"))
         )

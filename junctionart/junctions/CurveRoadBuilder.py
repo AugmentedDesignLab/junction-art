@@ -297,3 +297,34 @@ class CurveRoadBuilder:
         # create lanes
         road = ExtendedRoad(roadId, pv, laneSections, road_type=junction, curveType=StandardCurveTypes.Poly)
         return road
+
+    def createParamPoly4(self, roadId, isJunction=False, 
+                    au=0,bu=20,cu=20,du= 10,
+                    av=0,bv=2,cv=20,dv= 10,
+                    prange='normalized',
+                    length=None,
+                    n_lanes=1,
+                    lane_offset=3,
+                    laneSides=LaneSides.BOTH,
+                    isLeftTurnLane=False,
+                    isRightTurnLane=False,
+                    isLeftMergeLane=False,
+                    isRightMergeLane=False):
+
+        junction = self.getJunctionSelection(isJunction)
+
+        pv = ExtendedPlanview()
+        
+        poly = pyodrx.ParamPoly3(au,bu,cu,du,av,bv,cv,dv,prange,length)
+        # poly = extensions.IntertialParamPoly(au,bu,cu,du,av,bv,cv,dv,prange,length)
+
+        pv.add_geometry(poly)
+        length = pv.getTotalLength() 
+
+        laneSections = self.laneBuilder.getStandardLanes(n_lanes, lane_offset, laneSides,
+                                                            roadLength=length, 
+                                                            isLeftTurnLane=isLeftTurnLane, isRightTurnLane=isRightTurnLane,
+                                                            isLeftMergeLane=isLeftMergeLane, isRightMergeLane=isRightMergeLane)
+        # create lanes
+        road = ExtendedRoad(roadId, pv, laneSections, curveType=StandardCurveTypes.Poly)
+        return road

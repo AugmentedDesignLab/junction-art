@@ -1,14 +1,16 @@
-from junctions.Intersection import Intersection
-from extensions.ExtendedRoad import ExtendedRoad
-from typing import List
-# holds a roundabout object similar to intersection
+class Roundabout():
 
-class Roundabout(Intersection):
+    def __init__(self, id, countryCode, laneWidth, center, radius, offsets, straightRoads, incomingConnectionRoads, outgoingConnectionRoads, circularRoadLanes, circularRoads, junctions):
+        self.id = id
+        self.countryCode = countryCode
+        self.landWidth = laneWidth
+        self.center = center
+        self.radius = radius
+        self.offsets = offsets
+        self.straightRoads = straightRoads
+        self.incomingConnectionRoads = incomingConnectionRoads
+        self.outgoingConnectionRoads = outgoingConnectionRoads
+        self.circularRoadLanes = circularRoadLanes
+        self.circularRoads = circularRoads
+        self.junctions = junctions
 
-    def __init__(self, id, incidentRoads, incidentCPs, geoConnectionRoads=None, internalConnectionRoads: List[ExtendedRoad] = None, odr=None):
-        super().__init__(id, incidentRoads, incidentCPs, geoConnectionRoads=geoConnectionRoads, internalConnectionRoads=internalConnectionRoads, odr=odr)
-
-        self.internalSegments = []
-        self.intersections = {} # keys are incident point object, and values are a 3 way intersections
-
-    pass
