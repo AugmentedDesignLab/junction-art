@@ -161,3 +161,7 @@ curvature_test/*
 library/*
 src/*
 
+*.png
+*.pickle
+*.pickle_fixed
+*.pickle_V2
