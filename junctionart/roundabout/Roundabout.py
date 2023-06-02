@@ -1,6 +1,6 @@
 class Roundabout():
 
-    def __init__(self, id, countryCode, laneWidth, center, radius, offsets, straightRoads, incomingConnectionRoads, outgoingConnectionRoads, circularRoadLanes, circularRoads, junctions):
+    def __init__(self, id, countryCode, laneWidth, center, radius, offsets, straightRoads, incomingConnectionRoads, outgoingConnectionRoads, circularRoadLanes, circularRoads, junctions, odr):
         self.id = id
         self.countryCode = countryCode
         self.landWidth = laneWidth
@@ -13,4 +13,5 @@ class Roundabout():
         self.circularRoadLanes = circularRoadLanes
         self.circularRoads = circularRoads
         self.junctions = junctions
+        self.odr = odr
 

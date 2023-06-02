@@ -207,7 +207,7 @@ class test_ClassicGenerator(unittest.TestCase):
                 roundabout = generator.getRoundabout()
                 roundabouts.append(roundabout)
 
-            with open(f"_roundabout{i}ways_V3.pickle", "wb") as f:
+            with open(f"_roundabout{i}ways.pickle", "wb") as f:
                 pickle.dump(roundabouts, f)
 
     def test_same_point_genration(self):

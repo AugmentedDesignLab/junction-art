@@ -309,7 +309,7 @@ class ClassicGenerator(Generator):
     def getRoundabout(self):
         return Roundabout(0, self.countryCode, self.laneWidth, self.center, self.radius, self.offsets
         , self.straightRoads, self.incomingConnectionRoads, self.outgoingConnectionRoads, self.circularRoadLens
-        ,self.circularRoads, self.junctions)
+        ,self.circularRoads, self.junctions, self.odr)
         
     def widenStraightRoadLanes(self, straightRoads):
         for road in straightRoads:
