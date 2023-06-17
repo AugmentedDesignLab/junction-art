@@ -1,3 +1,7 @@
+import os
+from junctionart import extensions
+from junctionart.library.Configuration import Configuration
+
 class Roundabout():
 
     def __init__(self, id, countryCode, laneWidth, center, radius, offsets, straightRoads, incomingConnectionRoads, outgoingConnectionRoads, circularRoadLanes, circularRoads, junctions, odr):
@@ -15,3 +19,6 @@ class Roundabout():
         self.junctions = junctions
         self.odr = odr
 
+    def showRoundabout(self):
+        config = Configuration()
+        extensions.view_road(self.odr, os.path.join("..", config.get("esminipath")))
