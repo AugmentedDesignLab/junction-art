@@ -65,7 +65,7 @@ class RoundaboutLaneEncodingEnv(Generator):
         self.center = center
         self.radius = radius
         self.offsets = self.getOffset(incidentPoints)
-        print(f"Center = ({center.x}, {center.y}), Radius = {radius}")
+        # print(f"Center = ({center.x}, {center.y}), Radius = {radius}")
         # 2. make the circular road with segments
 
         self.circularRoadLens = self.__findCircularRoadLanes(roadDefinition)
@@ -79,7 +79,7 @@ class RoundaboutLaneEncodingEnv(Generator):
         circularRoads31, circularRoadStartPoints12 = self.getRealisticCircularRoads(circularPoints, circularConnections, firstRoadId, self.circularRoadLens)
 
         circularRoads = circularRoads31
-        circularRoadStartPoints = circularRoadStartPoints12
+        self.circularRoadStartPoints = circularRoadStartPoints12
         self.createSuccPreRelationBetweenCircularRoads(circularRoads)
 
         odrName = "TempCircularRoads" + str(odrId)
@@ -188,7 +188,7 @@ class RoundaboutLaneEncodingEnv(Generator):
 
     def getRoundabout(self):
         return Roundabout(0, self.countryCode, self.laneWidth, self.center, self.radius, self.offsets
-        , self.straightRoads, self.incomingConnectionRoads, self.outgoingConnectionRoads, self.circularRoadLens
+        , self.straightRoads, self.incomingConnectionRoads, self.outgoingConnectionRoads, self.circularRoadLens, self.circularRoadStartPoints
         ,self.circularRoads, self.junctions, self.odr)
         
     

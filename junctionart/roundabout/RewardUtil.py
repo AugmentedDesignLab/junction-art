@@ -1,20 +1,28 @@
 import math
-from shapely.geometry import LineString
+from shapely.geometry import LineString, LinearRing, Point
 import numpy as np
 from sympy import symbols, Eq, solve, expand
-import torch 
+import torch
+import matplotlib.pyplot as plt
 
 class RewardUtil():
     @staticmethod
     def score(roundabout):
-        if RewardUtil.is_intersect(roundabout):
+        # if RewardUtil.is_intersect(roundabout):
+        #     return 0
+        
+        if RewardUtil.isIntersectV2(roundabout):
             return 0
+        
     
         return RewardUtil.getTotalOffset(roundabout).mean()
     
     @staticmethod
     def is_intersect(roundabout, nPoints = 10):
-        coeffs, _ = RewardUtil.getCoeffs(roundabout)
+        coeffs, isIncoming = RewardUtil.getCoeffs(roundabout)
+        for i in range(len(coeffs)):
+            if RewardUtil.isIntersectWithCircle(roundabout, coeffs[i], isIncoming[i], nPoints):
+                return True
         for i in range(len(coeffs)):
             for j in range(i + 1, len(coeffs)):
                 if RewardUtil.find_intersection_point_by_coeffs(coeffs[i], coeffs[j], nPoints):
@@ -22,6 +30,15 @@ class RewardUtil():
                 
         return False
     
+    @staticmethod
+    def isIntersectWithCircle(roundabout, coeffs1, isIncoming, nPoints=10):
+        u_coeffs1, v_coeffs1 = coeffs1
+        x1, y1 = RewardUtil.get_coordinate_wrt_origin(u_coeffs1, v_coeffs1, nPoints)
+        points1 = [(x1[i], y1[i]) for i in range(len(x1))]
+        line1 = LineString(points1[4:len(points1) -1]) if isIncoming else LineString(points1[1:len(points1) -4])
+        circle = LineString([(point.x, point.y) for point in roundabout.circularRoadStartPoints])
+
+        return line1.intersects(circle)
     @staticmethod
     def getTotalOffset(roundabout, nPoints = 10):
         coeffs, isIncoming = RewardUtil.getCoeffs(roundabout)
@@ -175,12 +192,12 @@ class RewardUtil():
         return x_trans,y_trans
     
     @staticmethod
-    def encodeState(laneToCircularIDs, nCircularID):
-        encode = torch.zeros(len(laneToCircularIDs) * nCircularID)
-        for i, laneToCircularID in enumerate(laneToCircularIDs):
+    def encodeState(laneToSlotConfig, nSlots):
+        encode = torch.zeros(len(laneToSlotConfig) * nSlots)
+        for i, laneToCircularID in enumerate(laneToSlotConfig):
             if laneToCircularID == -1:
                 continue
-            encode[i * nCircularID + laneToCircularID] = 1
+            encode[i * nSlots + laneToCircularID] = 1
             
         return encode
     
@@ -192,3 +209,138 @@ class RewardUtil():
             _ = encoding[i : i + nSlots]
             filter[i : i + nSlots] = 1 - len(_[_ == 1]) != 0
         return filter
+    
+    @staticmethod
+    def getLanePointsFromPolyRoads(ParamPolyRoad, lanewidth=3, step=0.1):
+        x_start, y_start, h_start = ParamPolyRoad.planview.get_start_point()
+        start_point = Point(x_start, y_start)
+        for geom in ParamPolyRoad.planview._adjusted_geometries:
+
+            aU, bU, cU, dU, aV, bV, cV, dV = RewardUtil.get_parampoly_coefficiants(geom)
+            xVal_centerline, yVal_centerline = [], []
+            xVal_leftlane, yVal_leftlane = [], []
+            xVal_rightlane, yVal_rightlane = [], []
+
+            for i in np.arange(0, 1+step, step):
+                # getting the value from the actual equation from (0, 0) origin
+                x_abs, y_abs = RewardUtil.get_abs_coordinate_for_parampoly(aU, bU, cU, dU, aV, bV, cV, dV, i)
+
+                # getting the differentiated value
+                x_diff_val, y_diff_val = RewardUtil.get_differentiated_value_for_parampoly(bU, cU, dU, bV, cV, dV, i)
+                
+                # transforming the points from the end of incident roads
+                # TODO: transform wrt contact point
+                centerline_point = Point(x_abs, y_abs)
+                x_trans, y_trans = RewardUtil.transform_by_start_point(h_start, start_point, centerline_point)
+                xVal_centerline.append(x_trans)
+                yVal_centerline.append(y_trans)
+
+                # if len(ParamPolyRoad.lanes.lanesections[0].leftlanes) != 0:
+                #     x_trans_left, y_trans_left = RewardUtil.calc_coordinate_wrt_geometric_start(h_start, start_point, -lanewidth, x_diff_val, y_diff_val, centerline_point)
+                #     xVal_leftlane.append(x_trans_left)
+                #     yVal_leftlane.append(y_trans_left)
+
+                if len(ParamPolyRoad.lanes.lanesections[0].rightlanes) != 0:
+                    x_trans_right, y_trans_right = RewardUtil.calc_coordinate_wrt_geometric_start(h_start, start_point, +lanewidth, x_diff_val, y_diff_val, centerline_point)
+                    xVal_rightlane.append(x_trans_right)
+                    yVal_rightlane.append(y_trans_right)
+
+            
+            return xVal_centerline, yVal_centerline, xVal_leftlane, yVal_leftlane, xVal_rightlane, yVal_rightlane
+
+    @staticmethod
+    def get_parampoly_coefficiants(geom):
+        _attr = geom.geom_type.get_attributes()
+        aU, bU, cU, dU = float(_attr['aU']), float(_attr['bU']), float(_attr['cU']), float(_attr['dU'])
+        aV, bV, cV, dV = float(_attr['aV']), float(_attr['bV']), float(_attr['cV']), float(_attr['dV'])
+        return aU,bU,cU,dU,aV,bV,cV,dV
+    
+    @staticmethod
+    def transform_by_start_point(h_start, geometric_start_point, point_wrt_origin):
+        x_trans = point_wrt_origin.x*math.cos(h_start) - point_wrt_origin.y*math.sin(h_start) + geometric_start_point.x
+        y_trans = point_wrt_origin.x*math.sin(h_start) + point_wrt_origin.y*math.cos(h_start) + geometric_start_point.y
+        return x_trans,y_trans
+    
+    @staticmethod
+    def calc_coordinate_wrt_geometric_start(h_start, start_point, lanewidth, x_diff_val, y_diff_val, centerline_point):
+        x_leftlane, y_leftlane = RewardUtil.calc_coordinate_for_lane(lanewidth, centerline_point, x_diff_val, y_diff_val)
+        point_wrt_origin = Point(x_leftlane, y_leftlane)
+        x_trans_left, y_trans_left = RewardUtil.transform_by_start_point(h_start, start_point, point_wrt_origin)
+        return x_trans_left,y_trans_left
+    
+    @staticmethod
+    def calc_coordinate_for_lane(lanewidth, point_wrt_origin, x_diff_val, y_diff_val): 
+        temp = lanewidth/math.sqrt(x_diff_val**2 + y_diff_val**2)
+        x_leftlane = point_wrt_origin.x + temp*y_diff_val
+        y_leftlane = point_wrt_origin.y - temp*x_diff_val
+        return x_leftlane,y_leftlane
+    
+    @staticmethod
+    def get_abs_coordinate_for_parampoly(aU, bU, cU, dU, aV, bV, cV, dV, i):
+        x_abs = aU + bU*i + cU*(i**2) + dU*(i**3)
+        y_abs = aV + bV*i + cV*(i**2) + dV*(i**3)
+        return x_abs,y_abs
+    
+
+    @staticmethod
+    def get_differentiated_value_for_parampoly(bU, cU, dU, bV, cV, dV, i):
+        x_diff_val = bU + 2*cU*i + 3*dU*(i**2)
+        y_diff_val = bV + 2*cV*i + 3*dV*(i**2)
+        return x_diff_val,y_diff_val
+    
+    @staticmethod
+    def getCenterAndRightLane(road, isIncoming):
+        xVal_centerline, yVal_centerline, xVal_leftlane, yVal_leftlane, xVal_rightlane, yVal_rightlane = RewardUtil.getLanePointsFromPolyRoads(road, step=0.1)
+        rightLanes = [(xVal_rightlane[i], yVal_rightlane[i]) for i in range(len(xVal_rightlane))]
+        centerLanes = [(xVal_centerline[i], yVal_centerline[i]) for i in range(len(xVal_centerline))]
+        return LineString(centerLanes[:-4] if isIncoming else centerLanes[4:]), LineString(rightLanes)
+    
+    @staticmethod
+    def getCenterAndRightLanesFromRoundabout(roundabout):
+        centerLanes = []
+        rightLanes = []
+        for road in roundabout.incomingConnectionRoads:
+            centerLane, rightLane = RewardUtil.getCenterAndRightLane(road, True)
+            centerLanes.append(centerLane)
+            rightLanes.append(rightLane)
+  
+        for road in roundabout.outgoingConnectionRoads:
+            centerLane, rightLane = RewardUtil.getCenterAndRightLane(road, False)
+            centerLanes.append(centerLane)
+            rightLanes.append(rightLane)
+
+        return centerLanes, rightLanes
+    
+    @staticmethod
+    def getCircleFromRoundabout(roundabout):
+        circle = LinearRing([(point.x, point.y) for point in roundabout.circularRoadStartPoints])
+        return circle
+    
+    @staticmethod
+    def isIntersectV2(roundabout):
+        circle = RewardUtil.getCircleFromRoundabout(roundabout)
+        centerLanes, rightLanes = RewardUtil.getCenterAndRightLanesFromRoundabout(roundabout)
+        for rightLane in rightLanes:
+            if rightLane.intersects(circle):
+                return True
+        for i in range(len(rightLanes)):
+            for j in range(i+1, len(rightLanes)):
+                if rightLanes[i].intersects(rightLanes[j]):
+                    return True
+                
+        for i in range(len(centerLanes)):
+            for j in range(i+1, len(centerLanes)):
+                if centerLanes[i].intersects(centerLanes[j]):
+                    return True
+        return False
+    
+    @staticmethod
+    def showRewardView(roundabout):
+        circle = RewardUtil.getCircleFromRoundabout(roundabout)
+        centerLanes, rightLanes = RewardUtil.getCenterAndRightLanesFromRoundabout(roundabout)
+        for rightLane in rightLanes:
+            plt.plot(*rightLane.xy)
+        for centerLane in centerLanes:
+            plt.plot(*centerLane.xy)
+        plt.plot(*circle.xy)
+        plt.show()

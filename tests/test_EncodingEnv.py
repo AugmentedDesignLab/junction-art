@@ -1,6 +1,7 @@
 from junctionart.extensions.ExtendedLane import ExtendedLane
 from junctionart.junctions.Geometry import Geometry
 from junctionart.junctions.LaneSides import LaneSides
+from junctionart.roundabout.LogFlow import LogFlow
 from junctionart.roundabout.RewardUtil import RewardUtil
 from junctionart.roundabout.RoundaboutLaneEncodingEnv import RoundaboutLaneEncodingEnv
 import pyodrx as pyodrx
@@ -46,5 +47,15 @@ class test_EncodingEnv(unittest.TestCase):
         roundabout = self.builder.getRoundabout()
         print(RewardUtil.score(roundabout))
         roundabout.showRoundabout()
+
+    def test_gflow(self):
+        layers = [15, 128, 256, 15]
+        nSlots = 5
+        lgF = LogFlow(layers=layers, nSlots=nSlots)
+
+        laneToCircularIDs=[-1, 1, -1]
+        state = RewardUtil.encodeState(laneToCircularIDs, nSlots)
+        newState = lgF.forward(state)
+        print(newState)
 
     
