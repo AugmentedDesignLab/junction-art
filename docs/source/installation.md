@@ -2,13 +2,26 @@
 
 You can use JunctionArt as an intersection and road generator, or you can use it as a library to build features upon. Both needs the package to be installed. You can install it from {ref}`the source<section-install-source>` or {ref}`the pypi package<section-install-pypi>`. To view the roads, you need a tool like esmini or Mathworks Roadrunner. Many of our test codes are integrated with esmini odrplot.
 
-## Python version:
+**Python version:**
 Works in python 3.7.9. There are some internal python library issues with 3.7.11.
 
 **There are some libraries that may face permission errors. In such cases, run your terminal in administrator mode**
 
+(section-install-pypi)=
+## To use our generatiors in your project
+
+1. Install via PIP
+```
+pip install junctionart
+```
+2. (Optional) Install https://trac.osgeo.org/osgeo4w/ for analysis tools
+3. Read the [User Manual](./user-guide.md)
+
+
+## Extending JunctionArt
+Extending JunctionArt requires installing the source and installing poetry to publish in the PyPi repository.
 (section-install-source)=
-## Installing from source
+### Installing from source
 
 1. Clone the repository from *https://github.com/AugmentedDesignLab/junction-art*
 
@@ -75,12 +88,4 @@ Remove **--prune** if you need the existing python packages installed in your en
 $ pip install -r requirements-pip.txt
 :::
 
-(section-install-pypi)=
-## Installing from pypi
-
-1. pip install junctionart..
-2. Install https://trac.osgeo.org/osgeo4w/ for analysis tools
-:::{note}
-And here's a note with a colon fence!
-:::
 
