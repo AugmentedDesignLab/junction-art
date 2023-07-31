@@ -8,7 +8,7 @@ Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Develo
 We have two peer-review papers and one preprint in this project. Please, cite the one that's most relevant to your research.
 
 ### 1. HD Road Generation - complete city like maps
-
+[Paper](https://www.researchgate.net/publication/360840690_Procedural_Generation_of_High-Definition_Road_Networks_for_Autonomous_Vehicle_Testing_and_Traffic_Simulations)
 ```
 @article{Muktadir2022ProceduralGO,
     author = {Muktadir, Golam Md and Jawad, Abdul and Paranjape, Ishaan and Whitehead, Jim and Shepelev, Aleksey},
@@ -23,7 +23,7 @@ We have two peer-review papers and one preprint in this project. Please, cite th
 ```
 
 ### 2. Roundabout Generation - classic and turbo roundabouts
-
+[Paper](https://www.researchgate.net/publication/372708949_Procedural_Generation_of_Complex_Roundabouts_for_Autonomous_Vehicle_Testing)
 ```
 @INPROCEEDINGS{10186533,
     author={Ikram, Zarif and Muktadir, Golam Md and Whitehead, Jim},
@@ -39,7 +39,7 @@ We have two peer-review papers and one preprint in this project. Please, cite th
 
 
 ### 3. Intersection Generation - most expressive intersection generator today
-
+[Paper](https://www.researchgate.net/publication/360354961_P_r_e_-P_r_i_n_t_Realistic_Road_Generation_Intersections)
 
 ```
 @unknown{Muktadir2022Intersections,
