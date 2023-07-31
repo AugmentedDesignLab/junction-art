@@ -37,6 +37,10 @@ We have two peer-review papers and one preprint in this project. Please, cite th
 }
 ```
 
+
+### 3. Intersection Generation - most expressive intersection generator today
+
+
 ```
 @unknown{Muktadir2022Intersections,
     author = {Muktadir, Golam Md and Jawad, Abdul and Shepelev, Aleksey and Paranjape, Ishaan and Whitehead, Jim},
@@ -47,10 +51,6 @@ We have two peer-review papers and one preprint in this project. Please, cite th
     doi = {10.13140/RG.2.2.30541.51683}
 }
 ```
-
-### 3. Intersection Generation - most expressive intersection generator today
-
-
 
 # Installation
 
