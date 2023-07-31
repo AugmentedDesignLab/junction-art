@@ -3,23 +3,53 @@ Procedural Generation of Intersections for HD Maps for Autonomous Vehicle Develo
 
 **The documentation moved to [https://junctionart.readthedocs.io/](https://junctionart.readthedocs.io/)**
 
-## Citation
+## Citations
 
-Here is the "almost ready" citation if you want to refer to the work:
+We have two peer-review papers and one preprint in this project. Please, cite the one that's most relevant to your research.
+
+### 1. HD Road Generation - complete city like maps
 
 ```
-@article{junctionart:2023,
- author  = {Muktadir, Golam Md and Jawad, Abdul and Paranjape, Ishaan and Whitehead, Jim and Shepelev, Aleksey},
- title   = {Procedural Generation of High-Definition Road Networks for Autonomous Vehicle Testing and Traffic Simulations},
- journal = {SAE International Journal of Connected and Automated Vehicles},
- year    = {2023},
- volume  = {},
- number  = {},
- pages   = {},
- issn    = {2574-0741},
- doi     = {10.4271/12-06-01-0007},
+@article{Muktadir2022ProceduralGO,
+    author = {Muktadir, Golam Md and Jawad, Abdul and Paranjape, Ishaan and Whitehead, Jim and Shepelev, Aleksey},
+    year = {2022},
+    month = {05},
+    pages = {22},
+    title = {Procedural Generation of High-Definition Road Networks for Autonomous Vehicle Testing and Traffic Simulations},
+    volume = {6},
+    journal = {SAE International Journal of Connected and Automated Vehicles},
+    doi = {10.4271/12-06-01-0007}
 }
 ```
+
+### 2. Roundabout Generation - classic and turbo roundabouts
+
+```
+@INPROCEEDINGS{10186533,
+    author={Ikram, Zarif and Muktadir, Golam Md and Whitehead, Jim},
+    booktitle={2023 IEEE Intelligent Vehicles Symposium (IV)}, 
+    title={Procedural Generation of Complex Roundabouts for Autonomous Vehicle Testing}, 
+    year={2023},
+    volume={},
+    number={},
+    pages={1-6},
+    doi={10.1109/IV55152.2023.10186533}
+}
+```
+
+```
+@unknown{Muktadir2022Intersections,
+    author = {Muktadir, Golam Md and Jawad, Abdul and Shepelev, Aleksey and Paranjape, Ishaan and Whitehead, Jim},
+    year = {2022},
+    month = {05},
+    pages = {},
+    title = {P r e -P r i n t Realistic Road Generation: Intersections},
+    doi = {10.13140/RG.2.2.30541.51683}
+}
+```
+
+### 3. Intersection Generation - most expressive intersection generator today
+
 
 
 # Installation
