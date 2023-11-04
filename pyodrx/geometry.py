@@ -806,11 +806,11 @@ class ParamPoly3():
             #TODO: This is not tested or verified...
         """
         return np.sqrt( \
-            (self.bu**2 + self.bv**2) + \
+            (self.bu*self.bu + self.bv*self.bv) + \
             4*(self.bu*self.cu + self.bv*self.cv)*p + \
-            2*(3*self.bu*self.du + 2*self.cu**2 +3*self.bv*self.dv + 2*self.cv**2 )*p**2 + \
-            12*(self.cu*self.du + self.cv*self.dv)*p**3 +\
-            9*(self.du**2 + self.dv**2)*p**4 )
+            2*(3*self.bu*self.du + 2*self.cu*self.cu +3*self.bv*self.dv + 2*self.cv*self.cv )*p*p + \
+            12*(self.cu*self.du + self.cv*self.dv)*p*p*p +\
+            9*(self.du*self.du + self.dv*self.dv)*p*p*p*p)
 
     def get_start_data(self,x,y,h):
         """ Returns the start point of the geometry

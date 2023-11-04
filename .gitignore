@@ -165,3 +165,4 @@ src/*
 *.pickle
 *.pickle_fixed
 *.pickle_V2
+*.pkl

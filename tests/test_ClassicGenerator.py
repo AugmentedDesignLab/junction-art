@@ -21,6 +21,7 @@ import random
 import pickle
 from pyodrx.lane import LaneSection
 import sys
+import pprofile
 
 class test_ClassicGenerator(unittest.TestCase):
     def setUp(self):
@@ -34,7 +35,9 @@ class test_ClassicGenerator(unittest.TestCase):
         self.laneBuilder = LaneBuilder()
         self.curveBuilder = CurveRoadBuilder()
         self.roadBuilder = RoadBuilder()
+        self.profiler = pprofile.Profile()
         pass
+
 
     def test_createRoundAboutFromIncidentPoints1(self):
 
@@ -45,10 +48,13 @@ class test_ClassicGenerator(unittest.TestCase):
             # {"x": 160, "y": 49, "heading": math.radians(300),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
             # {"x": 160, "y": 100, "heading": math.radians(220),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
         ]
-        odr = self.builder.generateWithRoadDefinition(
-            threePoints,
-            outgoingLanesMerge=False
-        )
+        with self.profiler:
+            odr = self.builder.generateWithRoadDefinition(
+                threePoints,
+                outgoingLanesMerge=False
+            )
+
+        self.profiler.print_stats()
         extensions.printRoadPositions(odr)
         extensions.view_road(
             odr, os.path.join("..", self.configuration.get("esminipath"))
@@ -93,9 +99,9 @@ class test_ClassicGenerator(unittest.TestCase):
     def test_createRoundAboutFromIncidentPoints2(self):
 
         threePoints = [ 
-            {"x": 0, "y": 50, "heading": math.radians(0),'leftLane': 2, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
-            {"x": 1, "y": 1, "heading": math.radians(45),'leftLane': 2, 'rightLane': 4, 'medianType': None, 'skipEndpoint': None},
-            {"x": 100, "y": 100, "heading": math.radians(250),'leftLane': 2, 'rightLane': 2, 'medianType': None, 'skipEndpoint': None},
+            {"x": 0, "y": 50, "heading": math.radians(0),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
+            {"x": 1, "y": 1, "heading": math.radians(45),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
+            {"x": 100, "y": 100, "heading": math.radians(250),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
             # {"x": -100, "y": 100, "heading": math.radians(20),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None},
         ]
         odr = self.builder.generateWithRoadDefinition(
@@ -229,14 +235,27 @@ class test_ClassicGenerator(unittest.TestCase):
             with open(f"_roundabout{3}ways_fixed.pickle", "wb") as f:
                 pickle.dump(roundabouts, f)
 
+    def test_case_genration(self):
+        sys.setrecursionlimit(100000)
+        roadDefs = []
+        nPoints = 4
+        for j in range(20): #make 100 roundabouts for each way
+            center_x, center_y, radius = 5, 5, 40
+            points = self.get_fixed_points(center_x, center_y, radius, nPoints)
+            road_definition = [{"x": point[0], "y": point[1], "heading": math.radians(point[2]),'leftLane': 1, 'rightLane': 1, 'medianType': None, 'skipEndpoint': None} for point in points]
+            
+            roadDefs.append(road_definition)
+
+            with open(f"inputTestCases/_input{nPoints}ways_n=8_.pickle", "wb") as f:
+                pickle.dump(roadDefs, f)
+
     def test_random_roundabout(self):
-        i = 3
+        i = 4
         center_x, center_y, radius = self.get_random_circle()
         radius = 40
         points = self.get_fixed_points2(center_x, center_y, radius, i)
-        print(points)
-        
-        road_definitions = [{"x": point[0], "y": point[1], "heading": math.radians(point[2]),'leftLane': random.randint(1, 3), 'rightLane': random.randint(1, 2), 'medianType': None, 'skipEndpoint': None} for point in points]
+        road_definitions = [{"x": point[0], "y": point[1], "heading": math.radians(point[2]),'leftLane': random.randint(1, 1), 'rightLane': random.randint(1, 1), 'medianType': None, 'skipEndpoint': None} for point in points]
+        print(road_definitions)
         generator = ClassicGenerator(country=CountryCodes.US, laneWidth=3)
         odr = generator.generateWithRoadDefinition(
             road_definitions,

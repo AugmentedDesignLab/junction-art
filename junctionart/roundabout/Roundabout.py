@@ -26,4 +26,12 @@ class Roundabout():
         extensions.view_road(self.odr, os.path.join("..", config.get("esminipath")))
 
     def getReward(self):
-        return RewardUtil.score(self)
+        return RewardUtil.score2(self)
+    
+    def getConnectionPoints(self, nPoints):
+        """
+        Returns a list of nPoints points on the roundabout, evenly distributed.
+        Shape is (nLeftLanes, nPoints) (nRightLanes, nPoints)
+        Returns leftLanePoints and rightLanePoints
+        """
+        return RewardUtil.getLeftAndRightLanePoints(self, nPoints)

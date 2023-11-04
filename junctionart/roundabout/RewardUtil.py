@@ -4,6 +4,7 @@ import numpy as np
 from sympy import symbols, Eq, solve, expand
 import torch
 import matplotlib.pyplot as plt
+from frechetdist import frdist
 
 class RewardUtil():
     @staticmethod
@@ -17,6 +18,25 @@ class RewardUtil():
     
         return RewardUtil.getTotalOffset(roundabout).mean()
     
+    @staticmethod
+    def score2(roundabout):
+        reward = 0
+        circle = RewardUtil.getCircleFromRoundabout(roundabout)
+        centerLanes, rightLanes = RewardUtil.getCenterAndRightLanesFromRoundabout(roundabout)
+        for rightLane in rightLanes:
+            if not rightLane.intersects(circle):
+               reward += .5 
+        for i in range(len(rightLanes)):
+            for j in range(i+1, len(rightLanes)):
+                if not rightLanes[i].intersects(rightLanes[j]):
+                    reward += .5
+                
+        for i in range(len(centerLanes)):
+            for j in range(i+1, len(centerLanes)):
+                if not centerLanes[i].intersects(centerLanes[j]):
+                    reward += .5
+        return reward
+        
     @staticmethod
     def is_intersect(roundabout, nPoints = 10):
         coeffs, isIncoming = RewardUtil.getCoeffs(roundabout)
@@ -290,11 +310,15 @@ class RewardUtil():
     
     @staticmethod
     def getCenterAndRightLane(road, isIncoming):
-        xVal_centerline, yVal_centerline, xVal_leftlane, yVal_leftlane, xVal_rightlane, yVal_rightlane = RewardUtil.getLanePointsFromPolyRoads(road, step=0.1)
-        rightLanes = [(xVal_rightlane[i], yVal_rightlane[i]) for i in range(len(xVal_rightlane))]
-        centerLanes = [(xVal_centerline[i], yVal_centerline[i]) for i in range(len(xVal_centerline))]
+        centerLanes, rightLanes = RewardUtil.getCenterAndRightLanePoints(road, step=0.05)
         return LineString(centerLanes[:-4] if isIncoming else centerLanes[4:]), LineString(rightLanes)
     
+    @staticmethod
+    def getCenterAndRightLanePoints(road, step):
+        xVal_centerline, yVal_centerline, xVal_leftlane, yVal_leftlane, xVal_rightlane, yVal_rightlane = RewardUtil.getLanePointsFromPolyRoads(road, step=step)
+        rightLanes = [(xVal_rightlane[i], yVal_rightlane[i]) for i in range(len(xVal_rightlane))]
+        centerLanes = [(xVal_centerline[i], yVal_centerline[i]) for i in range(len(xVal_centerline))]
+        return centerLanes, rightLanes
     @staticmethod
     def getCenterAndRightLanesFromRoundabout(roundabout):
         centerLanes = []
@@ -344,3 +368,34 @@ class RewardUtil():
             plt.plot(*centerLane.xy)
         plt.plot(*circle.xy)
         plt.show()
+    
+    @staticmethod
+    def getLeftAndRightLanePoints(roundabout, nPoints):
+        leftLanes = []
+        rightLanes = []
+        for road in roundabout.incomingConnectionRoads:
+            centerLane, rightLane = RewardUtil.getCenterAndRightLanePoints(road, 1/nPoints)
+            rightLanes.append(rightLane)
+  
+        for road in roundabout.outgoingConnectionRoads:
+            centerLane, rightLane = RewardUtil.getCenterAndRightLanePoints(road, 1/nPoints)
+            leftLanes.append(rightLane)
+
+        return np.array(leftLanes), np.array(rightLanes)
+    
+    @staticmethod
+    def getDistance(roundabout1, roundabout2, nPoints = 10):
+        leftPoints, rightPoints = roundabout1.getConnectionPoints(nPoints)
+        p = RewardUtil.getAllPoints(leftPoints, rightPoints)
+        leftPoints, rightPoints = roundabout2.getConnectionPoints(nPoints)
+        q = RewardUtil.getAllPoints(leftPoints, rightPoints)
+        score = 0
+        for i in range(len(p)):
+            score += frdist(p[i], q[i])
+      
+        score = score / len(p)
+        return score
+    
+    @staticmethod
+    def getAllPoints(leftPoints, rightPoints):
+        return np.concatenate((leftPoints, rightPoints), axis = 0)
