@@ -1,6 +1,5 @@
 from operator import ipow
 from os import close
-from typing_extensions import Literal
 from junctionart.roundabout.Generator import Generator
 from junctionart.junctions.IncidentPoint import IncidentPoint  # have to to fix
 from junctionart.junctions.JunctionBuilder import JunctionBuilder
